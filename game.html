@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>게임마당 — 시니어 봄날마당</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- =============================================
+  game.html — 게임마당 탭
+  index.html에서 fetch()로 로드되는 독립 파일
+  의존: style.css (공유), showToast() (index.html에서 공급)
+  작성: 2026-06-09 / 3세션
+============================================= -->
+
+<div id="game-home">
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title">🎯 시니어 게임마당</div>
+    <p style="font-size:14px;color:var(--text-sub);margin-bottom:16px;line-height:1.7;">잠깐씩 즐기는 건강한 두뇌운동!<br>건강에 좋은 퀴즈로 뇌도 깨우고 즐거움도 채워요!</p>
+    <div class="game-list">
+      <div class="game-item" onclick="startQuiz('history')">
+        <span class="game-icon">📜</span>
+        <div class="game-info">
+          <h3>역사 상식 퀴즈</h3>
+          <p>우리나라 역사 재미있게 복습!<br>알쏭달쏭 역사 퀴즈 도전해봐요</p>
+        </div>
+        <span class="game-go">→</span>
+      </div>
+      <div class="game-item" onclick="startQuiz('health')">
+        <span class="game-icon">💊</span>
+        <div class="game-info">
+          <h3>건강 상식 퀴즈</h3>
+          <p>혈압이 뭔지 알아요, 건강 상식<br>알면 도움이 되는 건강 정보 퀴즈</p>
+        </div>
+        <span class="game-go">→</span>
+      </div>
+      <div class="game-item" onclick="startQuiz('proverb')">
+        <span class="game-icon">📖</span>
+        <div class="game-info">
+          <h3>속담·사자성어 퀴즈</h3>
+          <p>옛날 옛적 우리 어른들 속담<br>재밌고 유익한 우리말 문제!</p>
+        </div>
+        <span class="game-go">→</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="quiz-play" style="display:none;">
+  <div class="card">
+    <div class="quiz-progress" id="quiz-progress">1 / 5</div>
+    <div class="quiz-bar-bg"><div class="quiz-bar-fill" id="quiz-bar" style="width:20%"></div></div>
+    <div class="quiz-question" id="quiz-question">퀴즈를 불러오고 있습니다</div>
+    <div class="quiz-options" id="quiz-options"></div>
+  </div>
+</div>
+
+<div id="quiz-result" style="display:none;">
+  <div class="card">
+    <div class="quiz-result-box">
+      <span class="quiz-result-emoji" id="quiz-result-emoji">🎉</span>
+      <div class="quiz-result-score"><span id="quiz-score">0</span><span>/5문제</span></div>
+      <div class="quiz-result-msg" id="quiz-result-msg">결과를 확인해보세요!</div>
+    </div>
+    <button class="btn-main" onclick="retryQuiz()">🔄 같은 퀴즈 다시 풀기</button>
+    <button class="btn-outline" onclick="goGameHome()">← 게임 목록으로</button>
+  </div>
+</div>
+
+<script>
+// =============================================
+// game.html 전용 JavaScript
+// =============================================
+
+function _toast(msg) {
+  if (typeof window.showToast === 'function') {
+    window.showToast(msg);
+  } else {
+    console.log('[토스트]', msg);
+  }
+}
+
+var quizData = {
+  history: [
+    { q: '한국에서 처음으로 올림픽을 개최한 도시는 어디일까요?', opts: ['부산','서울','대전','인천'], ans: 1 },
+    { q: '3·1운동이 일어난 해는 언제일까요?', opts: ['1910년','1919년','1945년','1950년'], ans: 1 },
+    { q: '한글을 창제하신 임금님은 누구일까요?', opts: ['태종','세종대왕','광개토대왕','이성계'], ans: 1 },
+    { q: '우리나라 초대 대통령은 누구일까요?', opts: ['박정희','이승만','윤보선','전두환'], ans: 1 },
+    { q: '6·25 전쟁이 시작된 해는 언제일까요?', opts: ['1945년','1948년','1950년','1953년'], ans: 2 }
+  ],
+  health: [
+    { q: '하루에 몇 잔의 물을 마시는 것이 건강에 좋을까요?', opts: ['하루 1잔','하루 3잔','하루 8잔 이상','10잔 이상'], ans: 2 },
+    { q: '걷기 운동을 하루에 몇 분 이상 해야 건강에 도움이 될까요?', opts: ['1분','2분','30분 이상','10분 이상'], ans: 2 },
+    { q: '혈당을 관리하는 데 도움이 되는 것은 무엇일까요?', opts: ['규칙적인 식사','단 음식 많이 먹기','누워만 있기','염분 많이 먹기'], ans: 0 },
+    { q: '칼슘이 많이 들어있어 뼈에 좋은 음식은 무엇일까요?', opts: ['TV 보기','우유·두부','누워서 쉬기','탄산음료'], ans: 1 },
+    { q: '혈압을 낮추는 데 도움이 되는 생활 습관은 무엇일까요?', opts: ['담배·술','짠 음식 많이 먹기','규칙적인 유산소 운동','스트레스 많이 받기'], ans: 2 }
+  ],
+  proverb: [
+    { q: '"공든 탑이 무너지랴 ___" 빈칸에 알맞은 말은?', opts: ['쌓는 게 어렵다','흔들릴 수 없다','공이 무너진다','쌓아도 된다'], ans: 1 },
+    { q: '"등잔 밑이 어둡다" 는 말의 뜻은?', opts: ['등잔이 어두워서 못 본다','가까운 곳에 있는 것을 오히려 잘 모른다','등잔이 밑에 있다','가까운 것이 멀어진다'], ans: 1 },
+    { q: '"가는 말이 ___ 오는 말이 곱다" 빈칸에 알맞은 말은?', opts: ['예쁘면','거칠면','고와야','빠르면'], ans: 2 },
+    { q: '"낮말은 ___ 듣고 밤말은 쥐가 듣는다" 빈칸에 알맞은 말은?', opts: ['하늘이','새가','산이','땅이'], ans: 1 },
+    { q: '"구슬이 서 말이라도 ___ 해야 보배다" 빈칸에 알맞은 말은?', opts: ['모아야','꿰어야','쌓아야','찾아야'], ans: 1 }
+  ]
+};
+
+var curQuiz = null, curQ = 0, curScore = 0, answered = false;
+
+function startQuiz(type) {
+  curQuiz = quizData[type];
+  curQ = 0; curScore = 0; answered = false;
+  document.getElementById('game-home').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-play').style.display = 'block';
+  showQuestion();
+}
+
+function showQuestion() {
+  if (!curQuiz || curQ >= curQuiz.length) { showQuizResult(); return; }
+  answered = false;
+  var q = curQuiz[curQ];
+  document.getElementById('quiz-progress').textContent = (curQ + 1) + ' / ' + curQuiz.length;
+  document.getElementById('quiz-bar').style.width = ((curQ + 1) / curQuiz.length * 100) + '%';
+  document.getElementById('quiz-question').textContent = q.q;
+  var opts = '';
+  q.opts.forEach(function(o, i) {
+    opts += '<button class="quiz-option" onclick="answerQuiz(' + i + ')">' + (i + 1) + '. ' + o + '</button>';
+  });
+  document.getElementById('quiz-options').innerHTML = opts;
+}
+
+function answerQuiz(idx) {
+  if (answered) return;
+  answered = true;
+  var q = curQuiz[curQ];
+  var btns = document.querySelectorAll('.quiz-option');
+  btns[idx].classList.add(idx === q.ans ? 'correct' : 'wrong');
+  if (idx === q.ans) {
+    curScore++;
+    btns[idx].textContent += ' ✓ 정답!';
+  } else {
+    btns[q.ans].classList.add('correct');
+    btns[q.ans].textContent += ' ← 정답';
+  }
+  setTimeout(function() { curQ++; showQuestion(); }, 1400);
+}
+
+function showQuizResult() {
+  document.getElementById('quiz-play').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'block';
+  var emoji = curScore >= 5 ? '🏆' : curScore >= 3 ? '🎉' : '😅';
+  var msg = curScore >= 5 ? '완벽해요! 두뇌가 팔팔하세요!' :
+            curScore >= 3 ? '잘하셨어요! 조금만 더 공부해봐요!' : '아이쿠, 다시 한번 도전해봐요!';
+  document.getElementById('quiz-result-emoji').textContent = emoji;
+  document.getElementById('quiz-score').textContent = curScore;
+  document.getElementById('quiz-result-msg').textContent = msg;
+}
+
+function retryQuiz() {
+  curQ = 0; curScore = 0; answered = false;
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-play').style.display = 'block';
+  showQuestion();
+}
+
+function goGameHome() {
+  document.getElementById('quiz-play').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('game-home').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
