@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>복지탭 — 시니어 봄날마당</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============================================
+     복지 탭 (benefit.html)
+     index.html이 fetch()로 이 파일을 불러와서
+     #tab-benefit 안에 innerHTML로 삽입합니다
+     ============================================ -->
+
+<!-- 기초연금 계산기 카드 -->
+<div class="card">
+  <div class="card-title">🧮 내가 받을 수 있는 혜택은?</div>
+  <div class="calc-label">나이</div>
+  <select class="calc-select" id="calc-age">
+    <option value="">나이를 선택해 주세요</option>
+    <option value="60">60세</option><option value="61">61세</option><option value="62">62세</option>
+    <option value="63">63세</option><option value="64">64세</option><option value="65">65세</option>
+    <option value="66">66세</option><option value="67">67세</option><option value="68">68세</option>
+    <option value="69">69세</option><option value="70">70세 이상</option>
+  </select>
+  <div class="calc-label">월 소득 (세금 빼고 실제 받는 금액)</div>
+  <input class="calc-input" type="number" id="calc-income" placeholder="예: 500000 (오십만 원)" min="0">
+  <div class="calc-label">국민연금 수령 여부</div>
+  <select class="calc-select" id="calc-pension">
+    <option value="">해당 여부를 선택해 주세요</option>
+    <option value="y">연금 수령 중</option>
+    <option value="n">연금 미수령</option>
+  </select>
+  <button class="btn-main" onclick="calcSupport()">💰 내가 받을 수 있는 지원금 확인하기</button>
+  <div class="calc-result-box" id="calc-result">
+    <div class="calc-result-label">이번 달 예상 지원금 총액</div>
+    <div class="calc-result-amount" id="calc-amount">월 0원</div>
+    <div class="calc-result-desc" id="calc-desc">구체적인 안내를 확인해 주세요</div>
+  </div>
+</div>
+
+<!-- 노인일자리 임금 계산기 카드 -->
+<div class="card">
+  <div class="card-title">💼 노인일자리 월급 계산기</div>
+  <div class="calc-label">일자리 종류</div>
+  <select class="calc-select" id="job-type">
+    <option value="">일자리 종류를 선택해 주세요</option>
+    <option value="public">공익활동형 (만 65세 이상)</option>
+    <option value="social">사회서비스형 (만 65~78세)</option>
+    <option value="market">시장형 (취업 희망 어르신)</option>
+  </select>
+  <div class="calc-label">주당 근무 시간</div>
+  <input class="calc-input" type="number" id="job-hours" placeholder="예: 15 (주당 3일, 주5시간)" min="1" max="40">
+  <button class="btn-main orange" onclick="calcJobWage()">📊 이번 달 예상 월급 계산하기</button>
+  <div class="calc-result-box" id="job-result">
+    <div class="calc-result-label">이번 달 예상 월급</div>
+    <div class="calc-result-amount" id="job-amount">월 0원</div>
+    <div class="calc-result-desc" id="job-desc">구체적인 안내를 확인해 주세요</div>
+  </div>
+</div>
+
+<!-- 노인일자리 공고 카드 -->
+<div class="card">
+  <div class="card-title">📋 시니어 채용 공고 모음</div>
+  <div class="job-card">
+    <div class="job-card-top"><span class="job-title">어르신 돌봄 도우미 (노인요양원 보조)</span><span class="job-badge">공익활동형</span></div>
+    <p class="job-info">📍 복지관 근처 | ⏰ 주 3일, 하루 3시간 | 💰 만 65세 이상</p>
+    <a class="job-link" href="https://www.work.go.kr" target="_blank">바로 지원하기 →</a>
+  </div>
+  <div class="job-card">
+    <div class="job-card-top"><span class="job-title">어린이집 급식 보조 및 청소 도우미 (요양비)</span><span class="job-badge">공익활동형</span></div>
+    <p class="job-info">📍 요양비 제공 | ⏰ 주 5일, 하루 9~12시간 | 💰 만 65세 이상</p>
+    <a class="job-link" href="https://www.work.go.kr" target="_blank">바로 지원하기 →</a>
+  </div>
+  <div class="job-card">
+    <div class="job-card-top"><span class="job-title">노인복지관 청소 도우미 (자원봉사 연계)</span><span class="job-badge">사회서비스형</span></div>
+    <p class="job-info">📍 요양비 제공 | ⏰ 주 5일 | 💰 만 65~78세</p>
+    <a class="job-link" href="https://www.work.go.kr" target="_blank">바로 지원하기 →</a>
+  </div>
+  <a class="btn-main" style="display:block;text-align:center;text-decoration:none;padding:16px;border-radius:14px;font-size:17px;font-weight:900;color:#fff;background:var(--main);" href="https://www.work.go.kr" target="_blank">📌 워크넷에서 전체 채용 공고 보기</a>
+</div>
+
+<!-- 쿠팡파트너스 상품 추천 카드 -->
+<div class="card">
+  <div class="card-title">🛒 시니어 추천 생활용품 모음</div>
+  <div class="coupon-items">
+    <a class="coupon-item" href="https://link.coupang.com/a/epr8R7ZQWC" target="_blank">
+      <span class="coupon-icon">🏡</span>
+      <div class="coupon-text"><strong>노인분들 생활 도우미 제품 (지팡이·보행기+욕실안전손잡이)</strong><span>실내외 이동 안전, 넘어짐 예방 대표 제품</span></div>
+      <span class="coupon-arrow">→</span>
+    </a>
+    <a class="coupon-item" href="https://link.coupang.com/a/eprIwyvJAq" target="_blank">
+      <span class="coupon-icon">📱</span>
+      <div class="coupon-text"><strong>시니어 전용 교육용 스마트폰 가이드북</strong><span>큰 글씨 안내서, 가족이 함께 읽는 추천 도서</span></div>
+      <span class="coupon-arrow">→</span>
+    </a>
+    <a class="coupon-item" href="https://link.coupang.com/a/epro9WKk4i" target="_blank">
+      <span class="coupon-icon">🧘</span>
+      <div class="coupon-text"><strong>2026년 어르신 건강 체조 안내 운동 키트</strong><span>집에서도 쉽게, 무릎 보호 운동 도구 모음</span></div>
+      <span class="coupon-arrow">→</span>
+    </a>
+  </div>
+  <p class="coupon-notice">이 링크로 구매하면 수익의 일부가 봄날마당 운영에 사용됩니다. 가격 차이는 없습니다.</p>
+</div>
+
+<script>
+function showToast(msg){
+  var t=document.getElementById('toast-msg');
+  if(!t){t=document.createElement('div');t.id='toast-msg';t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:700;z-index:9999;text-align:center;max-width:85%;line-height:1.6;word-break:keep-all;';document.body.appendChild(t);}
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display='none';},3500);
+}
+function calcSupport(){
+  var age=parseInt(document.getElementById('calc-age').value);
+  var income=parseInt(document.getElementById('calc-income').value)||0;
+  var pension=document.getElementById('calc-pension').value;
+  if(!age||!pension){showToast('나이, 연금 수령 여부를 모두 선택해 주세요!');return;}
+  var amount=0,desc='';
+  if(age>=65){
+    if(income<2000000){amount+=334000;}else if(income<3000000){amount+=200000;}
+    desc+='✅ 기초연금: 올해 기준 최대 334,000원\n';
+  }
+  if(age>=60&&income<1500000){amount+=300000;desc+='✅ 노인일자리: 공익활동형 월 270,000원\n';}
+  if(pension==='n'&&age>=60){desc+='✅ 국민연금 임의가입 검토 필요\n';}
+  desc+='\n※ 실제 수령 금액은 개인마다, 지역마다 다를 수 있어요\n지금 바로 복지로에서 정확하게 확인해 주세요!';
+  document.getElementById('calc-amount').textContent='월 '+amount.toLocaleString()+'원';
+  document.getElementById('calc-desc').textContent=desc;
+  document.getElementById('calc-result').classList.add('show');
+}
+function calcJobWage(){
+  var type=document.getElementById('job-type').value;
+  var hours=parseInt(document.getElementById('job-hours').value)||0;
+  if(!type){showToast('일자리 종류를 먼저 선택해 주세요!');return;}
+  var amount=0,desc='';
+  if(type==='public'){
+    amount=270000;desc='공익활동형은 주 30시간 기준 월 270,000원 고정이에요\n복지관·어린이집 등에 배치됩니다';
+  }else if(type==='social'){
+    var wage=Math.min(hours,40)*9860;
+    amount=Math.max(590000,Math.min(wage,780000));
+    desc='사회서비스형은 시급 9,860원 (2026년 최저임금)\n주당 '+hours+'시간 기준 예상 월급이에요';
+  }else{
+    amount=0;desc='시장형은 개인 역량에 따라 달라요\n시니어봄날마당 채용공고에서 관심 직종을 찾아보세요!';
+  }
+  document.getElementById('job-amount').textContent=amount>0?'월 '+amount.toLocaleString()+'원':'개인별 협의';
+  document.getElementById('job-desc').textContent=desc;
+  document.getElementById('job-result').classList.add('show');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>건강탭 — 시니어 봄날마당</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============================================
+     건강 탭 (health.html)
+     index.html이 fetch()로 이 파일을 불러와서
+     #tab-health 안에 innerHTML로 삽입합니다
+     ============================================ -->
+
+<!-- 만보기 스탬프 카드 -->
+<div class="card" style="text-align:center;">
+  <div class="card-title" style="justify-content:center;">🌺 오늘의 만보기</div>
+  <div class="step-circle" id="step-circle" onclick="doStamp()"><span id="step-icon">🌿</span></div>
+  <div class="step-label" id="step-label">오늘도 걷기 목표를 달성해 봐요!</div>
+  <div class="step-sub" id="step-sub">걷기 목표 달성 후 아래에서 걸음수를 입력해 주세요! (100걸음 이상)</div>
+</div>
+
+<!-- 걸음수 입력 카드 -->
+<div class="card">
+  <div class="card-title">👟 오늘의 걸음수</div>
+  <div class="step-input-row">
+    <input class="step-input" type="number" id="step-input" placeholder="오늘 걸음수" min="0" max="99999">
+    <button class="step-apply" onclick="applySteps()">달성!</button>
+  </div>
+  <div class="quick-steps">
+    <button class="quick-step-btn" onclick="addQuick(100)">+100</button>
+    <button class="quick-step-btn" onclick="addQuick(1000)">+1,000</button>
+    <button class="quick-step-btn" onclick="addQuick(3000)">+3,000</button>
+    <button class="quick-step-btn" onclick="addQuick(5000)">+5,000</button>
+  </div>
+</div>
+
+<!-- 연속 달성 스트릭 카드 -->
+<div class="streak-card">
+  <div class="streak-flame" id="streak-flame">💪</div>
+  <div>
+    <div class="streak-count"><span id="streak-count">0</span><span>일 째 걷기</span></div>
+    <div class="streak-label">오늘도 걷기 달성하면 기록이!</div>
+    <div class="streak-best" id="streak-best">최고 기록: 0일</div>
+  </div>
+</div>
+
+<!-- 달력 카드 -->
+<div class="cal-card">
+  <div class="cal-header">
+    <span class="cal-title-text" id="cal-title">📅 이번 달 달성 기록</span>
+    <span class="cal-summary" id="cal-summary">0일 달성</span>
+  </div>
+  <div class="cal-grid" id="cal-grid"></div>
+</div>
+
+<!-- 리워드 트랙 카드 -->
+<div class="card">
+  <div class="card-title">🎁 달성 보상 로드맵</div>
+  <div class="reward-track" id="reward-track"></div>
+  <div style="font-size:13px;color:var(--text-sub);margin-top:10px;text-align:center;" id="reward-desc">달성하면 기록이 쌓입니다!</div>
+</div>
+
+<!-- 미션 목록 카드 -->
+<div class="card" style="background:#FFF8F0;">
+  <div class="card-title">✅ 오늘의 건강 미션</div>
+  <div class="mission-list" id="mission-list"></div>
+</div>
+
+<!-- 포인트 카드 -->
+<div class="point-card">
+  <div style="font-size:36px;">🌱</div>
+  <div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.8);margin-bottom:4px;">이번 달 모은 포인트</div>
+    <div class="point-value"><span id="total-point">0</span><span>P</span></div>
+    <div class="point-sub">달성 10P + 미션 달성 5P씩 획득</div>
+  </div>
+</div>
+
+<!-- 약 알람 설정 카드 -->
+<div class="card">
+  <div class="card-title">⏰ 내 복약 시간 설정</div>
+  <p style="font-size:14px;color:var(--text-sub);margin-bottom:14px;line-height:1.7;">내 복약 시간을 설정하면 알림을 보내드려요<br>(브라우저 알림 허용 후 더 편리하게 사용 가능)</p>
+  <div class="alarm-grid">
+    <div class="alarm-item" id="alarm-morning">
+      <div class="alarm-icon">🌅</div>
+      <div class="alarm-name">아침 복약</div>
+      <input class="alarm-time-input" type="time" id="alarm-morning-time" value="08:00">
+      <input class="alarm-name-input" type="text" id="alarm-morning-name" placeholder="약 이름 (예: 혈압약)">
+      <button class="alarm-save-btn" onclick="saveAlarm('morning')">저장</button>
+    </div>
+    <div class="alarm-item" id="alarm-noon">
+      <div class="alarm-icon">☀️</div>
+      <div class="alarm-name">점심 복약</div>
+      <input class="alarm-time-input" type="time" id="alarm-noon-time" value="12:00">
+      <input class="alarm-name-input" type="text" id="alarm-noon-name" placeholder="약 이름 (예: 당뇨약)">
+      <button class="alarm-save-btn" onclick="saveAlarm('noon')">저장</button>
+    </div>
+    <div class="alarm-item" id="alarm-evening">
+      <div class="alarm-icon">🌆</div>
+      <div class="alarm-name">저녁 복약</div>
+      <input class="alarm-time-input" type="time" id="alarm-evening-time" value="18:00">
+      <input class="alarm-name-input" type="text" id="alarm-evening-name" placeholder="약 이름 (예: 혈당약)">
+      <button class="alarm-save-btn" onclick="saveAlarm('evening')">저장</button>
+    </div>
+    <div class="alarm-item" id="alarm-night">
+      <div class="alarm-icon">🌙</div>
+      <div class="alarm-name">취침 복약</div>
+      <input class="alarm-time-input" type="time" id="alarm-night-time" value="21:00">
+      <input class="alarm-name-input" type="text" id="alarm-night-name" placeholder="약 이름 (예: 수면약)">
+      <button class="alarm-save-btn" onclick="saveAlarm('night')">저장</button>
+    </div>
+  </div>
+</div>
+
+<button class="btn-kakao" onclick="shareKakao()">📲 카카오로 봄날마당 오늘 걸음수 인증하기</button>
+
+<script>
+function getTodayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+function getYesterKey(){var d=new Date();d.setDate(d.getDate()-1);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
+var TODAY=getTodayKey(), YESTER=getYesterKey();
+var REC_KEY='bomnal-attend', STREAK_KEY='bomnal-streak', BEST_KEY='bomnal-best';
+var MISS_KEY='bomnal-missions-'+TODAY;
+var POINT_KEY='bomnal-point-'+new Date().getFullYear()+'-'+(new Date().getMonth()+1);
+var record={}, streak=0, bestStreak=0;
+var todaySteps=0, todayStamped=false;
+var missionDone={}, monthPoint=0;
+var MISSIONS=[
+  {id:'m1',title:'오늘 100걷기 달성하기',desc:'걷기 목표 달성하면 도장을 찍어요!',point:5},
+  {id:'m2',title:'오늘 6시간 이상 충분히 취침',desc:'충분한 숙면 후에 달성 체크해 주세요',point:5},
+  {id:'m3',title:'물 8컵 이상 마시기',desc:'건강의 기본! 수분 보충을 챙기세요',point:5},
+  {id:'m4',title:'긍정적인 말 1가지 이상하기',desc:'커뮤니티에 따뜻한 한 마디를 나눠 주세요!',point:5}
+];
+var REWARDS=[
+  {day:3,emoji:'🌱',label:'새싹'},
+  {day:7,emoji:'⭐',label:'별'},
+  {day:14,emoji:'🌟',label:'빛나는별'},
+  {day:21,emoji:'🌿',label:'나무'},
+  {day:30,emoji:'🏆',label:'챔피언'}
+];
+function loadHealth(){
+  var r=localStorage.getItem(REC_KEY);record=r?JSON.parse(r):{};
+  streak=parseInt(localStorage.getItem(STREAK_KEY))||0;
+  bestStreak=parseInt(localStorage.getItem(BEST_KEY))||0;
+  todaySteps=record[TODAY]||0;todayStamped=todaySteps>=100;
+  var ms=localStorage.getItem(MISS_KEY);missionDone=ms?JSON.parse(ms):{};
+  monthPoint=parseInt(localStorage.getItem(POINT_KEY))||0;
+}
+function saveHealth(){
+  record[TODAY]=todaySteps;
+  localStorage.setItem(REC_KEY,JSON.stringify(record));
+  localStorage.setItem(STREAK_KEY,streak);
+  localStorage.setItem(BEST_KEY,bestStreak);
+  localStorage.setItem(MISS_KEY,JSON.stringify(missionDone));
+  localStorage.setItem(POINT_KEY,monthPoint);
+}
+function renderHealth(){renderStampUI();renderStreak();renderCal();renderRewards();renderMissions();renderPoint();}
+function applySteps(){
+  var val=parseInt(document.getElementById('step-input').value)||0;
+  todaySteps=Math.max(0,Math.min(99999,val));
+  document.getElementById('step-input').value='';
+  afterStepUpdate();
+}
+function addQuick(n){todaySteps=Math.min(99999,todaySteps+n);afterStepUpdate();}
+function afterStepUpdate(){if(todaySteps>=100&&!todayStamped){doStamp();}else{saveHealth();renderHealth();}}
+function doStamp(){
+  if(todayStamped){showToast('오늘은 이미 달성했어요! 내일도 기대할게요 😊');return;}
+  if(todaySteps<100){showToast('걷기 100걸음 이상 달성 후 눌러 주세요!');return;}
+  todayStamped=true;
+  if(record[YESTER]&&record[YESTER]>=100){streak++;}else{streak=1;}
+  if(streak>bestStreak)bestStreak=streak;
+  monthPoint+=10;saveHealth();renderHealth();
+  showPopup('🎉',streak+'일 째 걷기 달성!','오늘도 잘 하셨어요! +10P 획득\n'+streak+'일 연속 걷기 달성 중!');
+  launchConfetti();
+}
+function renderStampUI(){
+  var circle=document.getElementById('step-circle');
+  var icon=document.getElementById('step-icon');
+  var label=document.getElementById('step-label');
+  var sub=document.getElementById('step-sub');
+  if(todayStamped){
+    circle.classList.add('stamped');icon.textContent='✅';
+    label.textContent='오늘 달성! '+todaySteps.toLocaleString()+'걸음';
+    label.classList.add('done');sub.textContent='오늘도 건강하게 잘 하셨어요 🌟';
+  }else{
+    circle.classList.remove('stamped');icon.textContent='🌿';
+    label.textContent='오늘도 걷기 목표를 달성해 봐요!';
+    label.classList.remove('done');sub.textContent='걷기 목표 달성 후 아래에서 걸음수를 입력해 주세요! (100걸음 이상)';
+  }
+}
+function renderStreak(){
+  document.getElementById('streak-count').textContent=streak;
+  document.getElementById('streak-best').textContent='최고 기록: '+bestStreak+'일';
+  var f=document.getElementById('streak-flame');
+  f.textContent=streak>=30?'🏆':streak>=14?'🌟':streak>=7?'⭐':streak>=3?'🔥':'💪';
+}
+function renderCal(){
+  var d=new Date(),year=d.getFullYear(),month=d.getMonth(),today=d.getDate();
+  var firstDay=new Date(year,month,1).getDay();
+  var lastDate=new Date(year,month+1,0).getDate();
+  document.getElementById('cal-title').textContent=(month+1)+'월 이번 달 달성 기록';
+  var attended=0,grid=document.getElementById('cal-grid');
+  grid.innerHTML='';
+  ['일','월','화','수','목','금','토'].forEach(function(n,i){
+    var h=document.createElement('div');
+    h.className='cal-head'+(i===0?' sun':i===6?' sat':'');
+    h.textContent=n;grid.appendChild(h);
+  });
+  for(var e=0;e<firstDay;e++){var em=document.createElement('div');em.className='cal-cell';grid.appendChild(em);}
+  for(var date=1;date<=lastDate;date++){
+    var key=year+'-'+(month+1)+'-'+date;
+    var dow=(firstDay+date-1)%7;
+    var att=record[key]&&record[key]>=100;
+    if(att)attended++;
+    var cell=document.createElement('div');
+    var cls='cal-cell';
+    if(att)cls+=' attended';if(date===today)cls+=' today';
+    if(dow===0)cls+=' sun-c';if(dow===6)cls+=' sat-c';
+    cell.className=cls;cell.textContent=date;grid.appendChild(cell);
+  }
+  document.getElementById('cal-summary').textContent=attended+'일 달성';
+}
+function renderRewards(){
+  var track=document.getElementById('reward-track');track.innerHTML='';
+  var totalAtt=Object.keys(record).filter(function(k){return record[k]>=100;}).length;
+  REWARDS.forEach(function(r,i){
+    var reached=totalAtt>=r.day;
+    var isCur=!reached&&(i===0||totalAtt>=REWARDS[i-1].day);
+    var node=document.createElement('div');
+    node.className='reward-node'+(reached?' reached':'')+(isCur?' current':'');
+    node.innerHTML='<div class="reward-dot">'+r.emoji+'</div><div class="reward-day">'+r.day+'일</div>';
+    track.appendChild(node);
+  });
+  var next=REWARDS.find(function(r){return totalAtt<r.day;});
+  document.getElementById('reward-desc').textContent=
+    next?'다음 목표 '+next.emoji+' '+next.label+' 까지 '+(next.day-totalAtt)+'일 남았어요!':'🏆 모든 보상 달성! 대단하세요!';
+}
+function renderMissions(){
+  var list=document.getElementById('mission-list');list.innerHTML='';
+  MISSIONS.forEach(function(m){
+    var done=missionDone[m.id];
+    var item=document.createElement('div');
+    item.className='mission-item'+(done?' done':'');
+    item.onclick=function(){toggleMission(m.id,m.point);};
+    item.innerHTML='<div class="mission-check">'+(done?'✅':'')+'</div>'+
+      '<div class="mission-body"><h4>'+m.title+'</h4><p>'+m.desc+'</p></div>'+
+      '<div class="mission-point">'+(done?'✅':'+'+m.point+'P')+'</div>';
+    list.appendChild(item);
+  });
+}
+function renderPoint(){document.getElementById('total-point').textContent=monthPoint.toLocaleString();}
+function toggleMission(id,point){
+  if(missionDone[id]){missionDone[id]=false;monthPoint=Math.max(0,monthPoint-point);}
+  else{missionDone[id]=true;monthPoint+=point;}
+  saveHealth();renderMissions();renderPoint();
+}
+function saveAlarm(type){
+  var t=document.getElementById('alarm-'+type+'-time').value;
+  var n=document.getElementById('alarm-'+type+'-name').value||'복약';
+  localStorage.setItem('alarm-'+type,JSON.stringify({time:t,name:n}));
+  document.getElementById('alarm-'+type).classList.add('set');
+  if(Notification.permission==='default'){
+    Notification.requestPermission().then(function(p){
+      if(p==='granted')showToast('✅ '+n+' 알람 저장! '+t+'에 알림을 받으세요 👍');
+      else showToast('알림 권한 없이도 저장됩니다');
+    });
+  }else{showToast('✅ '+n+' 알람 저장! '+t+'에 복약 알림을 드릴게요 💊');}
+  scheduleAlarm(type,t,n);
+}
+function scheduleAlarm(type,timeStr,name){
+  var parts=timeStr.split(':');
+  var now=new Date();
+  var target=new Date(now.getFullYear(),now.getMonth(),now.getDate(),parseInt(parts[0]),parseInt(parts[1]),0);
+  if(target<=now)target.setDate(target.getDate()+1);
+  var delay=target-now;
+  setTimeout(function(){
+    if(Notification.permission==='granted'){
+      new Notification('⏰ '+name+' 복약 시간!',{body:'봄날마당에서 알려드려요. '+name+' 드실 시간입니다! 💊',icon:'🌸'});
+    }
+  },delay);
+}
+function loadAlarms(){
+  ['morning','noon','evening','night'].forEach(function(type){
+    var saved=localStorage.getItem('alarm-'+type);
+    if(saved){
+      var data=JSON.parse(saved);
+      document.getElementById('alarm-'+type+'-time').value=data.time;
+      document.getElementById('alarm-'+type+'-name').value=data.name;
+      document.getElementById('alarm-'+type).classList.add('set');
+      scheduleAlarm(type,data.time,data.name);
+    }
+  });
+}
+function showToast(msg){
+  var t=document.getElementById('toast-msg');
+  if(!t){t=document.createElement('div');t.id='toast-msg';t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:700;z-index:9999;text-align:center;max-width:85%;line-height:1.6;word-break:keep-all;';document.body.appendChild(t);}
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display='none';},3000);
+}
+function showPopup(emoji,title,msg){
+  var ov=document.getElementById('popup-overlay');
+  if(ov){document.getElementById('popup-emoji').textContent=emoji;document.getElementById('popup-title').textContent=title;document.getElementById('popup-msg').textContent=msg;ov.classList.add('show');}
+}
+function launchConfetti(){
+  var wrap=document.getElementById('confetti-wrap');if(!wrap)return;
+  wrap.innerHTML='';
+  var colors=['#FF6F00','#FDD835','#2E7D32','#1565C0','#AD1457','#00838F'];
+  for(var i=0;i<40;i++){
+    var p=document.createElement('div');p.className='confetti-piece';
+    p.style.left=Math.random()*100+'vw';
+    p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration=(1.5+Math.random()*2)+'s';
+    p.style.animationDelay=Math.random()*0.6+'s';
+    var sz=(8+Math.random()*8)+'px';p.style.width=sz;p.style.height=sz;
+    wrap.appendChild(p);
+  }
+  setTimeout(function(){wrap.innerHTML='';},4000);
+}
+function shareKakao(){
+  var text='[시니어 봄날마당] 🌸\n오늘 걷기 '+todaySteps.toLocaleString()+'걸음 달성!\n'+streak+'일 연속 기록 중 💪\nhttps://bomnal-madang.com';
+  if(navigator.share){navigator.share({title:'시니어 봄날마당',text:text});}
+  else{navigator.clipboard.writeText(text).then(function(){showToast('✅ 클립보드에 복사! 카카오톡에 붙여넣기 하세요 📲');});}
+}
+(function initHealth(){loadHealth();renderHealth();loadAlarms();})();
+</script>
+</body>
+</html>

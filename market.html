@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>꿀팁마켓</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   꿀팁마켓 탭 전용 스타일
+   style.css의 공통 변수를 그대로 상속받아 사용
+   ============================================= */
+
+/* 카테고리 탭 버튼 행 */
+.market-cat-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.market-cat-row::-webkit-scrollbar { display: none; }
+
+/* 카테고리 버튼 하나 */
+.market-cat-btn {
+  flex-shrink: 0;
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: all 0.18s;
+  -webkit-tap-highlight-color: transparent;
+  font-family: 'Nanum Gothic', sans-serif;
+}
+.market-cat-btn.active {
+  background: var(--main);
+  border-color: var(--main);
+  color: #fff;
+}
+.market-cat-btn:active { transform: scale(0.95); }
+
+/* 오늘의 추천 배너 */
+.market-banner {
+  background: linear-gradient(135deg, #FF6F00, #FF8F00);
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: #fff;
+}
+.market-banner-icon { font-size: 38px; flex-shrink: 0; }
+.market-banner-title {
+  font-size: 17px;
+  font-weight: 900;
+  margin-bottom: 3px;
+}
+.market-banner-sub {
+  font-size: 13px;
+  opacity: 0.88;
+  line-height: 1.5;
+}
+
+/* 상품 카드 */
+.product-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.product-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 18px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1.5px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: background 0.18s;
+  -webkit-tap-highlight-color: transparent;
+}
+.product-card:active { background: var(--bg); }
+
+/* 상품 이모지 영역 */
+.product-emoji-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  flex-shrink: 0;
+}
+.product-emoji-box.health  { background: #E8F5E9; }
+.product-emoji-box.life    { background: #E3F2FD; }
+.product-emoji-box.sport   { background: #FFF3E0; }
+
+/* 상품 텍스트 */
+.product-info { flex: 1; }
+.product-badge {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 8px;
+  margin-bottom: 5px;
+}
+.product-badge.hot   { background: #FFEBEE; color: #E53935; }
+.product-badge.best  { background: #E8F5E9; color: #2E7D32; }
+.product-badge.new   { background: #E3F2FD; color: #1565C0; }
+
+.product-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+.product-desc {
+  font-size: 13px;
+  color: var(--text-sub);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.product-price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.product-price {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--point);
+}
+.product-discount {
+  font-size: 13px;
+  font-weight: 700;
+  color: #E53935;
+  background: #FFEBEE;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+.product-arrow {
+  font-size: 18px;
+  color: var(--main);
+  flex-shrink: 0;
+}
+
+/* 빈 상품 안내 */
+.product-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-sub);
+  font-size: 15px;
+  line-height: 1.8;
+}
+.product-empty span { font-size: 40px; display: block; margin-bottom: 10px; }
+
+/* 더보기 버튼 */
+.market-more-btn {
+  width: 100%;
+  background: #fff;
+  color: var(--main);
+  border: 2px solid var(--main);
+  border-radius: 14px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 10px;
+  -webkit-tap-highlight-color: transparent;
+  font-family: 'Nanum Gothic', sans-serif;
+}
+.market-more-btn:active { background: var(--bg); }
+
+/* 쿠팡 고지문 */
+.market-notice {
+  font-size: 13px;
+  color: #a0aec0;
+  text-align: center;
+  margin-top: 10px;
+  line-height: 1.7;
+  padding: 0 4px;
+}
+
+/* 인기 검색어 태그 */
+.market-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.market-tag {
+  background: #f0f7ff;
+  color: var(--main);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  border: none;
+  font-family: 'Nanum Gothic', sans-serif;
+}
+.market-tag:active { background: #dbeafe; }
+</style>
+</head>
+<body>
+
+<!-- =============================================
+     꿀팁마켓 탭 콘텐츠
+     index.html의 fetch()로 불러와서 #tab-market에 삽입됨
+     ============================================= -->
+
+<!-- 오늘의 추천 배너 -->
+<div class="market-banner">
+  <div class="market-banner-icon">🛒</div>
+  <div>
+    <div class="market-banner-title">오늘의 어르신 꿀팁 추천!</div>
+    <div class="market-banner-sub">건강하고 편리한 생활을 위한<br>시니어 맞춤 상품을 모았어요</div>
+  </div>
+</div>
+
+<!-- 인기 검색 태그 -->
+<div class="card" style="padding:16px 20px;">
+  <div class="card-title">🔥 인기 검색어</div>
+  <div class="market-tags">
+    <button class="market-tag" onclick="filterByTag('워킹화')">👟 워킹화</button>
+    <button class="market-tag" onclick="filterByTag('만보계')">🦶 만보계</button>
+    <button class="market-tag" onclick="filterByTag('글루코사민')">💊 글루코사민</button>
+    <button class="market-tag" onclick="filterByTag('혈압계')">🩺 혈압계</button>
+    <button class="market-tag" onclick="filterByTag('돋보기')">🔍 돋보기</button>
+    <button class="market-tag" onclick="filterByTag('안마기')">💆 안마기</button>
+  </div>
+</div>
+
+<!-- 카테고리 탭 -->
+<div class="market-cat-row">
+  <button class="market-cat-btn active" onclick="switchCat(this,'all')">🏪 전체</button>
+  <button class="market-cat-btn" onclick="switchCat(this,'health')">💊 건강식품</button>
+  <button class="market-cat-btn" onclick="switchCat(this,'life')">🏠 생활용품</button>
+  <button class="market-cat-btn" onclick="switchCat(this,'sport')">🚶 운동·산책</button>
+</div>
+
+<!-- 상품 목록 -->
+<div class="product-list" id="product-list"></div>
+
+<!-- 쿠팡 더보기 버튼 -->
+<button class="market-more-btn" onclick="goToCoupang()">
+  🛒 쿠팡에서 더 많은 상품 보기 →
+</button>
+
+<!-- 쿠팡 파트너스 필수 고지문 -->
+<p class="market-notice">
+  이 포스팅은 쿠팡 파트너스 활동의 일환으로,<br>
+  이에 따른 일정액의 수수료를 제공받습니다.<br>
+  상품 가격 및 정보는 변동될 수 있습니다.
+</p>
+
+<script>
+var PRODUCTS = [
+  {
+    id: 1,
+    cat: 'sport',
+    emoji: '👟',
+    emojiClass: 'sport',
+    badge: 'hot',
+    badgeText: '🔥 인기',
+    name: '시니어 워킹화 (60대)',
+    desc: '관절 부담 줄이는 쿠션 밑창\n미끄럼 방지 설계로 안전한 산책',
+    price: '39,900원~',
+    discount: '최대 30%',
+    link: 'https://link.coupang.com/a/caNPvT',
+    tags: ['워킹화']
+  },
+  {
+    id: 2,
+    cat: 'health',
+    emoji: '💊',
+    emojiClass: 'health',
+    badge: 'best',
+    badgeText: '✅ 베스트',
+    name: '글루코사민 (무릎·관절)',
+    desc: '관절 건강 1위 성분\n3개월 꾸준히 드시면 효과 좋아요',
+    price: '28,000원~',
+    discount: '최대 20%',
+    link: 'https://link.coupang.com/a/caNPvT',
+    tags: ['글루코사민']
+  },
+  {
+    id: 3,
+    cat: 'sport',
+    emoji: '🦶',
+    emojiClass: 'sport',
+    badge: 'hot',
+    badgeText: '🔥 인기',
+    name: '시니어 만보계 (손목형+보온)',
+    desc: '손목에 차는 간편한 만보계\n체온 유지 기능까지 한 번에',
+    price: '22,000원~',
+    discount: '최대 25%',
+    link: 'https://link.coupang.com/a/caNPvT',
+    tags: ['만보계']
+  },
+  {
+    id: 4,
+    cat: 'health',
+    emoji: '🩺',
+    emojiClass: 'health',
+    badge: 'best',
+    badgeText: '✅ 베스트',
+    name: '가정용 혈압계 (팔뚝형)',
+    desc: '집에서 간편하게 혈압 측정\n큰 글씨 화면으로 어르신 편리',
+    price: '35,000원~',
+    discount: '최대 15%',
+    link: 'https://link.coupang.com/a/caNPvT',
+    tags: ['혈압계']
+  },
+  {
+    id: 5,
+    cat: 'life',
+    emoji: '🔍',
+    emojiClass: 'life',
+    badge: 'new',
+    badgeText: '🆕 신상',
+    name: '돋보기 안경 (독서용)',
+    desc: '작은 글씨도 선명하게\n가볍고 튼튼한 프레임',
+    price: '12,000원~',
+    discount: '최대 10%',
+    link: 'https://link.coupang.com/a/caNPvT',
+    tags: ['돋보기']
+  },
+  {
+    id: 6,
+    cat: 'life',
+    emoji: '💆',
+    emojiClass: 'life',
+    badge: 'hot',
+    badgeText: '🔥 인기',
+    name: '목·어깨 안마기 (가정용)',
+    desc: '집에서 편하게 마사지\n혈액순환 개선에 도움',
+    price: '45,000원~',
+    discount: '최대 20%',
+    link: 'https://link.coupang.com/a/caNPvT',
+    tags: ['안마기']
+  }
+];
+
+var currentCat = 'all';
+var currentTag = null;
+
+function switchCat(el, cat) {
+  document.querySelectorAll('.market-cat-btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  el.classList.add('active');
+  currentCat = cat;
+  currentTag = null;
+  renderProducts();
+}
+
+function filterByTag(tag) {
+  currentTag = tag;
+  currentCat = 'all';
+  document.querySelectorAll('.market-cat-btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  document.querySelectorAll('.market-cat-btn')[0].classList.add('active');
+  renderProducts();
+}
+
+function renderProducts() {
+  var list = document.getElementById('product-list');
+  var filtered = PRODUCTS;
+
+  if (currentTag) {
+    filtered = PRODUCTS.filter(function(p) {
+      return p.tags.indexOf(currentTag) >= 0;
+    });
+  } else if (currentCat !== 'all') {
+    filtered = PRODUCTS.filter(function(p) {
+      return p.cat === currentCat;
+    });
+  }
+
+  if (filtered.length === 0) {
+    list.innerHTML =
+      '<div class="product-empty">' +
+        '<span>🔍</span>' +
+        '해당 상품이 준비 중입니다.<br>다른 카테고리를 눌러보세요!' +
+      '</div>';
+    return;
+  }
+
+  var html = '';
+  filtered.forEach(function(p) {
+    html +=
+      '<a class="product-card" href="' + p.link + '" target="_blank">' +
+        '<div class="product-emoji-box ' + p.emojiClass + '">' + p.emoji + '</div>' +
+        '<div class="product-info">' +
+          '<span class="product-badge ' + p.badge + '">' + p.badgeText + '</span>' +
+          '<div class="product-name">' + p.name + '</div>' +
+          '<div class="product-desc">' + p.desc.replace(/\n/g, '<br>') + '</div>' +
+          '<div class="product-price-row">' +
+            '<span class="product-price">' + p.price + '</span>' +
+            '<span class="product-discount">' + p.discount + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<span class="product-arrow">→</span>' +
+      '</a>';
+  });
+  list.innerHTML = html;
+}
+
+function goToCoupang() {
+  window.open('https://link.coupang.com/a/caNPvT', '_blank');
+}
+
+renderProducts();
+</script>
+</body>
+</html>

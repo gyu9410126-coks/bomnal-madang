@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>소통마당 — 시니어 봄날마당</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- =============================================
+  talk.html — 소통마당 탭
+  index.html에서 fetch()로 로드되는 독립 파일
+  의존: style.css (공유), showToast() (index.html에서 공급)
+  작성: 2026-06-09 / 3세션
+============================================= -->
+
+<div class="card">
+  <div class="card-title">💌 소통마당 게시판</div>
+  <p style="font-size:14px;color:var(--text-sub);margin-bottom:16px;line-height:1.7;">혼자서도 할 말이 많잖아요?<br>편한 마음으로 글 한줄 남겨봐요 😊</p>
+  <div class="board-write">
+    <div class="board-nickname-row">
+      <input class="board-nickname" type="text" id="board-nick" placeholder="닉네임 (예: 봄날의 나비 할머니)">
+    </div>
+    <textarea class="board-textarea" id="board-text" placeholder="요즘 어떻게 지내세요? 편한 마음으로 글 한줄 남겨봐요..."></textarea>
+    <button class="board-post" onclick="addPost()">✏️ 글 올리기</button>
+  </div>
+</div>
+
+<div class="post-list" id="post-list">
+  <div class="post-item">
+    <div class="post-header">
+      <span class="post-nick">🌸 봄날마당 할머니님</span>
+      <span class="post-date">06월 09일</span>
+    </div>
+    <div class="post-body">요즘 아침마다 만보기 들고 동네 한바퀴 돌고 있어요. 처음엔 힘들더니 이제 재미가 붙었나봐요. 오늘도 3,000걸음 채웠어요! 다들 건강하게 지내요 🌷</div>
+    <button class="post-like" onclick="likePost(this)">❤️ 좋아요 <span>12</span></button>
+  </div>
+  <div class="post-item">
+    <div class="post-header">
+      <span class="post-nick">🌻 청춘할배여행자</span>
+      <span class="post-date">06월 09일</span>
+    </div>
+    <div class="post-body">봄날마당 덕분에 매일 운세도 보고 게임도 즐기고 있어요. "할아버지 요즘 스마트폰 잘 쓰네?" 하며 손주들이 칭찬해줘요! 70대도 잘만 배우면 됩니다 🔥</div>
+    <button class="post-like" onclick="likePost(this)">❤️ 좋아요 <span>8</span></button>
+  </div>
+</div>
+
+<div style="text-align:center;margin-top:16px;">
+  <button class="btn-kakao" onclick="shareKakao()">💌 봄날마당 친구에게 소통마당 공유하기</button>
+</div>
+
+<script>
+// =============================================
+// talk.html 전용 JavaScript
+// =============================================
+
+function _toast(msg) {
+  if (typeof window.showToast === 'function') {
+    window.showToast(msg);
+  } else {
+    console.log('[토스트]', msg);
+  }
+}
+
+function addPost() {
+  var nick = document.getElementById('board-nick').value.trim() || '봄날 이웃사람';
+  var text = document.getElementById('board-text').value.trim();
+  if (!text) {
+    _toast('글 내용을 입력해 주세요!');
+    return;
+  }
+  var d = new Date();
+  var dateStr = (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
+  var item = document.createElement('div');
+  item.className = 'post-item';
+  item.innerHTML =
+    '<div class="post-header">' +
+      '<span class="post-nick">🌸 ' + nick + '</span>' +
+      '<span class="post-date">' + dateStr + '</span>' +
+    '</div>' +
+    '<div class="post-body">' + text.replace(/\n/g, '<br>') + '</div>' +
+    '<button class="post-like" onclick="likePost(this)">❤️ 좋아요 <span>0</span></button>';
+  var list = document.getElementById('post-list');
+  list.insertBefore(item, list.firstChild);
+  document.getElementById('board-text').value = '';
+  _toast('✅ 글이 올라갔어요!');
+}
+
+function likePost(btn) {
+  var span = btn.querySelector('span');
+  span.textContent = parseInt(span.textContent) + 1;
+  btn.style.background = '#fce4ec';
+  btn.style.color = '#e53935';
+  btn.disabled = true;
+}
+
+function shareKakao() {
+  if (typeof window.shareKakao === 'function') {
+    window.shareKakao();
+  } else {
+    var text = '[시니어 봄날마당] 🌸\n\n50~70대 시니어를 위한 봄날마당\n\n💌 소통마당에서 이웃들과 이야기 나눠요!\n\n🔗 https://bomnal-madang.com';
+    if (navigator.share) {
+      navigator.share({ title: '시니어 봄날마당', text: text });
+    } else {
+      navigator.clipboard.writeText(text).then(function() {
+        _toast('✅ 링크가 복사됐어요! 카카오톡에 붙여넣기 해보세요 😊');
+      });
+    }
+  }
+}
+</script>
+
+</body>
+</html>
