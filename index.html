@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>시니어 봄날마당 🌸</title>
-<meta name="description" content="50~70대 시니어를 위한 종합 웹앱 봄날마당">
+<meta name="description" content="50~70대 시니어를 위한 맞춤형 정보 봄날마당">
 <meta name="theme-color" content="#1a6fc4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="봄날마당">
@@ -13,61 +13,51 @@
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 <style>
-/* =============================================
-   B안: 하단 탭 2줄 구조 (4개 + 4개)
-   시니어 타겟 — 글씨·아이콘 크기 유지
-   ============================================= */
+/* ===================================================
+   수정8: 하단 메뉴 8개 항상 고정 (어떤 탭에서도)
+   style.css의 .bottom-nav와 충돌 제거, flex로 통일
+   =================================================== */
 .bottom-nav {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 한 줄에 4개씩 */
-  grid-template-rows: auto auto;          /* 2줄 자동 높이 */
+  display: flex;          /* 8개를 한 줄에 나란히 배치 */
+  flex-wrap: nowrap;      /* 줄바꿈 없이 한 줄 유지 */
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 480px;
+  left: 0;
+  right: 0;
   background: #fff;
-  border-top: 1px solid #e0e0e0;
-  z-index: 100;
-  padding-bottom: env(safe-area-inset-bottom); /* 아이폰 홈바 대응 */
+  border-top: 1.5px solid #e2e8f0;
+  z-index: 150;
+  box-shadow: 0 -3px 16px rgba(0,0,0,0.08);
+  padding-bottom: env(safe-area-inset-bottom); /* 아이폰 홈바 여백 */
 }
 .tab-btn {
+  flex: 1;                /* 8개가 균등하게 너비 나눔 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 6px 2px 4px;
   border: none;
-  border-top: 3px solid transparent;
   background: transparent;
   cursor: pointer;
   color: #888;
-  font-size: 11px;  /* 2줄이므로 기존 크기 유지 가능 */
+  font-size: 11px;
   font-family: 'Nanum Gothic', sans-serif;
   min-height: 52px;
-  transition: color 0.18s;
-  position: relative;
+  min-width: 0;           /* 글자 넘침 방지 */
 }
 .tab-btn.active {
   color: #1a6fc4;
-  border-top: 3px solid #1a6fc4;
-  background: linear-gradient(180deg, #e8f0fd 0%, transparent 100%);
-}
-.tab-btn.active .tab-icon {
-  transform: translateY(-2px) scale(1.18);
 }
 .tab-icon {
-  font-size: 20px;  /* 아이콘 크기 충분히 확보 */
+  font-size: 20px;
   line-height: 1.2;
-  transition: transform 0.18s ease;
 }
 .tab-label {
-  font-size: 11px;
+  font-size: 10px;        /* 8개 꽉 찰 때 살짝 작게 */
   margin-top: 2px;
   white-space: nowrap;
 }
-/* 2줄 탭으로 인해 본문 하단 여백 늘림 (기존 60px → 115px) */
 body {
   padding-bottom: 115px !important;
 }
@@ -77,107 +67,110 @@ body {
 <header class="app-header">
   <div class="header-left">
     <span class="header-logo">🌸</span>
-    <div class="header-title">시니어 봄날마당<span>50~70대 시니어를 위한 종합 웹앱</span></div>
+    <div class="header-title">시니어 봄날마당<span>50~70대 시니어를 위한 맞춤형 정보 봄날마당</span></div>
   </div>
   <div class="header-right">
-    <div class="header-date-box" id="header-date">오늘 날짜</div>
+    <div class="header-date-box" id="header-date">날짜 로딩</div>
   </div>
 </header>
 
-<!-- 큰글씨 토글 버튼 -->
-<button class="big-font-btn" onclick="toggleBigFont()" id="big-font-btn" title="글자 크기 크게 보기">가</button>
+<!-- 큰글씨 버튼 -->
+<button class="big-font-btn" onclick="toggleBigFont()" id="big-font-btn" title="글자 크기 크게 작게">가</button>
 
-<!-- 색종이 효과 (출석 완료 시 터짐) -->
+<!-- 색종이 효과 (운세 좋은 날 축하용) -->
 <div class="confetti-wrap" id="confetti-wrap"></div>
 
-<!-- 팝업 (출석·공유 등) -->
+<!-- 팝업창 (운세·이벤트 안내) -->
 <div class="overlay" id="popup-overlay">
   <div class="popup-box">
     <span class="popup-emoji" id="popup-emoji">🎉</span>
     <div class="popup-title" id="popup-title">제목</div>
     <div class="popup-msg" id="popup-msg">내용</div>
-    <button class="btn-main" onclick="closePopup()">닫기 ✓</button>
-    <button class="btn-kakao" onclick="shareKakao();closePopup()">💌 카카오톡으로 봄날마당 친구에게 추천하기</button>
+    <button class="btn-main" onclick="closePopup()">확인 ✓</button>
+    <button class="btn-kakao" onclick="shareKakao();closePopup()">💌 카카오톡으로 봄날마당 친구에게 공유하기</button>
   </div>
 </div>
 
-<!-- 토스트 메시지 (alert 대신 사용하는 작은 알림) -->
+<!-- 토스트 메시지 안내 -->
 <div class="toast" id="toast"></div>
 
-<!-- =============================================
-     홈 탭 (처음 열리는 화면)
-     ============================================= -->
+<!-- ===================================================
+     홈 탭
+     =================================================== -->
 <div class="tab-content active" id="tab-home">
   <div class="home-greeting">
-    <h2 id="greeting-text">반갑습니다! 🌸</h2>
-    <p id="greeting-sub">오늘도 건강하고 즐거운 하루 되세요</p>
+    <h2 id="greeting-text">봄날마당, 안녕하세요! 🌸</h2>
+    <p id="greeting-sub">오늘도 좋은 하루 되세요 😊</p>
   </div>
   <div class="quick-menu-grid">
-    <button class="quick-menu-item" onclick="switchTab('fortune')"><span class="menu-icon">🔮</span><span class="menu-name">오늘의 운세</span><span class="menu-desc">매일 바뀌는 운세</span></button>
-    <button class="quick-menu-item" onclick="switchTab('game')"><span class="menu-icon">🎮</span><span class="menu-name">두뇌게임방</span><span class="menu-desc">재미있는 게임 도전!</span></button>
-    <button class="quick-menu-item" onclick="switchTab('health')"><span class="menu-icon">🏖</span><span class="menu-name">건강관리실</span><span class="menu-desc">건강정보·약알람·걷기</span></button>
-    <button class="quick-menu-item" onclick="switchTab('benefit')"><span class="menu-icon">🎁</span><span class="menu-name">혜택마당</span><span class="menu-desc">복지·생활정보 모음</span></button>
-    <button class="quick-menu-item" onclick="switchTab('market')"><span class="menu-icon">🛒</span><span class="menu-name">꿀팁마켓</span><span class="menu-desc">시니어 추천 쇼핑</span></button>
-    <button class="quick-menu-item" onclick="switchTab('trot')"><span class="menu-icon">🎵</span><span class="menu-name">트로트마당</span><span class="menu-desc">신나는 트로트 감상</span></button>
+    <button class="quick-menu-item" onclick="switchTab('fortune')"><span class="menu-icon">🔮</span><span class="menu-name">오늘의 운세</span><span class="menu-desc">띠별 맞춤 운세</span></button>
+    <button class="quick-menu-item" onclick="switchTab('game')"><span class="menu-icon">🎮</span><span class="menu-name">두뇌게임·퀴즈</span><span class="menu-desc">재미있는 두뇌 게임!</span></button>
+    <button class="quick-menu-item" onclick="switchTab('health')"><span class="menu-icon">🏖</span><span class="menu-name">건강정보·계산</span><span class="menu-desc">건강정보·계산기·알람</span></button>
+    <button class="quick-menu-item" onclick="switchTab('benefit')"><span class="menu-icon">🎁</span><span class="menu-name">복지혜택</span><span class="menu-desc">노인복지·보조금 정보</span></button>
+    <button class="quick-menu-item" onclick="switchTab('market')"><span class="menu-icon">🛒</span><span class="menu-name">시니어쇼핑</span><span class="menu-desc">시니어 맞춤 쇼핑</span></button>
+    <button class="quick-menu-item" onclick="switchTab('trot')"><span class="menu-icon">🎵</span><span class="menu-name">트로트봄날마당</span><span class="menu-desc">최신 트로트 무대</span></button>
   </div>
   <div class="card">
     <div class="card-title">📰 시니어 봄날마당 뉴스</div>
     <div class="news-card">
-      <span class="news-category">복지·정책</span>
-      <div class="news-title" onclick="toggleNews(this)">2026년 기초연금 인상 — 최대 33만원 지급 확대 예정</div>
-      <div class="news-summary">2026년 기초연금 최대 33만원으로 인상 예정. 70% 어르신 해당. 복지로에서 신청 가능.<br><a class="news-link" href="https://www.bokjiro.go.kr" target="_blank">원문 보기 →</a></div>
+      <span class="news-category">노인복지·보조금</span>
+      <div class="news-title" onclick="toggleNews(this)">2026년 기초연금 인상 — 월 최대 33만원 지급</div>
+      <div class="news-summary">2026년 기초연금 월 최대 33만원으로 인상. 70% 어르신 해당. 복지로 사이트에서 신청.<br><a class="news-link" href="https://www.bokjiro.go.kr" target="_blank">자세히 보기 →</a></div>
     </div>
     <div class="news-card">
       <span class="news-category">건강·의료</span>
-      <div class="news-title" onclick="toggleNews(this)">무릎 퇴행성 관절염 3단계별 치료법 — 수술 없이 관리하는 방법</div>
-      <div class="news-summary">퇴행성 관절염 단계별 치료·관리법. 통증 완화와 보조기구 정보 수록.<br><a class="news-link" href="https://www.mohw.go.kr" target="_blank">원문 보기 →</a></div>
+      <div class="news-title" onclick="toggleNews(this)">노인 무릎 인공관절 수술 3곳 동시 — 새해부터 건강보험 적용</div>
+      <div class="news-summary">노인 무릎 인공관절 수술 건강보험 적용. 본인부담 크게 줄어 기대.<br><a class="news-link" href="https://www.mohw.go.kr" target="_blank">자세히 보기 →</a></div>
     </div>
     <div class="news-card">
       <span class="news-category">일자리</span>
-      <div class="news-title" onclick="toggleNews(this)">2026 시니어 일자리 사업 115만개 — 신청 방법 안내</div>
-      <div class="news-summary">시니어 일자리 115만개 확대. 워크넷(work.go.kr)에서 신청 가능.<br><a class="news-link" href="https://www.work.go.kr" target="_blank">원문 보기 →</a></div>
+      <div class="news-title" onclick="toggleNews(this)">2026 시니어 일자리 115만개 — 신청 방법 안내</div>
+      <div class="news-summary">시니어 일자리 115만개 달성. 워크넷(work.go.kr)에서 신청.<br><a class="news-link" href="https://www.work.go.kr" target="_blank">자세히 보기 →</a></div>
     </div>
-    <p class="news-notice">📌 뉴스 내용은 봄날마당 운영팀이 정기적으로 업데이트합니다</p>
+    <p class="news-notice">📌 뉴스 제목을 눌러보시면 봄날마당 맞춤 요약 내용을 확인할 수 있습니다</p>
   </div>
   <div class="card">
-    <div class="card-title">🛒 시니어 생활 추천 상품</div>
+    <div class="card-title">🛒 시니어 맞춤 쇼핑 추천</div>
     <div class="coupon-items">
-      <a class="coupon-item" href="https://link.coupang.com/a/caNPvT" target="_blank"><span class="coupon-icon">👟</span><div class="coupon-text"><strong>시니어 워킹화 (60대)</strong><span>미끄럼 방지, 쿠션 좋은 운동화</span></div><span class="coupon-arrow">↗</span></a>
-      <a class="coupon-item" href="https://link.coupang.com/a/caNPvT" target="_blank"><span class="coupon-icon">💊</span><div class="coupon-text"><strong>시니어 영양제 (관절·눈건강·피부)</strong><span>매일 챙겨 드세요. 건강을 지킵니다</span></div><span class="coupon-arrow">↗</span></a>
+      <a class="coupon-item" href="https://link.coupang.com/a/epp2YINgfk" target="_blank"><span class="coupon-icon">👟</span><div class="coupon-text"><strong>시니어 운동화 (60대)</strong><span>미끄럼방지, 가벼운 소재 추천</span></div><span class="coupon-arrow">↗</span></a>
+      <a class="coupon-item" href="https://link.coupang.com/a/epp2YINgfk" target="_blank"><span class="coupon-icon">💊</span><div class="coupon-text"><strong>시니어 영양제 (관절·눈건강)</strong><span>띠별 맞춤 추천. 건강을 챙겨드려요</span></div><span class="coupon-arrow">↗</span></a>
     </div>
-    <p class="coupon-notice">이 링크는 쿠팡파트너스 활동으로 수수료를 받을 수 있으며 구매자에게 추가 비용은 없습니다</p>
+    <p class="coupon-notice">이 링크를 통해 구매하시면 봄날마당 운영에 도움이 됩니다. 추가 비용은 전혀 없어요</p>
   </div>
-  <button class="btn-kakao" onclick="shareKakao()">💌 카카오톡으로 봄날마당 친구에게 추천하기</button>
+  <button class="btn-kakao" onclick="shareKakao()">💌 카카오톡으로 봄날마당 친구에게 공유하기</button>
 </div>
 
-<!-- =============================================
-     나머지 탭들 — fetch()로 html 파일 동적 로딩
-     (처음 탭 클릭 시 해당 html 파일을 가져와서 채움)
-     ============================================= -->
-<div class="tab-content" id="tab-fortune"><div class="tab-loading"><div class="tab-loading-spinner"></div></div></div>
-<div class="tab-content" id="tab-game"><div class="tab-loading"><div class="tab-loading-spinner"></div></div></div>
-<div class="tab-content" id="tab-benefit"><div class="tab-loading"><div class="tab-loading-spinner"></div></div></div>
-<div class="tab-content" id="tab-health"><div class="tab-loading"><div class="tab-loading-spinner"></div></div></div>
-<div class="tab-content" id="tab-talk"><div class="tab-loading"><div class="tab-loading-spinner"></div></div></div>
-<div class="tab-content" id="tab-market"><div class="tab-loading"><div class="tab-loading-spinner"></div></div></div>
-<div class="tab-content" id="tab-trot"><div class="tab-loading"><div class="tab-loading-spinner"></div></div></div>
+<!-- 운세 탭 -->
+<div class="tab-content" id="tab-fortune"><div class="tab-loading"><span class="tab-loading-spinner">🔮</span>운세 불러오는 중...</div></div>
+<!-- 게임 탭 -->
+<div class="tab-content" id="tab-game"><div class="tab-loading"><span class="tab-loading-spinner">🎮</span>게임 불러오는 중...</div></div>
+<!-- 복지 탭 -->
+<div class="tab-content" id="tab-benefit"><div class="tab-loading"><span class="tab-loading-spinner">🎁</span>복지 불러오는 중...</div></div>
+<!-- 건강 탭 -->
+<div class="tab-content" id="tab-health"><div class="tab-loading"><span class="tab-loading-spinner">🏖</span>건강 불러오는 중...</div></div>
+<!-- 소통 탭 -->
+<div class="tab-content" id="tab-talk"><div class="tab-loading"><span class="tab-loading-spinner">💌</span>소통마당 불러오는 중...</div></div>
+<!-- 쇼핑 탭 -->
+<div class="tab-content" id="tab-market"><div class="tab-loading"><span class="tab-loading-spinner">🛒</span>시니어쇼핑 불러오는 중...</div></div>
+<!-- 트로트 탭 -->
+<div class="tab-content" id="tab-trot"><div class="tab-loading"><span class="tab-loading-spinner">🎵</span>트로트봄날마당 불러오는 중...</div></div>
 
-<!-- =============================================
-     하단 탭 메뉴 — B안: 4+4 = 2줄
-     1줄: 홈 / 운세 / 게임 / 건강
-     2줄: 혜택 / 소통 / 꿀팁마켓 / 트로트
-     ============================================= -->
-<nav class="bottom-nav">
-  <!-- 1줄 -->
-  <button class="tab-btn active" onclick="switchTab('home')" id="nav-home"><span class="tab-icon">🏠</span><span class="tab-label">홈</span></button>
+<!-- ===================================================
+     하단 메뉴 — 수정8: 8개 항상 고정
+     어떤 탭에서도 nav는 절대 사라지거나 줄지 않음
+     (nav는 tab-content 밖, body 직속 자식으로 고정 배치)
+     =================================================== -->
+<nav class="bottom-nav" id="bottom-nav">
+  <!-- 1번 줄: 홈 / 운세 / 게임 / 건강 -->
+  <button class="tab-btn active" onclick="switchTab('home')" id="nav-home"><span class="tab-icon">🏡</span><span class="tab-label">홈</span></button>
   <button class="tab-btn" onclick="switchTab('fortune')" id="nav-fortune"><span class="tab-icon">🔮</span><span class="tab-label">운세</span></button>
   <button class="tab-btn" onclick="switchTab('game')" id="nav-game"><span class="tab-icon">🎮</span><span class="tab-label">게임</span></button>
   <button class="tab-btn" onclick="switchTab('health')" id="nav-health"><span class="tab-icon">🏖</span><span class="tab-label">건강</span></button>
-  <!-- 2줄 -->
-  <button class="tab-btn" onclick="switchTab('benefit')" id="nav-benefit"><span class="tab-icon">🎁</span><span class="tab-label">혜택</span></button>
-  <button class="tab-btn" onclick="switchTab('talk')" id="nav-talk"><span class="tab-icon">💌</span><span class="tab-label">소통</span></button>
-  <button class="tab-btn" onclick="switchTab('market')" id="nav-market"><span class="tab-icon">🛒</span><span class="tab-label">꿀팁마켓</span></button>
-  <button class="tab-btn" onclick="switchTab('trot')" id="nav-trot"><span class="tab-icon">🎵</span><span class="tab-label">트로트</span></button>
+  <!-- 2번 줄: 복지 / 소통 / 쇼핑 / 트로트 -->
+  <button class="tab-btn" onclick="switchTab('benefit')" id="nav-benefit"><span class="tab-icon">🎁</span><span class="tab-label">복지</span></button>
+  <button class="tab-btn" onclick="switchTab('talk')" id="nav-talk"><span class="tab-icon">💌</span><span class="tab-label">소통마당</span></button>
+  <button class="tab-btn" onclick="switchTab('market')" id="nav-market"><span class="tab-icon">🛒</span><span class="tab-label">시니어쇼핑</span></button>
+  <button class="tab-btn" onclick="switchTab('trot')" id="nav-trot"><span class="tab-icon">🎵</span><span class="tab-label">트로트봄날</span></button>
 </nav>
 
 <script>
@@ -203,11 +196,17 @@ var tabFiles = {
 };
 
 function switchTab(tabId) {
+  // 모든 탭 콘텐츠 숨기기
   document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+  // 모든 nav 버튼 비활성화
   document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  // 선택한 탭 보이기
   document.getElementById('tab-' + tabId).classList.add('active');
+  // 선택한 nav 버튼 강조
   document.getElementById('nav-' + tabId).classList.add('active');
+  // 맨 위로 스크롤
   window.scrollTo(0, 0);
+  // 처음 방문한 탭이면 파일 불러오기
   if (!loadedTabs[tabId] && tabFiles[tabId]) {
     loadedTabs[tabId] = true;
     loadTabContent(tabId, tabFiles[tabId]);
@@ -223,6 +222,7 @@ function loadTabContent(tabId, fileName) {
     .then(function(html) {
       var container = document.getElementById('tab-' + tabId);
       container.innerHTML = html;
+      // 불러온 HTML 안의 script 태그 다시 실행
       container.querySelectorAll('script').forEach(function(old) {
         var s = document.createElement('script');
         s.textContent = old.textContent;
@@ -232,7 +232,7 @@ function loadTabContent(tabId, fileName) {
     })
     .catch(function() {
       document.getElementById('tab-' + tabId).innerHTML =
-        '<div class="tab-loading" style="color:#E53935;">⚠️ ' + fileName + ' 파일을 찾을 수 없습니다.<br><small>같은 폴더에 파일이 있는지 확인해주세요</small></div>';
+        '<div class="tab-loading" style="color:#E53935;">⚠️ ' + fileName + ' 파일을 불러오지 못했습니다.<br><small>파일 이름을 다시 확인해 주세요</small></div>';
     });
 }
 
@@ -248,12 +248,12 @@ function toggleBigFont() {
 (function() {
   document.getElementById('header-date').textContent = getTodayLabel();
   var h = new Date().getHours();
-  var greet = h < 6  ? '이른 아침 건강 관리 🌙'
-            : h < 12 ? '좋은 아침입니다! ☀️'
-            : h < 18 ? '오후도 건강하게! 🌤️'
-            :           '저녁 편안하게 🌙';
+  var greet = h < 6  ? '새벽에 일어나셨군요 🌙'
+              : h < 12 ? '좋은 아침이에요! ☀️'
+              : h < 18 ? '오늘도 건강하게! 🌤️'
+              :           '편안한 저녁 보내세요 🌙';
   document.getElementById('greeting-text').textContent = '봄날마당, ' + greet;
-  document.getElementById('greeting-sub').textContent = getTodayLabel() + ' — 오늘도 즐겁고 건강한 하루 되세요!';
+  document.getElementById('greeting-sub').textContent = getTodayLabel() + ' — 오늘도 좋은 하루 되세요!';
 })();
 
 function toggleNews(el) {
@@ -297,12 +297,12 @@ function launchConfetti() {
 }
 
 function shareKakao() {
-  var text = '[시니어 봄날마당] 🌸\n\n50~70대 시니어를 위한 종합 웹앱!\n\n✅ 오늘의 운세\n🎮 두뇌게임방\n🏖 건강정보·약알람·걷기\n🎁 복지·생활정보 모음\n🛒 꿀팁마켓\n🎵 트로트마당\n\n🔗 https://bomnal-madang.com';
+  var text = '[시니어 봄날마당] 🌸\n\n50~70대 시니어를 위한 맞춤형 정보 봄날마당!\n\n✅ 오늘의 운세\n🎮 두뇌게임·퀴즈\n🏖 건강정보·계산기·알람\n🎁 노인복지·보조금 정보\n🛒 시니어쇼핑\n🎵 트로트봄날마당\n\n🔗 https://bomnal-madang.vercel.app';
   if (navigator.share) {
     navigator.share({ title: '시니어 봄날마당', text: text });
   } else {
     navigator.clipboard.writeText(text).then(function() {
-      showToast('✅ 링크 복사 완료! 카카오톡에 붙여넣기 하세요 📱');
+      showToast('✅ 공유 내용 복사 완료! 카카오톡 채팅창에 붙여넣기 해주세요 📱');
     }).catch(function() { alert(text); });
   }
 }
