@@ -39,19 +39,28 @@
   justify-content: center;
   padding: 6px 2px 4px;
   border: none;
+  border-top: 3px solid transparent;
   background: transparent;
   cursor: pointer;
   color: #888;
   font-size: 11px;  /* 2줄이므로 기존 크기 유지 가능 */
   font-family: 'Nanum Gothic', sans-serif;
   min-height: 52px;
+  transition: color 0.18s;
+  position: relative;
 }
 .tab-btn.active {
   color: #1a6fc4;
+  border-top: 3px solid #1a6fc4;
+  background: linear-gradient(180deg, #e8f0fd 0%, transparent 100%);
+}
+.tab-btn.active .tab-icon {
+  transform: translateY(-2px) scale(1.18);
 }
 .tab-icon {
   font-size: 20px;  /* 아이콘 크기 충분히 확보 */
   line-height: 1.2;
+  transition: transform 0.18s ease;
 }
 .tab-label {
   font-size: 11px;
