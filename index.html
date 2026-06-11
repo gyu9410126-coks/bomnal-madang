@@ -66,13 +66,17 @@ body {
 <body>
 <header class="app-header">
   <div class="header-left">
-    <span class="header-logo">🌸</span>
+    <span class="header-logo" onclick="switchTab('home')" style="cursor:pointer">🌸</span>
     <div class="header-title">시니어 봄날마당<span>50~70대 시니어를 위한 맞춤형 정보 봄날마당</span></div>
   </div>
   <div class="header-right">
     <div class="header-date-box" id="header-date">날짜 로딩</div>
   </div>
 </header>
+
+<div class="home-bar" id="home-bar">
+  <button onclick="switchTab('home')">🏠 홈으로</button>
+</div>
 
 <!-- 큰글씨 버튼 -->
 <button class="big-font-btn" onclick="toggleBigFont()" id="big-font-btn" title="글자 크기 크게 작게">가</button>
@@ -206,6 +210,12 @@ function switchTab(tabId) {
   document.getElementById('nav-' + tabId).classList.add('active');
   // 맨 위로 스크롤
   window.scrollTo(0, 0);
+  // 홈탭이면 home-bar 숨기고, 다른 탭이면 보이기
+  if (tabId === 'home') {
+    document.getElementById('home-bar').style.display = 'none';
+  } else {
+    document.getElementById('home-bar').style.display = 'flex';
+  }
   // 처음 방문한 탭이면 파일 불러오기
   if (!loadedTabs[tabId] && tabFiles[tabId]) {
     loadedTabs[tabId] = true;

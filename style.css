@@ -281,3 +281,26 @@ body {
 
 .toast { position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.78); color:#fff; padding:12px 24px; border-radius:24px; font-size:15px; font-weight:700; z-index:500; white-space:nowrap; opacity:0; transition:opacity 0.3s; pointer-events:none; }
 .toast.show { opacity:1; }
+
+/* 수정7: 상단 홈 버튼 바 */
+.home-bar {
+  display: none;
+  align-items: center;
+  background: #f0f5ff;
+  border-bottom: 1px solid #c7d8f5;
+  padding: 6px 12px;
+  position: sticky;
+  top: 56px;
+  z-index: 120;
+}
+.home-bar button {
+  background: #1a6fc4;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 18px;
+  font-size: 15px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+}
