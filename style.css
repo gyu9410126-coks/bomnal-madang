@@ -12,7 +12,7 @@
   --bg: #f4f6fb;
   --card: #ffffff;
   --text: #2d3748;
-  --text-sub: #718096;
+  --text-sub: #111111;
   --border: #e2e8f0;
   --green: #2E7D32;
   --purple: #7B3FBE;
@@ -78,7 +78,7 @@ body {
 .tab-btn.active { color: var(--main); }
 .tab-btn.active .tab-icon { transform: scale(1.15); }
 .tab-icon { font-size:22px; transition:transform 0.18s; display:block; margin-bottom:3px; }
-.tab-label { font-size:10px; font-weight:700; letter-spacing:-0.2px; white-space:nowrap; }
+.tab-label { font-size:13px; font-weight:700; letter-spacing:-0.2px; white-space:nowrap; }
 
 .card { background:var(--card); border-radius:18px; padding:20px; margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
 .card-title { font-size:17px; font-weight:900; color:var(--text); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
@@ -98,9 +98,9 @@ body {
 .coupon-icon { font-size:26px; flex-shrink:0; }
 .coupon-text { flex:1; }
 .coupon-text strong { display:block; font-size:15px; font-weight:700; color:var(--text); margin-bottom:2px; }
-.coupon-text span { font-size:12px; color:var(--text-sub); }
+.coupon-text span { font-size:16px; color:var(--text-sub); }
 .coupon-arrow { font-size:16px; color:var(--main); }
-.coupon-notice { font-size:11px; color:#a0aec0; text-align:center; margin-top:10px; line-height:1.6; }
+.coupon-notice { font-size:16px; color:#111111; text-align:center; margin-top:10px; line-height:1.6; }
 
 #tab-home .home-greeting { background:linear-gradient(135deg,var(--main),#1557a0); border-radius:20px; padding:24px 20px; margin-bottom:16px; color:#fff; text-align:center; }
 #tab-home .home-greeting h2 { font-size:24px; font-weight:900; line-height:1.4; margin-bottom:6px; }
@@ -110,14 +110,14 @@ body {
 .quick-menu-item:active { transform:scale(0.95); }
 .quick-menu-item .menu-icon { font-size:32px; display:block; margin-bottom:8px; }
 .quick-menu-item .menu-name { font-size:15px; font-weight:800; color:var(--text); }
-.quick-menu-item .menu-desc { font-size:12px; color:var(--text-sub); margin-top:3px; }
+.quick-menu-item .menu-desc { font-size:16px; color:var(--text-sub); margin-top:3px; }
 .news-card { background:var(--card); border-radius:16px; padding:18px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); border-left:4px solid var(--main); }
 .news-category { font-size:11px; font-weight:700; color:var(--main); background:#e8f0fd; display:inline-block; padding:2px 10px; border-radius:10px; margin-bottom:8px; }
 .news-title { font-size:16px; font-weight:800; color:var(--text); line-height:1.5; cursor:pointer; }
-.news-summary { display:none; font-size:14px; color:var(--text-sub); line-height:1.8; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
+.news-summary { display:none; font-size:16px; color:var(--text-sub); line-height:1.8; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
 .news-summary.open { display:block; }
-.news-link { display:inline-block; margin-top:10px; font-size:13px; color:var(--main); font-weight:700; text-decoration:none; }
-.news-notice { font-size:12px; color:#a0aec0; text-align:center; padding:8px 0; line-height:1.6; }
+.news-link { display:inline-block; margin-top:10px; font-size:16px; color:var(--main); font-weight:700; text-decoration:none; }
+.news-notice { font-size:16px; color:#111111; text-align:center; padding:8px 0; line-height:1.6; }
 
 #tab-fortune .fortune-screen { display:none; }
 #tab-fortune .fortune-screen.visible { display:block; }
