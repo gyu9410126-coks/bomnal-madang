@@ -314,6 +314,49 @@ body {
   padding: 6px 4px;
 }
 
+/* 추가C: 긴급 전화 다이얼 카드 */
+.dial-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dial-item {
+  display: flex;
+  align-items: center;
+  background: #f0f5ff;
+  border-radius: 12px;
+  padding: 14px 12px;
+  text-decoration: none;
+  gap: 12px;
+}
+.dial-icon {
+  font-size: 28px;
+  min-width: 36px;
+  text-align: center;
+}
+.dial-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.dial-text strong {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+}
+.dial-text span {
+  font-size: 13px;
+  color: #555;
+  margin-top: 2px;
+}
+.dial-num {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a6fc4;
+  min-width: 80px;
+  text-align: right;
+}
+
 /* 수정7: 상단 홈 버튼 바 */
 .home-bar {
   display: none;
