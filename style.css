@@ -12,7 +12,7 @@
   --bg: #f4f6fb;
   --card: #ffffff;
   --text: #2d3748;
-  --text-sub: #718096;
+  --text-sub: #111111;
   --border: #e2e8f0;
   --green: #2E7D32;
   --purple: #7B3FBE;
@@ -61,8 +61,8 @@ body {
 .tab-content { display:none; padding:20px 16px 20px; }
 .tab-content.active { display:block; }
 
-.tab-loading { text-align:center; padding:60px 20px; font-size:16px; color:var(--text-sub); }
-.tab-loading-spinner { font-size:40px; display:block; margin-bottom:12px; animation:spin 1s linear infinite; }
+.tab-loading { display:flex; align-items:center; justify-content:center; padding:80px 20px; }
+.tab-loading-spinner { width:40px; height:40px; border:4px solid #e2e8f0; border-top-color:#1a6fc4; border-radius:50%; animation:spin 0.8s linear infinite; display:block; flex-shrink:0; }
 @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
 
 .bottom-nav {
@@ -74,11 +74,12 @@ body {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 8px 4px 6px; background: none; border: none; cursor: pointer;
   color: var(--text-sub); transition: color 0.18s; -webkit-tap-highlight-color: transparent;
+  min-height: 56px;
 }
 .tab-btn.active { color: var(--main); }
 .tab-btn.active .tab-icon { transform: scale(1.15); }
 .tab-icon { font-size:22px; transition:transform 0.18s; display:block; margin-bottom:3px; }
-.tab-label { font-size:10px; font-weight:700; letter-spacing:-0.2px; white-space:nowrap; }
+.tab-label { font-size:13px; font-weight:700; letter-spacing:-0.2px; white-space:nowrap; }
 
 .card { background:var(--card); border-radius:18px; padding:20px; margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
 .card-title { font-size:17px; font-weight:900; color:var(--text); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
@@ -93,31 +94,31 @@ body {
 .btn-outline { width:100%; background:#fff; color:var(--main); border:2px solid var(--main); border-radius:14px; padding:16px; font-size:16px; font-weight:700; cursor:pointer; margin-bottom:10px; }
 
 .coupon-items { display:flex; flex-direction:column; gap:10px; }
-.coupon-item { background:#fff; border:1.5px solid var(--border); border-radius:12px; padding:14px 16px; display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit; transition:background 0.18s; }
+.coupon-item { background:#fff; border:1.5px solid var(--border); border-radius:12px; padding:18px 16px; display:flex; align-items:center; gap:12px; text-decoration:none; color:inherit; transition:background 0.18s; }
 .coupon-item:active { background:var(--bg); }
 .coupon-icon { font-size:26px; flex-shrink:0; }
 .coupon-text { flex:1; }
 .coupon-text strong { display:block; font-size:15px; font-weight:700; color:var(--text); margin-bottom:2px; }
-.coupon-text span { font-size:12px; color:var(--text-sub); }
+.coupon-text span { font-size:16px; color:var(--text-sub); }
 .coupon-arrow { font-size:16px; color:var(--main); }
-.coupon-notice { font-size:11px; color:#a0aec0; text-align:center; margin-top:10px; line-height:1.6; }
+.coupon-notice { font-size:16px; color:#111111; text-align:center; margin-top:10px; line-height:1.6; }
 
 #tab-home .home-greeting { background:linear-gradient(135deg,var(--main),#1557a0); border-radius:20px; padding:24px 20px; margin-bottom:16px; color:#fff; text-align:center; }
 #tab-home .home-greeting h2 { font-size:24px; font-weight:900; line-height:1.4; margin-bottom:6px; }
 #tab-home .home-greeting p { font-size:15px; opacity:0.88; }
 .quick-menu-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:16px; }
-.quick-menu-item { background:var(--card); border-radius:16px; padding:20px 14px; text-align:center; cursor:pointer; border:none; box-shadow:0 2px 10px rgba(0,0,0,0.06); transition:transform 0.15s; -webkit-tap-highlight-color:transparent; }
+.quick-menu-item { background:var(--card); border-radius:16px; padding:20px 14px; text-align:center; cursor:pointer; border:none; box-shadow:0 2px 10px rgba(0,0,0,0.06); transition:transform 0.15s; -webkit-tap-highlight-color:transparent; min-height:80px; }
 .quick-menu-item:active { transform:scale(0.95); }
 .quick-menu-item .menu-icon { font-size:32px; display:block; margin-bottom:8px; }
 .quick-menu-item .menu-name { font-size:15px; font-weight:800; color:var(--text); }
-.quick-menu-item .menu-desc { font-size:12px; color:var(--text-sub); margin-top:3px; }
-.news-card { background:var(--card); border-radius:16px; padding:18px; margin-bottom:12px; box-shadow:0 2px 8px rgba(0,0,0,0.05); border-left:4px solid var(--main); }
+.quick-menu-item .menu-desc { font-size:16px; color:var(--text-sub); margin-top:3px; }
+.news-card { background:var(--card); border-radius:16px; padding:18px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.05); border-left:4px solid var(--main); }
 .news-category { font-size:11px; font-weight:700; color:var(--main); background:#e8f0fd; display:inline-block; padding:2px 10px; border-radius:10px; margin-bottom:8px; }
 .news-title { font-size:16px; font-weight:800; color:var(--text); line-height:1.5; cursor:pointer; }
-.news-summary { display:none; font-size:14px; color:var(--text-sub); line-height:1.8; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
+.news-summary { display:none; font-size:16px; color:var(--text-sub); line-height:1.8; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
 .news-summary.open { display:block; }
-.news-link { display:inline-block; margin-top:10px; font-size:13px; color:var(--main); font-weight:700; text-decoration:none; }
-.news-notice { font-size:12px; color:#a0aec0; text-align:center; padding:8px 0; line-height:1.6; }
+.news-link { display:inline-block; margin-top:10px; font-size:16px; color:var(--main); font-weight:700; text-decoration:none; padding:10px 16px; }
+.news-notice { font-size:16px; color:#111111; text-align:center; padding:8px 0; line-height:1.6; }
 
 #tab-fortune .fortune-screen { display:none; }
 #tab-fortune .fortune-screen.visible { display:block; }
@@ -281,3 +282,100 @@ body {
 
 .toast { position:fixed; bottom:100px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.78); color:#fff; padding:12px 24px; border-radius:24px; font-size:15px; font-weight:700; z-index:500; white-space:nowrap; opacity:0; transition:opacity 0.3s; pointer-events:none; }
 .toast.show { opacity:1; }
+
+/* 추가A: 키워드 검색 + 쿠팡 자동 매칭 */
+.search-box {
+  padding: 10px 16px;
+  background: #f0f5ff;
+  border-radius: 12px;
+  margin: 10px 0 8px;
+}
+.search-box input {
+  width: 100%;
+  border: 1.5px solid #c7d8f5;
+  border-radius: 20px;
+  padding: 10px 16px;
+  font-size: 16px;
+  font-family: 'Nanum Gothic', sans-serif;
+  color: #111;
+  outline: none;
+  box-sizing: border-box;
+}
+.search-box input:focus {
+  border-color: #1a6fc4;
+}
+.search-result {
+  margin: 0 0 10px;
+}
+.search-result-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a6fc4;
+  padding: 6px 4px;
+}
+
+/* 추가C: 긴급 전화 다이얼 카드 */
+.dial-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dial-item {
+  display: flex;
+  align-items: center;
+  background: #f0f5ff;
+  border-radius: 12px;
+  padding: 14px 12px;
+  text-decoration: none;
+  gap: 12px;
+}
+.dial-icon {
+  font-size: 28px;
+  min-width: 36px;
+  text-align: center;
+}
+.dial-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.dial-text strong {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+}
+.dial-text span {
+  font-size: 13px;
+  color: #555;
+  margin-top: 2px;
+}
+.dial-num {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1a6fc4;
+  min-width: 80px;
+  text-align: right;
+}
+
+/* 수정7: 상단 홈 버튼 바 */
+.home-bar {
+  display: none;
+  align-items: center;
+  background: #f0f5ff;
+  border-bottom: 1px solid #c7d8f5;
+  padding: 6px 12px;
+  position: sticky;
+  top: 56px;
+  z-index: 120;
+}
+.home-bar button {
+  background: #1a6fc4;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 18px;
+  font-size: 15px;
+  font-family: 'Nanum Gothic', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+}
