@@ -379,3 +379,15 @@ body {
   font-weight: 700;
   cursor: pointer;
 }
+
+/* ===== 쿠팡 공정위 안내 문구 ===== */
+.coupang-notice {
+  font-size: 14px;
+  color: #555;
+  background: #fff8e1;
+  border-left: 4px solid #f59e0b;
+  padding: 10px 14px;
+  margin: 10px 0 6px 0;
+  border-radius: 6px;
+  line-height: 1.6;
+}
