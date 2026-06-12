@@ -54,6 +54,9 @@ body {
   z-index: 100;
   box-shadow: 0 2px 12px rgba(26,111,196,0.25);
 }
+.header-title span { display: none; }
+.header-right { display: none; }
+.app-header { padding: 0 16px; height: 56px; }
 .header-left { display:flex; align-items:center; gap:10px; }
 .header-logo { font-size:26px; }
 .header-title { color:#fff; font-size:20px; font-weight:900; letter-spacing:-0.3px; }
