@@ -23,7 +23,7 @@ body.big-font { font-size: 1.4em; }
 body.big-font .tab-label { font-size: 11px !important; }
 
 body {
-  font-family: 'Nanum Gothic','Noto Sans KR',sans-serif;
+  font-family: 'Pretendard', 'Nanum Gothic', 'Noto Sans KR', sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -410,3 +410,4 @@ body {
   margin: 0 8px;
   color: #ccc;
 }
+
