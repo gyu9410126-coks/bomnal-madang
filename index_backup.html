@@ -14,11 +14,12 @@
 <link rel="stylesheet" href="style.css">
 <style>
 /* ===================================================
-   하단 메뉴 8개 항상 고정
+   수정8: 하단 메뉴 8개 항상 고정 (어떤 탭에서도)
+   style.css의 .bottom-nav와 충돌 제거, flex로 통일
    =================================================== */
 .bottom-nav {
-  display: flex;
-  flex-wrap: nowrap;
+  display: flex;          /* 8개를 한 줄에 나란히 배치 */
+  flex-wrap: nowrap;      /* 줄바꿈 없이 한 줄 유지 */
   position: fixed;
   bottom: 0;
   left: 0;
@@ -27,10 +28,10 @@
   border-top: 1.5px solid #e2e8f0;
   z-index: 150;
   box-shadow: 0 -3px 16px rgba(0,0,0,0.08);
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom); /* 아이폰 홈바 여백 */
 }
 .tab-btn {
-  flex: 1;
+  flex: 1;                /* 8개가 균등하게 너비 나눔 */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -43,7 +44,7 @@
   font-size: 11px;
   font-family: 'Nanum Gothic', sans-serif;
   min-height: 52px;
-  min-width: 0;
+  min-width: 0;           /* 글자 넘침 방지 */
 }
 .tab-btn.active {
   color: #1a6fc4;
@@ -53,162 +54,37 @@
   line-height: 1.2;
 }
 .tab-label {
-  font-size: 10px;
+  font-size: 10px;        /* 8개 꽉 찰 때 살짝 작게 */
   margin-top: 2px;
   white-space: nowrap;
 }
 body {
   padding-bottom: 115px !important;
 }
-
-/* ===================================================
-   수정1: 헤더 간소화
-   - 부제목(50~70대 시니어를 위한...) 제거
-   - 날짜 박스 제거
-   - 로고🌸 + "시니어 봄날마당" 텍스트만 남김
-   =================================================== */
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #1a6fc4;
-  padding: 0 16px;
-  height: 56px;        /* 높이 고정 — 더 슬림하게 */
-  position: sticky;    /* 위로 스크롤해도 헤더 고정 */
-  top: 0;
-  z-index: 200;
-}
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.header-logo {
-  font-size: 26px;
-  line-height: 1;
-}
-/* 헤더 타이틀: 큰 이름만, 부제목 span 숨김 */
-.header-title {
-  font-size: 20px;
-  font-weight: 800;
-  color: #fff;
-  font-family: 'Nanum Gothic', sans-serif;
-  line-height: 1;
-}
-.header-title span {
-  display: none;   /* 부제목 완전 숨김 */
-}
-/* 날짜 박스 숨김 */
-.header-right {
-  display: none;
-}
-
-/* ===================================================
-   수정2: 퀵메뉴 카드 텍스트 중앙정렬
-   =================================================== */
-.quick-menu-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;       /* 가로 중앙 */
-  justify-content: center;   /* 세로 중앙 */
-  text-align: center;        /* 텍스트 중앙 */
-  gap: 4px;
-  padding: 16px 8px;
-  border-radius: 16px;
-  border: none;
-  background: #f8faff;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.quick-menu-item:active {
-  background: #e8f0fe;
-}
-.menu-icon {
-  font-size: 32px;
-  line-height: 1;
-}
-.menu-name {
-  font-size: 16px;
-  font-weight: 700;
-  color: #1a2340;
-  text-align: center;
-}
-.menu-desc {
-  font-size: 13px;
-  color: #666;
-  text-align: center;
-  line-height: 1.3;
-}
-
-/* ===================================================
-   수정3: 가가(큰글씨) 버튼 — 콘텐츠 안 가리도록
-   우측 하단 고정, 하단 메뉴바 위에 뜨게
-   =================================================== */
-.big-font-btn {
-  position: fixed;
-  bottom: 78px;       /* 하단 메뉴바(52px) + 여유 26px */
-  right: 16px;        /* 화면 오른쪽 끝 */
-  z-index: 140;       /* 하단메뉴(150)보다 아래, 콘텐츠보다 위 */
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #f5821f;
-  color: #fff;
-  font-size: 18px;
-  font-weight: 800;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  font-family: 'Nanum Gothic', sans-serif;
-}
-
-/* ===================================================
-   인사말 섹션: 날짜+인사말 배너 아래로 이동
-   =================================================== */
-.home-greeting {
-  background: #1a6fc4;
-  color: #fff;
-  padding: 14px 20px;
-  text-align: center;
-}
-.home-greeting h2 {
-  font-size: 20px;
-  font-weight: 800;
-  margin: 0 0 4px 0;
-  color: #fff;
-}
-.home-greeting p {
-  font-size: 15px;
-  margin: 0;
-  color: #cce0ff;
-}
 </style>
 </head>
 <body>
-
-<!-- ===================================================
-     헤더: 로고🌸 + 이름만 (부제목·날짜 제거)
-     =================================================== -->
 <header class="app-header">
   <div class="header-left">
     <span class="header-logo" onclick="switchTab('home')" style="cursor:pointer">🌸</span>
-    <div class="header-title">시니어 봄날마당</div>
+    <div class="header-title">시니어 봄날마당<span>50~70대 시니어를 위한 맞춤형 정보 봄날마당</span></div>
   </div>
-  <!-- header-right(날짜)는 CSS에서 display:none 처리 -->
-  
+  <div class="header-right">
+    <div class="header-date-box" id="header-date">날짜 로딩</div>
+  </div>
 </header>
 
 <div class="home-bar" id="home-bar">
   <button onclick="switchTab('home')">🏠 홈으로</button>
 </div>
 
-<!-- 큰글씨 버튼: 우측 하단 고정 -->
+<!-- 큰글씨 버튼 -->
 <button class="big-font-btn" onclick="toggleBigFont()" id="big-font-btn" title="글자 크기 크게 작게">가</button>
 
-<!-- 색종이 효과 -->
+<!-- 색종이 효과 (운세 좋은 날 축하용) -->
 <div class="confetti-wrap" id="confetti-wrap"></div>
 
-<!-- 팝업창 -->
+<!-- 팝업창 (운세·이벤트 안내) -->
 <div class="overlay" id="popup-overlay">
   <div class="popup-box">
     <span class="popup-emoji" id="popup-emoji">🎉</span>
@@ -219,11 +95,11 @@ body {
   </div>
 </div>
 
-<!-- 토스트 메시지 -->
+<!-- 토스트 메시지 안내 -->
 <div class="toast" id="toast"></div>
 
 <!-- ===================================================
-     홈 탭
+     홈 탭 — 신규3: UI 전면 개편
      =================================================== -->
 <div class="tab-content active" id="tab-home">
 
@@ -280,7 +156,7 @@ body {
     </div>
   </div>
 
-  <!-- 인사말: 배너 바로 아래 (날짜 + 한줄 인사) -->
+  <!-- 인사말 -->
   <div class="home-greeting">
     <h2 id="greeting-text">봄날마당에 오신 걸 환영합니다 🌸</h2>
     <p id="greeting-sub">오늘도 건강하고 행복한 하루 되세요 😊</p>
@@ -295,36 +171,12 @@ body {
   <!-- 빠른 메뉴 -->
   <div class="section-header">⚡ 빠른 메뉴</div>
   <div class="quick-menu-grid">
-    <button class="quick-menu-item" onclick="switchTab('fortune')">
-      <span class="menu-icon">🔮</span>
-      <span class="menu-name">오늘의 운세</span>
-      <span class="menu-desc">띠별 맞춤 운세</span>
-    </button>
-    <button class="quick-menu-item" onclick="switchTab('game')">
-      <span class="menu-icon">🎮</span>
-      <span class="menu-name">두뇌게임</span>
-      <span class="menu-desc">재미있는 두뇌 게임</span>
-    </button>
-    <button class="quick-menu-item" onclick="switchTab('health')">
-      <span class="menu-icon">💊</span>
-      <span class="menu-name">건강관리</span>
-      <span class="menu-desc">만보기·약알림</span>
-    </button>
-    <button class="quick-menu-item" onclick="switchTab('benefit')">
-      <span class="menu-icon">🎁</span>
-      <span class="menu-name">복지혜택</span>
-      <span class="menu-desc">보조금·연금정보</span>
-    </button>
-    <button class="quick-menu-item" onclick="switchTab('market')">
-      <span class="menu-icon">🛒</span>
-      <span class="menu-name">시니어쇼핑</span>
-      <span class="menu-desc">맞춤 추천 상품</span>
-    </button>
-    <button class="quick-menu-item" onclick="switchTab('trot')">
-      <span class="menu-icon">🎵</span>
-      <span class="menu-name">트로트</span>
-      <span class="menu-desc">최신 트로트 무대</span>
-    </button>
+    <button class="quick-menu-item" onclick="switchTab('fortune')"><span class="menu-icon">🔮</span><span class="menu-name">오늘의 운세</span><span class="menu-desc">띠별 맞춤 운세</span></button>
+    <button class="quick-menu-item" onclick="switchTab('game')"><span class="menu-icon">🎮</span><span class="menu-name">두뇌게임</span><span class="menu-desc">재미있는 두뇌 게임</span></button>
+    <button class="quick-menu-item" onclick="switchTab('health')"><span class="menu-icon">💊</span><span class="menu-name">건강관리</span><span class="menu-desc">만보기·약알림</span></button>
+    <button class="quick-menu-item" onclick="switchTab('benefit')"><span class="menu-icon">🎁</span><span class="menu-name">복지혜택</span><span class="menu-desc">보조금·연금정보</span></button>
+    <button class="quick-menu-item" onclick="switchTab('market')"><span class="menu-icon">🛒</span><span class="menu-name">시니어쇼핑</span><span class="menu-desc">맞춤 추천 상품</span></button>
+    <button class="quick-menu-item" onclick="switchTab('trot')"><span class="menu-icon">🎵</span><span class="menu-name">트로트</span><span class="menu-desc">최신 트로트 무대</span></button>
   </div>
 
   <!-- 오늘의 한마디 -->
@@ -392,12 +244,18 @@ body {
 <!-- 트로트 탭 -->
 <div class="tab-content" id="tab-trot"><div class="tab-loading"><span class="tab-loading-spinner">🎵</span>트로트봄날마당 불러오는 중...</div></div>
 
-<!-- 하단 메뉴 -->
+<!-- ===================================================
+     하단 메뉴 — 수정8: 8개 항상 고정
+     어떤 탭에서도 nav는 절대 사라지거나 줄지 않음
+     (nav는 tab-content 밖, body 직속 자식으로 고정 배치)
+     =================================================== -->
 <nav class="bottom-nav" id="bottom-nav">
+  <!-- 1번 줄: 홈 / 운세 / 게임 / 건강 -->
   <button class="tab-btn active" onclick="switchTab('home')" id="nav-home"><span class="tab-icon">🏡</span><span class="tab-label">홈</span></button>
   <button class="tab-btn" onclick="switchTab('fortune')" id="nav-fortune"><span class="tab-icon">🔮</span><span class="tab-label">운세</span></button>
   <button class="tab-btn" onclick="switchTab('game')" id="nav-game"><span class="tab-icon">🎮</span><span class="tab-label">게임</span></button>
   <button class="tab-btn" onclick="switchTab('health')" id="nav-health"><span class="tab-icon">🏖</span><span class="tab-label">건강</span></button>
+  <!-- 2번 줄: 복지 / 소통 / 쇼핑 / 트로트 -->
   <button class="tab-btn" onclick="switchTab('benefit')" id="nav-benefit"><span class="tab-icon">🎁</span><span class="tab-label">복지</span></button>
   <button class="tab-btn" onclick="switchTab('talk')" id="nav-talk"><span class="tab-icon">💌</span><span class="tab-label">소통마당</span></button>
   <button class="tab-btn" onclick="switchTab('market')" id="nav-market"><span class="tab-icon">🛒</span><span class="tab-label">시니어쇼핑</span></button>
@@ -427,19 +285,27 @@ var tabFiles = {
 };
 
 function switchTab(tabId, fromPopState) {
+  // 뒤로가기 히스토리 기록 (popstate에서 호출된 경우 제외)
   if (!fromPopState) {
     history.pushState({ tab: tabId }, '', '#' + tabId);
   }
+  // 모든 탭 콘텐츠 숨기기
   document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+  // 모든 nav 버튼 비활성화
   document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  // 선택한 탭 보이기
   document.getElementById('tab-' + tabId).classList.add('active');
+  // 선택한 nav 버튼 강조
   document.getElementById('nav-' + tabId).classList.add('active');
+  // 맨 위로 스크롤
   window.scrollTo(0, 0);
+  // 홈탭이면 home-bar 숨기고, 다른 탭이면 보이기
   if (tabId === 'home') {
     document.getElementById('home-bar').style.display = 'none';
   } else {
     document.getElementById('home-bar').style.display = 'flex';
   }
+  // 처음 방문한 탭이면 파일 불러오기
   if (!loadedTabs[tabId] && tabFiles[tabId]) {
     loadedTabs[tabId] = true;
     loadTabContent(tabId, tabFiles[tabId]);
@@ -455,6 +321,7 @@ function loadTabContent(tabId, fileName) {
     .then(function(html) {
       var container = document.getElementById('tab-' + tabId);
       container.innerHTML = html;
+      // 불러온 HTML 안의 script 태그 다시 실행
       container.querySelectorAll('script').forEach(function(old) {
         var s = document.createElement('script');
         s.textContent = old.textContent;
@@ -567,7 +434,7 @@ function searchCoupang(val) {
   result.style.display = 'block';
 }
 
-// 슬라이드 배너
+// ===== 슬라이드 배너 =====
 var slideIndex = 0;
 var slideTimer = null;
 
@@ -593,6 +460,7 @@ function stopSlide() {
   clearInterval(slideTimer);
 }
 
+// 터치 스와이프 지원
 var touchStartX = 0;
 document.addEventListener('DOMContentLoaded', function() {
   var slider = document.getElementById('bannerSlider');
@@ -610,6 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   startSlide();
 
+  // 오늘의 한마디
   var quotes = [
     '오늘 하루도 건강하게 빛나세요! 🌟',
     '작은 걸음도 쌓이면 큰 길이 됩니다 👣',
@@ -624,6 +493,7 @@ document.addEventListener('DOMContentLoaded', function() {
   if (q) q.textContent = quotes[today];
 });
 
+// 뒤로가기 누르면 이전 탭으로 이동
 window.addEventListener('popstate', function(e) {
   if (e.state && e.state.tab) {
     switchTab(e.state.tab, true);
@@ -632,6 +502,7 @@ window.addEventListener('popstate', function(e) {
   }
 });
 
+// 최초 진입 시 홈탭 히스토리 기록
 window.addEventListener('DOMContentLoaded', function() {
   history.replaceState({ tab: 'home' }, '', '#home');
 });
