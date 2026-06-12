@@ -1,4 +1,4 @@
-/* =====================================================
+﻿/* =====================================================
    시니어 봄날마당 - 공통 스타일
    style.css v1.0 | 2026-06-09
    index.html, fortune.html, health.html 등 모두 공유
@@ -7,7 +7,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --main: #1a6fc4;
+  --main: #4A90D9;
   --point: #f5821f;
   --bg: #f4f6fb;
   --card: #ffffff;
@@ -32,7 +32,7 @@ body {
 }
 
 .app-header {
-  background: linear-gradient(135deg,var(--main) 0%,#1557a0 100%);
+  background: linear-gradient(135deg,var(--main) 0%,#2E7BC4 100%);
   padding: 16px 20px 14px;
   display: flex;
   align-items: center;
@@ -62,7 +62,7 @@ body {
 .tab-content.active { display:block; }
 
 .tab-loading { display:flex; align-items:center; justify-content:center; padding:80px 20px; }
-.tab-loading-spinner { width:40px; height:40px; border:4px solid #e2e8f0; border-top-color:#1a6fc4; border-radius:50%; animation:spin 0.8s linear infinite; display:block; flex-shrink:0; }
+.tab-loading-spinner { width:40px; height:40px; border:4px solid #e2e8f0; border-top-color:#4A90D9; border-radius:50%; animation:spin 0.8s linear infinite; display:block; flex-shrink:0; }
 @keyframes spin { 0%{transform:rotate(0deg);} 100%{transform:rotate(360deg);} }
 
 .bottom-nav {
@@ -84,7 +84,7 @@ body {
 .card { background:var(--card); border-radius:18px; padding:20px; margin-bottom:16px; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
 .card-title { font-size:17px; font-weight:900; color:var(--text); margin-bottom:14px; display:flex; align-items:center; gap:8px; }
 .btn-main { width:100%; background:var(--main); color:#fff; border:none; border-radius:14px; padding:18px; font-size:18px; font-weight:900; cursor:pointer; margin-bottom:10px; transition:background 0.18s; -webkit-tap-highlight-color:transparent; }
-.btn-main:active { background:#1557a0; }
+.btn-main:active { background:#2E7BC4; }
 .btn-main.orange { background:var(--point); }
 .btn-main.orange:active { background:#d96800; }
 .btn-main.purple { background:var(--purple); }
@@ -103,7 +103,7 @@ body {
 .coupon-arrow { font-size:16px; color:var(--main); }
 .coupon-notice { font-size:16px; color:#111111; text-align:center; margin-top:10px; line-height:1.6; }
 
-#tab-home .home-greeting { background:linear-gradient(135deg,var(--main),#1557a0); border-radius:20px; padding:24px 20px; margin-bottom:16px; color:#fff; text-align:center; }
+#tab-home .home-greeting { background:linear-gradient(135deg,var(--main),#2E7BC4); border-radius:20px; padding:24px 20px; margin-bottom:16px; color:#fff; text-align:center; }
 #tab-home .home-greeting h2 { font-size:24px; font-weight:900; line-height:1.4; margin-bottom:6px; }
 #tab-home .home-greeting p { font-size:15px; opacity:0.88; }
 .quick-menu-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:16px; }
@@ -176,7 +176,7 @@ body {
 .calc-input { width:100%; border:2px solid var(--border); border-radius:12px; padding:14px 16px; font-size:17px; font-weight:700; color:var(--text); outline:none; margin-bottom:12px; font-family:'Nanum Gothic',sans-serif; }
 .calc-input:focus { border-color:var(--main); }
 .calc-select { width:100%; border:2px solid var(--border); border-radius:12px; padding:14px 16px; font-size:16px; font-weight:700; color:var(--text); outline:none; margin-bottom:12px; background:#fff; appearance:none; font-family:'Nanum Gothic',sans-serif; }
-.calc-result-box { background:linear-gradient(135deg,var(--main),#1557a0); border-radius:14px; padding:20px; text-align:center; color:#fff; margin-top:14px; display:none; }
+.calc-result-box { background:linear-gradient(135deg,var(--main),#2E7BC4); border-radius:14px; padding:20px; text-align:center; color:#fff; margin-top:14px; display:none; }
 .calc-result-box.show { display:block; }
 .calc-result-amount { font-size:36px; font-weight:900; color:#FFE066; }
 .calc-result-label { font-size:14px; opacity:0.88; margin-top:4px; }
@@ -302,7 +302,7 @@ body {
   box-sizing: border-box;
 }
 .search-box input:focus {
-  border-color: #1a6fc4;
+  border-color: #4A90D9;
 }
 .search-result {
   margin: 0 0 10px;
@@ -310,7 +310,7 @@ body {
 .search-result-title {
   font-size: 15px;
   font-weight: 700;
-  color: #1a6fc4;
+  color: #4A90D9;
   padding: 6px 4px;
 }
 
@@ -352,7 +352,7 @@ body {
 .dial-num {
   font-size: 20px;
   font-weight: 800;
-  color: #1a6fc4;
+  color: #4A90D9;
   min-width: 80px;
   text-align: right;
 }
@@ -369,7 +369,7 @@ body {
   z-index: 120;
 }
 .home-bar button {
-  background: #1a6fc4;
+  background: #4A90D9;
   color: #fff;
   border: none;
   border-radius: 20px;
@@ -399,7 +399,7 @@ body {
   color: #888;
 }
 .footer-link {
-  color: #1a6fc4;
+  color: #4A90D9;
   text-decoration: none;
   font-size: 16px;
 }
