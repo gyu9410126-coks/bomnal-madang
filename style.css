@@ -32,7 +32,7 @@ body {
 }
 
 .app-header {
-  background: linear-gradient(135deg,var(--main) 0%,#2E7BC4 100%);
+  background: #ffffff;
   padding: 16px 20px 14px;
   display: flex;
   align-items: center;
@@ -40,14 +40,14 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 12px rgba(26,111,196,0.25);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
 }
 .header-left { display:flex; align-items:center; gap:10px; }
 .header-logo { font-size:26px; }
 .header-title { color:#222; font-size:20px; font-weight:900; letter-spacing:-0.3px; }
 .header-title span { font-size:13px; font-weight:400; opacity:0.85; display:block; margin-top:1px; }
 .header-right { display:flex; align-items:center; gap:8px; }
-.header-date-box { background:rgba(255,255,255,0.18); color:#fff; font-size:13px; font-weight:700; padding:5px 12px; border-radius:20px; letter-spacing:0.5px; }
+.header-date-box { background:#f0f5ff; color:#4A90D9; font-size:13px; font-weight:700; padding:5px 12px; border-radius:20px; letter-spacing:0.5px; }
 
 .big-font-btn {
   position: fixed; bottom: 88px; right: 18px;
@@ -435,3 +435,5 @@ body {
   margin-top: 1px;
   font-family: 'Pretendard', sans-serif;
 }
+
+
