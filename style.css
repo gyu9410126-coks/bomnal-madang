@@ -410,3 +410,167 @@ body {
   margin: 0 8px;
   color: #ccc;
 }
+
+/* =====================================================
+   신규3: 홈 배너 슬라이더
+   - max-width:448px 고정 (PC에서 늘어남 방지)
+   - 이미지 position:absolute, object-fit:contain
+   - 텍스트 width:52% flex-shrink:0 (모바일 겹침 방지)
+   - body/헤더/하단탭 CSS 일절 건드리지 않음
+   ===================================================== */
+
+/* 배너 전체 감싸는 틀 (가운데 정렬, 최대 너비 고정) */
+.banner-slider-wrap {
+  max-width: 448px;         /* PC에서 배너가 늘어나지 않도록 최대 너비 고정 */
+  margin: 0 auto 16px;      /* 가운데 정렬, 아래 16px 여백 */
+  position: relative;       /* 안에 있는 버튼들이 이 박스 기준으로 위치 잡음 */
+  overflow: hidden;         /* 배너 슬라이드가 영역 밖으로 삐져나오지 않도록 */
+  border-radius: 16px;      /* 모서리 둥글게 */
+  box-shadow: 0 4px 16px rgba(0,0,0,0.13); /* 살짝 그림자 */
+}
+
+/* 슬라이드들이 가로로 나란히 놓이는 레일 */
+.banner-rail {
+  display: flex;            /* 배너 5개를 가로로 한 줄 나열 */
+  transition: transform 0.42s cubic-bezier(0.4,0,0.2,1); /* 부드럽게 슬라이드 이동 */
+  will-change: transform;   /* 애니메이션 최적화 */
+}
+
+/* 배너 카드 1개 */
+.banner-card {
+  min-width: 100%;          /* 배너 1개가 전체 너비를 꽉 채움 */
+  height: 200px;            /* 높이 고정 200px */
+  border-radius: 16px;      /* 모서리 둥글게 */
+  position: relative;       /* 안에 있는 이미지/텍스트가 이 카드 기준으로 위치 잡음 */
+  overflow: hidden;         /* 카드 밖으로 내용 삐져나오지 않도록 */
+  display: flex;            /* 텍스트와 이미지를 가로로 배치 */
+  align-items: flex-end;    /* 텍스트를 아래쪽에 붙임 */
+}
+
+/* 배너 배경 그라데이션 (각 배너마다 색상만 다르게) */
+.banner-card-1 { background: linear-gradient(135deg, #4f46e5, #7c3aed); }
+.banner-card-2 { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+.banner-card-3 { background: linear-gradient(135deg, #059669, #10b981); }
+.banner-card-4 { background: linear-gradient(135deg, #dc2626, #f43f5e); }
+.banner-card-5 { background: linear-gradient(135deg, #d97706, #f59e0b); }
+
+/* 배너 왼쪽 텍스트 영역 */
+.banner-text {
+  position: relative;       /* z-index 적용을 위해 relative 필요 */
+  z-index: 2;               /* 이미지보다 앞에 보이도록 */
+  width: 52%;               /* 텍스트 영역 너비 고정 (모바일에서 이미지와 겹치지 않도록) */
+  flex-shrink: 0;           /* 화면이 좁아져도 텍스트 너비가 줄어들지 않도록 */
+  padding: 20px 0 20px 20px; /* 위20 오른쪽0 아래20 왼쪽20 여백 */
+  display: flex;
+  flex-direction: column;   /* 제목·설명·버튼을 세로로 쌓기 */
+  justify-content: center;
+  gap: 6px;
+}
+
+/* 배너 제목 텍스트 */
+.banner-title {
+  font-size: 20px;          /* 어르신 기준 최소 20px */
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.3;
+  letter-spacing: -0.3px;
+}
+
+/* 배너 설명 텍스트 */
+.banner-desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.88);
+  line-height: 1.5;
+}
+
+/* 배너 버튼 */
+.banner-btn {
+  display: inline-block;
+  margin-top: 4px;
+  background: rgba(255,255,255,0.22); /* 반투명 흰색 배경 */
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: 'Nanum Gothic', sans-serif;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  border-radius: 20px;
+  padding: 7px 14px;
+  cursor: pointer;
+  width: fit-content;
+  transition: background 0.18s;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 0;           /* btn-main의 전역 min-height 무력화 */
+}
+.banner-btn:active {
+  background: rgba(255,255,255,0.38);
+}
+
+/* 배너 오른쪽 이미지 영역 */
+.banner-img-wrap {
+  position: absolute;       /* 카드 기준으로 오른쪽에 절대 위치 */
+  right: 0;
+  bottom: 0;
+  top: 0;
+  width: 52%;               /* 이미지 영역 너비 */
+  z-index: 1;               /* 텍스트보다 뒤에 배치 */
+  pointer-events: none;     /* 이미지 클릭해도 텍스트 버튼이 눌리도록 */
+}
+
+/* 배너 이미지 */
+.banner-img {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;      /* 이미지 비율 유지, 흐릿해지지 않음 */
+  object-position: right bottom; /* 오른쪽 아래에 붙어서 표시 */
+}
+
+/* 배너 하단 도트(점) 인디케이터 */
+.banner-dots {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+.banner-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.45);
+  transition: background 0.25s, width 0.25s;
+  cursor: pointer;
+}
+.banner-dot.active {
+  background: #fff;
+  width: 18px;              /* 현재 슬라이드 도트는 길쭉하게 강조 */
+  border-radius: 4px;
+}
+
+/* 배너 좌우 화살표 버튼 (선택적, 태블릿/PC용) */
+.banner-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(255,255,255,0.22);
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.18s;
+}
+.banner-arrow:active { background: rgba(255,255,255,0.42); }
+.banner-arrow.prev { left: 8px; }
+.banner-arrow.next { right: 8px; }

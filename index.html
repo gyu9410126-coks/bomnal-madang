@@ -106,6 +106,92 @@ body {
     <h2 id="greeting-text">봄날마당, 안녕하세요! 🌸</h2>
     <p id="greeting-sub">오늘도 좋은 하루 되세요 😊</p>
   </div>
+
+  <!-- =====================================================
+       신규3: 홈 배너 슬라이더 (이로움돌봄 벤치마킹)
+       - 배너 5개 자동 슬라이드 (3초마다)
+       - 손가락으로 좌우 스와이프 가능
+       - PC에서 max-width:448px 고정 (늘어남 방지)
+       ===================================================== -->
+  <div class="banner-slider-wrap" id="bannerWrap">
+    <div class="banner-rail" id="bannerRail">
+
+      <!-- 배너1: 복지혜택 -->
+      <div class="banner-card banner-card-1" onclick="switchTab('benefit')">
+        <div class="banner-text">
+          <div class="banner-title">복지혜택 한눈에</div>
+          <div class="banner-desc">내가 받을 수 있는 혜택<br>바로 확인!</div>
+          <button class="banner-btn">혜택 보러가기 →</button>
+        </div>
+        <div class="banner-img-wrap">
+          <img class="banner-img" src="banner1.jpg" alt="복지혜택 배너 이미지" onerror="this.style.display='none'">
+        </div>
+      </div>
+
+      <!-- 배너2: 오늘의 운세 -->
+      <div class="banner-card banner-card-2" onclick="switchTab('fortune')">
+        <div class="banner-text">
+          <div class="banner-title">오늘의 운세</div>
+          <div class="banner-desc">띠별 맞춤 운세<br>바로 보기</div>
+          <button class="banner-btn">운세 보러가기 →</button>
+        </div>
+        <div class="banner-img-wrap">
+          <img class="banner-img" src="banner2.jpg" alt="운세 배너 이미지" onerror="this.style.display='none'">
+        </div>
+      </div>
+
+      <!-- 배너3: 건강 관리 -->
+      <div class="banner-card banner-card-3" onclick="switchTab('health')">
+        <div class="banner-text">
+          <div class="banner-title">건강 관리</div>
+          <div class="banner-desc">만보기·약 알림<br>건강정보</div>
+          <button class="banner-btn">건강 보러가기 →</button>
+        </div>
+        <div class="banner-img-wrap">
+          <img class="banner-img" src="banner3.jpg" alt="건강 배너 이미지" onerror="this.style.display='none'">
+        </div>
+      </div>
+
+      <!-- 배너4: 트로트 봄날마당 -->
+      <div class="banner-card banner-card-4" onclick="switchTab('trot')">
+        <div class="banner-text">
+          <div class="banner-title">트로트 봄날마당</div>
+          <div class="banner-desc">좋아하는 트로트<br>바로 듣기</div>
+          <button class="banner-btn">트로트 듣기 →</button>
+        </div>
+        <div class="banner-img-wrap">
+          <img class="banner-img" src="banner4.jpg" alt="트로트 배너 이미지" onerror="this.style.display='none'">
+        </div>
+      </div>
+
+      <!-- 배너5: 시니어 쇼핑 -->
+      <div class="banner-card banner-card-5" onclick="switchTab('market')">
+        <div class="banner-text">
+          <div class="banner-title">시니어 쇼핑</div>
+          <div class="banner-desc">어르신 맞춤<br>추천 상품</div>
+          <button class="banner-btn">쇼핑 보러가기 →</button>
+        </div>
+        <div class="banner-img-wrap">
+          <img class="banner-img" src="banner5.jpg" alt="쇼핑 배너 이미지" onerror="this.style.display='none'">
+        </div>
+      </div>
+
+    </div><!-- /banner-rail -->
+
+    <!-- 하단 도트 인디케이터 -->
+    <div class="banner-dots" id="bannerDots">
+      <div class="banner-dot active" onclick="bannerGoTo(0)"></div>
+      <div class="banner-dot" onclick="bannerGoTo(1)"></div>
+      <div class="banner-dot" onclick="bannerGoTo(2)"></div>
+      <div class="banner-dot" onclick="bannerGoTo(3)"></div>
+      <div class="banner-dot" onclick="bannerGoTo(4)"></div>
+    </div>
+
+    <!-- 좌우 화살표 (태블릿/PC에서 편리하게) -->
+    <button class="banner-arrow prev" onclick="bannerMove(-1)" aria-label="이전 배너">&#8249;</button>
+    <button class="banner-arrow next" onclick="bannerMove(1)" aria-label="다음 배너">&#8250;</button>
+
+  </div><!-- /banner-slider-wrap -->
   <div class="search-box">
     <input type="text" id="search-input" placeholder="🔍 찾으시는 상품을 입력하세요 (예: 무릎보호대, 영양제)" oninput="searchCoupang(this.value)">
   </div>
@@ -190,7 +276,68 @@ body {
 </nav>
 
 <script>
-function getTodayKey() {
+/* =====================================================
+   신규3: 배너 슬라이더 동작 코드
+   - bannerCur: 현재 보여주는 배너 번호 (0~4)
+   - 3초마다 자동으로 다음 배너로 이동
+   - 손가락 스와이프로 좌우 이동 가능
+   ===================================================== */
+var bannerCur = 0;         // 현재 배너 번호
+var bannerTotal = 5;       // 배너 총 개수
+var bannerTimer = null;    // 자동 슬라이드 타이머
+var bannerTouchX = 0;      // 터치 시작 X 좌표
+
+// 특정 배너 번호로 이동
+function bannerGoTo(idx) {
+  bannerCur = (idx + bannerTotal) % bannerTotal; // 0~4 범위 유지
+  var rail = document.getElementById('bannerRail');
+  if (rail) rail.style.transform = 'translateX(-' + (bannerCur * 100) + '%)';
+  // 도트 업데이트
+  var dots = document.querySelectorAll('.banner-dot');
+  dots.forEach(function(d, i) {
+    d.classList.toggle('active', i === bannerCur);
+  });
+}
+
+// 방향으로 이동 (dir: +1 다음, -1 이전)
+function bannerMove(dir) {
+  bannerResetTimer();
+  bannerGoTo(bannerCur + dir);
+}
+
+// 자동 슬라이드 타이머 초기화 후 재시작
+function bannerResetTimer() {
+  if (bannerTimer) clearInterval(bannerTimer);
+  bannerTimer = setInterval(function() {
+    bannerGoTo(bannerCur + 1);
+  }, 3000); // 3초마다 자동 이동
+}
+
+// 배너 터치 스와이프 설정
+function bannerInitSwipe() {
+  var wrap = document.getElementById('bannerWrap');
+  if (!wrap) return;
+  // 터치 시작: 손가락이 처음 닿은 X 위치 저장
+  wrap.addEventListener('touchstart', function(e) {
+    bannerTouchX = e.touches[0].clientX;
+  }, { passive: true });
+  // 터치 끝: 손가락이 떨어진 위치와 비교해서 방향 결정
+  wrap.addEventListener('touchend', function(e) {
+    var diff = bannerTouchX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) { // 40px 이상 움직였을 때만 슬라이드
+      bannerMove(diff > 0 ? 1 : -1);
+    }
+  }, { passive: true });
+}
+
+// 페이지 로드 완료 후 배너 시작
+window.addEventListener('DOMContentLoaded', function() {
+  history.replaceState({ tab: 'home' }, '', '#home');
+  bannerGoTo(0);       // 첫 배너 표시
+  bannerResetTimer();  // 자동 슬라이드 시작
+  bannerInitSwipe();   // 스와이프 이벤트 등록
+});
+
   var d = new Date();
   return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
 }
@@ -368,11 +515,6 @@ window.addEventListener('popstate', function(e) {
   } else {
     switchTab('home', true);
   }
-});
-
-// 최초 진입 시 홈탭 히스토리 기록
-window.addEventListener('DOMContentLoaded', function() {
-  history.replaceState({ tab: 'home' }, '', '#home');
 });
 </script>
 <footer class="site-footer">
