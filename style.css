@@ -44,7 +44,7 @@ body {
 }
 .header-left { display:flex; align-items:center; gap:10px; }
 .header-logo { font-size:26px; }
-.header-title { color:#fff; font-size:20px; font-weight:900; letter-spacing:-0.3px; }
+.header-title { color:#222; font-size:20px; font-weight:900; letter-spacing:-0.3px; }
 .header-title span { font-size:13px; font-weight:400; opacity:0.85; display:block; margin-top:1px; }
 .header-right { display:flex; align-items:center; gap:8px; }
 .header-date-box { background:rgba(255,255,255,0.18); color:#fff; font-size:13px; font-weight:700; padding:5px 12px; border-radius:20px; letter-spacing:0.5px; }
@@ -411,3 +411,27 @@ body {
   color: #ccc;
 }
 
+
+/* 헤더 로고 세련된 스타일 */
+.logo-senior {
+  color: #4A90D9;
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 900;
+  font-size: 21px;
+  letter-spacing: -0.5px;
+}
+.logo-bomnal {
+  color: #f5821f;
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 900;
+  font-size: 21px;
+  letter-spacing: -0.5px;
+}
+.logo-sub {
+  font-size: 12px;
+  font-weight: 400;
+  color: #888;
+  display: block;
+  margin-top: 1px;
+  font-family: 'Pretendard', sans-serif;
+}
