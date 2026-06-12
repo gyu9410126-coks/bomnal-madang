@@ -33,7 +33,7 @@ body {
 
 .app-header {
   background: #ffffff;
-  padding: 20px 20px 18px;
+  padding: 26px 20px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -417,14 +417,14 @@ body {
   color: #4A90D9;
   font-family: 'Noto Serif KR', serif;
   font-weight: 900;
-  font-size: 46px;
+  font-size: 56px;
   letter-spacing: -0.5px;
 }
 .logo-bomnal {
   color: #f5821f;
   font-family: 'Noto Serif KR', serif;
   font-weight: 900;
-  font-size: 46px;
+  font-size: 56px;
   letter-spacing: -0.5px;
 }
 .logo-sub {
@@ -435,6 +435,7 @@ body {
   margin-top: 1px;
   font-family: 'Pretendard', sans-serif;
 }
+
 
 
 
