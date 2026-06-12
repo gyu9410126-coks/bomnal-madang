@@ -327,16 +327,36 @@ body {
 
 <script>
 
-// ===== 배너 슬라이더 =====
+// ===== 배너 슬라이더 + 스와이프 =====
 (function(){
   var idx = 0;
   var items, dots, timer;
+  var startX = 0;
+  var wrap;
+
   function init(){
     items = document.querySelectorAll('.bnr-item');
     dots  = document.querySelectorAll('.bnr-dot');
+    wrap  = document.querySelector('.bnr-wrap');
     if(!items.length) return;
     timer = setInterval(function(){ bnrGo((idx+1) % items.length); }, 3000);
+
+    // 스와이프 기능 — 손가락으로 좌우로 밀기
+    wrap.addEventListener('touchstart', function(e){
+      startX = e.touches[0].clientX;
+    }, { passive: true });
+
+    wrap.addEventListener('touchend', function(e){
+      var diff = startX - e.changedTouches[0].clientX;
+      if(Math.abs(diff) < 30) return; // 30px 이하는 무시
+      if(diff > 0){
+        bnrGo((idx+1) % items.length); // 왼쪽으로 밀면 다음 배너
+      } else {
+        bnrGo((idx - 1 + items.length) % items.length); // 오른쪽으로 밀면 이전 배너
+      }
+    }, { passive: true });
   }
+
   window.bnrGo = function(n){
     idx = n;
     items.forEach(function(el,i){ el.classList.toggle('on', i===n); });
@@ -541,6 +561,7 @@ window.addEventListener('DOMContentLoaded', function() {
 </footer>
 </body>
 </html>
+
 
 
 
