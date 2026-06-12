@@ -528,48 +528,52 @@ body {
   position: relative;
   overflow: hidden;
   padding: 0;
-  height: 180px;
+  height: 160px;
   cursor: pointer;
 }
 .banner-bg-img {
   position: absolute;
   top: 0; right: 0;
-  width: 65%;
+  width: 58%;
   height: 100%;
-  object-fit: cover;
-  object-position: center;
+  object-fit: contain;
+  object-position: right center;
 }
 .banner-overlay {
   position: absolute;
   top: 0; left: 0;
-  width: 50%;
+  width: 48%;
   height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 16px 0 16px 20px;
-  background: linear-gradient(to right, rgba(255,255,255,1) 60%, rgba(255,255,255,0));
+  padding: 12px 0 12px 16px;
+  background: linear-gradient(to right, rgba(255,255,255,1) 70%, rgba(255,255,255,0));
 }
 .banner-overlay .banner-title {
-  font-size: 22px;
+  font-size: 17px;
   font-weight: 900;
   color: #1a1a1a;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   line-height: 1.3;
+  word-break: keep-all;
+  white-space: nowrap;
 }
 .banner-overlay .banner-desc {
-  font-size: 14px;
+  font-size: 12px;
   color: #555;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   line-height: 1.4;
+  word-break: keep-all;
 }
 .banner-btn {
   display: inline-block;
   background: #1a6fc4;
   color: #fff;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
-  padding: 6px 12px;
+  padding: 5px 10px;
   border-radius: 20px;
   width: fit-content;
+  white-space: nowrap;
 }
