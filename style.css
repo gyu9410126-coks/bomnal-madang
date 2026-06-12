@@ -415,16 +415,16 @@ body {
 /* 헤더 로고 세련된 스타일 */
 .logo-senior {
   color: #4A90D9;
-  font-family: 'Pretendard', sans-serif;
+  font-family: 'Noto Serif KR', serif;
   font-weight: 900;
-  font-size: 21px;
+  font-size: 26px;
   letter-spacing: -0.5px;
 }
 .logo-bomnal {
   color: #f5821f;
-  font-family: 'Pretendard', sans-serif;
+  font-family: 'Noto Serif KR', serif;
   font-weight: 900;
-  font-size: 21px;
+  font-size: 26px;
   letter-spacing: -0.5px;
 }
 .logo-sub {
@@ -435,5 +435,6 @@ body {
   margin-top: 1px;
   font-family: 'Pretendard', sans-serif;
 }
+
 
 
