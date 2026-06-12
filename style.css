@@ -4,44 +4,7 @@
    index.html, fortune.html, health.html 등 모두 공유
    ===================================================== */
 
-/* ===== 다크모드 강제 해제 — 항상 밝은 화면 유지 ===== */
-/* 스마트폰을 다크모드로 설정해도 이 앱은 항상 흰 배경으로 보입니다 */
-:root { color-scheme: light only; }
-html, body {
-  background-color: #ffffff !important;
-  color: #222222 !important;
-}
-@media (prefers-color-scheme: dark) {
-  html { background-color: #ffffff !important; }
-  body { background-color: #ffffff !important; color: #222222 !important; }
-}
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
-
-/* ===== PC 전체창 레이아웃 중앙정렬 ===== */
-body {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-@media (min-width: 600px) {
-  .app-header {
-    max-width: 1200px;
-    margin: 0 auto;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100%;
-  }
-  .bottom-nav {
-    max-width: 1200px;
-    margin: 0 auto;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  .banner-wrap {
-    max-width: 600px;
-    margin: 12px auto 0 auto;
-  }
-}
 
 :root {
   --main: #1a6fc4;
@@ -79,9 +42,6 @@ body {
   z-index: 100;
   box-shadow: 0 2px 12px rgba(26,111,196,0.25);
 }
-.header-title span { display: none; }
-.header-right { display: none; }
-.app-header { padding: 0 16px; height: 56px; }
 .header-left { display:flex; align-items:center; gap:10px; }
 .header-logo { font-size:26px; }
 .header-title { color:#fff; font-size:20px; font-weight:900; letter-spacing:-0.3px; }
@@ -147,9 +107,7 @@ body {
 #tab-home .home-greeting h2 { font-size:24px; font-weight:900; line-height:1.4; margin-bottom:6px; }
 #tab-home .home-greeting p { font-size:15px; opacity:0.88; }
 .quick-menu-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:16px; }
-.quick-menu-item { background:var(--card); border-radius:16px; padding:20px 14px; text-align:center; cursor:pointer; border:none; box-shadow:0 2px 10px rgba(0,0,0,0.06); transition:transform 0.15s; -webkit-tap-highlight-color:transparent; min-height:80px; 
-  overflow: hidden;
-}
+.quick-menu-item { background:var(--card); border-radius:16px; padding:20px 14px; text-align:center; cursor:pointer; border:none; box-shadow:0 2px 10px rgba(0,0,0,0.06); transition:transform 0.15s; -webkit-tap-highlight-color:transparent; min-height:80px; }
 .quick-menu-item:active { transform:scale(0.95); }
 .quick-menu-item .menu-icon { font-size:32px; display:block; margin-bottom:8px; }
 .quick-menu-item .menu-name { font-size:15px; font-weight:800; color:var(--text); }
@@ -451,165 +409,4 @@ body {
 .footer-dot {
   margin: 0 8px;
   color: #ccc;
-}
-/* ===== 신규3: UI 전면 개편 스타일 ===== */
-
-/* 섹션 헤더 */
-.section-header {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1a6fc4;
-  padding: 8px 16px;
-  margin: 16px 0 8px 0;
-  border-left: 4px solid #1a6fc4;
-  background: #f0f6ff;
-  border-radius: 0 8px 8px 0;
-}
-
-/* 슬라이드 배너 */
-.banner-wrap {
-  position: relative;
-  overflow: hidden;
-  border-radius: 16px;
-  margin: 12px 16px 0 16px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  max-width: 448px;
-}
-.banner-slider {
-  display: flex;
-  transition: transform 0.4s ease;
-  will-change: transform;
-}
-.banner-slide {
-  min-width: 100%;
-  padding: 0;
-  display: flex;
-  align-items: stretch;
-  cursor: pointer;
-  border-radius: 16px;
-  overflow: hidden;
-}
-.banner-icon {
-  font-size: 48px;
-  flex-shrink: 0;
-}
-.banner-text {
-  flex: 1;
-}
-.banner-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 4px;
-}
-.banner-desc {
-  font-size: 17px;
-  color: rgba(255,255,255,0.9);
-}
-.banner-arrow {
-  font-size: 28px;
-  color: rgba(255,255,255,0.8);
-  flex-shrink: 0;
-}
-.banner-dots {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 0 6px 0;
-  background: #f8faff;
-}
-.banner-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #c7d8f0;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-.banner-dot.active {
-  background: #1a6fc4;
-  width: 24px;
-  border-radius: 5px;
-}
-
-/* 오늘의 한마디 */
-.today-card {
-  margin: 8px 16px;
-  background: linear-gradient(135deg, #fff8e1, #fffde7);
-  border: 1px solid #f59e0b;
-  border-radius: 14px;
-  padding: 16px 20px;
-  text-align: center;
-}
-.today-label {
-  font-size: 16px;
-  color: #f59e0b;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-.today-quote {
-  font-size: 20px;
-  color: #333;
-  font-weight: 700;
-  line-height: 1.6;
-}
-
-/* ===== 배너 이미지 스타일 ===== */
-.banner-color-slide {
-  position: relative;
-  overflow: hidden;
-  padding: 0;
-  height: 200px;
-  cursor: pointer;
-  border-radius: 16px;
-  display: flex;
-  align-items: stretch;
-  width: 100%;
-}
-.banner-text-area {
-  position: relative;
-  z-index: 2;
-  padding: 24px 16px 24px 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 52%;
-  flex-shrink: 0;
-}
-.banner-text-area .banner-title {
-  font-size: 20px;
-  font-weight: 900;
-  color: #ffffff;
-  margin-bottom: 6px;
-  line-height: 1.3;
-  word-break: keep-all;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
-}
-.banner-text-area .banner-desc {
-  font-size: 14px;
-  color: rgba(255,255,255,0.9);
-  margin-bottom: 12px;
-  line-height: 1.5;
-  word-break: keep-all;
-}
-.banner-btn {
-  display: inline-block;
-  background: rgba(255,255,255,0.25);
-  border: 2px solid rgba(255,255,255,0.8);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 7px 14px;
-  border-radius: 20px;
-  width: fit-content;
-  white-space: nowrap;
-}
-.banner-char-img {
-  position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  width: 52%;
-  object-fit: cover;
-  object-position: left top;
 }
