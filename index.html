@@ -99,27 +99,95 @@ body {
 <div class="toast" id="toast"></div>
 
 <!-- ===================================================
-     홈 탭
+     홈 탭 — 신규3: UI 전면 개편
      =================================================== -->
 <div class="tab-content active" id="tab-home">
-  <div class="home-greeting">
-    <h2 id="greeting-text">봄날마당, 안녕하세요! 🌸</h2>
-    <p id="greeting-sub">오늘도 좋은 하루 되세요 😊</p>
+
+  <!-- 슬라이드 배너 -->
+  <div class="banner-wrap">
+    <div class="banner-slider" id="bannerSlider">
+      <div class="banner-slide" style="background:linear-gradient(135deg,#1a6fc4,#3b8fe8)" onclick="switchTab('benefit')">
+        <div class="banner-icon">🎁</div>
+        <div class="banner-text">
+          <div class="banner-title">복지혜택 한눈에</div>
+          <div class="banner-desc">내가 받을 수 있는 혜택 바로 확인!</div>
+        </div>
+        <div class="banner-arrow">→</div>
+      </div>
+      <div class="banner-slide" style="background:linear-gradient(135deg,#7c3aed,#a855f7)" onclick="switchTab('fortune')">
+        <div class="banner-icon">🔮</div>
+        <div class="banner-text">
+          <div class="banner-title">오늘의 운세</div>
+          <div class="banner-desc">띠별 맞춤 운세 바로 보기</div>
+        </div>
+        <div class="banner-arrow">→</div>
+      </div>
+      <div class="banner-slide" style="background:linear-gradient(135deg,#059669,#10b981)" onclick="switchTab('health')">
+        <div class="banner-icon">💊</div>
+        <div class="banner-text">
+          <div class="banner-title">건강 관리</div>
+          <div class="banner-desc">만보기·약 알림·건강정보</div>
+        </div>
+        <div class="banner-arrow">→</div>
+      </div>
+      <div class="banner-slide" style="background:linear-gradient(135deg,#dc2626,#f87171)" onclick="switchTab('trot')">
+        <div class="banner-icon">🎵</div>
+        <div class="banner-text">
+          <div class="banner-title">트로트 봄날마당</div>
+          <div class="banner-desc">좋아하는 트로트 바로 듣기</div>
+        </div>
+        <div class="banner-arrow">→</div>
+      </div>
+      <div class="banner-slide" style="background:linear-gradient(135deg,#d97706,#fbbf24)" onclick="switchTab('market')">
+        <div class="banner-icon">🛒</div>
+        <div class="banner-text">
+          <div class="banner-title">시니어 쇼핑</div>
+          <div class="banner-desc">어르신 맞춤 추천 상품</div>
+        </div>
+        <div class="banner-arrow">→</div>
+      </div>
+    </div>
+    <div class="banner-dots" id="bannerDots">
+      <span class="banner-dot active" onclick="goSlide(0)"></span>
+      <span class="banner-dot" onclick="goSlide(1)"></span>
+      <span class="banner-dot" onclick="goSlide(2)"></span>
+      <span class="banner-dot" onclick="goSlide(3)"></span>
+      <span class="banner-dot" onclick="goSlide(4)"></span>
+    </div>
   </div>
+
+  <!-- 인사말 -->
+  <div class="home-greeting">
+    <h2 id="greeting-text">봄날마당에 오신 걸 환영합니다 🌸</h2>
+    <p id="greeting-sub">오늘도 건강하고 행복한 하루 되세요 😊</p>
+  </div>
+
+  <!-- 검색창 -->
   <div class="search-box">
     <input type="text" id="search-input" placeholder="🔍 찾으시는 상품을 입력하세요 (예: 무릎보호대, 영양제)" oninput="searchCoupang(this.value)">
   </div>
   <div class="search-result" id="search-result" style="display:none"></div>
+
+  <!-- 빠른 메뉴 -->
+  <div class="section-header">⚡ 빠른 메뉴</div>
   <div class="quick-menu-grid">
     <button class="quick-menu-item" onclick="switchTab('fortune')"><span class="menu-icon">🔮</span><span class="menu-name">오늘의 운세</span><span class="menu-desc">띠별 맞춤 운세</span></button>
-    <button class="quick-menu-item" onclick="switchTab('game')"><span class="menu-icon">🎮</span><span class="menu-name">두뇌게임·퀴즈</span><span class="menu-desc">재미있는 두뇌 게임!</span></button>
-    <button class="quick-menu-item" onclick="switchTab('health')"><span class="menu-icon">🏖</span><span class="menu-name">건강정보·계산</span><span class="menu-desc">건강정보·계산기·알람</span></button>
-    <button class="quick-menu-item" onclick="switchTab('benefit')"><span class="menu-icon">🎁</span><span class="menu-name">복지혜택</span><span class="menu-desc">노인복지·보조금 정보</span></button>
-    <button class="quick-menu-item" onclick="switchTab('market')"><span class="menu-icon">🛒</span><span class="menu-name">시니어쇼핑</span><span class="menu-desc">시니어 맞춤 쇼핑</span></button>
-    <button class="quick-menu-item" onclick="switchTab('trot')"><span class="menu-icon">🎵</span><span class="menu-name">트로트봄날마당</span><span class="menu-desc">최신 트로트 무대</span></button>
+    <button class="quick-menu-item" onclick="switchTab('game')"><span class="menu-icon">🎮</span><span class="menu-name">두뇌게임</span><span class="menu-desc">재미있는 두뇌 게임</span></button>
+    <button class="quick-menu-item" onclick="switchTab('health')"><span class="menu-icon">💊</span><span class="menu-name">건강관리</span><span class="menu-desc">만보기·약알림</span></button>
+    <button class="quick-menu-item" onclick="switchTab('benefit')"><span class="menu-icon">🎁</span><span class="menu-name">복지혜택</span><span class="menu-desc">보조금·연금정보</span></button>
+    <button class="quick-menu-item" onclick="switchTab('market')"><span class="menu-icon">🛒</span><span class="menu-name">시니어쇼핑</span><span class="menu-desc">맞춤 추천 상품</span></button>
+    <button class="quick-menu-item" onclick="switchTab('trot')"><span class="menu-icon">🎵</span><span class="menu-name">트로트</span><span class="menu-desc">최신 트로트 무대</span></button>
   </div>
+
+  <!-- 오늘의 한마디 -->
+  <div class="today-card" id="todayCard">
+    <div class="today-label">🌟 오늘의 한마디</div>
+    <div class="today-quote" id="todayQuote">오늘 하루도 건강하게 빛나세요!</div>
+  </div>
+
+  <!-- 뉴스 -->
+  <div class="section-header">📰 시니어 봄날 뉴스</div>
   <div class="card">
-    <div class="card-title">📰 시니어 봄날마당 뉴스</div>
     <div class="news-card">
       <span class="news-category">노인복지·보조금</span>
       <div class="news-title" onclick="toggleNews(this)">2026년 기초연금 인상 — 월 최대 33만원 지급</div>
@@ -137,22 +205,27 @@ body {
     </div>
     <p class="news-notice">📌 뉴스 제목을 눌러보시면 봄날마당 맞춤 요약 내용을 확인할 수 있습니다</p>
   </div>
+
+  <!-- 쇼핑 -->
+  <div class="section-header">🛒 시니어 맞춤 쇼핑</div>
   <div class="card">
-    <div class="card-title">🛒 시니어 맞춤 쇼핑 추천</div>
     <div class="coupon-items">
       <a class="coupon-item" href="https://link.coupang.com/a/epp2YINgfk" target="_blank" rel="noopener noreferrer"><span class="coupon-icon">👟</span><div class="coupon-text"><strong>시니어 운동화 (60대)</strong><span>미끄럼방지, 가벼운 소재 추천</span></div><span class="coupon-arrow">↗</span></a>
       <a class="coupon-item" href="https://link.coupang.com/a/epp2YINgfk" target="_blank" rel="noopener noreferrer"><span class="coupon-icon">💊</span><div class="coupon-text"><strong>시니어 영양제 (관절·눈건강)</strong><span>띠별 맞춤 추천. 건강을 챙겨드려요</span></div><span class="coupon-arrow">↗</span></a>
     </div>
     <p class="coupon-notice">이 링크로 구매 시 봄날마당이 쿠팡에서 소정의 수수료를 받습니다. 어르신께서 내시는 금액은 동일합니다.</p>
   </div>
+
+  <!-- 긴급전화 -->
+  <div class="section-header">📞 긴급 전화</div>
   <div class="card">
-    <div class="card-title">📞 어르신 긴급 전화 한번에</div>
     <div class="dial-list">
       <a class="dial-item" href="tel:1355"><span class="dial-icon">🏛</span><div class="dial-text"><strong>국민연금공단</strong><span>연금 상담·신청</span></div><span class="dial-num">1355</span></a>
       <a class="dial-item" href="tel:129"><span class="dial-icon">🏥</span><div class="dial-text"><strong>보건복지상담센터</strong><span>복지·의료 상담</span></div><span class="dial-num">129</span></a>
       <a class="dial-item" href="tel:15771389"><span class="dial-icon">🛡</span><div class="dial-text"><strong>노인학대예방센터</strong><span>24시간 신고·상담</span></div><span class="dial-num">1577-1389</span></a>
     </div>
   </div>
+
   <button class="btn-kakao" onclick="shareKakao()">💌 카카오톡으로 봄날마당 친구에게 공유하기</button>
 </div>
 
@@ -360,6 +433,65 @@ function searchCoupang(val) {
   result.innerHTML = html;
   result.style.display = 'block';
 }
+
+// ===== 슬라이드 배너 =====
+var slideIndex = 0;
+var slideTimer = null;
+
+function goSlide(n) {
+  var slides = document.querySelectorAll('.banner-slide');
+  var dots = document.querySelectorAll('.banner-dot');
+  if (slides.length === 0) return;
+  slideIndex = n;
+  if (slideIndex >= slides.length) slideIndex = 0;
+  if (slideIndex < 0) slideIndex = slides.length - 1;
+  document.getElementById('bannerSlider').style.transform = 'translateX(-' + (slideIndex * 100) + '%)';
+  dots.forEach(function(d) { d.classList.remove('active'); });
+  dots[slideIndex].classList.add('active');
+}
+
+function startSlide() {
+  slideTimer = setInterval(function() {
+    goSlide(slideIndex + 1);
+  }, 3500);
+}
+
+function stopSlide() {
+  clearInterval(slideTimer);
+}
+
+// 터치 스와이프 지원
+var touchStartX = 0;
+document.addEventListener('DOMContentLoaded', function() {
+  var slider = document.getElementById('bannerSlider');
+  if (!slider) return;
+  slider.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+    stopSlide();
+  });
+  slider.addEventListener('touchend', function(e) {
+    var diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) {
+      goSlide(diff > 0 ? slideIndex + 1 : slideIndex - 1);
+    }
+    startSlide();
+  });
+  startSlide();
+
+  // 오늘의 한마디
+  var quotes = [
+    '오늘 하루도 건강하게 빛나세요! 🌟',
+    '작은 걸음도 쌓이면 큰 길이 됩니다 👣',
+    '웃음은 최고의 보약입니다 😊',
+    '오늘도 소중한 하루를 선물받았습니다 🌸',
+    '건강이 최고의 재산입니다 💪',
+    '매일 조금씩, 더 좋아지고 있어요 🌱',
+    '오늘의 나는 어제보다 더 지혜롭습니다 ✨',
+  ];
+  var today = new Date().getDay();
+  var q = document.getElementById('todayQuote');
+  if (q) q.textContent = quotes[today];
+});
 
 // 뒤로가기 누르면 이전 탭으로 이동
 window.addEventListener('popstate', function(e) {
