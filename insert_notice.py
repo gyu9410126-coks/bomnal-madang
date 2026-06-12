@@ -1,48 +1,34 @@
-with open("index.html", "r", encoding="utf-8") as f:
+with open("style.css", "r", encoding="utf-8") as f:
     content = f.read()
 
-# switchTab 함수 안에 pushState 추가
-old = """function switchTab(tabId) {
-  // 모든 탭 콘텐츠 숨기기"""
+old = "* { box-sizing: border-box; margin: 0; padding: 0; }"
 
-new = """function switchTab(tabId, fromPopState) {
-  // 뒤로가기 히스토리 기록 (popstate에서 호출된 경우 제외)
-  if (!fromPopState) {
-    history.pushState({ tab: tabId }, '', '#' + tabId);
-  }
-  // 모든 탭 콘텐츠 숨기기"""
-
-# popstate 이벤트 리스너 추가 (</script> 바로 앞에)
-old2 = """  result.style.display = 'block';
+new = """/* ===== 다크모드 강제 해제 — 항상 밝은 화면 유지 ===== */
+/* 스마트폰을 다크모드로 설정해도 이 앱은 항상 흰 배경으로 보입니다 */
+:root { color-scheme: light only; }
+html, body {
+  background-color: #ffffff !important;
+  color: #222222 !important;
+  -webkit-color-scheme: light !important; /* 아이폰 사파리 전용 */
 }
-</script>"""
-
-new2 = """  result.style.display = 'block';
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background-color: #ffffff !important;
+    color: #222222 !important;
+  }
+  * {
+    color: inherit !important;
+    background-color: inherit !important;
+    border-color: inherit !important;
+  }
 }
 
-// 뒤로가기 누르면 이전 탭으로 이동
-window.addEventListener('popstate', function(e) {
-  if (e.state && e.state.tab) {
-    switchTab(e.state.tab, true);
-  } else {
-    switchTab('home', true);
-  }
-});
+* { box-sizing: border-box; margin: 0; padding: 0; }"""
 
-// 최초 진입 시 홈탭 히스토리 기록
-window.addEventListener('DOMContentLoaded', function() {
-  history.replaceState({ tab: 'home' }, '', '#home');
-});
-</script>"""
-
-if old in content and old2 in content:
+if old in content:
     content = content.replace(old, new)
-    content = content.replace(old2, new2)
-    with open("index.html", "w", encoding="utf-8") as f:
+    with open("style.css", "w", encoding="utf-8") as f:
         f.write(content)
-    print("index.html 뒤로가기 튕김 방지 완료 ✅")
+    print("style.css 다크모드 강제 해제 완료 ✅")
 else:
-    if old not in content:
-        print("⚠️ switchTab 함수를 찾지 못했습니다!")
-    if old2 not in content:
-        print("⚠️ popstate 삽입 위치를 찾지 못했습니다!")
+    print("⚠️ 삽입 위치를 찾지 못했습니다!")

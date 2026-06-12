@@ -4,6 +4,26 @@
    index.html, fortune.html, health.html 등 모두 공유
    ===================================================== */
 
+/* ===== 다크모드 강제 해제 — 항상 밝은 화면 유지 ===== */
+/* 스마트폰을 다크모드로 설정해도 이 앱은 항상 흰 배경으로 보입니다 */
+:root { color-scheme: light only; }
+html, body {
+  background-color: #ffffff !important;
+  color: #222222 !important;
+  -webkit-color-scheme: light !important; /* 아이폰 사파리 전용 */
+}
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background-color: #ffffff !important;
+    color: #222222 !important;
+  }
+  * {
+    color: inherit !important;
+    background-color: inherit !important;
+    border-color: inherit !important;
+  }
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
