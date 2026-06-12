@@ -211,7 +211,11 @@ var tabFiles = {
   trot:    'trot.html'
 };
 
-function switchTab(tabId) {
+function switchTab(tabId, fromPopState) {
+  // 뒤로가기 히스토리 기록 (popstate에서 호출된 경우 제외)
+  if (!fromPopState) {
+    history.pushState({ tab: tabId }, '', '#' + tabId);
+  }
   // 모든 탭 콘텐츠 숨기기
   document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
   // 모든 nav 버튼 비활성화
@@ -356,6 +360,20 @@ function searchCoupang(val) {
   result.innerHTML = html;
   result.style.display = 'block';
 }
+
+// 뒤로가기 누르면 이전 탭으로 이동
+window.addEventListener('popstate', function(e) {
+  if (e.state && e.state.tab) {
+    switchTab(e.state.tab, true);
+  } else {
+    switchTab('home', true);
+  }
+});
+
+// 최초 진입 시 홈탭 히스토리 기록
+window.addEventListener('DOMContentLoaded', function() {
+  history.replaceState({ tab: 'home' }, '', '#home');
+});
 </script>
 <footer class="site-footer">
   <a href="privacy.html" class="footer-link">개인정보처리방침 및 이용약관</a>
