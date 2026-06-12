@@ -1,15 +1,20 @@
-files = ["index.html", "market.html", "benefit.html", "fortune.html"]
+with open("index.html", "r", encoding="utf-8") as f:
+    content = f.read()
 
-old = "이 링크로 구매하셔도 어르신이 내시는 금액은 똑같습니다. 작은 정성이 봄날마당을 더 좋게 만드는 데 쓰입니다 💛"
-new = "이 링크로 구매 시 봄날마당이 쿠팡에서 소정의 수수료를 받습니다. 어르신께서 내시는 금액은 동일합니다."
+footer = """
+<footer class="site-footer">
+  <a href="privacy.html" class="footer-link">개인정보처리방침 및 이용약관</a>
+  <span class="footer-dot">·</span>
+  <a href="mailto:bomnal.madang@gmail.com" class="footer-link">문의하기</a>
+</footer>"""
 
-for f in files:
-    with open(f, "r", encoding="utf-8") as file:
-        content = file.read()
-    if old in content:
-        content = content.replace(old, new)
-        with open(f, "w", encoding="utf-8") as file:
-            file.write(content)
-        print(f + " 교체 완료 ✅")
-    else:
-        print(f + " ⚠️ 문구 없음 — 확인 필요")
+old = "</script>\n</body>"
+new = "</script>" + footer + "\n</body>"
+
+if old in content:
+    content = content.replace(old, new)
+    with open("index.html", "w", encoding="utf-8") as f:
+        f.write(content)
+    print("index.html footer 추가 완료 ✅")
+else:
+    print("⚠️ 삽입 위치를 찾지 못했습니다. 확인 필요!")

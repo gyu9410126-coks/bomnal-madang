@@ -391,3 +391,22 @@ body {
   border-radius: 6px;
   line-height: 1.6;
 }
+/* ===== 하단 footer 링크 ===== */
+.site-footer {
+  text-align: center;
+  padding: 20px 16px 130px 16px;
+  font-size: 16px;
+  color: #888;
+}
+.footer-link {
+  color: #1a6fc4;
+  text-decoration: none;
+  font-size: 16px;
+}
+.footer-link:hover {
+  text-decoration: underline;
+}
+.footer-dot {
+  margin: 0 8px;
+  color: #ccc;
+}
