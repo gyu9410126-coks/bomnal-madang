@@ -1,11 +1,8 @@
 with open("style.css", "r", encoding="utf-8") as f:
     content = f.read()
 
-old = "* { box-sizing: border-box; margin: 0; padding: 0; }"
-
-new = """/* ===== 다크모드 강제 해제 — 항상 밝은 화면 유지 ===== */
-/* 스마트폰을 다크모드로 설정해도 이 앱은 항상 흰 배경으로 보입니다 */
-:root { color-scheme: light only; }
+# 잘못된 다크모드 코드 제거 후 올바른 코드로 교체
+old = """:root { color-scheme: light only; }
 html, body {
   background-color: #ffffff !important;
   color: #222222 !important;
@@ -21,14 +18,22 @@ html, body {
     background-color: inherit !important;
     border-color: inherit !important;
   }
-}
+}"""
 
-* { box-sizing: border-box; margin: 0; padding: 0; }"""
+new = """:root { color-scheme: light only; }
+html, body {
+  background-color: #ffffff !important;
+  color: #222222 !important;
+}
+@media (prefers-color-scheme: dark) {
+  html { background-color: #ffffff !important; }
+  body { background-color: #ffffff !important; color: #222222 !important; }
+}"""
 
 if old in content:
     content = content.replace(old, new)
     with open("style.css", "w", encoding="utf-8") as f:
         f.write(content)
-    print("style.css 다크모드 강제 해제 완료 ✅")
+    print("style.css 다크모드 코드 수정 완료 ✅")
 else:
-    print("⚠️ 삽입 위치를 찾지 못했습니다!")
+    print("⚠️ 해당 코드를 찾지 못했습니다!")

@@ -10,18 +10,10 @@
 html, body {
   background-color: #ffffff !important;
   color: #222222 !important;
-  -webkit-color-scheme: light !important; /* 아이폰 사파리 전용 */
 }
 @media (prefers-color-scheme: dark) {
-  html, body {
-    background-color: #ffffff !important;
-    color: #222222 !important;
-  }
-  * {
-    color: inherit !important;
-    background-color: inherit !important;
-    border-color: inherit !important;
-  }
+  html { background-color: #ffffff !important; }
+  body { background-color: #ffffff !important; color: #222222 !important; }
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
