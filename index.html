@@ -152,6 +152,49 @@
 body {
   padding-bottom: 115px !important;
 }
+
+/* =====================================================
+   퀵메뉴 그리드 — 이로움돌봄 스타일
+   ===================================================== */
+.quick-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 0 0 20px;
+}
+.quick-menu-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: #f7f8fa;
+  border: none;
+  border-radius: 16px;
+  padding: 16px 8px 14px;
+  cursor: pointer;
+  gap: 10px;
+  transition: transform 0.13s, box-shadow 0.13s;
+  box-shadow: none;
+}
+.quick-menu-item:active {
+  transform: scale(0.96);
+  background: #f0f1f5;
+}
+.menu-img {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  display: block;
+  border-radius: 0;
+}
+.menu-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: #222;
+  text-align: center;
+  word-break: keep-all;
+  line-height: 1.3;
+}
 </style>
 </head>
 <body>
@@ -240,31 +283,31 @@ body {
   </div>
 
   <div class="quick-menu-grid">
-  <button class="quick-menu-item" onclick="switchTab('fortune')">
-    <img src="icon_fortune.png" alt="운세" class="menu-img">
-    <span class="menu-name">오늘의 운세</span>
-  </button>
-  <button class="quick-menu-item" onclick="switchTab('game')">
-    <img src="icon_game.png" alt="게임" class="menu-img">
-    <span class="menu-name">두뇌게임</span>
-  </button>
-  <button class="quick-menu-item" onclick="switchTab('health')">
-    <img src="icon_health.png" alt="건강" class="menu-img">
-    <span class="menu-name">건강정보</span>
-  </button>
-  <button class="quick-menu-item" onclick="switchTab('benefit')">
-    <img src="icon_benefit.png" alt="복지혜택" class="menu-img">
-    <span class="menu-name">복지혜택</span>
-  </button>
-  <button class="quick-menu-item" onclick="switchTab('market')">
-    <img src="icon_market.png" alt="장터쇼핑" class="menu-img">
-    <span class="menu-name">장터·쇼핑</span>
-  </button>
-  <button class="quick-menu-item" onclick="switchTab('trot')">
-    <img src="icon_trot.png" alt="트로트" class="menu-img">
-    <span class="menu-name">트로트</span>
-  </button>
-</div>
+    <button class="quick-menu-item" onclick="switchTab('fortune')">
+      <img src="icon_fortune.png" alt="운세" class="menu-img">
+      <span class="menu-name">오늘의 운세</span>
+    </button>
+    <button class="quick-menu-item" onclick="switchTab('game')">
+      <img src="icon_game.png" alt="게임" class="menu-img">
+      <span class="menu-name">두뇌게임</span>
+    </button>
+    <button class="quick-menu-item" onclick="switchTab('health')">
+      <img src="icon_health.png" alt="건강" class="menu-img">
+      <span class="menu-name">건강정보</span>
+    </button>
+    <button class="quick-menu-item" onclick="switchTab('benefit')">
+      <img src="icon_benefit.png" alt="복지혜택" class="menu-img">
+      <span class="menu-name">복지혜택</span>
+    </button>
+    <button class="quick-menu-item" onclick="switchTab('market')">
+      <img src="icon_market.png" alt="장터쇼핑" class="menu-img">
+      <span class="menu-name">장터·쇼핑</span>
+    </button>
+    <button class="quick-menu-item" onclick="switchTab('trot')">
+      <img src="icon_trot.png" alt="트로트" class="menu-img">
+      <span class="menu-name">트로트</span>
+    </button>
+  </div>
 <div class="card">
     <div class="card-title">📰 시니어 봄날마당 뉴스</div>
     <div class="news-card">
