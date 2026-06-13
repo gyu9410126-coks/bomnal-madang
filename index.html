@@ -165,16 +165,16 @@ body {
 .quick-menu-item {
   display: flex;
   flex-direction: column;
-  align-items: center;       /* 가로 중앙정렬 */
-  justify-content: center;   /* 세로 중앙정렬 */
-  background: #f7f8fa;
+  align-items: center;
+  justify-content: center;
+  background: transparent;   /* 외부 박스 배경 제거 */
   border: none;
   border-radius: 16px;
   padding: 14px 6px 14px;
   cursor: pointer;
   gap: 10px;
-  width: 100%;               /* 박스가 칸을 꽉 채움 */
-  box-sizing: border-box;    /* 패딩 포함해서 크기 계산 */
+  width: 100%;
+  box-sizing: border-box;
   transition: transform 0.13s;
 }
 .quick-menu-item:active {
