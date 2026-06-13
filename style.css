@@ -136,6 +136,7 @@ body {
   display: block;
   margin: 0 auto 10px;
   border-radius: 20px;
+  mix-blend-mode: multiply;
 }
 .menu-name {
   font-size: 15px;
