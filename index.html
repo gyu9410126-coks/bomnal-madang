@@ -152,46 +152,6 @@
 body {
   padding-bottom: 115px !important;
 }
-
-/* =====================================================
-   홈 퀵메뉴 아이콘 이미지 — 3개 박스 현상 완전 해결
-   object-fit:contain → 이미지를 박스 안에 꽉 맞게, 잘리지 않게
-   background:none    → 배경색 제거 (빈 박스처럼 보이는 것 방지)
-   display:block      → 이미지 아래 여백 제거
-   ===================================================== */
-.quick-menu-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: #fff;
-  border: none;
-  border-radius: 18px;
-  padding: 14px 8px 10px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-  cursor: pointer;
-  gap: 8px;
-}
-.menu-img {
-  width: 72px;            /* 아이콘 가로 크기 고정 */
-  height: 72px;           /* 아이콘 세로 크기 고정 — 정사각형으로 강제 */
-  object-fit: contain;    /* 이미지 비율 유지하며 박스 안에 딱 맞게 */
-  display: block;         /* 이미지 아래 불필요한 여백 제거 */
-  border-radius: 14px;    /* 모서리 둥글게 */
-}
-.menu-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: #333;
-  text-align: center;
-  word-break: keep-all;
-}
-.quick-menu-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);  /* 3열 배치 */
-  gap: 12px;
-  padding: 0 4px 16px;
-}
 </style>
 </head>
 <body>
