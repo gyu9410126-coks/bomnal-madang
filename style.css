@@ -115,7 +115,7 @@ body {
 .quick-menu-item {
   background: #ffffff;
   border-radius: 16px;
-  padding: 14px 8px 14px;
+  padding: 20px 8px 16px;
   text-align: center;
   cursor: pointer;
   border: none;
@@ -129,11 +129,13 @@ body {
 }
 .quick-menu-item:active { transform: scale(0.95); }
 .menu-img {
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
   display: block;
   margin: 0 auto 10px;
+  border-radius: 12px;
 }
 .menu-name {
   font-size: 15px;
