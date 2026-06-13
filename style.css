@@ -126,6 +126,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  overflow: hidden;
 }
 .quick-menu-item:active { transform: scale(0.95); }
 .menu-img {
