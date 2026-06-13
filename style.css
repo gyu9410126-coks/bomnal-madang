@@ -47,7 +47,7 @@ body {
 .header-title { color:#222; font-weight:900; letter-spacing:-0.3px; }
 .logo-sub { font-size:13px; font-weight:400; opacity:0.85; display:block; margin-top:1px; }
 .header-right { display:flex; align-items:center; gap:8px; }
-.header-date-box { background:#ffffff; color:#eb840f; font-size:13px; font-weight:700; padding:5px 12px; border-radius:20px; letter-spacing:0.5px; }
+.header-date-box { background:#ffffff; color:#2d3748; font-size:13px; font-weight:700; padding:5px 12px; border-radius:20px; letter-spacing:0.5px; }
 
 .big-font-btn {
   position: fixed; bottom: 88px; right: 18px;
@@ -399,7 +399,7 @@ body {
   color: #888;
 }
 .footer-link {
-  color: #eb840f;
+  color: #2d3748;
   text-decoration: none;
   font-size: 16px;
 }
@@ -435,6 +435,7 @@ body {
   margin-top: 1px;
   font-family: 'Pretendard', sans-serif;
 }
+
 
 
 
