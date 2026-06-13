@@ -604,27 +604,15 @@ function searchCoupang(val) {
   result.style.display = 'block';
 }
 
-// 뒤로가기 누르면 이전 탭으로 이동
+// 뒤로가기 누르면 무조건 홈으로
 window.addEventListener('popstate', function(e) {
-  if (e.state && e.state.tab) {
-    if (e.state.tab === 'home') {
-      // 홈에서 뒤로가기 → 앱 나가지 않게 홈 히스토리 다시 쌓기
-      history.pushState({ tab: 'home' }, '', '#home');
-      switchTab('home', true);
-    } else {
-      switchTab(e.state.tab, true);
-    }
-  } else {
-    // 히스토리 없으면 홈으로
-    history.pushState({ tab: 'home' }, '', '#home');
-    switchTab('home', true);
-  }
+  switchTab('home', true);
+  history.pushState({ tab: 'home' }, '', '#home');
 });
 
-// 최초 진입 시 홈탭 히스토리 2개 쌓기 (뒤로가기로 앱 나가는 것 방지)
+// 최초 진입 시 홈탭 히스토리 쌓기
 window.addEventListener('DOMContentLoaded', function() {
   history.replaceState({ tab: 'home' }, '', '#home');
-  history.pushState({ tab: 'home' }, '', '#home');
 });
 </script>
 <footer class="site-footer">
