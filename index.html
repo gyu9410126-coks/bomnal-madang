@@ -159,33 +159,35 @@ body {
 .quick-menu-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 10px;
   padding: 0 0 20px;
 }
 .quick-menu-item {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  align-items: center;       /* 가로 중앙정렬 */
+  justify-content: center;   /* 세로 중앙정렬 */
   background: #f7f8fa;
   border: none;
   border-radius: 16px;
-  padding: 16px 8px 14px;
+  padding: 14px 6px 14px;
   cursor: pointer;
   gap: 10px;
-  transition: transform 0.13s, box-shadow 0.13s;
-  box-shadow: none;
+  width: 100%;               /* 박스가 칸을 꽉 채움 */
+  box-sizing: border-box;    /* 패딩 포함해서 크기 계산 */
+  transition: transform 0.13s;
 }
 .quick-menu-item:active {
   transform: scale(0.96);
   background: #f0f1f5;
 }
 .menu-img {
-  width: 100px;
-  height: 100px;
+  width: 85%;               /* 박스 너비의 85% — 박스 크기에 자동 맞춤 */
+  aspect-ratio: 1 / 1;      /* 무조건 정사각형 유지 */
   object-fit: contain;
+  object-position: center;  /* 이미지 중앙 기준으로 표시 */
   display: block;
-  border-radius: 0;
+  margin: 0 auto;           /* 좌우 중앙 */
 }
 .menu-name {
   font-size: 15px;
@@ -194,6 +196,7 @@ body {
   text-align: center;
   word-break: keep-all;
   line-height: 1.3;
+  width: 100%;
 }
 </style>
 </head>
