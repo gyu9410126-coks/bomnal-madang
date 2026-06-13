@@ -240,14 +240,32 @@ body {
   </div>
 
   <div class="quick-menu-grid">
-    <button class="quick-menu-item" onclick="switchTab('fortune')"><span class="menu-icon">🔮</span><span class="menu-name">오늘의 운세</span><span class="menu-desc">띠별 맞춤 운세</span></button>
-    <button class="quick-menu-item" onclick="switchTab('game')"><span class="menu-icon">🎮</span><span class="menu-name">두뇌게임·퀴즈</span><span class="menu-desc">재미있는 두뇌 게임!</span></button>
-    <button class="quick-menu-item" onclick="switchTab('health')"><span class="menu-icon">🏖</span><span class="menu-name">건강정보·계산</span><span class="menu-desc">건강정보·계산기·알람</span></button>
-    <button class="quick-menu-item" onclick="switchTab('benefit')"><span class="menu-icon">🎁</span><span class="menu-name">복지혜택</span><span class="menu-desc">노인복지·보조금 정보</span></button>
-    <button class="quick-menu-item" onclick="switchTab('market')"><span class="menu-icon">🛒</span><span class="menu-name">시니어쇼핑</span><span class="menu-desc">시니어 맞춤 쇼핑</span></button>
-    <button class="quick-menu-item" onclick="switchTab('trot')"><span class="menu-icon">🎵</span><span class="menu-name">트로트봄날마당</span><span class="menu-desc">최신 트로트 무대</span></button>
-  </div>
-  <div class="card">
+  <button class="quick-menu-item" onclick="switchTab('fortune')">
+    <img src="icon_fortune.png" alt="운세" class="menu-img">
+    <span class="menu-name">오늘의 운세</span>
+  </button>
+  <button class="quick-menu-item" onclick="switchTab('game')">
+    <img src="icon_game.png" alt="게임" class="menu-img">
+    <span class="menu-name">두뇌게임</span>
+  </button>
+  <button class="quick-menu-item" onclick="switchTab('health')">
+    <img src="icon_health.png" alt="건강" class="menu-img">
+    <span class="menu-name">건강정보</span>
+  </button>
+  <button class="quick-menu-item" onclick="switchTab('benefit')">
+    <img src="icon_benefit.png" alt="복지혜택" class="menu-img">
+    <span class="menu-name">복지혜택</span>
+  </button>
+  <button class="quick-menu-item" onclick="switchTab('market')">
+    <img src="icon_market.png" alt="장터쇼핑" class="menu-img">
+    <span class="menu-name">장터·쇼핑</span>
+  </button>
+  <button class="quick-menu-item" onclick="switchTab('trot')">
+    <img src="icon_trot.png" alt="트로트" class="menu-img">
+    <span class="menu-name">트로트</span>
+  </button>
+</div>
+<div class="card">
     <div class="card-title">📰 시니어 봄날마당 뉴스</div>
     <div class="news-card">
       <span class="news-category">노인복지·보조금</span>
@@ -554,6 +572,7 @@ window.addEventListener('DOMContentLoaded', function() {
 </footer>
 </body>
 </html>
+
 
 
 
