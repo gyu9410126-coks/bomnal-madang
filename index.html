@@ -559,18 +559,85 @@ window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
   deferredPrompt = e;
 });
+
 function installPWA() {
-  if (!deferredPrompt) {
-    showToast('✅ 이미 설치되어 있거나, 브라우저 메뉴에서 "홈 화면에 추가"를 눌러주세요!');
+  /* 안드로이드 첫 설치 시 자동 팝업이 가능한 경우 → 바로 설치 팝업 띄우기 */
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(result) {
+      if (result.outcome === 'accepted') {
+        showToast('🎉 봄날마당이 홈화면에 저장되었습니다!');
+      }
+      deferredPrompt = null;
+    });
     return;
   }
-  deferredPrompt.prompt();
-  deferredPrompt.userChoice.then(function(result) {
-    if (result.outcome === 'accepted') {
-      showToast('🎉 봄날마당이 홈화면에 저장되었습니다!');
-    }
-    deferredPrompt = null;
+  /* 자동 팝업이 안 되는 경우 (재설치, 아이폰 등) → 항상 단계별 안내 팝업 표시 */
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (isIOS) {
+    showInstallGuide(
+      '📱 아이폰 홈화면 저장 방법',
+      [
+        '① 아래 공유 버튼(□↑)을 누르세요',
+        '② 스크롤 내려서 "홈 화면에 추가"를 누르세요',
+        '③ 오른쪽 위 "추가"를 누르면 완료! 🎉'
+      ]
+    );
+  } else {
+    showInstallGuide(
+      '📱 홈화면 저장 방법',
+      [
+        '① 오른쪽 위 점 세 개(⋮)를 누르세요',
+        '② "앱 설치" 또는 "홈 화면에 추가"를 누르세요',
+        '③ "설치"를 누르면 완료! 🎉'
+      ]
+    );
+  }
+}
+
+/* 단계별 안내 팝업 — 어떤 상황에서도 항상 보임 */
+function showInstallGuide(title, steps) {
+  /* 혹시 이미 팝업이 열려있으면 먼저 제거 */
+  var old = document.getElementById('install-guide-popup');
+  if (old) old.remove();
+
+  /* 팝업 박스 만들기 */
+  var popup = document.createElement('div');
+  popup.id = 'install-guide-popup';
+  popup.style.cssText =
+    'position:fixed;left:50%;bottom:110px;transform:translateX(-50%);' +
+    'background:#fff;border-radius:20px;padding:24px 20px;' +
+    'width:88%;max-width:360px;box-sizing:border-box;' +
+    'box-shadow:0 8px 32px rgba(0,0,0,0.22);z-index:9999;' +
+    'border:2px solid #4A90D9;';
+
+  /* 단계 박스 HTML 만들기 */
+  var stepsHtml = '';
+  steps.forEach(function(step) {
+    stepsHtml +=
+      '<div style="background:#f0f6ff;border-radius:12px;padding:12px 14px;' +
+      'font-size:15px;line-height:1.8;color:#333;margin-bottom:8px;">' +
+      step + '</div>';
   });
+
+  popup.innerHTML =
+    '<div style="font-size:18px;font-weight:900;color:#4A90D9;' +
+    'margin-bottom:14px;text-align:center;">' + title + '</div>' +
+    stepsHtml +
+    '<button onclick="document.getElementById(\'install-guide-popup\').remove()" ' +
+    'style="margin-top:10px;width:100%;background:#4A90D9;color:#fff;border:none;' +
+    'border-radius:12px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;">' +
+    '확인 ✓</button>' +
+    '<p style="font-size:12px;color:#999;text-align:center;margin:10px 0 0;">' +
+    '10초 후 자동으로 닫힙니다</p>';
+
+  document.body.appendChild(popup);
+
+  /* 10초 후 자동으로 팝업 닫기 */
+  setTimeout(function() {
+    var p = document.getElementById('install-guide-popup');
+    if (p) p.remove();
+  }, 10000);
 }
 
 /* ===== 카카오 공유 ===== */
