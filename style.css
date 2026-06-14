@@ -136,7 +136,7 @@ body.big-font .tab-label { font-size: 10px !important; }
   box-shadow: 0 1px 5px rgba(0,0,0,0.06);
 }
 .card-title {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 900;
   color: var(--text);
   margin-bottom: 12px;
@@ -239,7 +239,7 @@ body.big-font .tab-label { font-size: 10px !important; }
 }
 .news-card:last-of-type { margin-bottom: 0; }
 .news-category {
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--point);
   background: #e8f0fb;
@@ -248,11 +248,11 @@ body.big-font .tab-label { font-size: 10px !important; }
   border-radius: 8px;
   margin-bottom: 6px;
 }
-.news-title { font-size: 14px; font-weight: 800; color: var(--text); line-height: 1.5; cursor: pointer; }
-.news-summary { display: none; font-size: 13px; color: var(--text-sub); line-height: 1.8; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e8e8e8; }
+.news-title { font-size: 17px; font-weight: 800; color: var(--text); line-height: 1.5; cursor: pointer; }
+.news-summary { display: none; font-size: 15px; color: var(--text-sub); line-height: 1.8; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e8e8e8; }
 .news-summary.open { display: block; }
-.news-link { display: inline-block; margin-top: 8px; font-size: 13px; color: var(--point); font-weight: 700; text-decoration: none; }
-.news-notice { font-size: 12px; color: #888; text-align: center; padding: 10px 0 2px; line-height: 1.6; }
+.news-link { display: inline-block; margin-top: 8px; font-size: 15px; color: var(--point); font-weight: 700; text-decoration: none; }
+.news-notice { font-size: 14px; color: #888; text-align: center; padding: 10px 0 2px; line-height: 1.6; }
 
 /* ===== 긴급전화 ===== */
 .dial-list { display: flex; flex-direction: column; gap: 6px; }
@@ -713,21 +713,21 @@ body.big-font .tab-label { font-size: 10px !important; }
   margin-bottom: 8px;
 }
 .job-title {
-  font-size: 14px; font-weight: 800; color: #222;
+  font-size: 17px; font-weight: 800; color: #222;
   line-height: 1.5; flex: 1;
 }
 .job-badge {
-  font-size: 10px; font-weight: 700;
+  font-size: 13px; font-weight: 700;
   color: #4A90D9; background: #e8f0fb;
   padding: 3px 8px; border-radius: 8px;
   white-space: nowrap; flex-shrink: 0;
 }
 .job-info {
-  font-size: 13px; color: #666;
+  font-size: 15px; color: #666;
   line-height: 1.6; margin-bottom: 8px;
 }
 .job-link {
-  display: inline-block; font-size: 13px;
+  display: inline-block; font-size: 15px;
   font-weight: 700; color: var(--point);
   text-decoration: none;
   padding: 6px 14px; background: #e8f0fb;
