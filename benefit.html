@@ -448,15 +448,19 @@ async function openJobPopup(jobId) {
         '<div class="job-popup-contents">' + d.contents.substring(0, 300) + (d.contents.length > 300 ? '…' : '') + '</div>'
       : '';
 
+    var extraHtml = d.extra
+      ? '<div class="job-popup-row"><span class="job-popup-label">📌 기타</span><span class="job-popup-value">' + d.extra + '</span></div>'
+      : '';
+
     overlay.querySelector('.job-popup-box').innerHTML =
       '<div class="job-popup-title">' + (d.title || '제목 없음') + '</div>' +
       '<div class="job-popup-row"><span class="job-popup-label">🏢 기관</span><span class="job-popup-value">' + (d.company || '-') + '</span></div>' +
-      '<div class="job-popup-row"><span class="job-popup-label">📍 근무지</span><span class="job-popup-value">' + (d.location || '-') + '</span></div>' +
-      '<div class="job-popup-row"><span class="job-popup-label">💼 고용</span><span class="job-popup-value">' + (d.workType || '-') + '</span></div>' +
+      '<div class="job-popup-row"><span class="job-popup-label">📍 주소</span><span class="job-popup-value">' + (d.address || '-') + '</span></div>' +
       '<div class="job-popup-row"><span class="job-popup-label">👥 모집</span><span class="job-popup-value">' + (d.headcount || '-') + '명</span></div>' +
-      '<div class="job-popup-row"><span class="job-popup-label">🎂 연령</span><span class="job-popup-value">' + (d.ageLimit || '-') + '</span></div>' +
+      '<div class="job-popup-row"><span class="job-popup-label">🎂 연령</span><span class="job-popup-value">' + (d.age ? d.age + '세 이상' : '-') + (d.ageLim ? ' (' + d.ageLim + ')' : '') + '</span></div>' +
       '<div class="job-popup-row"><span class="job-popup-label">⏰ 마감</span><span class="job-popup-value">' + fmtDate(d.endDate) + '</span></div>' +
       '<div class="job-popup-row"><span class="job-popup-label">📮 접수</span><span class="job-popup-value">' + (d.applyMethod || '-') + '</span></div>' +
+      extraHtml +
       contents +
       phoneBtn +
       '<button class="job-popup-close" onclick="closeJobPopup()">✕ 닫기</button>';

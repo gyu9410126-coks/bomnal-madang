@@ -898,8 +898,7 @@ async function loadMainJobs() {
         '<div class="main-job-item" onclick="openJobPopup(\'' + item.id + '\')" style="cursor:pointer;">' +
           '<div class="main-job-title">' + (item.title || '제목 없음') + '</div>' +
           '<div class="main-job-meta">' +
-            '📍 ' + (item.location || '-') + ' &nbsp;' +
-            '💼 ' + (item.workType || '-') + '<br>' +
+            '📍 ' + (item.location || '-') + '<br>' +
             '<span class="' + deadlineClass + '">⏰ ' + deadlineText + '</span>' +
             ' &nbsp;<span style="color:#4A90D9;font-weight:700;">👆 눌러서 자세히 보기</span>' +
           '</div>' +
@@ -958,23 +957,27 @@ async function openJobPopup(jobId) {
       ? '<a class="job-popup-phone" href="tel:' + d.phone + '">📞 ' + d.phone + ' 전화하기</a>'
       : '<div style="text-align:center;color:#aaa;font-size:14px;margin-top:12px;">전화번호 정보가 없어요</div>';
 
-    // ⑦ 상세내용 (너무 길면 잘라서 표시)
+    // ⑦ 상세내용
     var contents = d.contents
       ? '<div class="job-popup-row"><span class="job-popup-label">📋 내용</span></div>' +
         '<div class="job-popup-contents">' + d.contents.substring(0, 300) + (d.contents.length > 300 ? '…' : '') + '</div>'
       : '';
 
+    // 기타사항
+    var extraHtml = d.extra
+      ? '<div class="job-popup-row"><span class="job-popup-label">📌 기타</span><span class="job-popup-value">' + d.extra + '</span></div>'
+      : '';
+
     // ⑧ 팝업 내용 채우기
     overlay.querySelector('.job-popup-box').innerHTML =
       '<div class="job-popup-title">' + (d.title || '제목 없음') + '</div>' +
-
       '<div class="job-popup-row"><span class="job-popup-label">🏢 기관</span><span class="job-popup-value">' + (d.company || '-') + '</span></div>' +
-      '<div class="job-popup-row"><span class="job-popup-label">📍 근무지</span><span class="job-popup-value">' + (d.location || '-') + '</span></div>' +
-      '<div class="job-popup-row"><span class="job-popup-label">💼 고용</span><span class="job-popup-value">' + (d.workType || '-') + '</span></div>' +
+      '<div class="job-popup-row"><span class="job-popup-label">📍 주소</span><span class="job-popup-value">' + (d.address || '-') + '</span></div>' +
       '<div class="job-popup-row"><span class="job-popup-label">👥 모집</span><span class="job-popup-value">' + (d.headcount || '-') + '명</span></div>' +
-      '<div class="job-popup-row"><span class="job-popup-label">🎂 연령</span><span class="job-popup-value">' + (d.ageLimit || '-') + '</span></div>' +
+      '<div class="job-popup-row"><span class="job-popup-label">🎂 연령</span><span class="job-popup-value">' + (d.age ? d.age + '세 이상' : '-') + (d.ageLim ? ' (' + d.ageLim + ')' : '') + '</span></div>' +
       '<div class="job-popup-row"><span class="job-popup-label">⏰ 마감</span><span class="job-popup-value">' + fmtDate(d.endDate) + '</span></div>' +
       '<div class="job-popup-row"><span class="job-popup-label">📮 접수</span><span class="job-popup-value">' + (d.applyMethod || '-') + '</span></div>' +
+      extraHtml +
       contents +
       phoneBtn +
       '<button class="job-popup-close" onclick="closeJobPopup()">✕ 닫기</button>';
