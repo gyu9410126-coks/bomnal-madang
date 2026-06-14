@@ -653,13 +653,18 @@ function shareKakao() {
 }
 
 /* ===== 뒤로가기 ===== */
-window.addEventListener('popstate', function(){
-  switchTab('home', true);
-  history.pushState({ tab: 'home' }, '', '#home');
+window.addEventListener('popstate', function(e){
+  var tab = (e.state && e.state.tab) ? e.state.tab : 'home';
+  switchTab(tab, true);
 });
 
 window.addEventListener('DOMContentLoaded', function(){
-  history.replaceState({ tab: 'home' }, '', '#home');
+  /* 새로고침 시 URL의 # 뒤 탭 이름을 읽어서 해당 탭으로 이동 */
+  var hash = location.hash.replace('#', '');
+  var validTabs = ['home','fortune','game','health','benefit','talk','market','trot'];
+  var startTab = validTabs.indexOf(hash) !== -1 ? hash : 'home';
+  history.replaceState({ tab: startTab }, '', '#' + startTab);
+  switchTab(startTab, true);
 });
 </script>
 
