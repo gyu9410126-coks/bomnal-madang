@@ -358,7 +358,7 @@ body { padding-bottom: 115px !important; }
   <button class="btn-kakao" onclick="shareKakao()">
     💛 카카오톡 친구에게 공유하기
   </button>
-  <button class="btn-pwa" id="btn-pwa-install" onclick="installPWA()" style="display:none;">
+  <button class="btn-pwa" id="btn-pwa-install" onclick="installPWA()">
     📲 봄날마당 홈화면에 저장하기
   </button>
 
@@ -558,12 +558,10 @@ var deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
   deferredPrompt = e;
-  var btn = document.getElementById('btn-pwa-install');
-  if (btn) btn.style.display = 'block';
 });
 function installPWA() {
   if (!deferredPrompt) {
-    showToast('✅ 이미 설치되어 있거나, 브라우저에서 지원하지 않습니다.');
+    showToast('✅ 이미 설치되어 있거나, 브라우저 메뉴에서 "홈 화면에 추가"를 눌러주세요!');
     return;
   }
   deferredPrompt.prompt();
@@ -572,8 +570,6 @@ function installPWA() {
       showToast('🎉 봄날마당이 홈화면에 저장되었습니다!');
     }
     deferredPrompt = null;
-    var btn = document.getElementById('btn-pwa-install');
-    if (btn) btn.style.display = 'none';
   });
 }
 
