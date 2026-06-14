@@ -292,7 +292,7 @@ body { padding-bottom: 115px !important; }
       </button>
       <button class="quick-menu-item" onclick="switchTab('benefit')">
         <div class="menu-img mi-4">🎁</div>
-        <span class="menu-name">복지혜택</span>
+        <span class="menu-name">복지·채용</span>
       </button>
       <button class="quick-menu-item" onclick="switchTab('market')">
         <div class="menu-img mi-5">🛒</div>
@@ -653,18 +653,13 @@ function shareKakao() {
 }
 
 /* ===== 뒤로가기 ===== */
-window.addEventListener('popstate', function(e){
-  var tab = (e.state && e.state.tab) ? e.state.tab : 'home';
-  switchTab(tab, true);
+window.addEventListener('popstate', function(){
+  switchTab('home', true);
+  history.pushState({ tab: 'home' }, '', '#home');
 });
 
 window.addEventListener('DOMContentLoaded', function(){
-  /* 새로고침 시 URL의 # 뒤 탭 이름을 읽어서 해당 탭으로 이동 */
-  var hash = location.hash.replace('#', '');
-  var validTabs = ['home','fortune','game','health','benefit','talk','market','trot'];
-  var startTab = validTabs.indexOf(hash) !== -1 ? hash : 'home';
-  history.replaceState({ tab: startTab }, '', '#' + startTab);
-  switchTab(startTab, true);
+  history.replaceState({ tab: 'home' }, '', '#home');
 });
 </script>
 
