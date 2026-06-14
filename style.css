@@ -429,3 +429,208 @@ body.big-font .tab-label { font-size: 10px !important; }
 .search-box input:focus { border-color: var(--point); }
 .search-result { margin: 0 0 10px; }
 .search-result-title { font-size: 14px; font-weight: 700; color: var(--point); padding: 6px 4px; }
+
+/* =====================================================
+   건강탭 전용 CSS (health.html)
+   ===================================================== */
+
+/* 만보기 스탬프 */
+.step-circle {
+  width: 120px; height: 120px; border-radius: 50%;
+  background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+  border: 4px solid #4CAF50;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 52px; margin: 16px auto; cursor: pointer;
+  transition: all 0.3s; box-shadow: 0 4px 16px rgba(76,175,80,0.2);
+}
+.step-circle.stamped {
+  background: linear-gradient(135deg, #4CAF50, #2E7D32);
+  border-color: #2E7D32; box-shadow: 0 4px 20px rgba(76,175,80,0.5);
+}
+.step-label {
+  font-size: 18px; font-weight: 900; color: #222;
+  margin-bottom: 8px; line-height: 1.4;
+}
+.step-label.done { color: #2E7D32; }
+.step-sub { font-size: 14px; color: #666; line-height: 1.6; }
+
+/* 걸음수 입력 */
+.step-input-row {
+  display: flex; gap: 8px; margin-bottom: 10px;
+}
+.step-input {
+  flex: 1; border: 1.5px solid #ddd; border-radius: 12px;
+  padding: 12px 14px; font-size: 16px;
+  font-family: 'Nanum Gothic', sans-serif; outline: none;
+}
+.step-input:focus { border-color: #4CAF50; }
+.step-apply {
+  background: #4CAF50; color: #fff; border: none;
+  border-radius: 12px; padding: 12px 18px;
+  font-size: 16px; font-weight: 900; cursor: pointer;
+  white-space: nowrap;
+}
+.quick-steps { display: flex; gap: 8px; flex-wrap: wrap; }
+.quick-step-btn {
+  flex: 1; min-width: 60px;
+  background: #f1f8f1; border: 1.5px solid #a5d6a7;
+  border-radius: 10px; padding: 8px 6px;
+  font-size: 14px; font-weight: 700; color: #2E7D32; cursor: pointer;
+}
+.quick-step-btn:active { background: #c8e6c9; }
+
+/* 스트릭 카드 */
+.streak-card {
+  background: linear-gradient(135deg, #FF8F00, #E65100);
+  border-radius: 16px; padding: 20px;
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 14px; color: #fff;
+}
+.streak-flame { font-size: 44px; flex-shrink: 0; }
+.streak-count { font-size: 28px; font-weight: 900; margin-bottom: 4px; }
+.streak-count span:first-child { font-size: 40px; color: #FFE082; }
+.streak-label { font-size: 14px; opacity: 0.9; margin-bottom: 4px; }
+.streak-best { font-size: 13px; opacity: 0.75; }
+
+/* 달력 카드 */
+.cal-card {
+  background: #fff; border-radius: 16px;
+  padding: 16px; margin-bottom: 14px;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+}
+.cal-header {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 12px;
+}
+.cal-title-text { font-size: 15px; font-weight: 900; color: #111; }
+.cal-summary {
+  font-size: 13px; font-weight: 700;
+  color: #4A90D9; background: #e8f0fb;
+  padding: 3px 10px; border-radius: 20px;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-head {
+  font-size: 12px; font-weight: 700; color: #888;
+  text-align: center; padding: 4px 0;
+}
+.cal-head.sun { color: #e53935; }
+.cal-head.sat { color: #1565C0; }
+.cal-cell {
+  aspect-ratio: 1; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; color: #444;
+}
+.cal-cell.attended {
+  background: #4CAF50; color: #fff; font-weight: 900;
+}
+.cal-cell.today {
+  border: 2px solid #4A90D9; color: #4A90D9; font-weight: 900;
+}
+.cal-cell.today.attended { border-color: #2E7D32; }
+.cal-cell.sun-c { color: #e53935; }
+.cal-cell.sat-c { color: #1565C0; }
+.cal-cell.attended.sun-c,
+.cal-cell.attended.sat-c { color: #fff; }
+
+/* 리워드 트랙 */
+.reward-track {
+  display: flex; justify-content: space-between;
+  align-items: flex-end; padding: 10px 0 4px;
+  gap: 4px;
+}
+.reward-node {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 6px; flex: 1; opacity: 0.35;
+}
+.reward-node.reached { opacity: 1; }
+.reward-node.current { opacity: 1; transform: scale(1.1); }
+.reward-dot {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #f0f0f0; border: 2px solid #ddd;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.reward-node.reached .reward-dot {
+  background: #fff9c4; border-color: #FFD84D;
+}
+.reward-node.current .reward-dot {
+  background: #e8f0fb; border-color: #4A90D9;
+  box-shadow: 0 0 0 3px rgba(74,144,217,0.2);
+}
+.reward-day { font-size: 12px; font-weight: 700; color: #888; }
+.reward-node.reached .reward-day { color: #E65100; }
+.reward-node.current .reward-day { color: #4A90D9; }
+
+/* 미션 */
+.mission-list { display: flex; flex-direction: column; gap: 10px; }
+.mission-item {
+  display: flex; align-items: center; gap: 12px;
+  background: #fff; border-radius: 12px; padding: 14px;
+  border: 1.5px solid #eee; cursor: pointer;
+  transition: all 0.2s; -webkit-tap-highlight-color: transparent;
+}
+.mission-item.done {
+  background: #f1f8f1; border-color: #a5d6a7;
+}
+.mission-check {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 2px solid #ddd; background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0;
+}
+.mission-item.done .mission-check { border-color: #4CAF50; background: #e8f5e9; }
+.mission-body { flex: 1; }
+.mission-body h4 { font-size: 14px; font-weight: 800; color: #222; margin-bottom: 3px; }
+.mission-body p { font-size: 12px; color: #888; line-height: 1.5; }
+.mission-point {
+  font-size: 13px; font-weight: 900; color: #4A90D9;
+  flex-shrink: 0;
+}
+.mission-item.done .mission-point { color: #4CAF50; }
+
+/* 포인트 카드 */
+.point-card {
+  background: linear-gradient(135deg, #4A90D9, #1a5fa0);
+  border-radius: 16px; padding: 20px;
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 14px; color: #fff;
+}
+.point-value { font-size: 36px; font-weight: 900; color: #FFE082; }
+.point-sub { font-size: 12px; opacity: 0.8; margin-top: 4px; }
+
+/* 알람 */
+.alarm-grid { display: flex; flex-direction: column; gap: 10px; }
+.alarm-item {
+  background: #f7f8fa; border-radius: 12px; padding: 14px;
+  display: grid;
+  grid-template-columns: 36px 1fr 90px;
+  grid-template-rows: auto auto auto;
+  gap: 6px 10px; align-items: center;
+  border: 1.5px solid #eee;
+  transition: border-color 0.2s;
+}
+.alarm-item.set { border-color: #4A90D9; background: #f0f6ff; }
+.alarm-icon { font-size: 24px; text-align: center; grid-row: 1 / 3; }
+.alarm-name { font-size: 14px; font-weight: 700; color: #222; }
+.alarm-time-input {
+  border: 1.5px solid #ddd; border-radius: 8px;
+  padding: 6px 8px; font-size: 14px; outline: none;
+  grid-column: 3; grid-row: 1;
+}
+.alarm-name-input {
+  border: 1.5px solid #ddd; border-radius: 8px;
+  padding: 6px 10px; font-size: 13px; outline: none;
+  grid-column: 2; grid-row: 2;
+  font-family: 'Nanum Gothic', sans-serif;
+}
+.alarm-save-btn {
+  background: #4A90D9; color: #fff; border: none;
+  border-radius: 8px; padding: 6px 12px;
+  font-size: 13px; font-weight: 700; cursor: pointer;
+  grid-column: 3; grid-row: 2;
+}
+.alarm-save-btn:active { background: #2E7BC4; }
