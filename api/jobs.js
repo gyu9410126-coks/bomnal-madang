@@ -49,11 +49,23 @@ export default async function handler(req, res) {
         return m ? m[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim() : '';
       }
 
+      // 고용형태 코드 → 한글 변환표
+      const workTypeMap = {
+        'CM0101': '정규직',
+        'CM0102': '계약직',
+        'CM0103': '파트타임',
+        'CM0104': '일용직',
+        'CM0105': '시간제',
+        'CM0106': '기타',
+      };
+      const rawCode = get('emplymShp') || get('emplymShpNm');
+      const workTypeLabel = workTypeMap[rawCode] || rawCode || '-';
+
       return {
         id:       get('jobId'),       // 채용공고 ID
         title:    get('recrtTitle'),  // 채용 제목
         company:  get('oranNm'),      // 기업명
-        workType: get('emplymShpNm'), // 고용형태 (예: 시간제)
+        workType: workTypeLabel,      // 고용형태 (한글 변환)
         location: get('workPlcNm'),   // 근무지역
         startDate:get('frDd'),        // 접수 시작일
         endDate:  get('toDd'),        // 접수 마감일
