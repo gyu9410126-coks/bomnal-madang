@@ -8,6 +8,10 @@
 <meta name="theme-color" content="#4A90D9">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="봄날마당">
+<!-- ✅ PWA 설치 연결 -->
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
@@ -567,6 +571,22 @@ window.addEventListener('popstate', function(){
 window.addEventListener('DOMContentLoaded', function(){
   history.replaceState({ tab: 'home' }, '', '#home');
 });
+</script>
+
+<!-- ✅ PWA 서비스워커 등록 -->
+<script>
+if ('serviceWorker' in navigator) {
+  // 브라우저가 서비스워커를 지원하면 등록
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js')
+      .then(function(reg) {
+        console.log('✅ 서비스워커 등록 성공:', reg.scope);
+      })
+      .catch(function(err) {
+        console.log('❌ 서비스워커 등록 실패:', err);
+      });
+  });
+}
 </script>
 </body>
 </html>
