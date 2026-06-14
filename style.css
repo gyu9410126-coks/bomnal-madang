@@ -634,3 +634,84 @@ body.big-font .tab-label { font-size: 10px !important; }
   grid-column: 3; grid-row: 2;
 }
 .alarm-save-btn:active { background: #2E7BC4; }
+
+/* =====================================================
+   복지탭 전용 CSS (benefit.html)
+   ===================================================== */
+
+/* 계산기 공통 */
+.calc-label {
+  font-size: 14px; font-weight: 700; color: #555;
+  margin: 12px 0 6px;
+}
+.calc-select {
+  width: 100%; border: 1.5px solid #ddd; border-radius: 12px;
+  padding: 12px 14px; font-size: 15px;
+  font-family: 'Nanum Gothic', sans-serif;
+  color: #111; outline: none; background: #fff;
+  appearance: auto; margin-bottom: 4px;
+}
+.calc-select:focus { border-color: var(--point); }
+.calc-input {
+  width: 100%; border: 1.5px solid #ddd; border-radius: 12px;
+  padding: 12px 14px; font-size: 15px;
+  font-family: 'Nanum Gothic', sans-serif;
+  color: #111; outline: none; margin-bottom: 4px;
+  box-sizing: border-box;
+}
+.calc-input:focus { border-color: var(--point); }
+
+/* 계산 결과 박스 */
+.calc-result-box {
+  display: none; background: #f0f6ff;
+  border-radius: 14px; padding: 18px;
+  margin-top: 14px; border-left: 4px solid var(--point);
+}
+.calc-result-box.show { display: block; }
+.calc-result-label {
+  font-size: 13px; font-weight: 700; color: #4A90D9;
+  margin-bottom: 6px;
+}
+.calc-result-amount {
+  font-size: 28px; font-weight: 900; color: #1a5fa0;
+  margin-bottom: 8px;
+}
+.calc-result-desc {
+  font-size: 13px; color: #555; line-height: 1.8;
+  white-space: pre-line;
+}
+
+/* 채용공고 카드 */
+.job-card {
+  background: #f7f8fa; border-radius: 12px;
+  padding: 14px; margin-bottom: 10px;
+  border-left: 3px solid var(--point);
+}
+.job-card:last-of-type { margin-bottom: 14px; }
+.job-card-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 8px;
+  margin-bottom: 8px;
+}
+.job-title {
+  font-size: 14px; font-weight: 800; color: #222;
+  line-height: 1.5; flex: 1;
+}
+.job-badge {
+  font-size: 10px; font-weight: 700;
+  color: #4A90D9; background: #e8f0fb;
+  padding: 3px 8px; border-radius: 8px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.job-info {
+  font-size: 13px; color: #666;
+  line-height: 1.6; margin-bottom: 8px;
+}
+.job-link {
+  display: inline-block; font-size: 13px;
+  font-weight: 700; color: var(--point);
+  text-decoration: none;
+  padding: 6px 14px; background: #e8f0fb;
+  border-radius: 8px;
+}
+.job-link:active { background: #c5d9f5; }
