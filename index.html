@@ -187,6 +187,46 @@ body { padding-bottom: 115px !important; }
   line-height: 1.3;
 }
 
+/* 메인화면 실시간 공고 미리보기 */
+.main-job-loading {
+  text-align:center;
+  padding:16px 0;
+  color:#aaa;
+  font-size:13px;
+}
+.main-job-item {
+  background:#f7f8fa;
+  border-radius:12px;
+  padding:12px 14px;
+  margin-bottom:8px;
+}
+.main-job-title {
+  font-size:14px;
+  font-weight:800;
+  color:#1a1a1a;
+  margin-bottom:4px;
+  line-height:1.4;
+  word-break:keep-all;
+}
+.main-job-meta {
+  font-size:12px;
+  color:#666;
+  line-height:1.6;
+}
+.main-job-urgent {
+  color:#e53935;
+  font-weight:700;
+}
+.main-job-error {
+  background:#fff3f3;
+  border-left:3px solid #e53935;
+  border-radius:10px;
+  padding:12px;
+  font-size:13px;
+  color:#c00;
+  line-height:1.6;
+}
+
 /* 채용공고 링크 버튼 (B방식) */
 .job-link-btn {
   display: flex;
@@ -391,6 +431,26 @@ body { padding-bottom: 115px !important; }
 
     <div style="background:#fff8e1;border-radius:12px;padding:12px 14px;margin-top:4px;border-left:3px solid #FFB300;">
       <p style="font-size:13px;color:#7a5c00;line-height:1.6;">📌 버튼을 누르면 해당 채용 사이트로 이동해요.<br>실제 공고를 직접 확인하고 지원하실 수 있어요.</p>
+    </div>
+
+    <!-- 실시간 공고 미리보기 3개 -->
+    <div style="margin-top:14px;">
+      <div style="font-size:14px;font-weight:800;color:#333;margin-bottom:10px;">
+        🔴 실시간 노인일자리 공고 <span style="font-size:12px;font-weight:400;color:#888;">(노인인력개발원)</span>
+      </div>
+      <!-- 공고 3개가 여기에 자동으로 채워집니다 -->
+      <div id="main-job-list">
+        <div class="main-job-loading">공고 불러오는 중…</div>
+      </div>
+      <!-- 복지·채용 탭으로 이동 버튼 -->
+      <button onclick="switchTab('benefit')" style="
+        display:block;width:100%;margin-top:10px;
+        padding:13px;background:#f0f6ff;color:#4A90D9;
+        border:1.5px solid #4A90D9;border-radius:12px;
+        font-size:14px;font-weight:800;cursor:pointer;
+        -webkit-tap-highlight-color:transparent;">
+        📋 공고 전체보기 →
+      </button>
     </div>
   </div>
 
@@ -707,6 +767,64 @@ function showInstallGuide(title, steps) {
     if (p) p.remove();
   }, 10000);
 }
+
+/* ===== 실시간 노인일자리 공고 (메인화면 미리보기 3개) ===== */
+async function loadMainJobs() {
+  var listEl = document.getElementById('main-job-list');
+  if (!listEl) return;
+
+  try {
+    // /api/jobs 에 3개만 요청
+    var res  = await fetch('/api/jobs?numOfRows=3&pageNo=1');
+    var data = await res.json();
+
+    // 실패하거나 공고 없을 때
+    if (!data.ok || !data.items || data.items.length === 0) {
+      listEl.innerHTML = '<div class="main-job-error">⚠️ 잠시 후 다시 확인해 주세요.</div>';
+      return;
+    }
+
+    var today = new Date();
+    var html  = '';
+
+    data.items.forEach(function(item) {
+      // 마감일 계산 (7일 이내면 빨간 글씨)
+      var deadlineText  = item.endDate || '마감일 미정';
+      var deadlineClass = '';
+
+      if (item.endDate && item.endDate.length === 8) {
+        var y  = item.endDate.substring(0, 4);
+        var m  = item.endDate.substring(4, 6);
+        var d  = item.endDate.substring(6, 8);
+        var dt = new Date(y + '-' + m + '-' + d);
+        var diff = Math.ceil((dt - today) / (1000 * 60 * 60 * 24));
+        deadlineText = y + '.' + m + '.' + d + ' 마감';
+        if (diff >= 0 && diff <= 7) {
+          deadlineClass = 'main-job-urgent';
+          deadlineText += ' (D-' + diff + ')';
+        }
+      }
+
+      html +=
+        '<div class="main-job-item">' +
+          '<div class="main-job-title">' + (item.title || '제목 없음') + '</div>' +
+          '<div class="main-job-meta">' +
+            '📍 ' + (item.location || '-') + ' &nbsp;' +
+            '💼 ' + (item.workType || '-') + '<br>' +
+            '<span class="' + deadlineClass + '">⏰ ' + deadlineText + '</span>' +
+          '</div>' +
+        '</div>';
+    });
+
+    listEl.innerHTML = html;
+
+  } catch (err) {
+    listEl.innerHTML = '<div class="main-job-error">⚠️ 인터넷 연결을 확인해 주세요.</div>';
+  }
+}
+
+// 홈탭이 열릴 때 자동으로 공고 불러오기
+setTimeout(loadMainJobs, 500);
 
 /* ===== 카카오 공유 ===== */
 function shareKakao() {
