@@ -186,6 +186,38 @@ body { padding-bottom: 115px !important; }
   word-break: keep-all;
   line-height: 1.3;
 }
+
+/* 채용공고 링크 버튼 (B방식) */
+.job-link-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #f7f8fa;
+  border-radius: 14px;
+  padding: 16px 14px;
+  margin-bottom: 10px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.job-link-btn:last-of-type { margin-bottom: 0; }
+.job-link-btn:active { background: #eef2f8; }
+.jlb-icon {
+  font-size: 24px;
+  width: 44px;
+  height: 44px;
+  background: #e8f0fb;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.jlb-text { flex: 1; }
+.jlb-title { font-size: 16px; font-weight: 800; color: #222; margin-bottom: 3px; }
+.jlb-desc { font-size: 13px; color: #666; line-height: 1.5; }
+.jlb-arrow { font-size: 20px; color: #4A90D9; flex-shrink: 0; font-weight: 900; }
 </style>
 </head>
 <body>
@@ -321,30 +353,45 @@ body { padding-bottom: 115px !important; }
     <div class="news-card">
       <span class="news-category">일자리</span>
       <div class="news-title" onclick="toggleNews(this)">2026 시니어 일자리 115만개 — 신청 방법 안내</div>
-      <div class="news-summary">시니어 일자리 115만개 달성. 워크넷(work.go.kr)에서 신청.<br><a class="news-link" href="https://www.work.go.kr" target="_blank" rel="noopener noreferrer">👉 워크넷 사이트에서 자세히 보기</a></div>
+      <div class="news-summary">시니어 일자리 115만개 달성. 고용24(work24.go.kr)에서 신청.<br><a class="news-link" href="https://www.work24.go.kr" target="_blank" rel="noopener noreferrer">👉 고용24 사이트에서 자세히 보기</a></div>
     </div>
     <p class="news-notice">📌 뉴스 제목을 눌러보시면 맞춤 요약 내용을 확인하실 수 있습니다</p>
   </div>
 
   <!-- 채용공고 카드 -->
   <div class="card">
-    <div class="card-title">📋 시니어 채용 공고 모음</div>
-    <div class="job-card">
-      <div class="job-card-top"><span class="job-title">어르신 돌봄 도우미 (노인요양원 보조)</span><span class="job-badge">공익활동형</span></div>
-      <p class="job-info">📍 복지관 근처 | ⏰ 주 3일, 하루 3시간 | 💰 만 65세 이상</p>
-      <a class="job-link" href="https://www.work.go.kr" target="_blank" rel="noopener noreferrer">바로 지원하기 →</a>
+    <div class="card-title">📋 시니어 채용공고 바로가기</div>
+
+    <a class="job-link-btn" href="https://www.work24.go.kr" target="_blank" rel="noopener noreferrer">
+      <div class="jlb-icon">💼</div>
+      <div class="jlb-text">
+        <div class="jlb-title">고령자 채용공고 전체보기</div>
+        <div class="jlb-desc">고용24 (워크넷) · 만 50세 이상 채용정보</div>
+      </div>
+      <div class="jlb-arrow">→</div>
+    </a>
+
+    <a class="job-link-btn" href="https://www.seniorro.or.kr" target="_blank" rel="noopener noreferrer">
+      <div class="jlb-icon">👴</div>
+      <div class="jlb-text">
+        <div class="jlb-title">노인일자리 구인정보 보기</div>
+        <div class="jlb-desc">노인일자리여기 · 전국 노인 전용 채용공고</div>
+      </div>
+      <div class="jlb-arrow">→</div>
+    </a>
+
+    <a class="job-link-btn" href="https://senior.saramin.co.kr" target="_blank" rel="noopener noreferrer">
+      <div class="jlb-icon">🔍</div>
+      <div class="jlb-text">
+        <div class="jlb-title">사람인 시니어 채용공고</div>
+        <div class="jlb-desc">사람인 중장년 전용 · 민간기업 채용정보</div>
+      </div>
+      <div class="jlb-arrow">→</div>
+    </a>
+
+    <div style="background:#fff8e1;border-radius:12px;padding:12px 14px;margin-top:4px;border-left:3px solid #FFB300;">
+      <p style="font-size:13px;color:#7a5c00;line-height:1.6;">📌 버튼을 누르면 해당 채용 사이트로 이동해요.<br>실제 공고를 직접 확인하고 지원하실 수 있어요.</p>
     </div>
-    <div class="job-card">
-      <div class="job-card-top"><span class="job-title">어린이집 급식 보조 및 청소 도우미 (요양비)</span><span class="job-badge">공익활동형</span></div>
-      <p class="job-info">📍 요양비 제공 | ⏰ 주 5일, 하루 9~12시간 | 💰 만 65세 이상</p>
-      <a class="job-link" href="https://www.work.go.kr" target="_blank" rel="noopener noreferrer">바로 지원하기 →</a>
-    </div>
-    <div class="job-card">
-      <div class="job-card-top"><span class="job-title">노인복지관 청소 도우미 (자원봉사 연계)</span><span class="job-badge">사회서비스형</span></div>
-      <p class="job-info">📍 요양비 제공 | ⏰ 주 5일 | 💰 만 65~78세</p>
-      <a class="job-link" href="https://www.work.go.kr" target="_blank" rel="noopener noreferrer">바로 지원하기 →</a>
-    </div>
-    <a class="btn-main" style="display:block;text-align:center;text-decoration:none;padding:16px;border-radius:14px;font-size:17px;font-weight:900;color:#fff;background:#eb840f;margin-top:10px;" href="https://www.work.go.kr" target="_blank" rel="noopener noreferrer">📌 워크넷에서 전체 채용 공고 보기</a>
   </div>
 
   <!-- 쇼핑 추천 -->
