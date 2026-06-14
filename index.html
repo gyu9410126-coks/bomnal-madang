@@ -134,7 +134,27 @@
 .tab-icon { font-size: 20px; line-height: 1.2; }
 .tab-label { font-size: 10px; margin-top: 2px; white-space: nowrap; font-weight: 700; }
 
-body { padding-bottom: 115px !important; }
+body { padding-bottom: 160px !important; }
+
+/* =====================================================
+   홈화면 저장 버튼 — 카카오 버튼 바로 아래 항상 노출
+   ===================================================== */
+.btn-pwa-fixed {
+  display: block;
+  width: calc(100% - 28px);
+  margin: 10px 14px 0;
+  background: linear-gradient(135deg, #3d8fd4, #1a5fa0);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  padding: 18px 0;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  letter-spacing: -0.3px;
+  font-family: 'Nanum Gothic', sans-serif;
+  text-align: center;
+}
 
 /* =====================================================
    퀵메뉴 그리드
@@ -358,7 +378,7 @@ body { padding-bottom: 115px !important; }
   <button class="btn-kakao" onclick="shareKakao()">
     💛 카카오톡 친구에게 공유하기
   </button>
-  <button class="btn-pwa" id="btn-pwa-install" onclick="installPWA()">
+  <button class="btn-pwa-fixed" id="btn-pwa-install" onclick="installPWA()">
     📲 봄날마당 홈화면에 저장하기
   </button>
 
@@ -378,6 +398,11 @@ body { padding-bottom: 115px !important; }
 <div class="tab-content" id="tab-market"><div class="tab-loading"><span class="tab-loading-spinner">🛒</span>시니어쇼핑 불러오는 중...</div></div>
 <!-- 트로트 탭 -->
 <div class="tab-content" id="tab-trot"><div class="tab-loading"><span class="tab-loading-spinner">🎵</span>트로트봄날마당 불러오는 중...</div></div>
+
+<!-- ✅ 항상 고정 노출 — 홈화면 저장 버튼 -->
+<button class="btn-pwa-fixed" id="btn-pwa-install" onclick="installPWA()">
+  📲 봄날마당 홈화면에 저장하기
+</button>
 
 <!-- 하단 탭바 -->
 <nav class="bottom-nav" id="bottom-nav">
