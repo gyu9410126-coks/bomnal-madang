@@ -217,6 +217,97 @@ body { padding-bottom: 115px !important; }
   color:#e53935;
   font-weight:700;
 }
+/* 공고 상세 팝업 */
+.job-popup-overlay {
+  position:fixed;top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.55);
+  z-index:9000;
+  display:flex;align-items:flex-end;
+  animation:fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.job-popup-box {
+  background:#fff;
+  width:100%;
+  max-height:80vh;
+  border-radius:24px 24px 0 0;
+  padding:24px 20px 36px;
+  overflow-y:auto;
+  animation:slideUp 0.25s ease;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.job-popup-title {
+  font-size:20px;
+  font-weight:900;
+  color:#1a1a1a;
+  line-height:1.4;
+  word-break:keep-all;
+  margin-bottom:16px;
+  padding-bottom:14px;
+  border-bottom:2px solid #f0f0f0;
+}
+.job-popup-row {
+  display:flex;
+  gap:10px;
+  margin-bottom:10px;
+  font-size:16px;
+  line-height:1.6;
+  word-break:keep-all;
+}
+.job-popup-label {
+  font-weight:800;
+  color:#4A90D9;
+  flex-shrink:0;
+  width:72px;
+}
+.job-popup-value { color:#333; flex:1; }
+.job-popup-contents {
+  background:#f7f8fa;
+  border-radius:12px;
+  padding:14px;
+  font-size:15px;
+  color:#444;
+  line-height:1.8;
+  margin-top:4px;
+  word-break:keep-all;
+  white-space:pre-wrap;
+}
+.job-popup-phone {
+  display:block;
+  width:100%;
+  margin-top:16px;
+  padding:15px;
+  background:#4A90D9;
+  color:#fff;
+  border:none;
+  border-radius:14px;
+  font-size:18px;
+  font-weight:900;
+  cursor:pointer;
+  text-align:center;
+  text-decoration:none;
+  -webkit-tap-highlight-color:transparent;
+}
+.job-popup-close {
+  display:block;
+  width:100%;
+  margin-top:10px;
+  padding:14px;
+  background:#f0f0f0;
+  color:#555;
+  border:none;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.job-popup-loading {
+  text-align:center;
+  padding:40px 0;
+  color:#888;
+  font-size:16px;
+}
 .main-job-error {
   background:#fff3f3;
   border-left:3px solid #e53935;
@@ -774,11 +865,9 @@ async function loadMainJobs() {
   if (!listEl) return;
 
   try {
-    // /api/jobs 에 3개만 요청
     var res  = await fetch('/api/jobs?numOfRows=3&pageNo=1');
     var data = await res.json();
 
-    // 실패하거나 공고 없을 때
     if (!data.ok || !data.items || data.items.length === 0) {
       listEl.innerHTML = '<div class="main-job-error">⚠️ 잠시 후 다시 확인해 주세요.</div>';
       return;
@@ -788,7 +877,6 @@ async function loadMainJobs() {
     var html  = '';
 
     data.items.forEach(function(item) {
-      // 마감일 계산 (7일 이내면 빨간 글씨)
       var deadlineText  = item.endDate || '마감일 미정';
       var deadlineClass = '';
 
@@ -805,13 +893,15 @@ async function loadMainJobs() {
         }
       }
 
+      // ★ onclick으로 공고ID 전달 → 팝업 열기
       html +=
-        '<div class="main-job-item">' +
+        '<div class="main-job-item" onclick="openJobPopup(\'' + item.id + '\')" style="cursor:pointer;">' +
           '<div class="main-job-title">' + (item.title || '제목 없음') + '</div>' +
           '<div class="main-job-meta">' +
             '📍 ' + (item.location || '-') + ' &nbsp;' +
             '💼 ' + (item.workType || '-') + '<br>' +
             '<span class="' + deadlineClass + '">⏰ ' + deadlineText + '</span>' +
+            ' &nbsp;<span style="color:#4A90D9;font-weight:700;">👆 눌러서 자세히 보기</span>' +
           '</div>' +
         '</div>';
     });
@@ -823,7 +913,84 @@ async function loadMainJobs() {
   }
 }
 
-// 홈탭이 열릴 때 자동으로 공고 불러오기
+/* ===== 공고 상세 팝업 ===== */
+async function openJobPopup(jobId) {
+  // ① 팝업 오버레이 생성
+  var overlay = document.createElement('div');
+  overlay.className = 'job-popup-overlay';
+  overlay.id = 'job-popup-overlay';
+
+  // ② 팝업 박스 (로딩 상태로 먼저 표시)
+  overlay.innerHTML =
+    '<div class="job-popup-box">' +
+      '<div class="job-popup-loading">⏳ 공고 정보를 불러오는 중이에요…</div>' +
+    '</div>';
+
+  // ③ 배경 클릭하면 팝업 닫기
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeJobPopup();
+  });
+
+  document.body.appendChild(overlay);
+
+  try {
+    // ④ 상세정보 API 호출
+    var res  = await fetch('/api/jobs-detail?jobId=' + jobId);
+    var data = await res.json();
+
+    if (!data.ok || !data.detail) {
+      overlay.querySelector('.job-popup-box').innerHTML =
+        '<div style="padding:20px;text-align:center;color:#c00;">⚠️ 상세정보를 불러올 수 없어요.</div>' +
+        '<button class="job-popup-close" onclick="closeJobPopup()">닫기</button>';
+      return;
+    }
+
+    var d = data.detail;
+
+    // ⑤ 날짜 포맷 변환 (20260626 → 2026.06.26)
+    function fmtDate(s) {
+      if (!s || s.length !== 8) return s || '-';
+      return s.substring(0,4) + '.' + s.substring(4,6) + '.' + s.substring(6,8);
+    }
+
+    // ⑥ 전화번호 버튼 (있을 때만 표시)
+    var phoneBtn = d.phone
+      ? '<a class="job-popup-phone" href="tel:' + d.phone + '">📞 ' + d.phone + ' 전화하기</a>'
+      : '<div style="text-align:center;color:#aaa;font-size:14px;margin-top:12px;">전화번호 정보가 없어요</div>';
+
+    // ⑦ 상세내용 (너무 길면 잘라서 표시)
+    var contents = d.contents
+      ? '<div class="job-popup-row"><span class="job-popup-label">📋 내용</span></div>' +
+        '<div class="job-popup-contents">' + d.contents.substring(0, 300) + (d.contents.length > 300 ? '…' : '') + '</div>'
+      : '';
+
+    // ⑧ 팝업 내용 채우기
+    overlay.querySelector('.job-popup-box').innerHTML =
+      '<div class="job-popup-title">' + (d.title || '제목 없음') + '</div>' +
+
+      '<div class="job-popup-row"><span class="job-popup-label">🏢 기관</span><span class="job-popup-value">' + (d.company || '-') + '</span></div>' +
+      '<div class="job-popup-row"><span class="job-popup-label">📍 근무지</span><span class="job-popup-value">' + (d.location || '-') + '</span></div>' +
+      '<div class="job-popup-row"><span class="job-popup-label">💼 고용</span><span class="job-popup-value">' + (d.workType || '-') + '</span></div>' +
+      '<div class="job-popup-row"><span class="job-popup-label">👥 모집</span><span class="job-popup-value">' + (d.headcount || '-') + '명</span></div>' +
+      '<div class="job-popup-row"><span class="job-popup-label">🎂 연령</span><span class="job-popup-value">' + (d.ageLimit || '-') + '</span></div>' +
+      '<div class="job-popup-row"><span class="job-popup-label">⏰ 마감</span><span class="job-popup-value">' + fmtDate(d.endDate) + '</span></div>' +
+      '<div class="job-popup-row"><span class="job-popup-label">📮 접수</span><span class="job-popup-value">' + (d.applyMethod || '-') + '</span></div>' +
+      contents +
+      phoneBtn +
+      '<button class="job-popup-close" onclick="closeJobPopup()">✕ 닫기</button>';
+
+  } catch (err) {
+    overlay.querySelector('.job-popup-box').innerHTML =
+      '<div style="padding:20px;text-align:center;color:#c00;">⚠️ 인터넷 연결을 확인해 주세요.</div>' +
+      '<button class="job-popup-close" onclick="closeJobPopup()">닫기</button>';
+  }
+}
+
+function closeJobPopup() {
+  var el = document.getElementById('job-popup-overlay');
+  if (el) el.remove();
+}
+
 setTimeout(loadMainJobs, 500);
 
 /* ===== 카카오 공유 ===== */
