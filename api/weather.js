@@ -7,6 +7,9 @@ export default async function handler(req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
+  /* 캐시 완전 비활성화 — 매번 새 데이터 요청 */
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
 
   const WEATHER_KEY = process.env.WEATHER_API_KEY;
   const KAKAO_KEY   = process.env.KAKAO_API_KEY;
