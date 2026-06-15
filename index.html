@@ -35,50 +35,87 @@ body.big-font { font-size: 135% !important; }
 /* =====================================================
    큰글씨 모드 — px 고정 요소 강제 확대 (135% 기준)
    ===================================================== */
-body.big-font .header-date { font-size: 23px !important; }
-body.big-font .header-lunar { font-size: 18px !important; }
+
+/* ① 헤더 날짜: 클래스명 정확히 수정 */
+body.big-font .header-date-solar { font-size: 23px !important; }
+body.big-font .header-date-lunar { font-size: 18px !important; }
 body.big-font .header-title { font-size: 24px !important; }
-body.big-font .banner-tag { font-size: 23px !important; }
-body.big-font .banner-title { font-size: 38px !important; }
-body.big-font .banner-cta { font-size: 23px !important; }
+
+/* ② 배너 슬라이더: 클래스명 정확히 수정 (bnr-tag, bnr-title, bnr-cta) */
+body.big-font .bnr-tag   { font-size: 23px !important; }
+body.big-font .bnr-title { font-size: 38px !important; }
+body.big-font .bnr-cta   { font-size: 23px !important; }
+
+/* 날씨 */
 body.big-font .weather-temp { font-size: 38px !important; }
 body.big-font .weather-desc { font-size: 23px !important; }
 body.big-font .weather-icon { font-size: 30px !important; }
 body.big-font .weather-open { font-size: 20px !important; }
+
+/* 달력 */
 body.big-font .cal-date { font-size: 23px !important; }
 body.big-font .cal-info { font-size: 20px !important; }
 body.big-font .cal-icon { font-size: 27px !important; }
 body.big-font .cal-open { font-size: 20px !important; }
-body.big-font .cat-label { font-size: 20px !important; }
-body.big-font .cat-icon-box { font-size: 35px !important; }
+
+/* ③ 카테고리: 아이콘 박스 크기(width·height)도 함께 확대 */
+body.big-font .cat-label    { font-size: 20px !important; }
+body.big-font .cat-name     { font-size: 20px !important; }
+body.big-font .cat-icon-box { font-size: 42px !important; width: 100% !important; height: 96px !important; }
+
+/* 섹션 공통 제목 */
 body.big-font .sec-title { font-size: 30px !important; }
-body.big-font .news-text { font-size: 23px !important; }
-body.big-font .news-tag { font-size: 20px !important; }
-body.big-font .news-date { font-size: 18px !important; }
+
+/* ④ 복지혜택 소식 — 헤더·뱃지·전체보기 버튼 추가 */
+body.big-font .news-sec-title  { font-size: 28px !important; }
+body.big-font .news-sec-badge  { font-size: 20px !important; }
+body.big-font .news-text       { font-size: 23px !important; }
+body.big-font .news-tag        { font-size: 20px !important; }
+body.big-font .news-date       { font-size: 18px !important; }
+body.big-font .news-all-btn    { font-size: 23px !important; }
+
+/* ⑤ 건강·약국 — 헤더·뱃지·전체보기 버튼 추가 */
+body.big-font .health-sec-title { font-size: 28px !important; }
+body.big-font .health-sec-badge { font-size: 20px !important; }
+body.big-font .health-text      { font-size: 23px !important; }
+body.big-font .health-tag       { font-size: 20px !important; }
+body.big-font .health-all-btn   { font-size: 23px !important; }
+
+/* 기존 btn-more */
 body.big-font .btn-more { font-size: 23px !important; }
-body.big-font .shop-name { font-size: 23px !important; }
-body.big-font .shop-desc { font-size: 20px !important; }
-body.big-font .shop-emoji { font-size: 35px !important; }
-body.big-font .tel-name { font-size: 23px !important; }
-body.big-font .tel-num { font-size: 27px !important; }
-body.big-font .tel-icon { font-size: 32px !important; }
-body.big-font .tel-desc { font-size: 20px !important; }
-body.big-font .notice-text { font-size: 18px !important; }
-body.big-font .footer-link { font-size: 18px !important; }
-body.big-font .footer-dot { font-size: 18px !important; }
+
+/* ⑥ 시니어 맞춤 쇼핑 — 섹션 제목 추가 */
+body.big-font .shop-sec-title { font-size: 30px !important; }
+body.big-font .shop-name      { font-size: 23px !important; }
+body.big-font .shop-desc      { font-size: 20px !important; }
+body.big-font .shop-emoji     { font-size: 35px !important; }
+
+/* ⑦ 어르신 긴급 전화 — 섹션 제목 추가 */
+body.big-font .tel-sec-title { font-size: 30px !important; }
+body.big-font .tel-name      { font-size: 23px !important; }
+body.big-font .tel-num       { font-size: 27px !important; }
+body.big-font .tel-icon      { font-size: 32px !important; }
+body.big-font .tel-desc      { font-size: 20px !important; }
+
+/* 기타 */
+body.big-font .notice-text   { font-size: 18px !important; }
+body.big-font .footer-link   { font-size: 18px !important; }
+body.big-font .footer-dot    { font-size: 18px !important; }
 body.big-font .zoom-btn-label { font-size: 18px !important; }
-body.big-font .zoom-btn-icon { font-size: 30px !important; }
+body.big-font .zoom-btn-icon  { font-size: 30px !important; }
 body.big-font .btn-kakao-main { font-size: 23px !important; }
-body.big-font .btn-pwa-main { font-size: 23px !important; }
-body.big-font .job-popup-title { font-size: 27px !important; }
-body.big-font .job-popup-row { font-size: 22px !important; }
+body.big-font .btn-pwa-main   { font-size: 23px !important; }
+
+/* 공고 팝업 */
+body.big-font .job-popup-title    { font-size: 27px !important; }
+body.big-font .job-popup-row      { font-size: 22px !important; }
 body.big-font .job-popup-contents { font-size: 20px !important; }
-body.big-font .job-popup-phone { font-size: 24px !important; }
-body.big-font .job-popup-close { font-size: 22px !important; }
-body.big-font .main-job-title { font-size: 23px !important; }
-body.big-font .main-job-meta { font-size: 20px !important; }
-body.big-font .main-job-error { font-size: 18px !important; }
-body.big-font .main-job-loading { font-size: 18px !important; }
+body.big-font .job-popup-phone    { font-size: 24px !important; }
+body.big-font .job-popup-close    { font-size: 22px !important; }
+body.big-font .main-job-title     { font-size: 23px !important; }
+body.big-font .main-job-meta      { font-size: 20px !important; }
+body.big-font .main-job-error     { font-size: 18px !important; }
+body.big-font .main-job-loading   { font-size: 18px !important; }
 
 /* =====================================================
    헤더 날짜 영역
