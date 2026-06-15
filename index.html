@@ -1640,27 +1640,10 @@ function getTodaySeasonText(lunarDay) {
 }
 
 /* ============================================================
-   ③ 날씨 API 호출 함수 (기상청 실제 데이터)
+   ③ 날씨 함수 - GPS 위치 기반 실제 날씨 표시
    ============================================================ */
-async function loadWeather() {
-  try {
-    /* /api/weather = Vercel 서버리스 중계 함수 호출 */
-    var res  = await fetch('/api/weather');
-    var data = await res.json();
-    if (data.ok) {
-      document.getElementById('weather-icon').textContent  = data.icon;
-      document.getElementById('weather-temp').textContent  = data.temp;
-      document.getElementById('weather-state').textContent = data.state;
-      document.getElementById('weather-msg').textContent   = data.msg;
-    } else {
-      applyWeatherDummy();
-    }
-  } catch (e) {
-    applyWeatherDummy();
-  }
-}
 
-/* 더미 날씨 (API 실패 시 보여줄 기본값) */
+/* 더미 날씨 (GPS 거부 또는 API 실패 시 보여줄 기본값) */
 function applyWeatherDummy() {
   var h = new Date().getHours();
   var m = new Date().getMonth() + 1;
@@ -1678,6 +1661,66 @@ function applyWeatherDummy() {
   document.getElementById('weather-temp').textContent  = season.temp;
   document.getElementById('weather-state').textContent = season.state;
   document.getElementById('weather-msg').textContent   = msg;
+}
+
+/* API 결과를 화면에 적용 */
+async function fetchWeatherByCoords(lat, lon) {
+  try {
+    var res  = await fetch('/api/weather?lat=' + lat + '&lon=' + lon);
+    var data = await res.json();
+    if (data.ok) {
+      /* city = 지역명 (서울/부산/대구 등), 없으면 '내 지역' */
+      var cityEl = document.querySelector('.weather-city');
+      if (cityEl && data.city) cityEl.textContent = data.city;
+      document.getElementById('weather-icon').textContent  = data.icon;
+      document.getElementById('weather-temp').textContent  = data.temp;
+      document.getElementById('weather-state').textContent = data.state;
+      document.getElementById('weather-msg').textContent   = data.msg;
+    } else {
+      applyWeatherDummy();
+    }
+  } catch (e) {
+    applyWeatherDummy();
+  }
+}
+
+/* GPS 위치 요청 후 날씨 호출 */
+function loadWeather() {
+  /* 로컬스토리지(폰 저장소)에 저장된 위치 있으면 바로 사용 (매번 팝업 안 뜨도록) */
+  var saved = localStorage.getItem('bomnal_geo');
+  if (saved) {
+    try {
+      var geo = JSON.parse(saved);
+      /* 저장된 지 1시간 이내면 재사용 */
+      if (Date.now() - geo.ts < 60 * 60 * 1000) {
+        fetchWeatherByCoords(geo.lat, geo.lon);
+        return;
+      }
+    } catch (e) {}
+  }
+
+  /* GPS 지원 여부 확인 */
+  if (!navigator.geolocation) {
+    /* GPS 없는 구형 기기면 서울 기본값으로 */
+    fetchWeatherByCoords(37.5665, 126.9780);
+    return;
+  }
+
+  /* GPS 위치 요청 (최대 10초 대기) */
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      var lat = pos.coords.latitude;
+      var lon = pos.coords.longitude;
+      /* 위치를 로컬스토리지에 저장 (1시간 재사용) */
+      localStorage.setItem('bomnal_geo', JSON.stringify({ lat: lat, lon: lon, ts: Date.now() }));
+      fetchWeatherByCoords(lat, lon);
+    },
+    function(err) {
+      /* 위치 권한 거부 또는 오류 → 서울 기본값 */
+      fetchWeatherByCoords(37.5665, 126.9780);
+    },
+    { timeout: 10000, maximumAge: 3600000 }
+  );
 }
 
 /* ============================================================
@@ -1711,7 +1754,7 @@ function applyWeatherDummy() {
     document.getElementById('cal-season').textContent = '· ' + lunarText;
   }
 
-  /* 날씨 실제 API 호출 (실패 시 자동으로 더미값 표시) */
+  /* 날씨 실제 API 호출 (GPS 위치 기반) */
   loadWeather();
 })();
 
