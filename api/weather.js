@@ -33,6 +33,7 @@ export default async function handler(req, res) {
         headers: { 'Authorization': 'KakaoAK ' + KAKAO_KEY }
       });
       const kakaoData = await kakaoRes.json();
+      console.log('카카오 응답:', JSON.stringify(kakaoData)); /* 로그 확인용 */
       const docs = kakaoData?.documents;
 
       if (docs && docs.length > 0) {
