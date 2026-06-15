@@ -1,6 +1,6 @@
 // ============================================================
 // 📁 파일명: api/weather.js
-// 📌 역할: 브라우저에서 받은 위도/경도로 기상청 날씨 조회
+// 📌 역할: GPS 위도/경도 → 카카오 주소변환 → 기상청 날씨 조회
 // ============================================================
 
 export default async function handler(req, res) {
@@ -8,28 +8,64 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
 
-  const API_KEY = process.env.WEATHER_API_KEY;
-  if (!API_KEY) {
-    return res.status(500).json({ ok: false, error: 'API 키 없음' });
+  const WEATHER_KEY = process.env.WEATHER_API_KEY;
+  const KAKAO_KEY   = process.env.KAKAO_API_KEY;
+
+  if (!WEATHER_KEY) {
+    return res.status(500).json({ ok: false, error: '날씨 API 키 없음' });
   }
 
-  // ── 브라우저에서 전달받은 위도/경도 ──
-  // 없으면 서울 기본값(위도 37.5665, 경도 126.9780) 사용
+  // ── 브라우저에서 전달받은 위도/경도 (없으면 서울 기본값) ──
   const lat = parseFloat(req.query.lat) || 37.5665;
   const lon = parseFloat(req.query.lon) || 126.9780;
 
-  // ── 위도/경도 → 기상청 격자 좌표(nx, ny) 변환 ──
-  // 기상청은 지도를 5km 격자로 나눠서 위도/경도 대신 격자번호 사용
-  // 아래 공식은 기상청 공식 변환 수식입니다
+  // ── ① 카카오 주소변환 API로 지역명 가져오기 ──
+  // 위도/경도 → "서울 강남구 역삼동" 형태로 변환
+  let cityName = '내 지역';
+  if (KAKAO_KEY) {
+    try {
+      const kakaoUrl =
+        `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${lon}&y=${lat}`;
+      const kakaoRes  = await fetch(kakaoUrl, {
+        headers: { 'Authorization': 'KakaoAK ' + KAKAO_KEY }
+      });
+      const kakaoData = await kakaoRes.json();
+      const docs = kakaoData?.documents;
+
+      if (docs && docs.length > 0) {
+        // region_type이 'H'인 것 = 행정동 기준
+        const region = docs.find(d => d.region_type === 'H') || docs[0];
+
+        const sido   = region.region_1depth_name || '';  // 예: 서울특별시
+        const sigu   = region.region_2depth_name || '';  // 예: 강남구
+        const dong   = region.region_3depth_name || '';  // 예: 역삼동
+
+        // 시/도 이름 줄이기 (특별시→시, 광역시→시 등)
+        const sidoShort = sido
+          .replace('특별자치시', '')
+          .replace('특별자치도', '')
+          .replace('특별시', '')
+          .replace('광역시', '')
+          .trim();
+
+        // 최종 지역명: "서울 강남구 역삼동"
+        cityName = [sidoShort, sigu, dong].filter(Boolean).join(' ');
+      }
+    } catch (e) {
+      cityName = '내 지역'; // 카카오 실패해도 날씨는 계속 진행
+    }
+  }
+
+  // ── ② 위도/경도 → 기상청 격자 좌표(nx, ny) 변환 ──
   function latLonToGrid(lat, lon) {
-    const RE     = 6371.00877;  // 지구 반경 (km)
-    const GRID   = 5.0;         // 격자 간격 (km)
-    const SLAT1  = 30.0;        // 표준 위도 1
-    const SLAT2  = 60.0;        // 표준 위도 2
-    const OLON   = 126.0;       // 기준 경도
-    const OLAT   = 38.0;        // 기준 위도
-    const XO     = 43;          // 기준점 X 격자
-    const YO     = 136;         // 기준점 Y 격자
+    const RE    = 6371.00877;
+    const GRID  = 5.0;
+    const SLAT1 = 30.0;
+    const SLAT2 = 60.0;
+    const OLON  = 126.0;
+    const OLAT  = 38.0;
+    const XO    = 43;
+    const YO    = 136;
 
     const DEGRAD = Math.PI / 180.0;
     const re     = RE / GRID;
@@ -57,31 +93,9 @@ export default async function handler(req, res) {
     return { nx, ny };
   }
 
-  // ── 위도/경도 → 지역명 변환 (대략적인 시/도 기준) ──
-  function getCityName(lat, lon) {
-    if (lat >= 37.4 && lat <= 37.7 && lon >= 126.7 && lon <= 127.3) return '서울';
-    if (lat >= 37.3 && lat <= 37.6 && lon >= 126.4 && lon <= 126.8) return '인천';
-    if (lat >= 37.1 && lat <= 37.5 && lon >= 126.6 && lon <= 127.5) return '경기';
-    if (lat >= 35.0 && lat <= 35.3 && lon >= 128.8 && lon <= 129.3) return '부산';
-    if (lat >= 35.7 && lat <= 36.1 && lon >= 128.4 && lon <= 128.8) return '대구';
-    if (lat >= 35.1 && lat <= 35.4 && lon >= 126.7 && lon <= 127.0) return '광주';
-    if (lat >= 36.2 && lat <= 36.5 && lon >= 127.2 && lon <= 127.6) return '대전';
-    if (lat >= 35.4 && lat <= 35.7 && lon >= 129.1 && lon <= 129.5) return '울산';
-    if (lat >= 36.5 && lat <= 37.0 && lon >= 127.0 && lon <= 127.8) return '충북';
-    if (lat >= 36.0 && lat <= 36.7 && lon >= 126.3 && lon <= 127.2) return '충남';
-    if (lat >= 35.6 && lat <= 36.2 && lon >= 127.4 && lon <= 128.1) return '전북';
-    if (lat >= 34.3 && lat <= 35.5 && lon >= 126.3 && lon <= 127.3) return '전남';
-    if (lat >= 35.5 && lat <= 36.9 && lon >= 128.0 && lon <= 129.4) return '경북';
-    if (lat >= 34.7 && lat <= 35.7 && lon >= 127.5 && lon <= 128.9) return '경남';
-    if (lat >= 33.1 && lat <= 33.6 && lon >= 126.1 && lon <= 126.9) return '제주';
-    if (lat >= 37.0 && lat <= 38.6 && lon >= 127.5 && lon <= 129.4) return '강원';
-    return '내 지역';
-  }
-
   const { nx, ny } = latLonToGrid(lat, lon);
-  const cityName   = getCityName(lat, lon);
 
-  // ── 날짜·시간 계산 (한국시간 KST) ──
+  // ── ③ 날짜·시간 계산 (한국시간 KST) ──
   const now  = new Date();
   const kst  = new Date(now.getTime() + 9 * 60 * 60 * 1000);
   const year  = kst.getUTCFullYear();
@@ -101,7 +115,6 @@ export default async function handler(req, res) {
     }
   }
 
-  // 자정~02:10 사이면 전날 23시 데이터 사용
   if (hour < 2 || (hour === 2 && min < 10)) {
     const yesterday = new Date(kst.getTime() - 24 * 60 * 60 * 1000);
     baseDate = `${yesterday.getUTCFullYear()}${String(yesterday.getUTCMonth()+1).padStart(2,'0')}${String(yesterday.getUTCDate()).padStart(2,'0')}`;
@@ -110,10 +123,10 @@ export default async function handler(req, res) {
 
   const baseTime = String(baseHour).padStart(2, '0') + '00';
 
-  // ── 기상청 API 호출 ──
+  // ── ④ 기상청 API 호출 ──
   const url =
     `http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst` +
-    `?serviceKey=${encodeURIComponent(API_KEY)}` +
+    `?serviceKey=${encodeURIComponent(WEATHER_KEY)}` +
     `&pageNo=1&numOfRows=100&dataType=JSON` +
     `&base_date=${baseDate}&base_time=${baseTime}` +
     `&nx=${nx}&ny=${ny}`;
@@ -139,7 +152,6 @@ export default async function handler(req, res) {
       }
     });
 
-    // ── 날씨 아이콘·상태 변환 ──
     let icon = '☀️', state = '맑음';
     if      (pty === '1') { icon = '🌧️'; state = '비'; }
     else if (pty === '3') { icon = '❄️'; state = '눈'; }
@@ -147,7 +159,6 @@ export default async function handler(req, res) {
     else if (sky === '4') { icon = '☁️'; state = '흐림'; }
     else if (sky === '3') { icon = '⛅'; state = '구름많음'; }
 
-    // ── 시간대별 메시지 ──
     let msg;
     if      (hour < 6)  msg = '이른 새벽, 건강 챙기세요!';
     else if (hour < 12) msg = '상쾌한 아침입니다! 😊';
@@ -161,7 +172,7 @@ export default async function handler(req, res) {
       state: state,
       pop:   pop ? pop + '%' : '0%',
       msg:   msg,
-      city:  cityName   // ← 지역명도 함께 반환
+      city:  cityName  // 예: "서울 강남구 역삼동"
     });
 
   } catch (err) {
