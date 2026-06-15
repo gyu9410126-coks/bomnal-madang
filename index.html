@@ -708,6 +708,447 @@ body.big-font { font-size: 130% !important; }
 .main-job-meta { font-size: 15px; color: #666; line-height: 1.6; }
 .main-job-urgent { color: #e53935; font-weight: 700; }
 .main-job-error { background: #fff3f3; border-left: 3px solid #e53935; border-radius: 10px; padding: 12px; font-size: 13px; color: #c00; line-height: 1.6; }
+
+/* =====================================================
+   복지혜택 소식 섹션
+   ===================================================== */
+.news-sec {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+  margin: 24px 14px 0;
+}
+.news-sec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px 12px;
+  background: #e8f5e9;
+  border-bottom: 1px solid #f0f0f0;
+}
+.news-sec-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2e7d32;
+}
+.news-sec-badge {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111111;
+  background: #c8e6c9;
+  padding: 3px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+.news-sec-body { padding: 12px; }
+.news-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f1f8f1;
+  border-radius: 10px;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.news-item:last-of-type { margin-bottom: 0; }
+.news-item:active { background: #dcedc8; }
+.news-tag {
+  font-size: 15px;
+  font-weight: 500;
+  color: #2e7d32;
+  background: #c8e6c9;
+  padding: 2px 9px;
+  border-radius: 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.news-text {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+.news-all-btn {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  border: 1.5px solid #2e7d32;
+  background: transparent;
+  color: #2e7d32;
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.news-all-btn:active { background: #e8f5e9; }
+
+/* =====================================================
+   건강·약국 정보 섹션
+   ===================================================== */
+.health-sec {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+  margin: 24px 14px 0;
+}
+.health-sec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px 12px;
+  background: #e3f2fd;
+  border-bottom: 1px solid #f0f0f0;
+}
+.health-sec-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1565c0;
+}
+.health-sec-badge {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111111;
+  background: #bbdefb;
+  padding: 3px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+.health-sec-body { padding: 12px; }
+.health-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0f7ff;
+  border-radius: 10px;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.health-item:last-of-type { margin-bottom: 0; }
+.health-item:active { background: #bbdefb; }
+.health-tag {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1565c0;
+  background: #bbdefb;
+  padding: 2px 9px;
+  border-radius: 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.health-text {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+.health-all-btn {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  border: 1.5px solid #1565c0;
+  background: transparent;
+  color: #1565c0;
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.health-all-btn:active { background: #e3f2fd; }
+
+/* =====================================================
+   시니어 맞춤 쇼핑 섹션
+   ===================================================== */
+.shop-sec {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+  margin: 24px 14px 0;
+  padding: 0 0 12px;
+}
+.shop-sec-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  padding: 13px 14px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.shop-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  padding: 13px;
+  margin: 8px 12px 0;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.shop-item:active { background: #eef2f8; }
+.shop-emoji { font-size: 26px; flex-shrink: 0; }
+.shop-text { flex: 1; min-width: 0; }
+.shop-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+.shop-desc {
+  font-size: 15px;
+  font-weight: 400;
+  color: #666;
+  margin-top: 2px;
+}
+.shop-arrow {
+  font-size: 20px;
+  font-weight: 600;
+  color: #4A90D9;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.shop-notice {
+  font-size: 13px;
+  color: #aaa;
+  text-align: center;
+  padding: 10px 14px 0;
+  line-height: 1.6;
+}
+
+/* =====================================================
+   어르신 긴급 전화 섹션
+   ===================================================== */
+.tel-sec {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+  margin: 24px 14px 0;
+  padding: 0 0 12px;
+}
+.tel-sec-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  padding: 13px 14px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.tel-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  padding: 13px;
+  margin: 8px 12px 0;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.tel-item:active { background: #eef2f8; }
+.tel-icon { font-size: 22px; flex-shrink: 0; }
+.tel-text { flex: 1; min-width: 0; }
+.tel-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: #222;
+  line-height: 1.4;
+}
+.tel-desc {
+  font-size: 15px;
+  font-weight: 400;
+  color: #666;
+  margin-top: 1px;
+}
+.tel-num {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4A90D9;
+  margin-left: auto;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* =====================================================
+   카카오/홈화면저장/푸터 버튼
+   ===================================================== */
+.btn-kakao-main {
+  display: block;
+  width: calc(100% - 28px);
+  margin: 24px 14px 0;
+  padding: 14px;
+  background: #FEE500;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 13px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-kakao-main:active { background: #E6CF00; }
+.btn-pwa-main {
+  display: block;
+  width: calc(100% - 28px);
+  margin: 8px 14px 0;
+  padding: 13px;
+  background: #7db8e8;
+  color: #111111;
+  border: none;
+  border-radius: 13px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-pwa-main:active { background: #5a9fd4; }
+
+/* =====================================================
+   제휴 공지 / 푸터
+   ===================================================== */
+.affiliate-notice-box {
+  margin: 16px 14px 0;
+  background: #fffbe6;
+  border: 1px solid #ffe082;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #7a6000;
+  line-height: 1.7;
+  text-align: center;
+}
+.site-footer {
+  margin: 16px 14px 0;
+  text-align: center;
+  padding-bottom: 8px;
+}
+.footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.footer-link {
+  font-size: 13px;
+  color: #999;
+  text-decoration: none;
+}
+.footer-link:active { color: #4A90D9; }
+.footer-dot { font-size: 13px; color: #ccc; }
+
+/* =====================================================
+   카테고리 그리드
+   ===================================================== */
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.cat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: none;
+  border-radius: 14px;
+  padding: 11px 4px 10px;
+  gap: 7px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.12s;
+}
+.cat-item:active { transform: scale(0.95); }
+.cat-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  line-height: 1;
+}
+.cat-name {
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.3;
+  word-break: keep-all;
+  width: 100%;
+}
+
+/* =====================================================
+   돋보기 버튼
+   ===================================================== */
+.zoom-btn {
+  position: fixed;
+  right: 16px;
+  bottom: 80px;
+  width: 54px;
+  height: 54px;
+  background: #fff;
+  border: 2px solid #4A90D9;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  cursor: pointer;
+  z-index: 200;
+  -webkit-tap-highlight-color: transparent;
+}
+.zoom-btn-icon { font-size: 22px; line-height: 1; }
+.zoom-btn-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111111;
+}
+
+/* =====================================================
+   홈바 (홈으로 버튼)
+   ===================================================== */
+.home-bar {
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  padding: 8px 14px;
+  position: sticky;
+  top: 57px;
+  z-index: 99;
+}
+.home-bar button {
+  background: #f0f6ff;
+  border: 1.5px solid #4A90D9;
+  color: #4A90D9;
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+}
 </style>
 </head>
 <body>
