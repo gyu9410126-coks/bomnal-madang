@@ -5,18 +5,55 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>시니어 봄날마당 🌸</title>
 <meta name="description" content="50~70대 시니어를 위한 맞춤형 정보 봄날마당">
-<meta name="theme-color" content="#4A90D9">
+<meta name="theme-color" content="#1a6fc4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="봄날마당">
-<!-- ✅ PWA 설치 연결 -->
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+
+<!-- ✅ Pretendard 폰트 (나눔고딕에서 교체) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 <link rel="stylesheet" href="style.css">
+
 <style>
+/* =====================================================
+   전체 폰트 통일 — Pretendard
+   ===================================================== */
+* { font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; }
+
+/* =====================================================
+   body — 하단 탭바 제거했으므로 padding-bottom 없애기
+   ===================================================== */
+body { padding-bottom: 32px !important; }
+
+/* =====================================================
+   큰글씨 모드 — 돋보기 버튼 클릭 시 전체 글자 30% 확대
+   ===================================================== */
+body.big-font { font-size: 130% !important; }
+
+/* =====================================================
+   헤더 날짜 영역
+   ===================================================== */
+.header-date-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+}
+.header-date-solar {
+  font-size: 17px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+.header-date-lunar {
+  font-size: 12px;
+  font-weight: 700;
+  color: #b3d4f7;
+  line-height: 1.3;
+}
+
 /* =====================================================
    배너 슬라이더
    ===================================================== */
@@ -29,7 +66,7 @@
   border-radius: 18px;
   padding: 24px 20px 20px;
   position: relative;
-  min-height: 148px;
+  min-height: 152px;
   overflow: hidden;
   cursor: pointer;
 }
@@ -39,21 +76,22 @@
 .bnr-3 { background: linear-gradient(135deg, #3BAA8A, #1e7a60); }
 .bnr-4 { background: linear-gradient(135deg, #E07090, #B84060); }
 .bnr-5 { background: linear-gradient(135deg, #E8814A, #C05020); }
+
 .bnr-tag {
   display: inline-block;
   background: rgba(255,255,255,0.25);
   color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 10px;
+  font-size: 17px;
+  font-weight: 600;
+  padding: 4px 12px;
   border-radius: 20px;
   margin-bottom: 9px;
 }
 .bnr-title {
-  font-size: 22px;
-  font-weight: 900;
+  font-size: 28px;
+  font-weight: 700;
   color: #fff;
-  line-height: 1.35;
+  line-height: 1.3;
   margin-bottom: 14px;
   word-break: keep-all;
 }
@@ -64,10 +102,10 @@
   background: rgba(255,255,255,0.22);
   border: 1.5px solid rgba(255,255,255,0.55);
   color: #fff;
-  padding: 8px 16px;
+  padding: 8px 18px;
   border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 600;
   cursor: pointer;
 }
 .bnr-emoji {
@@ -78,6 +116,29 @@
   line-height: 1;
   user-select: none;
 }
+
+/* 배너 오른쪽 pill 설명 */
+.bnr-pills {
+  position: absolute;
+  right: 10px;
+  top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 2;
+}
+.bnr-pill {
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 30px;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* 배너 도트 인디케이터 */
 .bnr-dots {
   display: flex;
   justify-content: center;
@@ -95,336 +156,592 @@
   transition: background 0.2s, transform 0.2s;
 }
 .bnr-dot.on {
-  background: #4A90D9;
-  transform: scale(1.35);
+  background: #1a6fc4;
+  transform: scale(1.4);
 }
 
 /* =====================================================
-   하단 탭바
+   날씨 띠
    ===================================================== */
-.bottom-nav {
-  display: flex;
-  flex-wrap: nowrap;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #fff;
-  border-top: 1px solid #eee;
-  z-index: 150;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.06);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-.tab-btn {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 2px 4px;
-  border: none;
-  background: transparent;
+.weather-bar {
+  margin: 12px 14px 0;
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  border-radius: 12px;
+  padding: 10px 14px;
   cursor: pointer;
-  color: #bbb;
-  font-family: 'Nanum Gothic', sans-serif;
-  min-height: 52px;
-  min-width: 0;
+  -webkit-tap-highlight-color: transparent;
 }
-.tab-btn.active { color: #eb840f; }
-.tab-icon { font-size: 20px; line-height: 1.2; }
-.tab-label { font-size: 10px; margin-top: 2px; white-space: nowrap; font-weight: 700; }
-
-body { padding-bottom: 115px !important; }
+.weather-row1 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.weather-icon { font-size: 22px; }
+.weather-city {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0d2d6e;
+}
+.weather-temp {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0d2d6e;
+  margin-left: 2px;
+}
+.weather-state {
+  font-size: 17px;
+  font-weight: 600;
+  color: #0d2d6e;
+}
+.weather-row2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.weather-msg {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a3f7a;
+}
+.weather-open {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a3f7a;
+}
 
 /* =====================================================
-   퀵메뉴 그리드
+   달력 한줄
    ===================================================== */
-.quick-menu-grid {
+.cal-bar {
+  margin: 10px 14px 0;
+  background: #fff;
+  border: 1.5px solid #e8f0fb;
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.cal-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.cal-icon { font-size: 20px; }
+.cal-date {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a5fa0;
+}
+.cal-season {
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+}
+.cal-open {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a5fa0;
+}
+
+/* =====================================================
+   섹션 공통
+   ===================================================== */
+.sec-wrap {
+  margin: 18px 14px 0;
+}
+.sec-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 12px;
+}
+.sec-title em {
+  font-style: normal;
+  color: #1a6fc4;
+}
+
+/* =====================================================
+   카테고리 9개 그리드
+   ===================================================== */
+.cat-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 9px;
-  padding: 0 0 4px;
+  gap: 10px;
 }
-.quick-menu-item {
+.cat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   background: #fff;
   border: none;
   border-radius: 14px;
-  padding: 12px 6px 11px;
+  padding: 14px 6px 12px;
   gap: 7px;
   cursor: pointer;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.06);
+  box-shadow: 0 1px 5px rgba(0,0,0,0.07);
   transition: transform 0.13s;
   width: 100%;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
-.quick-menu-item:active { transform: scale(0.95); }
-.menu-img {
-  width: 80px;
-  height: 80px;
-  border-radius: 16px;
+.cat-item:active { transform: scale(0.95); }
+.cat-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 52px;
+  font-size: 34px;
   line-height: 1;
 }
-.mi-1 { background: #e8f0fb; }
-.mi-2 { background: #f0e8ff; }
-.mi-3 { background: #e1f5ee; }
-.mi-4 { background: #fff3e0; }
-.mi-5 { background: #fce4ec; }
-.mi-6 { background: #fff8e1; }
-.menu-name {
-  font-size: 18px;
-  font-weight: 800;
+.cat-name {
+  font-size: 15px;
+  font-weight: 600;
   color: #222;
   text-align: center;
   word-break: keep-all;
   line-height: 1.3;
 }
 
-/* 메인화면 실시간 공고 미리보기 */
-.main-job-loading {
-  text-align:center;
-  padding:16px 0;
-  color:#aaa;
-  font-size:13px;
+/* =====================================================
+   복지혜택 소식 섹션
+   ===================================================== */
+.news-sec {
+  margin: 24px 14px 0;
 }
-.main-job-item {
-  background:#f7f8fa;
-  border-radius:12px;
-  padding:12px 14px;
-  margin-bottom:8px;
+.news-sec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #e8f5e9;
+  border-radius: 12px 12px 0 0;
+  padding: 10px 14px;
 }
-.main-job-title {
-  font-size:17px;
-  font-weight:800;
-  color:#1a1a1a;
-  margin-bottom:4px;
-  line-height:1.4;
-  word-break:keep-all;
+.news-sec-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #2e7d32;
 }
-.main-job-meta {
-  font-size:15px;
-  color:#666;
-  line-height:1.6;
+.news-sec-badge {
+  font-size: 15px;
+  font-weight: 600;
+  background: #c8e6c9;
+  color: #111111;
+  padding: 3px 10px;
+  border-radius: 20px;
 }
-.main-job-urgent {
-  color:#e53935;
-  font-weight:700;
+.news-sec-body {
+  background: #fff;
+  border: 1px solid #e8f5e9;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 10px 10px 4px;
 }
-/* 공고 상세 팝업 */
-.job-popup-overlay {
-  position:fixed;top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,0.55);
-  z-index:9000;
-  display:flex;align-items:flex-end;
-  animation:fadeIn 0.2s ease;
+.news-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #f1f8f1;
+  border-radius: 10px;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
-@keyframes fadeIn { from{opacity:0} to{opacity:1} }
-.job-popup-box {
-  background:#fff;
-  width:100%;
-  max-height:80vh;
-  border-radius:24px 24px 0 0;
-  padding:24px 20px 36px;
-  overflow-y:auto;
-  animation:slideUp 0.25s ease;
+.news-tag {
+  font-size: 15px;
+  font-weight: 500;
+  background: #c8e6c9;
+  color: #2e7d32;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
-@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-.job-popup-title {
-  font-size:20px;
-  font-weight:900;
-  color:#1a1a1a;
-  line-height:1.4;
-  word-break:keep-all;
-  margin-bottom:16px;
-  padding-bottom:14px;
-  border-bottom:2px solid #f0f0f0;
+.news-text {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.4;
+  word-break: keep-all;
 }
-.job-popup-row {
-  display:flex;
-  gap:10px;
-  margin-bottom:10px;
-  font-size:16px;
-  line-height:1.6;
-  word-break:keep-all;
-}
-.job-popup-label {
-  font-weight:800;
-  color:#4A90D9;
-  flex-shrink:0;
-  width:72px;
-}
-.job-popup-value { color:#333; flex:1; }
-.job-popup-contents {
-  background:#f7f8fa;
-  border-radius:12px;
-  padding:14px;
-  font-size:15px;
-  color:#444;
-  line-height:1.8;
-  margin-top:4px;
-  word-break:keep-all;
-  white-space:pre-wrap;
-}
-.job-popup-phone {
-  display:block;
-  width:100%;
-  margin-top:16px;
-  padding:15px;
-  background:#4A90D9;
-  color:#fff;
-  border:none;
-  border-radius:14px;
-  font-size:18px;
-  font-weight:900;
-  cursor:pointer;
-  text-align:center;
-  text-decoration:none;
-  -webkit-tap-highlight-color:transparent;
-}
-.job-popup-close {
-  display:block;
-  width:100%;
-  margin-top:10px;
-  padding:14px;
-  background:#f0f0f0;
-  color:#555;
-  border:none;
-  border-radius:14px;
-  font-size:16px;
-  font-weight:800;
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-}
-.job-popup-loading {
-  text-align:center;
-  padding:40px 0;
-  color:#888;
-  font-size:16px;
-}
-.main-job-error {
-  background:#fff3f3;
-  border-left:3px solid #e53935;
-  border-radius:10px;
-  padding:12px;
-  font-size:13px;
-  color:#c00;
-  line-height:1.6;
+.news-all-btn {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  color: #2e7d32;
+  background: #fff;
+  border: 1.5px solid #2e7d32;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* =====================================================
-   스켈레톤 UI (공고 목록 + 팝업 — 로딩 중 회색 카드)
+   건강·약국 섹션
    ===================================================== */
-/* 깜빡이는 효과 — 살아있는 느낌을 줌 */
+.health-sec {
+  margin: 24px 14px 0;
+}
+.health-sec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #e3f2fd;
+  border-radius: 12px 12px 0 0;
+  padding: 10px 14px;
+}
+.health-sec-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1565c0;
+}
+.health-sec-badge {
+  font-size: 15px;
+  font-weight: 600;
+  background: #bbdefb;
+  color: #111111;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.health-sec-body {
+  background: #fff;
+  border: 1px solid #e3f2fd;
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  padding: 10px 10px 4px;
+}
+.health-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #f0f7ff;
+  border-radius: 10px;
+  padding: 11px 13px;
+  margin-bottom: 7px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.health-tag {
+  font-size: 15px;
+  font-weight: 500;
+  background: #bbdefb;
+  color: #1565c0;
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.health-text {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+.health-all-btn {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1565c0;
+  background: #fff;
+  border: 1.5px solid #1565c0;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* =====================================================
+   시니어 맞춤 쇼핑
+   ===================================================== */
+.shop-sec {
+  margin: 24px 14px 0;
+}
+.shop-sec-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 10px;
+}
+.shop-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  padding: 13px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.shop-emoji { font-size: 26px; flex-shrink: 0; }
+.shop-text { flex: 1; }
+.shop-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 2px;
+}
+.shop-desc {
+  font-size: 15px;
+  font-weight: 400;
+  color: #666;
+}
+.shop-arrow {
+  font-size: 20px;
+  color: #4A90D9;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.shop-notice {
+  font-size: 13px;
+  color: #999;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+/* =====================================================
+   긴급전화
+   ===================================================== */
+.tel-sec {
+  margin: 24px 14px 0;
+}
+.tel-sec-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 10px;
+}
+.tel-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f7f8fa;
+  border-radius: 12px;
+  padding: 13px;
+  margin-bottom: 8px;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.tel-icon { font-size: 24px; flex-shrink: 0; }
+.tel-text { flex: 1; }
+.tel-name {
+  font-size: 17px;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 2px;
+}
+.tel-desc {
+  font-size: 15px;
+  font-weight: 400;
+  color: #666;
+}
+.tel-num {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4A90D9;
+  flex-shrink: 0;
+}
+
+/* =====================================================
+   카카오 공유 / PWA 버튼
+   ===================================================== */
+.btn-kakao-main {
+  display: block;
+  width: calc(100% - 28px);
+  margin: 16px 14px 0;
+  padding: 14px;
+  background: #FEE500;
+  color: #1a1a1a;
+  font-size: 17px;
+  font-weight: 600;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+.btn-pwa-main {
+  display: block;
+  width: calc(100% - 28px);
+  margin: 10px 14px 0;
+  padding: 14px;
+  background: #7db8e8;
+  color: #111111;
+  font-size: 17px;
+  font-weight: 600;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  box-sizing: border-box;
+}
+
+/* =====================================================
+   쿠팡 파트너스 제휴 공지
+   ===================================================== */
+.affiliate-notice-box {
+  margin: 14px 14px 0;
+  background: #fffbe6;
+  border: 1px solid #ffe082;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #7a5c00;
+  line-height: 1.7;
+}
+
+/* =====================================================
+   푸터
+   ===================================================== */
+.site-footer {
+  margin: 24px 0 0;
+  padding: 16px 14px;
+  text-align: center;
+  border-top: 1px solid #eee;
+}
+.footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.footer-link {
+  font-size: 13px;
+  color: #999;
+  text-decoration: none;
+}
+.footer-dot { font-size: 13px; color: #ccc; }
+
+/* =====================================================
+   돋보기 버튼 (우하단 고정)
+   ===================================================== */
+.zoom-btn {
+  position: fixed;
+  right: 16px;
+  bottom: 80px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #4A90D9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 200;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.14);
+  -webkit-tap-highlight-color: transparent;
+  gap: 1px;
+}
+.zoom-btn-icon { font-size: 22px; line-height: 1; }
+.zoom-btn-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111111;
+  line-height: 1;
+}
+
+/* =====================================================
+   스켈레톤 / 공고 팝업 (기존 유지)
+   ===================================================== */
 @keyframes shimmer {
   0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
+  100% { background-position:  400px 0; }
 }
-/* 회색 빛이 흘러가는 효과 */
 .skel {
   background: linear-gradient(90deg, #efefef 25%, #e0e0e0 50%, #efefef 75%);
   background-size: 800px 100%;
   animation: shimmer 1.4s infinite linear;
   border-radius: 8px;
 }
-/* 공고 목록 스켈레톤 카드 */
-.skel-job-item {
-  background: #f7f8fa;
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 8px;
-}
-.skel-job-title {
-  height: 18px;
-  width: 80%;
-  margin-bottom: 10px;
-}
-.skel-job-line {
-  height: 14px;
-  width: 60%;
-  margin-bottom: 6px;
-}
-.skel-job-line2 {
-  height: 14px;
-  width: 45%;
-}
-/* 팝업 스켈레톤 */
-.skel-popup-title {
-  height: 22px;
-  width: 75%;
-  margin-bottom: 20px;
-}
-.skel-popup-row {
-  height: 16px;
-  width: 90%;
-  margin-bottom: 12px;
-}
-.skel-popup-btn {
-  height: 52px;
-  width: 100%;
-  border-radius: 14px;
-  margin-top: 20px;
-}
+.skel-job-item { background: #f7f8fa; border-radius: 12px; padding: 14px; margin-bottom: 8px; }
+.skel-job-title { height: 18px; width: 80%; margin-bottom: 10px; }
+.skel-job-line  { height: 14px; width: 60%; margin-bottom: 6px; }
+.skel-job-line2 { height: 14px; width: 45%; }
 
-/* 채용공고 링크 버튼 (B방식) */
-.job-link-btn {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: #f7f8fa;
-  border-radius: 14px;
-  padding: 16px 14px;
-  margin-bottom: 10px;
-  text-decoration: none;
-  color: inherit;
-  transition: background 0.15s;
-  -webkit-tap-highlight-color: transparent;
+/* 공고 팝업 */
+.job-popup-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 9000;
+  display: flex; align-items: flex-end;
+  animation: fadeIn 0.2s ease;
 }
-.job-link-btn:last-of-type { margin-bottom: 0; }
-.job-link-btn:active { background: #eef2f8; }
-.jlb-icon {
-  font-size: 24px;
-  width: 44px;
-  height: 44px;
-  background: #e8f0fb;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.job-popup-box {
+  background: #fff; width: 100%; max-height: 80vh;
+  border-radius: 24px 24px 0 0; padding: 24px 20px 36px;
+  overflow-y: auto; animation: slideUp 0.25s ease;
 }
-.jlb-text { flex: 1; }
-.jlb-title { font-size: 16px; font-weight: 800; color: #222; margin-bottom: 3px; }
-.jlb-desc { font-size: 13px; color: #666; line-height: 1.5; }
-.jlb-arrow { font-size: 20px; color: #4A90D9; flex-shrink: 0; font-weight: 900; }
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.job-popup-title { font-size: 20px; font-weight: 900; color: #1a1a1a; line-height: 1.4; word-break: keep-all; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 2px solid #f0f0f0; }
+.job-popup-row { display: flex; gap: 10px; margin-bottom: 10px; font-size: 16px; line-height: 1.6; word-break: keep-all; }
+.job-popup-label { font-weight: 800; color: #4A90D9; flex-shrink: 0; width: 72px; }
+.job-popup-value { color: #333; flex: 1; }
+.job-popup-contents { background: #f7f8fa; border-radius: 12px; padding: 14px; font-size: 15px; color: #444; line-height: 1.8; margin-top: 4px; word-break: keep-all; white-space: pre-wrap; }
+.job-popup-phone { display: block; width: 100%; margin-top: 16px; padding: 15px; background: #4A90D9; color: #fff; border: none; border-radius: 14px; font-size: 18px; font-weight: 900; cursor: pointer; text-align: center; text-decoration: none; -webkit-tap-highlight-color: transparent; }
+.job-popup-close { display: block; width: 100%; margin-top: 10px; padding: 14px; background: #f0f0f0; color: #555; border: none; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+
+.main-job-loading { text-align: center; padding: 16px 0; color: #aaa; font-size: 13px; }
+.main-job-item { background: #f7f8fa; border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+.main-job-title { font-size: 17px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; line-height: 1.4; word-break: keep-all; }
+.main-job-meta { font-size: 15px; color: #666; line-height: 1.6; }
+.main-job-urgent { color: #e53935; font-weight: 700; }
+.main-job-error { background: #fff3f3; border-left: 3px solid #e53935; border-radius: 10px; padding: 12px; font-size: 13px; color: #c00; line-height: 1.6; }
 </style>
 </head>
 <body>
 
+<!-- ===================================================
+     헤더
+     =================================================== -->
 <header class="app-header">
   <div class="header-left">
     <span class="header-logo" onclick="switchTab('home')" style="cursor:pointer">🌸</span>
-    <div class="header-title">
+    <div class="header-title" onclick="switchTab('home')" style="cursor:pointer">
       <span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span>
     </div>
   </div>
   <div class="header-right">
-    <div class="header-date-box" id="header-date">날짜 로딩</div>
+    <div class="header-date-box" id="header-date">
+      <span class="header-date-solar" id="date-solar">날짜 로딩</span>
+      <span class="header-date-lunar" id="date-lunar">음력 로딩</span>
+    </div>
   </div>
 </header>
 
-<div class="home-bar" id="home-bar">
+<!-- 홈으로 바 (홈 탭 제외 나머지 탭에서 표시) -->
+<div class="home-bar" id="home-bar" style="display:none;">
   <button onclick="switchTab('home')">🏠 홈으로</button>
 </div>
 
-<!-- 큰글씨 버튼 -->
-<button class="big-font-btn" onclick="toggleBigFont()" id="big-font-btn" title="글자 크기 크게 작게">가</button>
+<!-- 돋보기 버튼 (우하단 고정) -->
+<button class="zoom-btn" onclick="toggleBigFont()" id="zoom-btn" title="글자 크기 크게/기본 전환">
+  <span class="zoom-btn-icon">🔍</span>
+  <span class="zoom-btn-label" id="zoom-label">기본</span>
+</button>
 
 <!-- 색종이 효과 -->
 <div class="confetti-wrap" id="confetti-wrap"></div>
@@ -450,190 +767,279 @@ body { padding-bottom: 115px !important; }
      =================================================== -->
 <div class="tab-content active" id="tab-home">
 
-  <!-- 배너 슬라이더 -->
+  <!-- ① 배너 슬라이더 5개 -->
   <div class="bnr-wrap">
+    <!-- 배너1: 복지혜택 -->
     <div class="bnr-item bnr-1 on" onclick="switchTab('benefit')">
-      <div class="bnr-tag">✨ 복지혜택</div>
-      <div class="bnr-title">복지혜택<br>한눈에</div>
+      <div class="bnr-tag">🎁 복지·혜택</div>
+      <div class="bnr-title">복지혜택<br>한눈에!</div>
       <div class="bnr-cta">바로가기 →</div>
       <div class="bnr-emoji">🏛️</div>
+      <div class="bnr-pills">
+        <span class="bnr-pill">기초연금 안내</span>
+        <span class="bnr-pill">장기요양 신청</span>
+        <span class="bnr-pill">보조금 정보</span>
+      </div>
     </div>
-    <div class="bnr-item bnr-2" onclick="switchTab('fortune')">
-      <div class="bnr-tag">🔮 오늘의 운세</div>
-      <div class="bnr-title">오늘의<br>운세</div>
-      <div class="bnr-cta">바로가기 →</div>
-      <div class="bnr-emoji">🔮</div>
-    </div>
-    <div class="bnr-item bnr-3" onclick="switchTab('health')">
-      <div class="bnr-tag">💊 건강관리</div>
-      <div class="bnr-title">건강<br>관리</div>
+    <!-- 배너2: 건강·약국 -->
+    <div class="bnr-item bnr-2" onclick="switchTab('health')">
+      <div class="bnr-tag">💊 건강·약국</div>
+      <div class="bnr-title">건강정보<br>약국찾기!</div>
       <div class="bnr-cta">바로가기 →</div>
       <div class="bnr-emoji">💊</div>
+      <div class="bnr-pills">
+        <span class="bnr-pill">혈압관리 핵심</span>
+        <span class="bnr-pill">약국 찾기</span>
+        <span class="bnr-pill">건강검진 안내</span>
+      </div>
     </div>
+    <!-- 배너3: 일자리 -->
+    <div class="bnr-item bnr-3" onclick="switchTab('market')">
+      <div class="bnr-tag">💼 일자리</div>
+      <div class="bnr-title">실시간<br>일자리!</div>
+      <div class="bnr-cta">바로가기 →</div>
+      <div class="bnr-emoji">💼</div>
+      <div class="bnr-pills">
+        <span class="bnr-pill">노인일자리 공고</span>
+        <span class="bnr-pill">채용정보</span>
+        <span class="bnr-pill">지원방법</span>
+      </div>
+    </div>
+    <!-- 배너4: 트로트 -->
     <div class="bnr-item bnr-4" onclick="switchTab('trot')">
-      <div class="bnr-tag">🎵 트로트</div>
-      <div class="bnr-title">트로트<br>봄날마당</div>
+      <div class="bnr-tag">🎤 트로트·미디어</div>
+      <div class="bnr-title">트로트<br>즐기기!</div>
       <div class="bnr-cta">바로가기 →</div>
-      <div class="bnr-emoji">🎵</div>
+      <div class="bnr-emoji">🎤</div>
+      <div class="bnr-pills">
+        <span class="bnr-pill">음악감상</span>
+        <span class="bnr-pill">가사퀴즈</span>
+        <span class="bnr-pill">역사이야기</span>
+      </div>
     </div>
-    <div class="bnr-item bnr-5" onclick="switchTab('market')">
-      <div class="bnr-tag">🛍️ 시니어쇼핑</div>
-      <div class="bnr-title">시니어<br>쇼핑</div>
+    <!-- 배너5: 게임 -->
+    <div class="bnr-item bnr-5" onclick="switchTab('game')">
+      <div class="bnr-tag">🕹️ 게임·오락</div>
+      <div class="bnr-title">두뇌게임<br>즐기기!</div>
       <div class="bnr-cta">바로가기 →</div>
-      <div class="bnr-emoji">🛍️</div>
+      <div class="bnr-emoji">🕹️</div>
+      <div class="bnr-pills">
+        <span class="bnr-pill">기억력 쑥쑥</span>
+        <span class="bnr-pill">로또번호</span>
+        <span class="bnr-pill">두뇌게임</span>
+      </div>
     </div>
+    <!-- 도트 인디케이터 -->
     <div class="bnr-dots">
       <button class="bnr-dot on" onclick="bnrGo(0)"></button>
-      <button class="bnr-dot" onclick="bnrGo(1)"></button>
-      <button class="bnr-dot" onclick="bnrGo(2)"></button>
-      <button class="bnr-dot" onclick="bnrGo(3)"></button>
-      <button class="bnr-dot" onclick="bnrGo(4)"></button>
+      <button class="bnr-dot"    onclick="bnrGo(1)"></button>
+      <button class="bnr-dot"    onclick="bnrGo(2)"></button>
+      <button class="bnr-dot"    onclick="bnrGo(3)"></button>
+      <button class="bnr-dot"    onclick="bnrGo(4)"></button>
     </div>
   </div>
 
-  <!-- 퀵메뉴 -->
+  <!-- ② 날씨 띠 -->
+  <div class="weather-bar" onclick="showToast('🚌 교통정보는 준비 중입니다 🌸')">
+    <div class="weather-row1">
+      <span class="weather-icon" id="weather-icon">☀️</span>
+      <span class="weather-city">서울</span>
+      <span class="weather-temp" id="weather-temp">27°C</span>
+      <span class="weather-state" id="weather-state">맑음</span>
+    </div>
+    <div class="weather-row2">
+      <span class="weather-msg" id="weather-msg">오늘도 좋은 하루 되세요!</span>
+      <span class="weather-open">날씨열기 →</span>
+    </div>
+  </div>
+
+  <!-- ③ 달력 한줄 -->
+  <div class="cal-bar" onclick="switchTab('fortune')">
+    <div class="cal-bar-left">
+      <span class="cal-icon">📅</span>
+      <span class="cal-date" id="cal-date">날짜 로딩</span>
+      <span class="cal-season" id="cal-season">· 절기 확인 중</span>
+    </div>
+    <span class="cal-open">달력열기 →</span>
+  </div>
+
+  <!-- ④ 카테고리 9개 -->
   <div class="sec-wrap">
     <div class="sec-title"><em>카테고리</em> 찾기</div>
-    <div class="quick-menu-grid">
-      <button class="quick-menu-item" onclick="switchTab('fortune')">
-        <div class="menu-img mi-1">🔮</div>
-        <span class="menu-name">오늘의 운세</span>
+    <div class="cat-grid">
+      <!-- 1: 복지·혜택쇼핑 -->
+      <button class="cat-item" onclick="switchTab('benefit')">
+        <div class="cat-icon-box" style="background:#e8f5e9; color:#2e7d32;">🎁</div>
+        <span class="cat-name" style="color:#2e7d32;">복지·혜택쇼핑</span>
       </button>
-      <button class="quick-menu-item" onclick="switchTab('game')">
-        <div class="menu-img mi-2">🎮</div>
-        <span class="menu-name">두뇌게임</span>
+      <!-- 2: 건강·약국 -->
+      <button class="cat-item" onclick="switchTab('health')">
+        <div class="cat-icon-box" style="background:#e3f2fd; color:#1565c0;">💊</div>
+        <span class="cat-name" style="color:#1565c0;">건강·약국</span>
       </button>
-      <button class="quick-menu-item" onclick="switchTab('health')">
-        <div class="menu-img mi-3">💊</div>
-        <span class="menu-name">건강정보</span>
+      <!-- 3: 일자리 -->
+      <button class="cat-item" onclick="switchTab('market')">
+        <div class="cat-icon-box" style="background:#fff8e1; color:#f57f17;">👔</div>
+        <span class="cat-name" style="color:#f57f17;">일자리</span>
       </button>
-      <button class="quick-menu-item" onclick="switchTab('benefit')">
-        <div class="menu-img mi-4">🎁</div>
-        <span class="menu-name">복지·채용</span>
+      <!-- 4: 문화강좌 (준비중) -->
+      <button class="cat-item" onclick="showToast('준비 중입니다 🌸')">
+        <div class="cat-icon-box" style="background:#f3e5f5; color:#6a1b9a;">🎨</div>
+        <span class="cat-name" style="color:#6a1b9a;">문화강좌</span>
       </button>
-      <button class="quick-menu-item" onclick="switchTab('market')">
-        <div class="menu-img mi-5">🛒</div>
-        <span class="menu-name">장터·쇼핑</span>
+      <!-- 5: 교통정보 (준비중) -->
+      <button class="cat-item" onclick="showToast('준비 중입니다 🌸')">
+        <div class="cat-icon-box" style="background:#e0f7fa; color:#00695c;">🚍</div>
+        <span class="cat-name" style="color:#00695c;">교통정보</span>
       </button>
-      <button class="quick-menu-item" onclick="switchTab('trot')">
-        <div class="menu-img mi-6">🎵</div>
-        <span class="menu-name">트로트</span>
+      <!-- 6: 소통마당 -->
+      <button class="cat-item" onclick="switchTab('talk')">
+        <div class="cat-icon-box" style="background:#fce4ec; color:#c62828;">💌</div>
+        <span class="cat-name" style="color:#c62828;">소통마당</span>
+      </button>
+      <!-- 7: 게임·오락 -->
+      <button class="cat-item" onclick="switchTab('game')">
+        <div class="cat-icon-box" style="background:#ede7f6; color:#4527a0;">🕹️</div>
+        <span class="cat-name" style="color:#4527a0;">게임·오락</span>
+      </button>
+      <!-- 8: 운세·달력 -->
+      <button class="cat-item" onclick="switchTab('fortune')">
+        <div class="cat-icon-box" style="background:#fff3e0; color:#e65100;">🔮</div>
+        <span class="cat-name" style="color:#e65100;">운세·달력</span>
+      </button>
+      <!-- 9: 트로트·미디어 -->
+      <button class="cat-item" onclick="switchTab('trot')">
+        <div class="cat-icon-box" style="background:#fce4ec; color:#880e4f;">🎤</div>
+        <span class="cat-name" style="color:#880e4f;">트로트·미디어</span>
       </button>
     </div>
   </div>
 
-  <!-- 뉴스 카드 -->
-  <div class="card">
-    <div class="card-title">📰 시니어 봄날마당 뉴스</div>
-    <div class="news-card">
-      <span class="news-category">노인복지·보조금</span>
-      <div class="news-title" onclick="toggleNews(this)">2026년 기초연금 인상 — 월 최대 33만원 지급</div>
-      <div class="news-summary">2026년 기초연금 월 최대 33만원으로 인상. 70% 어르신 해당. 복지로 사이트에서 신청.<br><a class="news-link" href="https://www.bokjiro.go.kr" target="_blank" rel="noopener noreferrer">👉 복지로 사이트에서 자세히 보기</a></div>
+  <!-- ⑤ 복지혜택 소식 섹션 -->
+  <div class="news-sec">
+    <div class="news-sec-header">
+      <span class="news-sec-title">🎁 복지혜택 소식</span>
+      <span class="news-sec-badge">최신정보</span>
     </div>
-    <div class="news-card">
-      <span class="news-category">건강·의료</span>
-      <div class="news-title" onclick="toggleNews(this)">노인 무릎 인공관절 수술 3곳 동시 — 건강보험 적용</div>
-      <div class="news-summary">노인 무릎 인공관절 수술 건강보험 적용. 본인부담 크게 줄어 기대.<br><a class="news-link" href="https://www.mohw.go.kr" target="_blank" rel="noopener noreferrer">👉 보건복지부 사이트에서 자세히 보기</a></div>
-    </div>
-    <div class="news-card">
-      <span class="news-category">일자리</span>
-      <div class="news-title" onclick="toggleNews(this)">2026 시니어 일자리 115만개 — 신청 방법 안내</div>
-      <div class="news-summary">시니어 일자리 115만개 달성. 고용24(work24.go.kr)에서 신청.<br><a class="news-link" href="https://www.work24.go.kr" target="_blank" rel="noopener noreferrer">👉 고용24 사이트에서 자세히 보기</a></div>
-    </div>
-    <p class="news-notice">📌 뉴스 제목을 눌러보시면 맞춤 요약 내용을 확인하실 수 있습니다</p>
-  </div>
-
-  <!-- 채용공고 카드 -->
-  <div class="card">
-    <div class="card-title">📋 시니어 채용공고 바로가기</div>
-
-    <a class="job-link-btn" href="https://www.work24.go.kr" target="_blank" rel="noopener noreferrer">
-      <div class="jlb-icon">💼</div>
-      <div class="jlb-text">
-        <div class="jlb-title">고령자 채용공고 전체보기</div>
-        <div class="jlb-desc">고용24 (워크넷) · 만 50세 이상 채용정보</div>
+    <div class="news-sec-body">
+      <div class="news-item" onclick="switchTab('benefit')">
+        <span class="news-tag">[복지·보조금]</span>
+        <span class="news-text">기초연금 월 최대 33만원 지급</span>
       </div>
-      <div class="jlb-arrow">→</div>
+      <div class="news-item" onclick="switchTab('benefit')">
+        <span class="news-tag">[건강·의료]</span>
+        <span class="news-text">무릎 인공관절 수술 건강보험 적용</span>
+      </div>
+      <div class="news-item" onclick="switchTab('market')">
+        <span class="news-tag">[일자리]</span>
+        <span class="news-text">시니어 일자리 115만개 신청 안내</span>
+      </div>
+      <button class="news-all-btn" onclick="switchTab('benefit')">📋 복지혜택 전체보기 →</button>
+    </div>
+  </div>
+
+  <!-- ⑥ 건강·약국 정보 섹션 -->
+  <div class="health-sec">
+    <div class="health-sec-header">
+      <span class="health-sec-title">💊 건강·약국 정보</span>
+      <span class="health-sec-badge">약국찾기</span>
+    </div>
+    <div class="health-sec-body">
+      <div class="health-item" onclick="switchTab('health')">
+        <span class="health-tag">[건강정보]</span>
+        <span class="health-text">여름 혈압관리 — 핵심 정보 안내</span>
+      </div>
+      <div class="health-item" onclick="switchTab('health')">
+        <span class="health-tag">[약국찾기]</span>
+        <span class="health-text">📍 근처 지금 영업 중인 약국 3곳</span>
+      </div>
+      <button class="health-all-btn" onclick="switchTab('health')">💊 건강·약국 전체보기 →</button>
+    </div>
+  </div>
+
+  <!-- ⑦ 시니어 맞춤 쇼핑 -->
+  <div class="shop-sec">
+    <div class="shop-sec-title">🛒 시니어 맞춤 쇼핑</div>
+    <a class="shop-item" href="https://link.coupang.com/a/epp2YINgfk" target="_blank" rel="noopener noreferrer">
+      <span class="shop-emoji">👟</span>
+      <div class="shop-text">
+        <div class="shop-name">시니어 운동화 (60대)</div>
+        <div class="shop-desc">미끄럼방지 · 가벼운 소재</div>
+      </div>
+      <span class="shop-arrow">›</span>
     </a>
-
-    <a class="job-link-btn" href="https://www.seniorro.or.kr" target="_blank" rel="noopener noreferrer">
-      <div class="jlb-icon">👴</div>
-      <div class="jlb-text">
-        <div class="jlb-title">노인일자리 구인정보 보기</div>
-        <div class="jlb-desc">노인일자리여기 · 전국 노인 전용 채용공고</div>
+    <a class="shop-item" href="https://link.coupang.com/a/epp2YINgfk" target="_blank" rel="noopener noreferrer">
+      <span class="shop-emoji">💊</span>
+      <div class="shop-text">
+        <div class="shop-name">시니어 영양제 추천</div>
+        <div class="shop-desc">관절·눈건강 · 띠별 맞춤</div>
       </div>
-      <div class="jlb-arrow">→</div>
+      <span class="shop-arrow">›</span>
     </a>
+    <p class="shop-notice">이 링크로 구매 시 봄날마당이 쿠팡에서 소정의 수수료를 받습니다. 어르신께서 내시는 금액은 동일합니다.</p>
+  </div>
 
-    <a class="job-link-btn" href="https://senior.saramin.co.kr" target="_blank" rel="noopener noreferrer">
-      <div class="jlb-icon">🔍</div>
-      <div class="jlb-text">
-        <div class="jlb-title">사람인 시니어 채용공고</div>
-        <div class="jlb-desc">사람인 중장년 전용 · 민간기업 채용정보</div>
+  <!-- ⑧ 어르신 긴급전화 -->
+  <div class="tel-sec">
+    <div class="tel-sec-title">📞 어르신 긴급 전화</div>
+    <a class="tel-item" href="tel:1355">
+      <span class="tel-icon">🏛</span>
+      <div class="tel-text">
+        <div class="tel-name">국민연금공단</div>
+        <div class="tel-desc">연금 상담·신청</div>
       </div>
-      <div class="jlb-arrow">→</div>
+      <span class="tel-num">1355</span>
     </a>
-
-    <div style="background:#fff8e1;border-radius:12px;padding:12px 14px;margin-top:4px;border-left:3px solid #FFB300;">
-      <p style="font-size:13px;color:#7a5c00;line-height:1.6;">📌 버튼을 누르면 해당 채용 사이트로 이동해요.<br>실제 공고를 직접 확인하고 지원하실 수 있어요.</p>
-    </div>
-
-    <!-- 실시간 공고 미리보기 3개 -->
-    <div style="margin-top:14px;">
-      <div style="font-size:22px;font-weight:800;color:#333;margin-bottom:10px;">
-        🔴 실시간 노인일자리 공고 <span style="font-size:15px;font-weight:400;color:#4A90D9;">(노인인력개발원)</span>
+    <a class="tel-item" href="tel:129">
+      <span class="tel-icon">🏥</span>
+      <div class="tel-text">
+        <div class="tel-name">보건복지상담센터</div>
+        <div class="tel-desc">복지·의료 상담</div>
       </div>
-      <!-- 공고 3개가 여기에 자동으로 채워집니다 -->
-      <div id="main-job-list">
-        <div class="main-job-loading">공고 불러오는 중…</div>
+      <span class="tel-num">129</span>
+    </a>
+    <a class="tel-item" href="tel:1577-1389">
+      <span class="tel-icon">🛡</span>
+      <div class="tel-text">
+        <div class="tel-name">노인학대 신고센터</div>
+        <div class="tel-desc">24시간 신고·상담</div>
       </div>
-      <!-- 복지·채용 탭으로 이동 버튼 -->
-      <button onclick="switchTab('benefit')" style="
-        display:block;width:100%;margin-top:10px;
-        padding:13px;background:#f0f6ff;color:#4A90D9;
-        border:1.5px solid #4A90D9;border-radius:12px;
-        font-size:14px;font-weight:800;cursor:pointer;
-        -webkit-tap-highlight-color:transparent;">
-        📋 공고 전체보기 →
-      </button>
-    </div>
+      <span class="tel-num">1577-1389</span>
+    </a>
   </div>
 
-  <!-- 쇼핑 추천 -->
-  <div class="card">
-    <div class="card-title">🛒 시니어 맞춤 쇼핑 추천</div>
-    <div class="coupon-items">
-      <a class="coupon-item" href="https://link.coupang.com/a/epp2YINgfk" target="_blank" rel="noopener noreferrer">
-        <span class="coupon-icon">👟</span>
-        <div class="coupon-text"><strong>시니어 운동화 (60대)</strong><span>미끄럼방지, 가벼운 소재 추천</span></div>
-        <span class="coupon-arrow">›</span>
-      </a>
-      <a class="coupon-item" href="https://link.coupang.com/a/epp2YINgfk" target="_blank" rel="noopener noreferrer">
-        <span class="coupon-icon">💊</span>
-        <div class="coupon-text"><strong>시니어 영양제 (관절·눈건강)</strong><span>띠별 맞춤 추천. 건강을 챙겨드려요</span></div>
-        <span class="coupon-arrow">›</span>
-      </a>
-    </div>
-    <p class="coupon-notice">이 링크로 구매 시 봄날마당이 쿠팡에서 소정의 수수료를 받습니다. 어르신께서 내시는 금액은 동일합니다.</p>
+  <!-- ⑨ 쿠팡 파트너스 제휴 공지 -->
+  <div class="affiliate-notice-box">
+    ※ 이 웹앱은 쿠팡파트너스의 제휴마케팅 프로그램에 참여하고 있습니다.<br>
+    이 링크를 통해 상품을 구매하시면 봄날마당이 일정액의 수수료를 받을 수 있으며,<br>
+    구매자분께 추가 비용은 없습니다.
   </div>
 
-  <!-- 긴급전화 -->
-  <div class="card">
-    <div class="card-title">📞 어르신 긴급 전화 한번에</div>
-    <div class="dial-list">
-      <a class="dial-item" href="tel:1355"><span class="dial-icon">🏛</span><div class="dial-text"><strong>국민연금공단</strong><span>연금 상담·신청</span></div><span class="dial-num">1355</span></a>
-      <a class="dial-item" href="tel:129"><span class="dial-icon">🏥</span><div class="dial-text"><strong>보건복지상담센터</strong><span>복지·의료 상담</span></div><span class="dial-num">129</span></a>
-      <a class="dial-item" href="tel:15771389"><span class="dial-icon">🛡</span><div class="dial-text"><strong>노인학대예방센터</strong><span>24시간 신고·상담</span></div><span class="dial-num">1577-1389</span></a>
-    </div>
-  </div>
-
-  <!-- 카카오 공유 -->
-  <button class="btn-kakao" onclick="shareKakao()">
+  <!-- ⑩ 카카오 공유 버튼 -->
+  <button class="btn-kakao-main" onclick="shareKakao()">
     💛 카카오톡 친구에게 공유하기
   </button>
-  <button class="btn-pwa" id="btn-pwa-install" onclick="installPWA()">
+
+  <!-- ⑪ 홈화면 저장 버튼 -->
+  <button class="btn-pwa-main" id="btn-pwa-install" onclick="installPWA()">
     📲 봄날마당 홈화면에 저장하기
   </button>
+
+  <!-- 푸터 -->
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a href="privacy.html" class="footer-link">개인정보처리방침</a>
+      <span class="footer-dot">·</span>
+      <a href="privacy.html" class="footer-link">이용약관</a>
+      <span class="footer-dot">·</span>
+      <a href="privacy.html" class="footer-link">제휴 공개</a>
+    </div>
+    <div class="footer-row">
+      <a href="contact.html" class="footer-link">문의하기</a>
+      <span class="footer-dot">·</span>
+      <a href="about.html" class="footer-link">봄날마당 소개</a>
+    </div>
+  </footer>
 
 </div><!-- /tab-home -->
 
@@ -652,72 +1058,201 @@ body { padding-bottom: 115px !important; }
 <!-- 트로트 탭 -->
 <div class="tab-content" id="tab-trot"><div class="tab-loading"><span class="tab-loading-spinner">🎵</span>트로트봄날마당 불러오는 중...</div></div>
 
-<!-- 하단 탭바 -->
-<nav class="bottom-nav" id="bottom-nav">
-  <button class="tab-btn active" onclick="switchTab('home')" id="nav-home"><span class="tab-icon">🏡</span><span class="tab-label">홈</span></button>
-  <button class="tab-btn" onclick="switchTab('fortune')" id="nav-fortune"><span class="tab-icon">🔮</span><span class="tab-label">운세</span></button>
-  <button class="tab-btn" onclick="switchTab('game')" id="nav-game"><span class="tab-icon">🎮</span><span class="tab-label">게임</span></button>
-  <button class="tab-btn" onclick="switchTab('health')" id="nav-health"><span class="tab-icon">💊</span><span class="tab-label">건강</span></button>
-  <button class="tab-btn" onclick="switchTab('benefit')" id="nav-benefit"><span class="tab-icon">🎁</span><span class="tab-label">복지</span></button>
-  <button class="tab-btn" onclick="switchTab('talk')" id="nav-talk"><span class="tab-icon">💌</span><span class="tab-label">소통마당</span></button>
-  <button class="tab-btn" onclick="switchTab('market')" id="nav-market"><span class="tab-icon">🛒</span><span class="tab-label">시니어쇼핑</span></button>
-  <button class="tab-btn" onclick="switchTab('trot')" id="nav-trot"><span class="tab-icon">🎵</span><span class="tab-label">트로트봄날</span></button>
-</nav>
-
-<footer class="site-footer">
-  <div class="footer-row">
-    <a href="privacy.html" class="footer-link">개인정보처리방침 및 이용약관</a>
-  </div>
-  <div class="footer-row">
-    <a href="contact.html" class="footer-link">문의하기</a>
-    <span class="footer-dot">·</span>
-    <a href="about.html" class="footer-link">봄날마당 소개</a>
-  </div>
-</footer>
-
 <script>
-/* ===== 배너 슬라이더 + 스와이프 ===== */
-(function(){
-  var idx = 0;
+/* ============================================================
+   ① 음력 변환 (간단한 양력→음력 근사 계산)
+      - 완벽한 음력 라이브러리 대신, 기준 음력날짜에서 차이를 계산
+   ============================================================ */
+function getSolarLunarInfo() {
+  /* 기준: 2025년 1월 1일 = 음력 2024년 12월 2일 */
+  var BASE_SOLAR = new Date(2025, 0, 1); /* 양력 기준일 */
+  var BASE_LUNAR_MONTH = 12;             /* 기준 음력 월 */
+  var BASE_LUNAR_DAY   = 2;             /* 기준 음력 일 */
+  var BASE_LUNAR_YEAR  = 2024;          /* 기준 음력 년 */
+
+  /* 한 음력 달의 평균 일수 (약 29.5일) */
+  var LUNAR_MONTH_DAYS = 29.5306;
+
+  var today = new Date();
+  /* 양력 오늘과 기준일 사이의 날짜 차이 (일 단위) */
+  var diffDays = Math.floor((today - BASE_SOLAR) / (1000 * 60 * 60 * 24));
+
+  /* 기준 음력일에서 diffDays 만큼 더함 */
+  var totalLunarDays = BASE_LUNAR_DAY + diffDays;
+  var lunarMonth = BASE_LUNAR_MONTH;
+  var lunarYear  = BASE_LUNAR_YEAR;
+
+  /* 달을 넘어가면 월 올리기 (근사값) */
+  while (totalLunarDays > 29) {
+    /* 이번 달 남은 일수를 빼고 다음 달로 */
+    var daysInThisMonth = (lunarMonth % 2 === 1) ? 30 : 29; /* 홀수달 30일, 짝수달 29일 근사 */
+    if (totalLunarDays > daysInThisMonth) {
+      totalLunarDays -= daysInThisMonth;
+      lunarMonth++;
+      if (lunarMonth > 12) { lunarMonth = 1; lunarYear++; }
+    } else { break; }
+  }
+  if (totalLunarDays < 1) { totalLunarDays = 1; }
+
+  return {
+    lunarYear:  lunarYear,
+    lunarMonth: lunarMonth,
+    lunarDay:   Math.floor(totalLunarDays)
+  };
+}
+
+/* ============================================================
+   ② 24절기 데이터 (2026년)
+   ============================================================ */
+var JEOLGI_2026 = [
+  { month: 1,  day: 5,  name: '소한(小寒)' },
+  { month: 1,  day: 20, name: '대한(大寒)' },
+  { month: 2,  day: 4,  name: '입춘(立春)' },
+  { month: 2,  day: 18, name: '우수(雨水)' },
+  { month: 3,  day: 6,  name: '경칩(驚蟄)' },
+  { month: 3,  day: 20, name: '춘분(春分)' },
+  { month: 4,  day: 5,  name: '청명(淸明)' },
+  { month: 4,  day: 20, name: '곡우(穀雨)' },
+  { month: 5,  day: 5,  name: '입하(立夏)' },
+  { month: 5,  day: 21, name: '소만(小滿)' },
+  { month: 6,  day: 6,  name: '망종(芒種)' },
+  { month: 6,  day: 21, name: '하지(夏至)' },
+  { month: 7,  day: 7,  name: '소서(小暑)' },
+  { month: 7,  day: 22, name: '대서(大暑)' },
+  { month: 8,  day: 7,  name: '입추(立秋)' },
+  { month: 8,  day: 23, name: '처서(處暑)' },
+  { month: 9,  day: 7,  name: '백로(白露)' },
+  { month: 9,  day: 22, name: '추분(秋分)' },
+  { month: 10, day: 8,  name: '한로(寒露)' },
+  { month: 10, day: 23, name: '상강(霜降)' },
+  { month: 11, day: 7,  name: '입동(立冬)' },
+  { month: 11, day: 22, name: '소설(小雪)' },
+  { month: 12, day: 7,  name: '대설(大雪)' },
+  { month: 12, day: 21, name: '동지(冬至)' }
+];
+
+/* 오늘 절기 또는 '손없는날' 확인 */
+function getTodaySeasonText(lunarDay) {
+  var today = new Date();
+  var m = today.getMonth() + 1; /* 1~12 */
+  var d = today.getDate();
+
+  /* 절기 확인 */
+  for (var i = 0; i < JEOLGI_2026.length; i++) {
+    if (JEOLGI_2026[i].month === m && JEOLGI_2026[i].day === d) {
+      return '오늘은 ' + JEOLGI_2026[i].name;
+    }
+  }
+  /* 손없는날 (음력 9, 10, 19, 20, 29, 30일) */
+  var sonNone = [9, 10, 19, 20, 29, 30];
+  if (sonNone.indexOf(lunarDay) !== -1) {
+    return '손없는날 🍀';
+  }
+  return ''; /* 해당 없음 */
+}
+
+/* ============================================================
+   ③ 날씨 더미 데이터 (시간대별로 메시지 변경)
+   ============================================================ */
+function getWeatherDummy() {
+  var h = new Date().getHours();
+  var m = new Date().getMonth() + 1; /* 월 */
+
+  /* 계절별 기온 및 날씨 더미 */
+  var season;
+  if      (m >= 3  && m <= 5)  season = { temp: '18°C', icon: '🌸', state: '맑음·봄바람' };
+  else if (m >= 6  && m <= 8)  season = { temp: '31°C', icon: '☀️', state: '맑음·더움' };
+  else if (m >= 9  && m <= 11) season = { temp: '20°C', icon: '🍂', state: '맑음·선선' };
+  else                          season = { temp: '3°C',  icon: '❄️', state: '맑음·추움' };
+
+  /* 시간대별 인사 메시지 */
+  var msg;
+  if      (h < 6)  msg = '이른 새벽, 건강 챙기세요!';
+  else if (h < 12) msg = '상쾌한 아침입니다! 😊';
+  else if (h < 18) msg = '오늘도 좋은 하루 되세요!';
+  else             msg = '편안한 저녁 되세요! 🌙';
+
+  return { icon: season.icon, temp: season.temp, state: season.state, msg: msg };
+}
+
+/* ============================================================
+   ④ 날짜·달력·날씨 초기화
+   ============================================================ */
+(function initDateWeather() {
+  var today = new Date();
+  var days  = ['일','월','화','수','목','금','토'];
+  var mon   = today.getMonth() + 1;
+  var dat   = today.getDate();
+  var dow   = days[today.getDay()];
+
+  /* 양력 날짜 */
+  var solarText = mon + '월 ' + dat + '일 (' + dow + ')';
+  document.getElementById('date-solar').textContent = solarText;
+  document.getElementById('header-date').querySelector('.header-date-solar').textContent = solarText;
+
+  /* 음력 날짜 */
+  var lunar = getSolarLunarInfo();
+  var lunarText = '음력 ' + lunar.lunarMonth + '월 ' + lunar.lunarDay + '일';
+  document.getElementById('date-lunar').textContent = lunarText;
+
+  /* 달력 바 날짜 */
+  document.getElementById('cal-date').textContent = mon + '월 ' + dat + '일 (' + dow + ')';
+
+  /* 절기/손없는날 */
+  var seasonText = getTodaySeasonText(lunar.lunarDay);
+  if (seasonText) {
+    document.getElementById('cal-season').textContent = '· ' + seasonText;
+  } else {
+    document.getElementById('cal-season').textContent = '· ' + lunarText;
+  }
+
+  /* 날씨 더미 적용 */
+  var w = getWeatherDummy();
+  document.getElementById('weather-icon').textContent  = w.icon;
+  document.getElementById('weather-temp').textContent  = w.temp;
+  document.getElementById('weather-state').textContent = w.state;
+  document.getElementById('weather-msg').textContent   = w.msg;
+})();
+
+/* ============================================================
+   ⑤ 배너 슬라이더 (터치 스와이프 포함)
+   ============================================================ */
+(function() {
+  var idx   = 0;
   var items, dots, timer, startX, wrap;
 
-  function init(){
+  function init() {
     items = document.querySelectorAll('.bnr-item');
     dots  = document.querySelectorAll('.bnr-dot');
     wrap  = document.querySelector('.bnr-wrap');
-    if(!items.length) return;
-    timer = setInterval(function(){ bnrGo((idx+1) % items.length); }, 3000);
+    if (!items.length) return;
+    timer = setInterval(function() { bnrGo((idx + 1) % items.length); }, 3000);
 
-    wrap.addEventListener('touchstart', function(e){
+    wrap.addEventListener('touchstart', function(e) {
       startX = e.touches[0].clientX;
     }, { passive: true });
-
-    wrap.addEventListener('touchend', function(e){
+    wrap.addEventListener('touchend', function(e) {
       var diff = startX - e.changedTouches[0].clientX;
-      if(Math.abs(diff) < 30) return;
-      if(diff > 0){ bnrGo((idx+1) % items.length); }
-      else { bnrGo((idx - 1 + items.length) % items.length); }
+      if (Math.abs(diff) < 30) return;
+      if (diff > 0) { bnrGo((idx + 1) % items.length); }
+      else          { bnrGo((idx - 1 + items.length) % items.length); }
     }, { passive: true });
   }
 
-  window.bnrGo = function(n){
+  window.bnrGo = function(n) {
     idx = n;
-    items.forEach(function(el,i){ el.classList.toggle('on', i===n); });
-    dots.forEach(function(el,i){ el.classList.toggle('on', i===n); });
+    items.forEach(function(el, i) { el.classList.toggle('on', i === n); });
+    dots.forEach(function(el, i)  { el.classList.toggle('on', i === n); });
     clearInterval(timer);
-    timer = setInterval(function(){ bnrGo((idx+1) % items.length); }, 3000);
+    timer = setInterval(function() { bnrGo((idx + 1) % items.length); }, 3000);
   };
+
   document.addEventListener('DOMContentLoaded', init);
 })();
 
-/* ===== 날짜 ===== */
-function getTodayLabel() {
-  var d = new Date();
-  var days = ['일','월','화','수','목','금','토'];
-  return (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
-}
-
-/* ===== 탭 전환 ===== */
+/* ============================================================
+   ⑥ 탭 전환
+   ============================================================ */
 var loadedTabs = { home: true };
 var tabFiles = {
   fortune: 'fortune.html',
@@ -733,16 +1268,13 @@ function switchTab(tabId, fromPopState) {
   if (!fromPopState) {
     history.pushState({ tab: tabId }, '', '#' + tabId);
   }
-  document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); });
-  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
   document.getElementById('tab-' + tabId).classList.add('active');
-  document.getElementById('nav-' + tabId).classList.add('active');
   window.scrollTo(0, 0);
-  if (tabId === 'home') {
-    document.getElementById('home-bar').style.display = 'none';
-  } else {
-    document.getElementById('home-bar').style.display = 'flex';
-  }
+
+  /* 홈 탭이 아닐 때만 홈으로 바 표시 */
+  document.getElementById('home-bar').style.display = (tabId === 'home') ? 'none' : 'flex';
+
   if (!loadedTabs[tabId] && tabFiles[tabId]) {
     loadedTabs[tabId] = true;
     loadTabContent(tabId, tabFiles[tabId]);
@@ -751,65 +1283,58 @@ function switchTab(tabId, fromPopState) {
 
 function loadTabContent(tabId, fileName) {
   fetch(fileName)
-    .then(function(res){ if(!res.ok) throw new Error('실패'); return res.text(); })
-    .then(function(html){
+    .then(function(res) {
+      if (!res.ok) throw new Error('실패');
+      return res.text();
+    })
+    .then(function(html) {
       var container = document.getElementById('tab-' + tabId);
       container.innerHTML = html;
-      container.querySelectorAll('script').forEach(function(old){
+      container.querySelectorAll('script').forEach(function(old) {
         var s = document.createElement('script');
         s.textContent = old.textContent;
         document.body.appendChild(s);
       });
       if (isBigFont) document.body.classList.add('big-font');
     })
-    .catch(function(){
+    .catch(function() {
       document.getElementById('tab-' + tabId).innerHTML =
         '<div class="tab-loading" style="color:#E53935;">⚠️ ' + fileName + ' 파일을 불러오지 못했습니다.<br><small>파일 이름을 다시 확인해 주세요</small></div>';
     });
 }
 
-/* ===== 큰글씨 버튼 ===== */
+/* ============================================================
+   ⑦ 돋보기 버튼 (기본 ↔ 크게 토글)
+   ============================================================ */
 var isBigFont = false;
 function toggleBigFont() {
   isBigFont = !isBigFont;
   document.body.classList.toggle('big-font', isBigFont);
-  var btn = document.getElementById('big-font-btn');
-  btn.textContent = isBigFont ? '가가' : '가';
-  btn.style.background = isBigFont ? '#eb840f' : '#4A90D9';
+  document.getElementById('zoom-label').textContent = isBigFont ? '크게' : '기본';
 }
 
-/* ===== 초기 실행 ===== */
-(function(){
-  document.getElementById('header-date').textContent = getTodayLabel();
-})();
-
-/* ===== 뉴스 토글 ===== */
-function toggleNews(el) {
-  el.nextElementSibling.classList.toggle('open');
-}
-
-/* ===== 팝업 ===== */
+/* ============================================================
+   ⑧ 팝업 / 토스트 / 색종이
+   ============================================================ */
 function showPopup(emoji, title, msg) {
   document.getElementById('popup-emoji').textContent = emoji;
   document.getElementById('popup-title').textContent = title;
-  document.getElementById('popup-msg').textContent = msg;
+  document.getElementById('popup-msg').textContent   = msg;
   document.getElementById('popup-overlay').classList.add('show');
 }
 function closePopup() {
   document.getElementById('popup-overlay').classList.remove('show');
 }
 
-/* ===== 토스트 ===== */
 function showToast(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  setTimeout(function() { t.classList.remove('show'); }, 2200);
 }
 
-/* ===== 색종이 ===== */
 function launchConfetti() {
-  var wrap = document.getElementById('confetti-wrap');
+  var wrap   = document.getElementById('confetti-wrap');
   wrap.innerHTML = '';
   var colors = ['#FF6F00','#FDD835','#2E7D32','#1565C0','#AD1457','#00838F'];
   for (var i = 0; i < 40; i++) {
@@ -818,15 +1343,18 @@ function launchConfetti() {
     p.style.left = Math.random() * 100 + 'vw';
     p.style.background = colors[Math.floor(Math.random() * colors.length)];
     p.style.animationDuration = (1.5 + Math.random() * 2) + 's';
-    p.style.animationDelay = Math.random() * 0.6 + 's';
+    p.style.animationDelay   = Math.random() * 0.6 + 's';
     var sz = (8 + Math.random() * 8) + 'px';
-    p.style.width = sz; p.style.height = sz;
+    p.style.width  = sz;
+    p.style.height = sz;
     wrap.appendChild(p);
   }
-  setTimeout(function(){ wrap.innerHTML = ''; }, 4000);
+  setTimeout(function() { wrap.innerHTML = ''; }, 4000);
 }
 
-/* ===== PWA 설치 ===== */
+/* ============================================================
+   ⑨ PWA 설치
+   ============================================================ */
 var deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', function(e) {
   e.preventDefault();
@@ -834,7 +1362,6 @@ window.addEventListener('beforeinstallprompt', function(e) {
 });
 
 function installPWA() {
-  /* 안드로이드 첫 설치 시 자동 팝업이 가능한 경우 → 바로 설치 팝업 띄우기 */
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then(function(result) {
@@ -845,36 +1372,25 @@ function installPWA() {
     });
     return;
   }
-  /* 자동 팝업이 안 되는 경우 (재설치, 아이폰 등) → 항상 단계별 안내 팝업 표시 */
   var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
   if (isIOS) {
-    showInstallGuide(
-      '📱 아이폰 홈화면 저장 방법',
-      [
-        '① 아래 공유 버튼(□↑)을 누르세요',
-        '② 스크롤 내려서 "홈 화면에 추가"를 누르세요',
-        '③ 오른쪽 위 "추가"를 누르면 완료! 🎉'
-      ]
-    );
+    showInstallGuide('📱 아이폰 홈화면 저장 방법', [
+      '① 아래 공유 버튼(□↑)을 누르세요',
+      '② 스크롤 내려서 "홈 화면에 추가"를 누르세요',
+      '③ 오른쪽 위 "추가"를 누르면 완료! 🎉'
+    ]);
   } else {
-    showInstallGuide(
-      '📱 홈화면 저장 방법',
-      [
-        '① 오른쪽 위 점 세 개(⋮)를 누르세요',
-        '② "앱 설치" 또는 "홈 화면에 추가"를 누르세요',
-        '③ "설치"를 누르면 완료! 🎉'
-      ]
-    );
+    showInstallGuide('📱 홈화면 저장 방법', [
+      '① 오른쪽 위 점 세 개(⋮)를 누르세요',
+      '② "앱 설치" 또는 "홈 화면에 추가"를 누르세요',
+      '③ "설치"를 누르면 완료! 🎉'
+    ]);
   }
 }
 
-/* 단계별 안내 팝업 — 어떤 상황에서도 항상 보임 */
 function showInstallGuide(title, steps) {
-  /* 혹시 이미 팝업이 열려있으면 먼저 제거 */
   var old = document.getElementById('install-guide-popup');
   if (old) old.remove();
-
-  /* 팝업 박스 만들기 */
   var popup = document.createElement('div');
   popup.id = 'install-guide-popup';
   popup.style.cssText =
@@ -882,57 +1398,32 @@ function showInstallGuide(title, steps) {
     'background:#fff;border-radius:20px;padding:24px 20px;' +
     'width:88%;max-width:360px;box-sizing:border-box;' +
     'box-shadow:0 8px 32px rgba(0,0,0,0.22);z-index:9999;' +
-    'border:2px solid #4A90D9;';
-
-  /* 단계 박스 HTML 만들기 */
+    'border:2px solid #1a6fc4;';
   var stepsHtml = '';
   steps.forEach(function(step) {
-    stepsHtml +=
-      '<div style="background:#f0f6ff;border-radius:12px;padding:12px 14px;' +
-      'font-size:15px;line-height:1.8;color:#333;margin-bottom:8px;">' +
-      step + '</div>';
+    stepsHtml += '<div style="background:#f0f6ff;border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.8;color:#333;margin-bottom:8px;">' + step + '</div>';
   });
-
   popup.innerHTML =
-    '<div style="font-size:18px;font-weight:900;color:#4A90D9;' +
-    'margin-bottom:14px;text-align:center;">' + title + '</div>' +
+    '<div style="font-size:18px;font-weight:900;color:#1a6fc4;margin-bottom:14px;text-align:center;">' + title + '</div>' +
     stepsHtml +
-    '<button onclick="document.getElementById(\'install-guide-popup\').remove()" ' +
-    'style="margin-top:10px;width:100%;background:#4A90D9;color:#fff;border:none;' +
-    'border-radius:12px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;">' +
-    '확인 ✓</button>' +
-    '<p style="font-size:12px;color:#999;text-align:center;margin:10px 0 0;">' +
-    '10초 후 자동으로 닫힙니다</p>';
-
+    '<button onclick="document.getElementById(\'install-guide-popup\').remove()" style="margin-top:10px;width:100%;background:#1a6fc4;color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;">확인 ✓</button>' +
+    '<p style="font-size:12px;color:#999;text-align:center;margin:10px 0 0;">10초 후 자동으로 닫힙니다</p>';
   document.body.appendChild(popup);
-
-  /* 10초 후 자동으로 팝업 닫기 */
-  setTimeout(function() {
-    var p = document.getElementById('install-guide-popup');
-    if (p) p.remove();
-  }, 10000);
+  setTimeout(function() { var p = document.getElementById('install-guide-popup'); if (p) p.remove(); }, 10000);
 }
 
-/* ===== 실시간 노인일자리 공고 (메인화면 미리보기 3개) ===== */
+/* ============================================================
+   ⑩ 실시간 공고 (기존 코드 유지)
+   ============================================================ */
+var jobListCache = null;
+var jobListCacheTime = 0;
+var JOB_CACHE_TTL = 5 * 60 * 1000;
 
-// 캐시 저장소 — 메모리에 5분간 공고 데이터를 보관
-// (마치 냉장고에 음식을 넣어뒀다가 꺼내 쓰는 것처럼)
-var jobListCache = null;       // 저장된 공고 데이터
-var jobListCacheTime = 0;      // 저장된 시각
-var JOB_CACHE_TTL = 5 * 60 * 1000; // 5분(밀리초 단위)
-
-// 스켈레톤 카드 3개 HTML — 공고 뜨기 전에 회색 카드 먼저 보여줌
 function getJobSkeletonHTML() {
-  var card =
-    '<div class="skel-job-item">' +
-      '<div class="skel skel-job-title"></div>' +
-      '<div class="skel skel-job-line"></div>' +
-      '<div class="skel skel-job-line2"></div>' +
-    '</div>';
-  return card + card + card; // 3개 반복
+  var card = '<div class="skel-job-item"><div class="skel skel-job-title"></div><div class="skel skel-job-line"></div><div class="skel skel-job-line2"></div></div>';
+  return card + card + card;
 }
 
-// 공고 데이터 → HTML 카드로 변환
 function renderJobItems(items) {
   var today = new Date();
   var html  = '';
@@ -946,20 +1437,9 @@ function renderJobItems(items) {
       var dt = new Date(y + '-' + m + '-' + d);
       var diff = Math.ceil((dt - today) / (1000 * 60 * 60 * 24));
       deadlineText = y + '.' + m + '.' + d + ' 마감';
-      if (diff >= 0 && diff <= 7) {
-        deadlineClass = 'main-job-urgent';
-        deadlineText += ' (D-' + diff + ')';
-      }
+      if (diff >= 0 && diff <= 7) { deadlineClass = 'main-job-urgent'; deadlineText += ' (D-' + diff + ')'; }
     }
-    html +=
-      '<div class="main-job-item" onclick="openJobPopup(\'' + item.id + '\')" style="cursor:pointer;">' +
-        '<div class="main-job-title">' + (item.title || '제목 없음') + '</div>' +
-        '<div class="main-job-meta">' +
-          '📍 ' + (item.location || '-') + '<br>' +
-          '<span class="' + deadlineClass + '">⏰ ' + deadlineText + '</span>' +
-          ' &nbsp;<span style="color:#4A90D9;font-weight:700;">👆 눌러서 자세히 보기</span>' +
-        '</div>' +
-      '</div>';
+    html += '<div class="main-job-item" onclick="openJobPopup(\'' + item.id + '\')" style="cursor:pointer;"><div class="main-job-title">' + (item.title || '제목 없음') + '</div><div class="main-job-meta">📍 ' + (item.location || '-') + '<br><span class="' + deadlineClass + '">⏰ ' + deadlineText + '</span> &nbsp;<span style="color:#4A90D9;font-weight:700;">👆 눌러서 자세히 보기</span></div></div>';
   });
   return html;
 }
@@ -967,143 +1447,62 @@ function renderJobItems(items) {
 async function loadMainJobs() {
   var listEl = document.getElementById('main-job-list');
   if (!listEl) return;
-
-  // ① 스켈레톤 카드 먼저 표시 — 회색 카드가 즉시 나타남
   listEl.innerHTML = getJobSkeletonHTML();
-
-  // ② 캐시 확인 — 5분 안에 받아놓은 데이터가 있으면 즉시 표시
   var now = Date.now();
   if (jobListCache && (now - jobListCacheTime) < JOB_CACHE_TTL) {
-    listEl.innerHTML = renderJobItems(jobListCache);
-    return; // API 호출 없이 바로 끝!
+    listEl.innerHTML = renderJobItems(jobListCache); return;
   }
-
   try {
-    // ③ API 호출 (처음 or 5분 지난 경우에만)
     var res  = await fetch('/api/jobs?numOfRows=3&pageNo=1');
     var data = await res.json();
-
     if (!data.ok || !data.items || data.items.length === 0) {
-      listEl.innerHTML = '<div class="main-job-error">⚠️ 잠시 후 다시 확인해 주세요.</div>';
-      return;
+      listEl.innerHTML = '<div class="main-job-error">⚠️ 잠시 후 다시 확인해 주세요.</div>'; return;
     }
-
-    // ④ 받은 데이터 캐시에 저장
     jobListCache     = data.items;
     jobListCacheTime = Date.now();
-
-    // ⑤ 화면에 표시
     listEl.innerHTML = renderJobItems(data.items);
-
   } catch (err) {
     listEl.innerHTML = '<div class="main-job-error">⚠️ 인터넷 연결을 확인해 주세요.</div>';
   }
 }
 
-/* ===== 공고 상세 팝업 ===== */
-
-// 팝업 캐시 저장소 — 공고ID별로 5분간 상세 데이터 저장
-// (같은 공고를 두 번 클릭하면 API 안 거치고 즉시 표시)
+/* ============================================================
+   ⑪ 공고 상세 팝업 (기존 코드 유지)
+   ============================================================ */
 var jobDetailCache = {};
 
-// 팝업 스켈레톤 HTML — 팝업 열리자마자 회색 뼈대 먼저 표시
 function getPopupSkeletonHTML() {
-  return (
-    '<div class="job-popup-box">' +
-      '<div class="skel skel-popup-title"></div>' +
-      '<div class="skel skel-popup-row"></div>' +
-      '<div class="skel skel-popup-row"></div>' +
-      '<div class="skel skel-popup-row"></div>' +
-      '<div class="skel skel-popup-row" style="width:70%;"></div>' +
-      '<div class="skel skel-popup-btn"></div>' +
-    '</div>'
-  );
+  return '<div class="job-popup-box"><div class="skel skel-popup-title"></div><div class="skel skel-popup-row"></div><div class="skel skel-popup-row"></div><div class="skel skel-popup-row"></div><div class="skel skel-popup-row" style="width:70%;"></div><div class="skel skel-popup-btn"></div></div>';
 }
 
 async function openJobPopup(jobId) {
-  // ① 팝업 오버레이 생성
   var overlay = document.createElement('div');
   overlay.className = 'job-popup-overlay';
   overlay.id = 'job-popup-overlay';
-
-  // ② 팝업 박스 — 스켈레톤 카드 즉시 표시 (텍스트 대신 회색 뼈대)
   overlay.innerHTML = getPopupSkeletonHTML();
-
-  // ③ 배경 클릭하면 팝업 닫기
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) closeJobPopup();
-  });
-
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) closeJobPopup(); });
   document.body.appendChild(overlay);
-
-  // ④ 캐시 확인 — 5분 안에 본 공고면 즉시 표시
   var cached = jobDetailCache[jobId];
-  if (cached && (Date.now() - cached.time) < JOB_CACHE_TTL) {
-    renderPopupContent(overlay, cached.detail);
-    return; // API 호출 없이 끝!
-  }
-
+  if (cached && (Date.now() - cached.time) < JOB_CACHE_TTL) { renderPopupContent(overlay, cached.detail); return; }
   try {
-    // ⑤ 상세정보 API 호출 (처음 or 5분 지난 경우)
     var res  = await fetch('/api/jobs-detail?jobId=' + jobId);
     var data = await res.json();
-
     if (!data.ok || !data.detail) {
-      overlay.querySelector('.job-popup-box').innerHTML =
-        '<div style="padding:20px;text-align:center;color:#c00;">⚠️ 상세정보를 불러올 수 없어요.</div>' +
-        '<button class="job-popup-close" onclick="closeJobPopup()">닫기</button>';
-      return;
+      overlay.querySelector('.job-popup-box').innerHTML = '<div style="padding:20px;text-align:center;color:#c00;">⚠️ 상세정보를 불러올 수 없어요.</div><button class="job-popup-close" onclick="closeJobPopup()">닫기</button>'; return;
     }
-
-    // ⑥ 받은 데이터 캐시에 저장
     jobDetailCache[jobId] = { detail: data.detail, time: Date.now() };
-
-    // ⑦ 팝업 내용 채우기
     renderPopupContent(overlay, data.detail);
-
   } catch (err) {
-    overlay.querySelector('.job-popup-box').innerHTML =
-      '<div style="padding:20px;text-align:center;color:#c00;">⚠️ 인터넷 연결을 확인해 주세요.</div>' +
-      '<button class="job-popup-close" onclick="closeJobPopup()">닫기</button>';
+    overlay.querySelector('.job-popup-box').innerHTML = '<div style="padding:20px;text-align:center;color:#c00;">⚠️ 인터넷 연결을 확인해 주세요.</div><button class="job-popup-close" onclick="closeJobPopup()">닫기</button>';
   }
 }
 
-// 팝업 내용을 실제로 그려주는 함수 (캐시/API 둘 다 이걸 씀)
 function renderPopupContent(overlay, d) {
-  // 날짜 포맷 변환 (20260626 → 2026.06.26)
-  function fmtDate(s) {
-    if (!s || s.length !== 8) return s || '-';
-    return s.substring(0,4) + '.' + s.substring(4,6) + '.' + s.substring(6,8);
-  }
-
-  // 전화번호 버튼 (있을 때만 표시)
-  var phoneBtn = d.phone
-    ? '<a class="job-popup-phone" href="tel:' + d.phone + '">📞 ' + d.phone + ' 전화하기</a>'
-    : '<div style="text-align:center;color:#aaa;font-size:14px;margin-top:12px;">전화번호 정보가 없어요</div>';
-
-  // 상세내용
-  var contents = d.contents
-    ? '<div class="job-popup-row"><span class="job-popup-label">📋 내용</span></div>' +
-      '<div class="job-popup-contents">' + d.contents.substring(0, 300) + (d.contents.length > 300 ? '…' : '') + '</div>'
-    : '';
-
-  // 기타사항
-  var extraHtml = d.extra
-    ? '<div class="job-popup-row"><span class="job-popup-label">📌 기타</span><span class="job-popup-value">' + d.extra + '</span></div>'
-    : '';
-
-  overlay.querySelector('.job-popup-box').innerHTML =
-    '<div class="job-popup-title">' + (d.title || '제목 없음') + '</div>' +
-    '<div class="job-popup-row"><span class="job-popup-label">🏢 기관</span><span class="job-popup-value">' + (d.company || '-') + '</span></div>' +
-    '<div class="job-popup-row"><span class="job-popup-label">📍 주소</span><span class="job-popup-value">' + (d.address || '-') + '</span></div>' +
-    '<div class="job-popup-row"><span class="job-popup-label">👥 모집</span><span class="job-popup-value">' + (d.headcount || '-') + '명</span></div>' +
-    '<div class="job-popup-row"><span class="job-popup-label">🎂 연령</span><span class="job-popup-value">' + (d.age ? d.age + '세 이상' : '-') + (d.ageLim ? ' (' + d.ageLim + ')' : '') + '</span></div>' +
-    '<div class="job-popup-row"><span class="job-popup-label">⏰ 마감</span><span class="job-popup-value">' + fmtDate(d.endDate) + '</span></div>' +
-    '<div class="job-popup-row"><span class="job-popup-label">📮 접수</span><span class="job-popup-value">' + (d.applyMethod || '-') + '</span></div>' +
-    extraHtml +
-    contents +
-    phoneBtn +
-    '<button class="job-popup-close" onclick="closeJobPopup()">✕ 닫기</button>';
+  function fmtDate(s) { if (!s || s.length !== 8) return s || '-'; return s.substring(0,4)+'.'+s.substring(4,6)+'.'+s.substring(6,8); }
+  var phoneBtn = d.phone ? '<a class="job-popup-phone" href="tel:' + d.phone + '">📞 ' + d.phone + ' 전화하기</a>' : '<div style="text-align:center;color:#aaa;font-size:14px;margin-top:12px;">전화번호 정보가 없어요</div>';
+  var contents = d.contents ? '<div class="job-popup-row"><span class="job-popup-label">📋 내용</span></div><div class="job-popup-contents">' + d.contents.substring(0,300) + (d.contents.length > 300 ? '…' : '') + '</div>' : '';
+  var extraHtml = d.extra ? '<div class="job-popup-row"><span class="job-popup-label">📌 기타</span><span class="job-popup-value">' + d.extra + '</span></div>' : '';
+  overlay.querySelector('.job-popup-box').innerHTML = '<div class="job-popup-title">' + (d.title||'제목 없음') + '</div>' + '<div class="job-popup-row"><span class="job-popup-label">🏢 기관</span><span class="job-popup-value">' + (d.company||'-') + '</span></div>' + '<div class="job-popup-row"><span class="job-popup-label">📍 주소</span><span class="job-popup-value">' + (d.address||'-') + '</span></div>' + '<div class="job-popup-row"><span class="job-popup-label">👥 모집</span><span class="job-popup-value">' + (d.headcount||'-') + '명</span></div>' + '<div class="job-popup-row"><span class="job-popup-label">🎂 연령</span><span class="job-popup-value">' + (d.age ? d.age+'세 이상' : '-') + (d.ageLim ? ' ('+d.ageLim+')' : '') + '</span></div>' + '<div class="job-popup-row"><span class="job-popup-label">⏰ 마감</span><span class="job-popup-value">' + fmtDate(d.endDate) + '</span></div>' + '<div class="job-popup-row"><span class="job-popup-label">📮 접수</span><span class="job-popup-value">' + (d.applyMethod||'-') + '</span></div>' + extraHtml + contents + phoneBtn + '<button class="job-popup-close" onclick="closeJobPopup()">✕ 닫기</button>';
 }
 
 function closeJobPopup() {
@@ -1111,45 +1510,40 @@ function closeJobPopup() {
   if (el) el.remove();
 }
 
-// 앱 시작하자마자 공고 데이터 미리 받아놓기
-// (탭 누르기 전에 백그라운드에서 미리 준비)
-loadMainJobs();
-
-/* ===== 카카오 공유 ===== */
+/* ============================================================
+   ⑫ 카카오 공유
+   ============================================================ */
 function shareKakao() {
-  var text = '[시니어 봄날마당] 🌸\n\n50~70대 시니어를 위한 맞춤형 정보 봄날마당!\n\n✅ 오늘의 운세\n🎮 두뇌게임·퀴즈\n💊 건강정보·계산기·알람\n🎁 노인복지·보조금 정보\n🛒 시니어쇼핑\n🎵 트로트봄날마당\n\n🔗 https://bomnal-madang.vercel.app';
+  var text = '[시니어 봄날마당] 🌸\n\n50~70대 시니어를 위한 맞춤형 정보 봄날마당!\n\n✅ 오늘의 운세\n🎮 두뇌게임·퀴즈\n💊 건강정보·약국찾기\n🎁 노인복지·보조금 정보\n🛒 시니어쇼핑\n🎵 트로트봄날마당\n\n🔗 https://bomnal-madang.vercel.app';
   if (navigator.share) {
     navigator.share({ title: '시니어 봄날마당', text: text });
   } else {
-    navigator.clipboard.writeText(text).then(function(){
+    navigator.clipboard.writeText(text).then(function() {
       showToast('✅ 공유 내용 복사 완료! 카카오톡 채팅창에 붙여넣기 해주세요 📱');
-    }).catch(function(){ alert(text); });
+    }).catch(function() { alert(text); });
   }
 }
 
-/* ===== 뒤로가기 ===== */
-window.addEventListener('popstate', function(){
+/* ============================================================
+   ⑬ 뒤로가기 / 초기 실행
+   ============================================================ */
+window.addEventListener('popstate', function() {
   switchTab('home', true);
   history.pushState({ tab: 'home' }, '', '#home');
 });
-
-window.addEventListener('DOMContentLoaded', function(){
+window.addEventListener('DOMContentLoaded', function() {
   history.replaceState({ tab: 'home' }, '', '#home');
+  loadMainJobs();
 });
 </script>
 
 <!-- ✅ PWA 서비스워커 등록 -->
 <script>
 if ('serviceWorker' in navigator) {
-  // 브라우저가 서비스워커를 지원하면 등록
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('/sw.js')
-      .then(function(reg) {
-        console.log('✅ 서비스워커 등록 성공:', reg.scope);
-      })
-      .catch(function(err) {
-        console.log('❌ 서비스워커 등록 실패:', err);
-      });
+      .then(function(reg) { console.log('✅ 서비스워커 등록 성공:', reg.scope); })
+      .catch(function(err) { console.log('❌ 서비스워커 등록 실패:', err); });
   });
 }
 </script>
