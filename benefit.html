@@ -41,24 +41,33 @@
 .jlb-arrow { font-size: 20px; color: #4A90D9; flex-shrink: 0; font-weight: 900; }
 
 /* ───── 실시간 API 채용공고 카드 스타일 ───── */
-.job-loading {
-  text-align: center;
-  padding: 28px 0;
-  color: #888;
-  font-size: 15px;
+
+/* 스켈레톤 UI — 빛이 흘러가는 깜빡임 효과 */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
 }
-.job-loading::before {
-  content: '';
-  display: block;
-  width: 36px;
-  height: 36px;
-  border: 4px solid #e0e8f5;
-  border-top-color: #4A90D9;
-  border-radius: 50%;
-  margin: 0 auto 12px;
-  animation: spin 0.9s linear infinite;
+.skel {
+  background: linear-gradient(90deg, #efefef 25%, #e0e0e0 50%, #efefef 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: 8px;
 }
-@keyframes spin { to { transform: rotate(360deg); } }
+/* 공고 목록 스켈레톤 카드 */
+.skel-job-item {
+  background: #f7f8fa;
+  border-radius: 14px;
+  padding: 15px 14px;
+  margin-bottom: 10px;
+}
+.skel-job-title  { height: 18px; width: 80%; margin-bottom: 10px; }
+.skel-job-line   { height: 14px; width: 65%; margin-bottom: 6px; }
+.skel-job-line2  { height: 14px; width: 50%; margin-bottom: 6px; }
+.skel-job-line3  { height: 14px; width: 40%; }
+/* 팝업 스켈레톤 */
+.skel-popup-title { height: 22px; width: 75%; margin-bottom: 20px; }
+.skel-popup-row   { height: 16px; width: 90%; margin-bottom: 12px; }
+.skel-popup-btn   { height: 52px; width: 100%; border-radius: 14px; margin-top: 20px; }
 .job-api-item {
   background: #f7f8fa;
   border-radius: 14px;
@@ -340,18 +349,78 @@ function calcJobWage(){
 /* ─────────────────────────────────────────
    ★ 실시간 API 채용공고 불러오기 (10개)
 ───────────────────────────────────────── */
+
+// 캐시 저장소 — 5분간 공고 데이터 보관
+var benefitJobCache = null;
+var benefitJobCacheTime = 0;
+var BENEFIT_CACHE_TTL = 5 * 60 * 1000; // 5분
+
+// 스켈레톤 카드 10개 HTML
+function getBenefitSkeletonHTML() {
+  var card =
+    '<div class="skel-job-item">' +
+      '<div class="skel skel-job-title"></div>' +
+      '<div class="skel skel-job-line"></div>' +
+      '<div class="skel skel-job-line2"></div>' +
+      '<div class="skel skel-job-line3"></div>' +
+    '</div>';
+  var html = '';
+  for (var i = 0; i < 10; i++) html += card;
+  return html;
+}
+
+// 공고 데이터 → HTML 카드로 변환
+function renderBenefitJobItems(items) {
+  var html  = '';
+  var today = new Date();
+  items.forEach(function(item) {
+    var deadlineText  = item.endDate || '마감일 미정';
+    var deadlineClass = '';
+    if (item.endDate && item.endDate.length === 8) {
+      var y  = item.endDate.substring(0, 4);
+      var m  = item.endDate.substring(4, 6);
+      var d  = item.endDate.substring(6, 8);
+      var dt = new Date(y + '-' + m + '-' + d);
+      var diff = Math.ceil((dt - today) / (1000 * 60 * 60 * 24));
+      deadlineText = y + '.' + m + '.' + d + ' 마감';
+      if (diff >= 0 && diff <= 7) {
+        deadlineClass = 'job-api-deadline-urgent';
+        deadlineText += ' (D-' + diff + ')';
+      }
+    }
+    html +=
+      '<div class="job-api-item" onclick="openJobPopup(\'' + item.id + '\')" style="cursor:pointer;">' +
+        '<div class="job-api-title">' + (item.title || '제목 없음') + '</div>' +
+        '<div class="job-api-meta">' +
+          '<span>🏢 ' + (item.company  || '-') + '</span>' +
+          '<span>📍 ' + (item.location || '-') + '</span><br>' +
+          '<span>💼 ' + (item.workType || '-') + '</span>' +
+          '<span class="' + deadlineClass + '">⏰ ' + deadlineText + '</span><br>' +
+          '<span style="color:#4A90D9;font-weight:700;">👆 눌러서 자세히 보기</span>' +
+        '</div>' +
+      '</div>';
+  });
+  return html;
+}
+
 async function loadJobApi() {
   var listEl = document.getElementById('job-api-list');
 
-  // ① 로딩 표시
-  listEl.innerHTML = '<div class="job-loading">공고를 불러오는 중이에요…</div>';
+  // ① 스켈레톤 카드 즉시 표시
+  listEl.innerHTML = getBenefitSkeletonHTML();
+
+  // ② 캐시 확인 — 5분 안에 받아놓은 데이터면 즉시 표시
+  var now = Date.now();
+  if (benefitJobCache && (now - benefitJobCacheTime) < BENEFIT_CACHE_TTL) {
+    listEl.innerHTML = renderBenefitJobItems(benefitJobCache);
+    return;
+  }
 
   try {
-    // ② 서버리스 함수에 10개 요청
+    // ③ API 호출
     var res  = await fetch('/api/jobs?numOfRows=10&pageNo=1');
     var data = await res.json();
 
-    // ③ 실패하거나 공고 없을 때
     if (!data.ok || !data.items || data.items.length === 0) {
       listEl.innerHTML =
         '<div class="job-api-error">⚠️ 지금은 공고를 불러올 수 없어요.<br>' +
@@ -359,67 +428,60 @@ async function loadJobApi() {
       return;
     }
 
-    // ④ 공고 목록 화면에 그리기
-    var html  = '';
-    var today = new Date();
+    // ④ 캐시 저장
+    benefitJobCache     = data.items;
+    benefitJobCacheTime = Date.now();
 
-    data.items.forEach(function(item) {
-
-      // 마감일 계산 (7일 이내면 빨간 글씨)
-      var deadlineText  = item.endDate || '마감일 미정';
-      var deadlineClass = '';
-
-      if (item.endDate && item.endDate.length === 8) {
-        var y  = item.endDate.substring(0, 4);
-        var m  = item.endDate.substring(4, 6);
-        var d  = item.endDate.substring(6, 8);
-        var dt = new Date(y + '-' + m + '-' + d);
-        var diff = Math.ceil((dt - today) / (1000 * 60 * 60 * 24));
-        deadlineText = y + '.' + m + '.' + d + ' 마감';
-        if (diff >= 0 && diff <= 7) {
-          deadlineClass = 'job-api-deadline-urgent';
-          deadlineText += ' (D-' + diff + ')';
-        }
-      }
-
-      html +=
-        '<div class="job-api-item" onclick="openJobPopup(\'' + item.id + '\')" style="cursor:pointer;">' +
-          '<div class="job-api-title">' + (item.title || '제목 없음') + '</div>' +
-          '<div class="job-api-meta">' +
-            '<span>🏢 ' + (item.company  || '-') + '</span>' +
-            '<span>📍 ' + (item.location || '-') + '</span><br>' +
-            '<span>💼 ' + (item.workType || '-') + '</span>' +
-            '<span class="' + deadlineClass + '">⏰ ' + deadlineText + '</span><br>' +
-            '<span style="color:#4A90D9;font-weight:700;">👆 눌러서 자세히 보기</span>' +
-          '</div>' +
-        '</div>';
-    });
-
-    listEl.innerHTML = html;
+    // ⑤ 화면에 표시
+    listEl.innerHTML = renderBenefitJobItems(data.items);
 
   } catch (err) {
-    // ⑤ 네트워크 오류
     listEl.innerHTML =
       '<div class="job-api-error">⚠️ 인터넷 연결을 확인해 주세요.<br>(' + err.message + ')</div>';
   }
 }
 
 // 탭이 열릴 때 자동으로 공고 불러오기
-setTimeout(loadJobApi, 300);
+loadJobApi();
 
 /* ===== 공고 상세 팝업 (benefit.html) ===== */
+
+// 팝업 캐시 — 공고ID별로 5분간 저장
+var benefitDetailCache = {};
+
+// 팝업 스켈레톤 HTML
+function getBenefitPopupSkeletonHTML() {
+  return (
+    '<div class="job-popup-box">' +
+      '<div class="skel skel-popup-title"></div>' +
+      '<div class="skel skel-popup-row"></div>' +
+      '<div class="skel skel-popup-row"></div>' +
+      '<div class="skel skel-popup-row"></div>' +
+      '<div class="skel skel-popup-row" style="width:70%;"></div>' +
+      '<div class="skel skel-popup-btn"></div>' +
+    '</div>'
+  );
+}
+
 async function openJobPopup(jobId) {
   var overlay = document.createElement('div');
   overlay.className = 'job-popup-overlay';
   overlay.id = 'job-popup-overlay';
-  overlay.innerHTML =
-    '<div class="job-popup-box">' +
-      '<div class="job-popup-loading">⏳ 공고 정보를 불러오는 중이에요…</div>' +
-    '</div>';
+
+  // 팝업 열리자마자 스켈레톤 즉시 표시
+  overlay.innerHTML = getBenefitPopupSkeletonHTML();
+
   overlay.addEventListener('click', function(e) {
     if (e.target === overlay) closeJobPopup();
   });
   document.body.appendChild(overlay);
+
+  // 캐시 확인 — 5분 안에 본 공고면 즉시 표시
+  var cached = benefitDetailCache[jobId];
+  if (cached && (Date.now() - cached.time) < BENEFIT_CACHE_TTL) {
+    renderBenefitPopup(overlay, cached.detail);
+    return;
+  }
 
   try {
     var res  = await fetch('/api/jobs-detail?jobId=' + jobId);
@@ -432,44 +494,50 @@ async function openJobPopup(jobId) {
       return;
     }
 
-    var d = data.detail;
+    // 캐시 저장
+    benefitDetailCache[jobId] = { detail: data.detail, time: Date.now() };
 
-    function fmtDate(s) {
-      if (!s || s.length !== 8) return s || '-';
-      return s.substring(0,4) + '.' + s.substring(4,6) + '.' + s.substring(6,8);
-    }
-
-    var phoneBtn = d.phone
-      ? '<a class="job-popup-phone" href="tel:' + d.phone + '">📞 ' + d.phone + ' 전화하기</a>'
-      : '<div style="text-align:center;color:#aaa;font-size:14px;margin-top:12px;">전화번호 정보가 없어요</div>';
-
-    var contents = d.contents
-      ? '<div class="job-popup-row"><span class="job-popup-label">📋 내용</span></div>' +
-        '<div class="job-popup-contents">' + d.contents.substring(0, 300) + (d.contents.length > 300 ? '…' : '') + '</div>'
-      : '';
-
-    var extraHtml = d.extra
-      ? '<div class="job-popup-row"><span class="job-popup-label">📌 기타</span><span class="job-popup-value">' + d.extra + '</span></div>'
-      : '';
-
-    overlay.querySelector('.job-popup-box').innerHTML =
-      '<div class="job-popup-title">' + (d.title || '제목 없음') + '</div>' +
-      '<div class="job-popup-row"><span class="job-popup-label">🏢 기관</span><span class="job-popup-value">' + (d.company || '-') + '</span></div>' +
-      '<div class="job-popup-row"><span class="job-popup-label">📍 주소</span><span class="job-popup-value">' + (d.address || '-') + '</span></div>' +
-      '<div class="job-popup-row"><span class="job-popup-label">👥 모집</span><span class="job-popup-value">' + (d.headcount || '-') + '명</span></div>' +
-      '<div class="job-popup-row"><span class="job-popup-label">🎂 연령</span><span class="job-popup-value">' + (d.age ? d.age + '세 이상' : '-') + (d.ageLim ? ' (' + d.ageLim + ')' : '') + '</span></div>' +
-      '<div class="job-popup-row"><span class="job-popup-label">⏰ 마감</span><span class="job-popup-value">' + fmtDate(d.endDate) + '</span></div>' +
-      '<div class="job-popup-row"><span class="job-popup-label">📮 접수</span><span class="job-popup-value">' + (d.applyMethod || '-') + '</span></div>' +
-      extraHtml +
-      contents +
-      phoneBtn +
-      '<button class="job-popup-close" onclick="closeJobPopup()">✕ 닫기</button>';
+    renderBenefitPopup(overlay, data.detail);
 
   } catch (err) {
     overlay.querySelector('.job-popup-box').innerHTML =
       '<div style="padding:20px;text-align:center;color:#c00;">⚠️ 인터넷 연결을 확인해 주세요.</div>' +
       '<button class="job-popup-close" onclick="closeJobPopup()">닫기</button>';
   }
+}
+
+// 팝업 내용 그려주는 함수
+function renderBenefitPopup(overlay, d) {
+  function fmtDate(s) {
+    if (!s || s.length !== 8) return s || '-';
+    return s.substring(0,4) + '.' + s.substring(4,6) + '.' + s.substring(6,8);
+  }
+
+  var phoneBtn = d.phone
+    ? '<a class="job-popup-phone" href="tel:' + d.phone + '">📞 ' + d.phone + ' 전화하기</a>'
+    : '<div style="text-align:center;color:#aaa;font-size:14px;margin-top:12px;">전화번호 정보가 없어요</div>';
+
+  var contents = d.contents
+    ? '<div class="job-popup-row"><span class="job-popup-label">📋 내용</span></div>' +
+      '<div class="job-popup-contents">' + d.contents.substring(0, 300) + (d.contents.length > 300 ? '…' : '') + '</div>'
+    : '';
+
+  var extraHtml = d.extra
+    ? '<div class="job-popup-row"><span class="job-popup-label">📌 기타</span><span class="job-popup-value">' + d.extra + '</span></div>'
+    : '';
+
+  overlay.querySelector('.job-popup-box').innerHTML =
+    '<div class="job-popup-title">' + (d.title || '제목 없음') + '</div>' +
+    '<div class="job-popup-row"><span class="job-popup-label">🏢 기관</span><span class="job-popup-value">' + (d.company || '-') + '</span></div>' +
+    '<div class="job-popup-row"><span class="job-popup-label">📍 주소</span><span class="job-popup-value">' + (d.address || '-') + '</span></div>' +
+    '<div class="job-popup-row"><span class="job-popup-label">👥 모집</span><span class="job-popup-value">' + (d.headcount || '-') + '명</span></div>' +
+    '<div class="job-popup-row"><span class="job-popup-label">🎂 연령</span><span class="job-popup-value">' + (d.age ? d.age + '세 이상' : '-') + (d.ageLim ? ' (' + d.ageLim + ')' : '') + '</span></div>' +
+    '<div class="job-popup-row"><span class="job-popup-label">⏰ 마감</span><span class="job-popup-value">' + fmtDate(d.endDate) + '</span></div>' +
+    '<div class="job-popup-row"><span class="job-popup-label">📮 접수</span><span class="job-popup-value">' + (d.applyMethod || '-') + '</span></div>' +
+    extraHtml +
+    contents +
+    phoneBtn +
+    '<button class="job-popup-close" onclick="closeJobPopup()">✕ 닫기</button>';
 }
 
 function closeJobPopup() {
