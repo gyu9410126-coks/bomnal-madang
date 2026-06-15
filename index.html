@@ -44,13 +44,13 @@ body.big-font { font-size: 130% !important; }
 .header-date-solar {
   font-size: 17px;
   font-weight: 700;
-  color: #fff;
+  color: #111111;
   line-height: 1.3;
 }
 .header-date-lunar {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
-  color: #b3d4f7;
+  color: #1a5fa0;
   line-height: 1.3;
 }
 
@@ -277,22 +277,21 @@ body.big-font { font-size: 130% !important; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #fff;
   border: none;
   border-radius: 14px;
   padding: 14px 6px 12px;
   gap: 7px;
   cursor: pointer;
-  box-shadow: 0 1px 5px rgba(0,0,0,0.07);
   transition: transform 0.13s;
   width: 100%;
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  background: transparent;
 }
 .cat-item:active { transform: scale(0.95); }
 .cat-icon-box {
-  width: 64px;
-  height: 64px;
+  width: 100%;
+  height: 80px;
   border-radius: 14px;
   display: flex;
   align-items: center;
@@ -303,7 +302,6 @@ body.big-font { font-size: 130% !important; }
 .cat-name {
   font-size: 15px;
   font-weight: 600;
-  color: #222;
   text-align: center;
   word-break: keep-all;
   line-height: 1.3;
@@ -774,7 +772,7 @@ body.big-font { font-size: 130% !important; }
       <div class="bnr-tag">🎁 복지·혜택</div>
       <div class="bnr-title">복지혜택<br>한눈에!</div>
       <div class="bnr-cta">바로가기 →</div>
-      <div class="bnr-emoji">🏛️</div>
+      <div class="bnr-emoji">🎁</div>
       <div class="bnr-pills">
         <span class="bnr-pill">기초연금 안내</span>
         <span class="bnr-pill">장기요양 신청</span>
@@ -867,49 +865,40 @@ body.big-font { font-size: 130% !important; }
   <div class="sec-wrap">
     <div class="sec-title"><em>카테고리</em> 찾기</div>
     <div class="cat-grid">
-      <!-- 1: 복지·혜택쇼핑 -->
-      <button class="cat-item" onclick="switchTab('benefit')">
-        <div class="cat-icon-box" style="background:#e8f5e9; color:#2e7d32;">🎁</div>
+      <button class="cat-item" onclick="switchTab('benefit')" style="background:#e8f5e9;">
+        <div class="cat-icon-box" style="background:#e8f5e9;">🎁</div>
         <span class="cat-name" style="color:#2e7d32;">복지·혜택쇼핑</span>
       </button>
-      <!-- 2: 건강·약국 -->
-      <button class="cat-item" onclick="switchTab('health')">
-        <div class="cat-icon-box" style="background:#e3f2fd; color:#1565c0;">💊</div>
+      <button class="cat-item" onclick="switchTab('health')" style="background:#e3f2fd;">
+        <div class="cat-icon-box" style="background:#e3f2fd;">💊</div>
         <span class="cat-name" style="color:#1565c0;">건강·약국</span>
       </button>
-      <!-- 3: 일자리 -->
-      <button class="cat-item" onclick="switchTab('market')">
-        <div class="cat-icon-box" style="background:#fff8e1; color:#f57f17;">👔</div>
+      <button class="cat-item" onclick="switchTab('market')" style="background:#fff8e1;">
+        <div class="cat-icon-box" style="background:#fff8e1;">👔</div>
         <span class="cat-name" style="color:#f57f17;">일자리</span>
       </button>
-      <!-- 4: 문화강좌 (준비중) -->
-      <button class="cat-item" onclick="showToast('준비 중입니다 🌸')">
-        <div class="cat-icon-box" style="background:#f3e5f5; color:#6a1b9a;">🎨</div>
+      <button class="cat-item" onclick="showToast('준비 중입니다 🌸')" style="background:#f3e5f5;">
+        <div class="cat-icon-box" style="background:#f3e5f5;">🎨</div>
         <span class="cat-name" style="color:#6a1b9a;">문화강좌</span>
       </button>
-      <!-- 5: 교통정보 (준비중) -->
-      <button class="cat-item" onclick="showToast('준비 중입니다 🌸')">
-        <div class="cat-icon-box" style="background:#e0f7fa; color:#00695c;">🚍</div>
+      <button class="cat-item" onclick="showToast('준비 중입니다 🌸')" style="background:#e0f7fa;">
+        <div class="cat-icon-box" style="background:#e0f7fa;">🚍</div>
         <span class="cat-name" style="color:#00695c;">교통정보</span>
       </button>
-      <!-- 6: 소통마당 -->
-      <button class="cat-item" onclick="switchTab('talk')">
-        <div class="cat-icon-box" style="background:#fce4ec; color:#c62828;">💌</div>
+      <button class="cat-item" onclick="switchTab('talk')" style="background:#fce4ec;">
+        <div class="cat-icon-box" style="background:#fce4ec;">💌</div>
         <span class="cat-name" style="color:#c62828;">소통마당</span>
       </button>
-      <!-- 7: 게임·오락 -->
-      <button class="cat-item" onclick="switchTab('game')">
-        <div class="cat-icon-box" style="background:#ede7f6; color:#4527a0;">🕹️</div>
+      <button class="cat-item" onclick="switchTab('game')" style="background:#ede7f6;">
+        <div class="cat-icon-box" style="background:#ede7f6;">🕹️</div>
         <span class="cat-name" style="color:#4527a0;">게임·오락</span>
       </button>
-      <!-- 8: 운세·달력 -->
-      <button class="cat-item" onclick="switchTab('fortune')">
-        <div class="cat-icon-box" style="background:#fff3e0; color:#e65100;">🔮</div>
+      <button class="cat-item" onclick="switchTab('fortune')" style="background:#fff3e0;">
+        <div class="cat-icon-box" style="background:#fff3e0;">🔮</div>
         <span class="cat-name" style="color:#e65100;">운세·달력</span>
       </button>
-      <!-- 9: 트로트·미디어 -->
-      <button class="cat-item" onclick="switchTab('trot')">
-        <div class="cat-icon-box" style="background:#fce4ec; color:#880e4f;">🎤</div>
+      <button class="cat-item" onclick="switchTab('trot')" style="background:#fce4ec;">
+        <div class="cat-icon-box" style="background:#fce4ec;">🎤</div>
         <span class="cat-name" style="color:#880e4f;">트로트·미디어</span>
       </button>
     </div>
