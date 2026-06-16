@@ -1217,6 +1217,109 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
 /* 돋보기 버튼 중복 제거 — 위에서 정의됨 */
 
 /* =====================================================
+   날씨 팝업
+   ===================================================== */
+.weather-popup-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.52);
+  z-index: 8000;
+  align-items: flex-end;
+  max-width: 480px;
+  margin: 0 auto;
+}
+.weather-popup-overlay.on { display: flex; }
+.weather-popup-box {
+  background: #fff;
+  width: 100%;
+  border-radius: 24px 24px 0 0;
+  padding: 20px 18px 32px;
+  max-height: 88vh;
+  overflow-y: auto;
+  animation: slideUp 0.25s ease;
+}
+.weather-popup-handle {
+  width: 40px; height: 4px;
+  background: #ddd; border-radius: 4px;
+  margin: 0 auto 16px;
+}
+.weather-popup-title {
+  font-size: 20px; font-weight: 900;
+  color: #111; margin-bottom: 14px;
+}
+/* 기상특보 띠 */
+.weather-alert-bar {
+  display: none;
+  background: #ffebee;
+  border: 1.5px solid #e53935;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #c62828;
+  line-height: 1.5;
+}
+.weather-alert-bar.on { display: block; }
+/* 오늘 메인 */
+.wp-today-main {
+  background: #e3f2fd;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.wp-today-icon { font-size: 54px; line-height: 1; }
+.wp-today-right { text-align: right; }
+.wp-today-temp { font-size: 44px; font-weight: 900; color: #0d47a1; line-height: 1; }
+.wp-today-state { font-size: 20px; font-weight: 900; color: #1565c0; margin-top: 4px; }
+.wp-today-feel { font-size: 15px; font-weight: 700; color: #1565c0; margin-top: 3px; }
+/* 최저최고 */
+.wp-minmax-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.wp-minmax-card { flex: 1; background: #f0f7ff; border-radius: 10px; padding: 10px; text-align: center; }
+.wp-minmax-label { font-size: 14px; font-weight: 700; color: #444; margin-bottom: 4px; }
+.wp-minmax-val { font-size: 22px; font-weight: 900; }
+/* 상세 그리드 */
+.wp-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+.wp-detail-card { background: #f7f8fa; border-radius: 10px; padding: 11px 12px; display: flex; align-items: center; gap: 8px; }
+.wp-detail-icon { font-size: 24px; flex-shrink: 0; }
+.wp-detail-label { font-size: 13px; font-weight: 700; color: #555; margin-bottom: 3px; }
+.wp-detail-val { font-size: 17px; font-weight: 900; color: #222; }
+.wp-divider { border: none; border-top: 1px solid #eee; margin: 14px 0; }
+/* 주간 날씨 */
+.wp-week-title { font-size: 18px; font-weight: 900; color: #222; margin-bottom: 10px; }
+.wp-week-list { display: flex; flex-direction: column; gap: 6px; }
+.wp-week-item { display: flex; align-items: center; background: #f7f8fa; border-radius: 10px; padding: 11px 14px; gap: 10px; }
+.wp-week-day { font-size: 16px; font-weight: 900; color: #333; width: 36px; flex-shrink: 0; }
+.wp-week-day.today-lbl { color: #4A90D9; }
+.wp-week-icon { font-size: 24px; flex-shrink: 0; }
+.wp-week-state { font-size: 15px; font-weight: 700; color: #333; flex: 1; }
+.wp-week-rain { font-size: 14px; font-weight: 700; color: #4A90D9; width: 34px; text-align: center; flex-shrink: 0; }
+.wp-week-temps { display: flex; gap: 6px; flex-shrink: 0; }
+.wp-week-low { font-size: 15px; font-weight: 800; color: #1565c0; }
+.wp-week-high { font-size: 15px; font-weight: 800; color: #e53935; }
+.wp-close-btn { display: block; width: 100%; margin-top: 14px; padding: 14px; background: #4A90D9; color: #fff; border: none; border-radius: 14px; font-size: 18px; font-weight: 900; cursor: pointer; font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; }
+/* 큰글씨 모드 */
+body.big-font .weather-popup-title { font-size: 26px !important; }
+body.big-font .wp-today-temp  { font-size: 54px !important; }
+body.big-font .wp-today-state { font-size: 26px !important; }
+body.big-font .wp-today-feel  { font-size: 20px !important; }
+body.big-font .wp-minmax-label { font-size: 18px !important; }
+body.big-font .wp-minmax-val   { font-size: 28px !important; }
+body.big-font .wp-detail-label { font-size: 17px !important; }
+body.big-font .wp-detail-val   { font-size: 22px !important; }
+body.big-font .wp-week-title   { font-size: 24px !important; }
+body.big-font .wp-week-day     { font-size: 20px !important; }
+body.big-font .wp-week-state   { font-size: 19px !important; }
+body.big-font .wp-week-low     { font-size: 19px !important; }
+body.big-font .wp-week-high    { font-size: 19px !important; }
+body.big-font .weather-alert-bar { font-size: 19px !important; }
+body.big-font .wp-close-btn    { font-size: 23px !important; }
+
+/* =====================================================
    홈바 (홈으로 버튼)
    ===================================================== */
 .home-bar {
@@ -1372,7 +1475,7 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   </div>
 
   <!-- ② 날씨 띠 -->
-  <div class="weather-bar" onclick="showToast('🚌 교통정보는 준비 중입니다 🌸')">
+  <div class="weather-bar" onclick="openWeatherPopup()">
     <div class="weather-row1">
       <span class="weather-icon" id="weather-icon">☀️</span>
       <span class="weather-city">서울</span>
@@ -1382,6 +1485,50 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
     <div class="weather-row2">
       <span class="weather-msg" id="weather-msg">오늘도 좋은 하루 되세요!</span>
       <span class="weather-open">날씨열기 →</span>
+    </div>
+  </div>
+
+  <!-- 날씨 팝업 -->
+  <div class="weather-popup-overlay" id="weather-popup-overlay" onclick="closeWeatherPopup(event)">
+    <div class="weather-popup-box">
+      <div class="weather-popup-handle"></div>
+      <div class="weather-popup-title" id="wp-title">☀️ 오늘의 날씨</div>
+      <!-- 기상특보 (발령시에만 표시) -->
+      <div class="weather-alert-bar" id="wp-alert-bar">🚨 기상특보</div>
+      <!-- 오늘 메인 -->
+      <div class="wp-today-main">
+        <div class="wp-today-icon" id="wp-icon">☀️</div>
+        <div class="wp-today-right">
+          <div class="wp-today-temp" id="wp-temp">--°C</div>
+          <div class="wp-today-state" id="wp-state">로딩 중</div>
+          <div class="wp-today-feel" id="wp-feel">체감온도 --°C</div>
+        </div>
+      </div>
+      <!-- 최저·최고 -->
+      <div class="wp-minmax-row">
+        <div class="wp-minmax-card">
+          <div class="wp-minmax-label">🌡️ 최저기온</div>
+          <div class="wp-minmax-val" id="wp-tmn" style="color:#1565c0;">--°C</div>
+        </div>
+        <div class="wp-minmax-card">
+          <div class="wp-minmax-label">🌡️ 최고기온</div>
+          <div class="wp-minmax-val" id="wp-tmx" style="color:#e53935;">--°C</div>
+        </div>
+      </div>
+      <!-- 상세 정보 -->
+      <div class="wp-detail-grid">
+        <div class="wp-detail-card"><span class="wp-detail-icon">🌧️</span><div><div class="wp-detail-label">강수확률</div><div class="wp-detail-val" id="wp-pop">--%</div></div></div>
+        <div class="wp-detail-card"><span class="wp-detail-icon">💨</span><div><div class="wp-detail-label">바람</div><div class="wp-detail-val" id="wp-wind">--m/s</div></div></div>
+        <div class="wp-detail-card"><span class="wp-detail-icon">🌫️</span><div><div class="wp-detail-label">미세먼지</div><div class="wp-detail-val" id="wp-dust" style="color:#2e7d32;">--</div></div></div>
+        <div class="wp-detail-card"><span class="wp-detail-icon">😷</span><div><div class="wp-detail-label">초미세먼지</div><div class="wp-detail-val" id="wp-dust2" style="color:#2e7d32;">--</div></div></div>
+      </div>
+      <hr class="wp-divider">
+      <!-- 주간 날씨 -->
+      <div class="wp-week-title">📅 일주일 날씨</div>
+      <div class="wp-week-list" id="wp-week-list">
+        <div style="text-align:center;padding:20px;color:#aaa;font-size:15px;">날씨 불러오는 중...</div>
+      </div>
+      <button class="wp-close-btn" onclick="closeWeatherPopup()">✕ 닫기</button>
     </div>
   </div>
 
@@ -1592,6 +1739,77 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
 
 <script>
 /* ============================================================
+   날씨 팝업 열기/닫기/렌더링
+   ============================================================ */
+var lastWeatherData = null;
+
+function openWeatherPopup() {
+  document.getElementById('weather-popup-overlay').classList.add('on');
+  document.body.style.overflow = 'hidden';
+  if (lastWeatherData) renderWeatherPopup(lastWeatherData);
+}
+
+function closeWeatherPopup(e) {
+  if (!e || e.target === document.getElementById('weather-popup-overlay')) {
+    document.getElementById('weather-popup-overlay').classList.remove('on');
+    document.body.style.overflow = '';
+  }
+}
+
+function renderWeatherPopup(data) {
+  if (!data || !data.ok) return;
+  var cityShort = data.city ? data.city.split(' ')[0] : '내 지역';
+  document.getElementById('wp-title').textContent = data.icon + ' 오늘의 날씨 · ' + cityShort;
+  var alertBar = document.getElementById('wp-alert-bar');
+  if (data.alert) {
+    alertBar.textContent = '🚨 ' + data.alert.type + ' · ' + data.alert.msg;
+    alertBar.classList.add('on');
+  } else {
+    alertBar.classList.remove('on');
+  }
+  document.getElementById('wp-icon').textContent  = data.icon;
+  document.getElementById('wp-temp').textContent  = data.temp;
+  document.getElementById('wp-state').textContent = data.state;
+  document.getElementById('wp-feel').textContent  = '체감온도 ' + (data.feel || '--°C');
+  document.getElementById('wp-tmn').textContent   = data.tmn || '--°C';
+  document.getElementById('wp-tmx').textContent   = data.tmx || '--°C';
+  document.getElementById('wp-pop').textContent   = data.pop || '--%';
+  document.getElementById('wp-wind').textContent  = data.wind || '--m/s';
+
+  var weekHtml = '<div class="wp-week-item">' +
+    '<span class="wp-week-day today-lbl">오늘</span>' +
+    '<span class="wp-week-icon">' + data.icon + '</span>' +
+    '<span class="wp-week-state">' + data.state + '</span>' +
+    '<span class="wp-week-rain">' + (data.pop||'--') + '</span>' +
+    '<div class="wp-week-temps">' +
+      '<span class="wp-week-low">' + (data.tmn||'--') + '</span>' +
+      '<span class="wp-week-high">' + (data.tmx||'--') + '</span>' +
+    '</div></div>';
+
+  weekHtml += '<div class="wp-week-item">' +
+    '<span class="wp-week-day">내일</span>' +
+    '<span class="wp-week-icon">⛅</span>' +
+    '<span class="wp-week-state">구름 조금</span>' +
+    '<span class="wp-week-rain">--</span>' +
+    '<div class="wp-week-temps"><span class="wp-week-low">--</span><span class="wp-week-high">--</span></div></div>';
+
+  if (data.week && data.week.length > 0) {
+    data.week.forEach(function(w) {
+      weekHtml += '<div class="wp-week-item">' +
+        '<span class="wp-week-day">' + w.day + '</span>' +
+        '<span class="wp-week-icon">' + w.icon + '</span>' +
+        '<span class="wp-week-state">' + w.state + '</span>' +
+        '<span class="wp-week-rain">' + w.rain + '</span>' +
+        '<div class="wp-week-temps">' +
+          '<span class="wp-week-low">' + w.lo + '°</span>' +
+          '<span class="wp-week-high">' + w.hi + '°</span>' +
+        '</div></div>';
+    });
+  }
+  document.getElementById('wp-week-list').innerHTML = weekHtml;
+}
+
+/* ============================================================
    ① 음력 변환 (간단한 양력→음력 근사 계산)
       - 완벽한 음력 라이브러리 대신, 기준 음력날짜에서 차이를 계산
    ============================================================ */
@@ -1715,11 +1933,13 @@ async function fetchWeatherByCoords(lat, lon) {
     if (data.ok) {
       /* city = 지역명 (서울/부산/대구 등), 없으면 '내 지역' */
       var cityEl = document.querySelector('.weather-city');
-      if (cityEl && data.city) cityEl.textContent = data.city;
+      if (cityEl && data.city) cityEl.textContent = data.city.split(' ')[0];
       document.getElementById('weather-icon').textContent  = data.icon;
       document.getElementById('weather-temp').textContent  = data.temp;
       document.getElementById('weather-state').textContent = data.state;
       document.getElementById('weather-msg').textContent   = data.msg;
+      /* 팝업용 데이터 저장 */
+      lastWeatherData = data;
     } else {
       applyWeatherDummy();
     }
