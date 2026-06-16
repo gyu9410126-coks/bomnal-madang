@@ -1193,7 +1193,7 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   border-bottom: 1px solid #eee;
   padding: 8px 14px;
   position: fixed;
-  top: 66px;
+  top: 0;
   left: 0;
   right: 0;
   max-width: 480px;
@@ -1797,7 +1797,13 @@ function loadWeather() {
     timer = setInterval(function() { bnrGo((idx + 1) % items.length); }, 3000);
   };
 
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', function() {
+  init();
+  // 페이지 로드 완료 후 헤더 높이 자동 계산
+  adjustLayout();
+  // 혹시 폰트 늦게 로드될 경우 대비해 한 번 더 계산
+  setTimeout(adjustLayout, 300);
+});
 })();
 
 /* ============================================================
@@ -1825,6 +1831,8 @@ function switchTab(tabId, fromPopState) {
 
   /* 홈 탭이 아닐 때만 홈으로 바 표시 */
   document.getElementById('home-bar').style.display = (tabId === 'home') ? 'none' : 'flex';
+  // 탭 전환 시 레이아웃 재계산
+  setTimeout(adjustLayout, 50);
 
   if (!loadedTabs[tabId] && tabFiles[tabId]) {
     loadedTabs[tabId] = true;
@@ -1858,10 +1866,36 @@ function loadTabContent(tabId, fileName) {
    ⑦ 돋보기 버튼 (기본 ↔ 크게 토글)
    ============================================================ */
 var isBigFont = false;
+/* ============================================================
+   레이아웃 자동 계산 - 헤더/홈으로바 실제 높이를 측정해서 자동 적용
+   (CSS 고정값 대신 JS로 계산 → 돋보기·기기 크기 상관없이 항상 정확)
+   ============================================================ */
+function adjustLayout() {
+  var header  = document.querySelector('.app-header');
+  var homeBar = document.getElementById('home-bar');
+  var isHomeBarVisible = homeBar.style.display === 'flex';
+
+  // 헤더 실제 높이 측정 (px 단위 정수)
+  var headerH = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
+
+  // 홈으로 바 실제 높이 측정 (보일 때만)
+  var homeBarH = (isHomeBarVisible && homeBar)
+    ? Math.ceil(homeBar.getBoundingClientRect().height)
+    : 0;
+
+  // 홈으로 바를 헤더 바로 아래에 붙이기
+  if (homeBar) homeBar.style.top = headerH + 'px';
+
+  // body 상단 여백 = 헤더 + 홈으로바 합계
+  document.body.style.paddingTop = (headerH + homeBarH) + 'px';
+}
+
 function toggleBigFont() {
   isBigFont = !isBigFont;
   document.body.classList.toggle('big-font', isBigFont);
   document.getElementById('zoom-label').textContent = isBigFont ? '크게' : '기본';
+  // 글자 크기 바뀌면 헤더 높이도 바뀌므로 레이아웃 재계산
+  setTimeout(adjustLayout, 50);
 }
 
 /* ============================================================
