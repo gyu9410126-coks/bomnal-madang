@@ -2079,7 +2079,15 @@ window.addEventListener('popstate', function() {
   history.pushState({ tab: 'home' }, '', '#home');
 });
 window.addEventListener('DOMContentLoaded', function() {
-  history.replaceState({ tab: 'home' }, '', '#home');
+  // 새로고침 시 URL의 # 값을 읽어서 해당 탭 유지
+  var hash = location.hash.replace('#', '');
+  var validTabs = ['home','fortune','game','benefit','health','talk','market','trot','job'];
+  if (hash && validTabs.indexOf(hash) >= 0) {
+    history.replaceState({ tab: hash }, '', '#' + hash);
+    switchTab(hash, true);
+  } else {
+    history.replaceState({ tab: 'home' }, '', '#home');
+  }
   loadMainJobs();
 });
 </script>
