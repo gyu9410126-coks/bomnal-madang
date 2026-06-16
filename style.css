@@ -844,3 +844,6 @@ body.big-font .alarm-time-input   { font-size:18px !important; }
 body.big-font .alarm-name-input   { font-size:17px !important; }
 body.big-font .alarm-save-btn     { font-size:17px !important; }
 body.big-font .health-alarm-desc  { font-size:19px !important; }
+
+/* ── btn-kakao 돋보기 큰글씨 모드 ── */
+body.big-font .btn-kakao { font-size: 20px !important; }
