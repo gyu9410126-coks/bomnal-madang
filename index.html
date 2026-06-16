@@ -1717,7 +1717,11 @@ async function fetchWeatherByCoords(lat, lon) {
     var data = await res.json();
     if (data.ok) {
       var cityEl = document.getElementById('weather-city');
-      if (cityEl && data.city) cityEl.textContent = data.city;
+      if (cityEl && data.city) {
+        /* 시/도명 제거하고 시/군/구 + 동만 표시 (예: 양산시 삼성동) */
+        var parts = data.city.split(' ');
+        cityEl.textContent = parts.length >= 3 ? parts[1] + ' ' + parts[2] : data.city;
+      }
       document.getElementById('weather-icon').textContent  = data.icon;
       document.getElementById('weather-temp').textContent  = data.temp;
       document.getElementById('weather-state').textContent = data.state;
