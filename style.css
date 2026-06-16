@@ -392,8 +392,8 @@ body.big-font .tab-label { font-size: 10px !important; }
   color: #fff;
   border: none;
   border-radius: 20px;
-  padding: 6px 18px;
-  font-size: 14px;
+  padding: 10px 22px;
+  font-size: 17px;
   font-family: 'Nanum Gothic', sans-serif;
   font-weight: 700;
   cursor: pointer;
@@ -734,116 +734,3 @@ body.big-font .tab-label { font-size: 10px !important; }
   border-radius: 8px;
 }
 .job-link:active { background: #c5d9f5; }
-
-/* =====================================================
-   돋보기 큰글씨 모드 — 각 카테고리 탭 전용
-   body.big-font 클래스가 붙으면 아래 스타일 적용
-   ===================================================== */
-
-/* ── 공통 카드·버튼 (모든 탭 공유) ── */
-body.big-font .card-title       { font-size: 28px !important; }
-body.big-font .card             { font-size: 20px !important; }
-body.big-font .btn-main         { font-size: 22px !important; }
-body.big-font .btn-outline      { font-size: 22px !important; }
-body.big-font .calc-label       { font-size: 20px !important; }
-body.big-font .calc-select      { font-size: 20px !important; }
-body.big-font .calc-input       { font-size: 20px !important; }
-body.big-font .calc-result-label  { font-size: 18px !important; }
-body.big-font .calc-result-amount { font-size: 34px !important; }
-body.big-font .calc-result-desc   { font-size: 18px !important; }
-
-/* ── benefit.html (복지·혜택) ── */
-body.big-font .btn-kakao-main   { font-size: 23px !important; }
-
-/* ── job.html (일자리) ── */
-body.big-font .jlb-title        { font-size: 22px !important; }
-body.big-font .jlb-desc         { font-size: 18px !important; }
-body.big-font .jlb-arrow        { font-size: 26px !important; }
-body.big-font .job-api-title    { font-size: 22px !important; }
-body.big-font .job-api-meta     { font-size: 20px !important; }
-body.big-font .job-refresh-btn  { font-size: 20px !important; }
-
-/* ── health.html (건강·약국) ── */
-body.big-font .dial-text strong { font-size: 20px !important; }
-body.big-font .dial-text span   { font-size: 17px !important; }
-body.big-font .dial-num         { font-size: 22px !important; }
-
-/* ── market.html (쇼핑) ── */
-body.big-font .market-banner-title { font-size: 22px !important; }
-body.big-font .market-banner-sub   { font-size: 18px !important; }
-body.big-font .market-cat-btn      { font-size: 18px !important; }
-body.big-font .market-tag          { font-size: 18px !important; }
-body.big-font .product-name        { font-size: 20px !important; }
-body.big-font .product-desc        { font-size: 17px !important; }
-body.big-font .product-price       { font-size: 22px !important; }
-body.big-font .product-badge       { font-size: 17px !important; }
-body.big-font .market-more-btn     { font-size: 20px !important; }
-body.big-font .market-notice       { font-size: 17px !important; }
-
-/* ── game.html (게임·오락) ── */
-body.big-font .game-item h3     { font-size: 22px !important; }
-body.big-font .game-item p      { font-size: 18px !important; }
-body.big-font .quiz-question    { font-size: 22px !important; }
-body.big-font .quiz-option      { font-size: 20px !important; }
-body.big-font .quiz-progress    { font-size: 18px !important; }
-body.big-font .quiz-result-score { font-size: 38px !important; }
-body.big-font .quiz-result-msg  { font-size: 20px !important; }
-
-/* ── talk.html (소통마당) ── */
-body.big-font .board-nickname   { font-size: 20px !important; }
-body.big-font .board-textarea   { font-size: 20px !important; }
-body.big-font .board-post       { font-size: 20px !important; }
-body.big-font .post-nick        { font-size: 20px !important; }
-body.big-font .post-date        { font-size: 17px !important; }
-body.big-font .post-body        { font-size: 20px !important; }
-body.big-font .post-like        { font-size: 18px !important; }
-
-/* ── fortune.html (운세·달력) ── */
-body.big-font .zodiac-item      { font-size: 18px !important; }
-body.big-font .fortune-text     { font-size: 20px !important; }
-body.big-font .fortune-title    { font-size: 24px !important; }
-
-/* ── trot.html / radio.html (라디오·미디어) ── */
-body.big-font .trot-item-title  { font-size: 20px !important; }
-body.big-font .trot-item-desc   { font-size: 17px !important; }
-body.big-font .radio-title      { font-size: 20px !important; }
-body.big-font .radio-desc       { font-size: 17px !important; }
-
-/* ── health.html (건강·약국) 전용 big-font 규칙 ── */
-/* 인라인 style → 클래스로 교체된 항목 */
-.health-reward-desc { font-size:13px; color:var(--text-sub); margin-top:10px; text-align:center; }
-.health-point-icon  { font-size:36px; }
-.health-point-label { font-size:13px; color:rgba(255,255,255,0.8); margin-bottom:4px; }
-.health-alarm-desc  { font-size:14px; color:var(--text-sub); margin-bottom:14px; line-height:1.7; }
-
-/* 돋보기 큰글씨 모드 */
-body.big-font .step-label         { font-size:20px !important; }
-body.big-font .step-sub           { font-size:18px !important; }
-body.big-font .step-input         { font-size:20px !important; }
-body.big-font .step-apply         { font-size:20px !important; }
-body.big-font .quick-step-btn     { font-size:18px !important; }
-body.big-font .streak-count       { font-size:34px !important; }
-body.big-font .streak-count span:first-child { font-size:48px !important; }
-body.big-font .streak-label       { font-size:18px !important; }
-body.big-font .streak-best        { font-size:17px !important; }
-body.big-font .cal-title-text     { font-size:20px !important; }
-body.big-font .cal-summary        { font-size:17px !important; }
-body.big-font .cal-head           { font-size:16px !important; }
-body.big-font .cal-cell           { font-size:16px !important; }
-body.big-font .reward-day         { font-size:15px !important; }
-body.big-font .health-reward-desc { font-size:18px !important; }
-body.big-font .mission-body h4    { font-size:19px !important; }
-body.big-font .mission-body p     { font-size:16px !important; }
-body.big-font .mission-point      { font-size:17px !important; }
-body.big-font .point-value        { font-size:44px !important; }
-body.big-font .point-sub          { font-size:16px !important; }
-body.big-font .health-point-icon  { font-size:44px !important; }
-body.big-font .health-point-label { font-size:18px !important; }
-body.big-font .alarm-name         { font-size:18px !important; }
-body.big-font .alarm-time-input   { font-size:18px !important; }
-body.big-font .alarm-name-input   { font-size:17px !important; }
-body.big-font .alarm-save-btn     { font-size:17px !important; }
-body.big-font .health-alarm-desc  { font-size:19px !important; }
-
-/* ── btn-kakao 돋보기 큰글씨 모드 ── */
-body.big-font .btn-kakao { font-size: 20px !important; }
