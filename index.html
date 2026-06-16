@@ -306,9 +306,6 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   border: 1.5px solid #e8f0fb;
   border-radius: 12px;
   padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -317,16 +314,32 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   align-items: center;
   gap: 7px;
 }
-.cal-icon { font-size: 20px; }
+.cal-icon { font-size: 22px; }
 .cal-date {
-  font-size: 15px;
+  font-size: 22px;
   font-weight: 700;
   color: #1a5fa0;
 }
 .cal-season {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   color: #222;
+}
+.cal-row1 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cal-row2 {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.cal-info {
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a3f7a;
 }
 .cal-open {
   font-size: 15px;
@@ -1374,12 +1387,17 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
 
   <!-- ③ 달력 한줄 -->
   <div class="cal-bar" onclick="switchTab('fortune')">
-    <div class="cal-bar-left">
-      <span class="cal-icon">📅</span>
-      <span class="cal-date" id="cal-date">날짜 로딩</span>
-      <span class="cal-season" id="cal-season">· 절기 확인 중</span>
+    <div class="cal-row1">
+      <div class="cal-bar-left">
+        <span class="cal-icon">📅</span>
+        <span class="cal-date" id="cal-date">날짜 로딩</span>
+        <span class="cal-season" id="cal-season">· 절기 확인 중</span>
+      </div>
     </div>
-    <span class="cal-open">달력열기 →</span>
+    <div class="cal-row2">
+      <span class="cal-info">달력·절기 확인하기</span>
+      <span class="cal-open">달력열기 →</span>
+    </div>
   </div>
 
   <!-- ④ 카테고리 9개 -->
