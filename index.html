@@ -1746,7 +1746,18 @@ var lastWeatherData = null;
 function openWeatherPopup() {
   document.getElementById('weather-popup-overlay').classList.add('on');
   document.body.style.overflow = 'hidden';
-  if (lastWeatherData) renderWeatherPopup(lastWeatherData);
+  if (lastWeatherData) {
+    renderWeatherPopup(lastWeatherData);
+  } else {
+    /* API 데이터 아직 없으면 띠에 표시된 값으로 기본값 채우기 */
+    var icon  = document.getElementById('weather-icon').textContent;
+    var temp  = document.getElementById('weather-temp').textContent;
+    var state = document.getElementById('weather-state').textContent;
+    document.getElementById('wp-icon').textContent  = icon;
+    document.getElementById('wp-temp').textContent  = temp;
+    document.getElementById('wp-state').textContent = state;
+    document.getElementById('wp-title').textContent = icon + ' 오늘의 날씨';
+  }
 }
 
 function closeWeatherPopup(e) {
@@ -1933,7 +1944,7 @@ async function fetchWeatherByCoords(lat, lon) {
     if (data.ok) {
       /* city = 지역명 (서울/부산/대구 등), 없으면 '내 지역' */
       var cityEl = document.querySelector('.weather-city');
-      if (cityEl && data.city) cityEl.textContent = data.city.split(' ')[0];
+      if (cityEl && data.city) cityEl.textContent = data.city;
       document.getElementById('weather-icon').textContent  = data.icon;
       document.getElementById('weather-temp').textContent  = data.temp;
       document.getElementById('weather-state').textContent = data.state;
