@@ -1,8 +1,38 @@
 <!-- fortune.html — 운세탭 콘텐츠 | index.html 의 #tab-fortune 안에 동적으로 삽입됨 -->
+<style>
+/* fortune.html 전용 텍스트 클래스 — 돋보기 모드 대응 */
+.ft-main-title   { font-size:20px; font-weight:900; text-align:center; margin-bottom:6px; }
+.ft-sub-desc     { font-size:14px; color:var(--text-sub); text-align:center; margin-bottom:20px; }
+.ft-gender-title { font-size:17px; font-weight:900; text-align:center; margin-bottom:12px; }
+.ft-loading-title{ font-size:18px; font-weight:700; color:var(--purple); }
+.ft-loading-sub  { font-size:14px; color:var(--text-sub); margin-top:6px; }
+.ft-res-label    { font-size:15px; color:rgba(255,255,255,0.85); margin-bottom:8px; }
+.ft-res-date     { font-size:14px; color:rgba(255,255,255,0.75); margin-bottom:10px; }
+.ft-res-stars    { font-size:36px; letter-spacing:3px; display:block; margin-bottom:6px; }
+.ft-summary-bar  { background:var(--purple); padding:12px 18px; text-align:center; font-size:15px; font-weight:700; color:#fff; margin-bottom:16px; }
+
+/* 돋보기 큰글씨 모드 */
+body.big-font .ft-main-title    { font-size:26px !important; }
+body.big-font .ft-sub-desc      { font-size:19px !important; }
+body.big-font .ft-gender-title  { font-size:22px !important; }
+body.big-font .ft-loading-title { font-size:23px !important; }
+body.big-font .ft-loading-sub   { font-size:19px !important; }
+body.big-font .ft-res-label     { font-size:20px !important; }
+body.big-font .ft-res-date      { font-size:19px !important; }
+body.big-font .ft-res-stars     { font-size:46px !important; }
+body.big-font .ft-summary-bar   { font-size:20px !important; }
+body.big-font .fortune-text     { font-size:19px !important; }
+body.big-font .fortune-cat-name { font-size:19px !important; }
+body.big-font .lucky-tag        { font-size:17px !important; }
+body.big-font .zodiac-name      { font-size:17px !important; }
+body.big-font .zodiac-years     { font-size:13px !important; }
+body.big-font .prescription-item{ font-size:19px !important; }
+body.big-font .fortune-score    { font-size:42px !important; }
+</style>
 <div class="fortune-screen visible" id="fortune-select">
   <div class="card">
-    <p style="font-size:20px;font-weight:900;text-align:center;margin-bottom:6px;">🔮 오늘의 운세 보러 가기</p>
-    <p style="font-size:14px;color:var(--text-sub);text-align:center;margin-bottom:20px;">내 띠를 선택해 주세요</p>
+    <p class="ft-main-title">🔮 오늘의 운세 보러 가기</p>
+    <p class="ft-sub-desc">내 띠를 선택해 주세요</p>
     <div class="zodiac-grid">
       <div class="zodiac-btn" onclick="selectZodiac(this,'쥐','🐭')"><span class="zodiac-animal">🐭</span><span class="zodiac-name">쥐띠</span><span class="zodiac-years">1948·1960<br>1972·1984</span></div>
       <div class="zodiac-btn" onclick="selectZodiac(this,'소','🐮')"><span class="zodiac-animal">🐮</span><span class="zodiac-name">소띠</span><span class="zodiac-years">1949·1961<br>1973·1985</span></div>
@@ -17,7 +47,7 @@
       <div class="zodiac-btn" onclick="selectZodiac(this,'개','🐶')"><span class="zodiac-animal">🐶</span><span class="zodiac-name">개띠</span><span class="zodiac-years">1958·1970<br>1982·1994</span></div>
       <div class="zodiac-btn" onclick="selectZodiac(this,'돼지','🐷')"><span class="zodiac-animal">🐷</span><span class="zodiac-name">돼지띠</span><span class="zodiac-years">1959·1971<br>1983·1995</span></div>
     </div>
-    <p style="font-size:17px;font-weight:900;text-align:center;margin-bottom:12px;">성별을 선택해 주세요 🙏</p>
+    <p class="ft-gender-title">성별을 선택해 주세요 🙏</p>
     <div class="gender-row">
       <div class="gender-btn" onclick="selectGender(this,'남성')"><span>👱</span>남성</div>
       <div class="gender-btn" onclick="selectGender(this,'여성')"><span>👱</span>여성</div>
@@ -28,19 +58,19 @@
 <div class="fortune-screen" id="fortune-loading">
   <div style="text-align:center;padding:60px 20px;">
     <span class="loading-star">⭐</span>
-    <p style="font-size:18px;font-weight:700;color:var(--purple);">운세를 살펴보는 중...</p>
-    <p style="font-size:14px;color:var(--text-sub);margin-top:6px;">오늘의 운세를 정성껏 준비 중 🌙</p>
+    <p class="ft-loading-title">운세를 살펴보는 중...</p>
+    <p class="ft-loading-sub">오늘의 운세를 정성껏 준비 중 🌙</p>
   </div>
 </div>
 <div class="fortune-screen" id="fortune-result">
   <div class="fortune-result-header">
     <span class="fortune-animal-big" id="res-animal">🐭</span>
-    <div id="res-label" style="font-size:15px;color:rgba(255,255,255,0.85);margin-bottom:8px;">쥐띠 남성의 오늘 운세</div>
-    <div id="res-date-name" style="font-size:14px;color:rgba(255,255,255,0.75);margin-bottom:10px;"></div>
-    <span id="res-stars" style="font-size:36px;letter-spacing:3px;display:block;margin-bottom:6px;">⭐⭐⭐</span>
+    <div id="res-label" class="ft-res-label">쥐띠 남성의 오늘 운세</div>
+    <div id="res-date-name" class="ft-res-date"></div>
+    <span id="res-stars" class="ft-res-stars">⭐⭐⭐</span>
     <div class="fortune-score"><span id="res-score">75</span><span>점</span></div>
   </div>
-  <div style="background:var(--purple);padding:12px 18px;text-align:center;font-size:15px;font-weight:700;color:#fff;margin-bottom:16px;"><span id="res-summary">운세 한줄 요약</span></div>
+  <div class="ft-summary-bar"><span id="res-summary">운세 한줄 요약</span></div>
   <div style="padding:0 16px 16px;">
     <div class="fortune-cards">
       <div class="fortune-card">
