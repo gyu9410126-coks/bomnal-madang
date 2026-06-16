@@ -25,7 +25,7 @@
 /* =====================================================
    body — 하단 탭바 제거했으므로 padding-bottom 없애기
    ===================================================== */
-body { padding-bottom: 32px !important; }
+/* body padding은 adjustLayout()이 JS로 직접 관리 */
 
 /* =====================================================
    큰글씨 모드 — 돋보기 버튼 클릭 시 전체 글자 30% 확대
@@ -1831,8 +1831,8 @@ function switchTab(tabId, fromPopState) {
 
   /* 홈 탭이 아닐 때만 홈으로 바 표시 */
   document.getElementById('home-bar').style.display = (tabId === 'home') ? 'none' : 'flex';
-  // 탭 전환 시 레이아웃 재계산
-  setTimeout(adjustLayout, 50);
+  // 탭 전환 시 레이아웃 재계산 (렌더링 완료 후 측정)
+  setTimeout(adjustLayout, 200);
 
   if (!loadedTabs[tabId] && tabFiles[tabId]) {
     loadedTabs[tabId] = true;
@@ -1878,16 +1878,19 @@ function adjustLayout() {
   // 헤더 실제 높이 측정 (px 단위 정수)
   var headerH = header ? Math.ceil(header.getBoundingClientRect().height) : 0;
 
-  // 홈으로 바 실제 높이 측정 (보일 때만)
+  // 홈으로 바를 헤더 바로 아래에 붙이기
+  if (homeBar) homeBar.style.top = headerH + 'px';
+
+  // 홈으로 바 실제 높이 측정 (top 세팅 후에 측정해야 정확)
   var homeBarH = (isHomeBarVisible && homeBar)
     ? Math.ceil(homeBar.getBoundingClientRect().height)
     : 0;
 
-  // 홈으로 바를 헤더 바로 아래에 붙이기
-  if (homeBar) homeBar.style.top = headerH + 'px';
-
-  // body 상단 여백 = 헤더 + 홈으로바 합계
-  document.body.style.paddingTop = (headerH + homeBarH) + 'px';
+  // body 상단 여백 = 헤더 + 홈으로바 합계 (강제 적용)
+  document.body.setAttribute('style',
+    'padding-top:' + (headerH + homeBarH) + 'px !important;' +
+    'padding-bottom:32px !important;'
+  );
 }
 
 function toggleBigFont() {
