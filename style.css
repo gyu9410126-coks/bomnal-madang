@@ -102,7 +102,7 @@ body.big-font .tab-label { font-size: 10px !important; }
 .big-font-btn:active { transform: scale(0.92); }
 
 /* ===== 탭 콘텐츠 ===== */
-.tab-content { display: none; padding: 16px 14px 20px; }
+.tab-content { display: none; padding: 0 14px 20px; }
 .tab-content.active { display: block; }
 
 .tab-loading {
