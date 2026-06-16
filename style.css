@@ -43,10 +43,10 @@ body.big-font .tab-label { font-size: 10px !important; }
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
-  border-bottom: 1px solid #eee;
   max-width: 480px;
   margin: 0 auto;
+  z-index: 100;
+  border-bottom: 1px solid #eee;
 }
 .header-left { display: flex; align-items: center; gap: 8px; }
 .header-logo { font-size: 22px; }
@@ -104,6 +104,8 @@ body.big-font .tab-label { font-size: 10px !important; }
 /* ===== 탭 콘텐츠 ===== */
 .tab-content { display: none; padding: 16px 14px 20px; }
 .tab-content.active { display: block; }
+/* 카테고리 탭: 홈으로 버튼바(fixed 50px) 아래에 콘텐츠가 가리지 않도록 */
+.tab-content.active:not(#tab-home) { padding-top: 58px; }
 
 .tab-loading {
   display: flex;
@@ -388,9 +390,13 @@ body.big-font .tab-label { font-size: 10px !important; }
   background: #ffffff;
   border-bottom: 1px solid #eee;
   padding: 6px 14px;
-  position: sticky;
-  top: 49px;
-  z-index: 120;
+  position: fixed;
+  top: 57px;
+  left: 0;
+  right: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  z-index: 99;
 }
 .home-bar button {
   background: var(--point);
