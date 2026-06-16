@@ -808,3 +808,39 @@ body.big-font .trot-item-title  { font-size: 20px !important; }
 body.big-font .trot-item-desc   { font-size: 17px !important; }
 body.big-font .radio-title      { font-size: 20px !important; }
 body.big-font .radio-desc       { font-size: 17px !important; }
+
+/* ── health.html (건강·약국) 전용 big-font 규칙 ── */
+/* 인라인 style → 클래스로 교체된 항목 */
+.health-reward-desc { font-size:13px; color:var(--text-sub); margin-top:10px; text-align:center; }
+.health-point-icon  { font-size:36px; }
+.health-point-label { font-size:13px; color:rgba(255,255,255,0.8); margin-bottom:4px; }
+.health-alarm-desc  { font-size:14px; color:var(--text-sub); margin-bottom:14px; line-height:1.7; }
+
+/* 돋보기 큰글씨 모드 */
+body.big-font .step-label         { font-size:20px !important; }
+body.big-font .step-sub           { font-size:18px !important; }
+body.big-font .step-input         { font-size:20px !important; }
+body.big-font .step-apply         { font-size:20px !important; }
+body.big-font .quick-step-btn     { font-size:18px !important; }
+body.big-font .streak-count       { font-size:34px !important; }
+body.big-font .streak-count span:first-child { font-size:48px !important; }
+body.big-font .streak-label       { font-size:18px !important; }
+body.big-font .streak-best        { font-size:17px !important; }
+body.big-font .cal-title-text     { font-size:20px !important; }
+body.big-font .cal-summary        { font-size:17px !important; }
+body.big-font .cal-head           { font-size:16px !important; }
+body.big-font .cal-cell           { font-size:16px !important; }
+body.big-font .reward-day         { font-size:15px !important; }
+body.big-font .health-reward-desc { font-size:18px !important; }
+body.big-font .mission-body h4    { font-size:19px !important; }
+body.big-font .mission-body p     { font-size:16px !important; }
+body.big-font .mission-point      { font-size:17px !important; }
+body.big-font .point-value        { font-size:44px !important; }
+body.big-font .point-sub          { font-size:16px !important; }
+body.big-font .health-point-icon  { font-size:44px !important; }
+body.big-font .health-point-label { font-size:18px !important; }
+body.big-font .alarm-name         { font-size:18px !important; }
+body.big-font .alarm-time-input   { font-size:18px !important; }
+body.big-font .alarm-name-input   { font-size:17px !important; }
+body.big-font .alarm-save-btn     { font-size:17px !important; }
+body.big-font .health-alarm-desc  { font-size:19px !important; }
