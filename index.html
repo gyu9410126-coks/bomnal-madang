@@ -86,6 +86,7 @@ body.big-font .btn-more { font-size: 23px !important; }
 
 /* ⑥ 시니어 맞춤 쇼핑 — 섹션 제목 추가 */
 body.big-font .shop-sec-title { font-size: 30px !important; }
+body.big-font .shop-sec-badge { font-size: 20px !important; }
 body.big-font .shop-name      { font-size: 23px !important; }
 body.big-font .shop-desc      { font-size: 20px !important; }
 body.big-font .shop-emoji     { font-size: 35px !important; }
@@ -966,13 +967,30 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   box-shadow: 0 1px 5px rgba(0,0,0,0.07);
   margin: 24px 14px 0;
   padding: 0 0 12px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.shop-sec-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 14px 12px;
+  background: #fff3e0;
+  border-bottom: 1px solid #f0f0f0;
 }
 .shop-sec-title {
   font-size: 22px;
   font-weight: 700;
-  color: #333;
-  padding: 13px 14px 12px;
-  border-bottom: 1px solid #f0f0f0;
+  color: #e65100;
+}
+.shop-sec-badge {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111111;
+  background: #ffe0b2;
+  padding: 3px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
 }
 .shop-item {
   display: flex;
@@ -1408,7 +1426,7 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   </div>
 
   <!-- ⑤ 복지혜택 소식 섹션 -->
-  <div class="news-sec">
+  <div class="news-sec" onclick="switchTab('benefit')" style="cursor:pointer;-webkit-tap-highlight-color:transparent;">
     <div class="news-sec-header">
       <span class="news-sec-title">🎁 복지혜택 소식</span>
       <span class="news-sec-badge">최신정보</span>
@@ -1431,7 +1449,7 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   </div>
 
   <!-- ⑥ 건강·약국 정보 섹션 -->
-  <div class="health-sec">
+  <div class="health-sec" onclick="switchTab('health')" style="cursor:pointer;-webkit-tap-highlight-color:transparent;">
     <div class="health-sec-header">
       <span class="health-sec-title">💊 건강·약국 정보</span>
       <span class="health-sec-badge">약국찾기</span>
@@ -1450,9 +1468,12 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   </div>
 
   <!-- ⑦ 시니어 맞춤 쇼핑 -->
-  <div class="shop-sec">
-    <div class="shop-sec-title">🛒 시니어 맞춤 쇼핑</div>
-    <a class="shop-item" href="https://link.coupang.com/a/epp2YINgfk" target="_blank" rel="noopener noreferrer">
+  <div class="shop-sec" onclick="switchTab('market')">
+    <div class="shop-sec-header">
+      <span class="shop-sec-title">🛒 시니어 맞춤 쇼핑</span>
+      <span class="shop-sec-badge">쇼핑정보</span>
+    </div>
+    <a class="shop-item" href="https://link.coupang.com/a/epp2YINgfk" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
       <span class="shop-emoji">👟</span>
       <div class="shop-text">
         <div class="shop-name">시니어 운동화 (60대)</div>
@@ -1460,7 +1481,7 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
       </div>
       <span class="shop-arrow">›</span>
     </a>
-    <a class="shop-item" href="https://link.coupang.com/a/epp2YINgfk" target="_blank" rel="noopener noreferrer">
+    <a class="shop-item" href="https://link.coupang.com/a/epp2YINgfk" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
       <span class="shop-emoji">💊</span>
       <div class="shop-text">
         <div class="shop-name">시니어 영양제 추천</div>
