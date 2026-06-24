@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, orientation=landscape">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>라디오·미디어 - 시니어 봄날마당</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
@@ -63,7 +63,39 @@
 .radio-page-badge { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 8px; background: rgba(255,255,255,0.35); }
 
 /* ── 광고 안내 박스 ── */
-.ad-notice { margin: 10px 14px 0; background: #fff8e1; border: 1.5px solid #ffe082; border-radius: 12px; padding: 11px 14px; font-size: 14px; color: #7a5800; line-height: 1.7; }
+.ad-notice { margin: 10px 14px 0; background: #fff3cd; border: 2px solid #f59e0b; border-radius: 12px; padding: 13px 16px; font-size: 20px; color: #111; line-height: 1.7; font-weight: 700; }
+.list-notice { margin: 8px 14px 0; background: #e0f2fe; border: 2px solid #38bdf8; border-radius: 12px; padding: 13px 16px; font-size: 20px; color: #111; line-height: 1.7; font-weight: 700; }
+
+/* ── 돋보기 버튼 (우하단 고정) ── */
+.zoom-btn { position: fixed; right: 16px; bottom: 24px; width: 54px; height: 54px; border-radius: 50%; background: #fff; border: 2px solid #4A90D9; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 999; box-shadow: 0 2px 10px rgba(0,0,0,0.14); -webkit-tap-highlight-color: transparent; gap: 1px; }
+.zoom-btn-icon { font-size: 22px; line-height: 1; }
+.zoom-btn-label { font-size: 13px; font-weight: 700; color: #111; line-height: 1; }
+
+/* ── 큰글씨 모드 ── */
+body.big-font { font-size: 135% !important; }
+body.big-font .sec-title { font-size: 30px !important; }
+body.big-font .cat-name { font-size: 20px !important; }
+body.big-font .cat-icon-box { font-size: 42px !important; height: 96px !important; }
+body.big-font .radio-page-title { font-size: 30px !important; }
+body.big-font .radio-page-badge { font-size: 18px !important; }
+body.big-font .ad-notice { font-size: 22px !important; }
+body.big-font .list-notice { font-size: 22px !important; }
+body.big-font .player-now-txt { font-size: 20px !important; }
+body.big-font .player-now-count { font-size: 18px !important; }
+body.big-font .ctrl-btn { font-size: 22px !important; }
+body.big-font .ctrl-btn-wake { font-size: 20px !important; }
+body.big-font .filter-tab { font-size: 18px !important; }
+body.big-font .video-title { font-size: 20px !important; }
+body.big-font .video-channel { font-size: 16px !important; }
+body.big-font .video-date { font-size: 15px !important; }
+body.big-font .more-btn { font-size: 20px !important; }
+body.big-font .preview-title { font-size: 20px !important; }
+body.big-font .preview-channel { font-size: 16px !important; }
+body.big-font .preview-header-title { font-size: 24px !important; }
+body.big-font .radio-back-btn { font-size: 20px !important; }
+body.big-font .home-bar button { font-size: 22px !important; }
+body.big-font .zoom-btn-label { font-size: 16px !important; }
+body.big-font .zoom-btn-icon { font-size: 26px !important; }
 
 /* ── 유튜브 플레이어 ── */
 .player-wrap { margin: 10px 14px 0; background: #000; border-radius: 14px; overflow: hidden; position: relative; padding-top: 56.25%; }
@@ -221,8 +253,9 @@
       <span class="radio-page-title" style="color:#c62828;">🎤 트로트·가요</span>
       <span class="radio-page-badge" style="background:#c62828;color:#fff;">영상보기</span>
     </div>
-    <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
-    <div class="player-wrap"><iframe id="player-trot" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock; gyroscope; accelerometer" style="border:none;"></iframe></div>
+    <div class="ad-notice">📺 유튜브 특성상 광고가 나올 수 있어요!<br>광고는 잠시 후 넘어가거나 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
+    <div class="list-notice">📋 영상 목록은 항상 최신순으로 자동 업데이트돼요!<br>새 영상이 올라오면 오래된 영상은 자연스럽게 사라질 수 있어요 😊</div>
+    <div class="player-wrap"><iframe id="player-trot" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock" style="border:none;"></iframe></div>
     <div class="player-now">
       <span class="player-now-icon">🎵</span>
       <span class="player-now-txt" id="now-trot">영상을 선택해주세요</span>
@@ -253,8 +286,9 @@
       <span class="radio-page-title" style="color:#6a1b9a;">🏆 미스터·미스트롯</span>
       <span class="radio-page-badge" style="background:#6a1b9a;color:#fff;">영상보기</span>
     </div>
-    <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
-    <div class="player-wrap"><iframe id="player-mister" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock; gyroscope; accelerometer" style="border:none;"></iframe></div>
+    <div class="ad-notice">📺 유튜브 특성상 광고가 나올 수 있어요!<br>광고는 잠시 후 넘어가거나 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
+    <div class="list-notice">📋 영상 목록은 항상 최신순으로 자동 업데이트돼요!<br>새 영상이 올라오면 오래된 영상은 자연스럽게 사라질 수 있어요 😊</div>
+    <div class="player-wrap"><iframe id="player-mister" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock" style="border:none;"></iframe></div>
     <div class="player-now">
       <span class="player-now-icon">🏆</span>
       <span class="player-now-txt" id="now-mister">영상을 선택해주세요</span>
@@ -284,8 +318,9 @@
       <span class="radio-page-title" style="color:#1565c0;">📺 다큐·교양</span>
       <span class="radio-page-badge" style="background:#1565c0;color:#fff;">영상보기</span>
     </div>
-    <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
-    <div class="player-wrap"><iframe id="player-docu" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock; gyroscope; accelerometer" style="border:none;"></iframe></div>
+    <div class="ad-notice">📺 유튜브 특성상 광고가 나올 수 있어요!<br>광고는 잠시 후 넘어가거나 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
+    <div class="list-notice">📋 영상 목록은 항상 최신순으로 자동 업데이트돼요!<br>새 영상이 올라오면 오래된 영상은 자연스럽게 사라질 수 있어요 😊</div>
+    <div class="player-wrap"><iframe id="player-docu" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock" style="border:none;"></iframe></div>
     <div class="player-now">
       <span class="player-now-icon">📺</span>
       <span class="player-now-txt" id="now-docu">영상을 선택해주세요</span>
@@ -316,8 +351,9 @@
       <span class="radio-page-title" style="color:#2e7d32;">🏥 건강정보</span>
       <span class="radio-page-badge" style="background:#2e7d32;color:#fff;">영상보기</span>
     </div>
-    <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
-    <div class="player-wrap"><iframe id="player-health" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock; gyroscope; accelerometer" style="border:none;"></iframe></div>
+    <div class="ad-notice">📺 유튜브 특성상 광고가 나올 수 있어요!<br>광고는 잠시 후 넘어가거나 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
+    <div class="list-notice">📋 영상 목록은 항상 최신순으로 자동 업데이트돼요!<br>새 영상이 올라오면 오래된 영상은 자연스럽게 사라질 수 있어요 😊</div>
+    <div class="player-wrap"><iframe id="player-health" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock" style="border:none;"></iframe></div>
     <div class="player-now">
       <span class="player-now-icon">🏥</span>
       <span class="player-now-txt" id="now-health">영상을 선택해주세요</span>
@@ -348,8 +384,9 @@
       <span class="radio-page-title" style="color:#e65100;">🏛️ 복지·생활정보</span>
       <span class="radio-page-badge" style="background:#e65100;color:#fff;">영상보기</span>
     </div>
-    <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
-    <div class="player-wrap"><iframe id="player-welfare" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock; gyroscope; accelerometer" style="border:none;"></iframe></div>
+    <div class="ad-notice">📺 유튜브 특성상 광고가 나올 수 있어요!<br>광고는 잠시 후 넘어가거나 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
+    <div class="list-notice">📋 영상 목록은 항상 최신순으로 자동 업데이트돼요!<br>새 영상이 올라오면 오래된 영상은 자연스럽게 사라질 수 있어요 😊</div>
+    <div class="player-wrap"><iframe id="player-welfare" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock" style="border:none;"></iframe></div>
     <div class="player-now">
       <span class="player-now-icon">🏛️</span>
       <span class="player-now-txt" id="now-welfare">영상을 선택해주세요</span>
@@ -379,8 +416,9 @@
       <span class="radio-page-title" style="color:#7b1fa2;">🧘 명상·힐링</span>
       <span class="radio-page-badge" style="background:#7b1fa2;color:#fff;">영상보기</span>
     </div>
-    <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
-    <div class="player-wrap"><iframe id="player-healing" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock; gyroscope; accelerometer" style="border:none;"></iframe></div>
+    <div class="ad-notice">📺 유튜브 특성상 광고가 나올 수 있어요!<br>광고는 잠시 후 넘어가거나 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
+    <div class="list-notice">📋 영상 목록은 항상 최신순으로 자동 업데이트돼요!<br>새 영상이 올라오면 오래된 영상은 자연스럽게 사라질 수 있어요 😊</div>
+    <div class="player-wrap"><iframe id="player-healing" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock" style="border:none;"></iframe></div>
     <div class="player-now">
       <span class="player-now-icon">🧘</span>
       <span class="player-now-txt" id="now-healing">영상을 선택해주세요</span>
@@ -401,6 +439,12 @@
   </div>
 
 </div><!-- /wrap -->
+
+<!-- 돋보기 버튼 (우하단 고정) -->
+<button class="zoom-btn" onclick="toggleBigFont()" id="zoom-btn" title="글자 크기 크게/기본 전환">
+  <span class="zoom-btn-icon">🔍</span>
+  <span class="zoom-btn-label" id="zoom-label">기본</span>
+</button>
 
 <script>
 /* ════════════════════════════════
@@ -458,7 +502,7 @@ function goHome() { window.location.href = 'index.html'; }
    YouTube API 호출
 ════════════════════════════════ */
 function fetchChannel(channelId, maxResults) {
-  return fetch('/api/youtube?channelId=' + channelId + '&maxResults=' + (maxResults||10))
+  return fetch('/api/youtube?channelId=' + channelId + '&maxResults=' + (maxResults||50))
     .then(function(r){ return r.json(); });
 }
 
@@ -466,7 +510,7 @@ function loadVideos(pageId) {
   var listEl = document.getElementById('list-' + pageId);
   listEl.innerHTML = '<div class="video-loading">🎬 영상을 불러오는 중이에요...</div>';
   var channels = CHANNELS[pageId];
-  var promises = channels.map(function(ch){ return fetchChannel(ch, 10); });
+  var promises = channels.map(function(ch){ return fetchChannel(ch, 50); });
   Promise.all(promises).then(function(results) {
     var allVideos = [];
     results.forEach(function(data) {
@@ -682,6 +726,16 @@ function confirmExternalLink(url) {
 
 function escHtml(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ════════════════════════════════
+   돋보기 (큰글씨 토글)
+════════════════════════════════ */
+var isBigFont = false;
+function toggleBigFont() {
+  isBigFont = !isBigFont;
+  document.body.classList.toggle('big-font', isBigFont);
+  document.getElementById('zoom-label').textContent = isBigFont ? '크게' : '기본';
 }
 
 /* ════════════════════════════════
