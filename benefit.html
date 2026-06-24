@@ -3,77 +3,2466 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>복지탭 — 시니어 봄날마당</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<title>복지·혜택 - 시니어 봄날마당</title>
 </head>
 <body>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
 
-<!-- ============================================
-     복지·혜택 탭 (benefit.html)
-     index.html이 fetch()로 이 파일을 불러와서
-     #tab-benefit 안에 innerHTML로 삽입합니다
-     ============================================ -->
+/* ── 전체 래퍼 ── */
+.wrap { background: #f7f8fa; max-width: 480px; margin: 0 auto; padding-bottom: 40px; }
 
-<!-- 기초연금 계산기 카드 -->
-<div class="card">
-  <div class="card-title">🧮 내가 받을 수 있는 혜택은?</div>
-  <div class="calc-label">나이</div>
-  <select class="calc-select" id="calc-age">
-    <option value="">나이를 선택해 주세요</option>
-    <option value="60">60세</option><option value="61">61세</option><option value="62">62세</option>
-    <option value="63">63세</option><option value="64">64세</option><option value="65">65세</option>
-    <option value="66">66세</option><option value="67">67세</option><option value="68">68세</option>
-    <option value="69">69세</option><option value="70">70세 이상</option>
-  </select>
-  <div class="calc-label">월 소득 (세금 빼고 실제 받는 금액)</div>
-  <input class="calc-input" type="number" id="calc-income" placeholder="예: 500000 (오십만 원)" min="0">
-  <div class="calc-label">국민연금 수령 여부</div>
-  <select class="calc-select" id="calc-pension">
-    <option value="">해당 여부를 선택해 주세요</option>
-    <option value="y">연금 수령 중</option>
-    <option value="n">연금 미수령</option>
-  </select>
-  <button class="btn-main" onclick="calcSupport()">💰 내가 받을 수 있는 지원금 확인하기</button>
-  <div class="calc-result-box" id="calc-result">
-    <div class="calc-result-label">이번 달 예상 지원금 총액</div>
-    <div class="calc-result-amount" id="calc-amount">월 0원</div>
-    <div class="calc-result-desc" id="calc-desc">구체적인 안내를 확인해 주세요</div>
+/* ── 헤더 ── */
+.app-header { background: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
+.header-left { display: flex; align-items: center; gap: 8px; }
+.logo-senior { color: #eb840f; font-weight: 900; font-size: 18px; }
+.logo-bomnal { color: #4A90D9; font-weight: 900; font-size: 18px; }
+.header-date-box { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.header-date-solar { font-size: 15px; font-weight: 700; color: #111; }
+.header-date-lunar { font-size: 12px; font-weight: 700; color: #1a5fa0; }
+
+/* ── 홈바 ── */
+.home-bar { background: #fff; border-bottom: 1px solid #eee; padding: 8px 14px; }
+.home-bar button { background: #4A90D9; color: #fff; border: none; border-radius: 20px; padding: 10px 22px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+/* ── 아이콘 그리드 ── */
+.sec-wrap { margin: 18px 14px 0; }
+.sec-title { font-size: 22px; font-weight: 700; color: #222; margin-bottom: 12px; }
+.sec-title em { font-style: normal; color: #2e7d32; }
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cat-item { display: flex; flex-direction: column; align-items: center; border: none; border-radius: 14px; padding: 11px 4px 10px; gap: 7px; cursor: pointer; transition: transform 0.13s; -webkit-tap-highlight-color: transparent; background: transparent; }
+.cat-item:active { transform: scale(0.95); }
+.cat-icon-box { width: 100%; height: 64px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 34px; line-height: 1; }
+.cat-name { font-size: 13px; font-weight: 600; text-align: center; line-height: 1.3; word-break: keep-all; }
+
+/* ══════════════════════════════════════
+   섹션1 — 혜택계산기
+══════════════════════════════════════ */
+.calc-sec { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 5px rgba(0,0,0,0.07); margin: 24px 14px 0; }
+.calc-sec-header { background: #e8f5e9; display: flex; align-items: center; justify-content: space-between; padding: 13px 14px 12px; border-bottom: 1px solid #c8e6c9; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.calc-sec-header:active { background: #c8e6c9; }
+.calc-sec-title { font-size: 20px; font-weight: 700; color: #2e7d32; }
+.calc-sec-badge { font-size: 13px; font-weight: 600; color: #2e7d32; background: #c8e6c9; padding: 3px 10px; border-radius: 8px; }
+.calc-body { padding: 14px; }
+.calc-input-row { margin-bottom: 10px; }
+.calc-label { font-size: 15px; font-weight: 700; color: #2e7d32; margin-bottom: 6px; display: block; }
+.calc-input { width: 100%; border: 1.5px solid #c8e6c9; border-radius: 10px; padding: 12px 13px; font-size: 16px; font-family: inherit; color: #222; background: #f9fdf9; outline: none; }
+.calc-input:focus { border-color: #2e7d32; }
+.calc-select { width: 100%; border: 1.5px solid #c8e6c9; border-radius: 10px; padding: 12px 13px; font-size: 16px; font-family: inherit; color: #222; background: #f9fdf9; outline: none; appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%232e7d32' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; }
+.calc-btn { width: 100%; margin-top: 14px; padding: 14px; background: #2e7d32; color: #fff; border: none; border-radius: 12px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.calc-btn:active { background: #1b5e20; }
+.result-box { margin-top: 14px; border-radius: 12px; overflow: hidden; border: 1.5px solid #c8e6c9; display: none; }
+.result-box.show { display: block; }
+.result-header { background: #e8f5e9; padding: 10px 14px; font-size: 15px; font-weight: 700; color: #2e7d32; }
+.result-item { display: flex; align-items: center; justify-content: space-between; padding: 13px 14px; border-bottom: 1px solid #f0f0f0; background: #fff; }
+.result-item:last-child { border-bottom: none; }
+.result-name { font-size: 15px; font-weight: 600; color: #333; }
+.result-name small { display: block; font-size: 12px; font-weight: 400; color: #888; margin-top: 2px; }
+.result-val { font-size: 16px; font-weight: 700; }
+.result-val.possible { color: #2e7d32; }
+.result-val.check { color: #f57f17; }
+.result-val.none { color: #bbb; }
+.result-total { background: #f1f8e9; padding: 13px 14px; display: flex; align-items: center; justify-content: space-between; }
+.result-total-label { font-size: 15px; font-weight: 700; color: #2e7d32; }
+.result-total-val { font-size: 22px; font-weight: 900; color: #2e7d32; }
+.result-notice { background: #fffde7; padding: 10px 14px; font-size: 12px; color: #7a6000; line-height: 1.7; }
+.bokjiro-btn { display: none; width: calc(100% - 28px); margin: 10px 14px 14px; padding: 13px; background: #1565c0; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; font-family: inherit; text-decoration: none; }
+
+/* ══════════════════════════════════════
+   섹션2 — 내 주변 복지시설 찾기
+══════════════════════════════════════ */
+.welfare-sec { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 5px rgba(0,0,0,0.07); margin: 24px 14px 0; }
+.welfare-sec-header { background: #e3f2fd; display: flex; align-items: center; justify-content: space-between; padding: 13px 14px 12px; border-bottom: 1px solid #bbdefb; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.welfare-sec-header:active { background: #bbdefb; }
+.welfare-sec-title { font-size: 20px; font-weight: 700; color: #1565c0; }
+.welfare-sec-badge { font-size: 13px; font-weight: 600; color: #1565c0; background: #bbdefb; padding: 3px 10px; border-radius: 8px; }
+.welfare-body { padding: 14px; }
+.welfare-gps-btn { width: 100%; padding: 13px; background: #1565c0; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; margin-bottom: 10px; }
+.welfare-gps-btn:active { background: #0d47a1; }
+.welfare-or { text-align: center; font-size: 13px; color: #999; margin-bottom: 10px; }
+.welfare-select-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.welfare-select { flex: 1; border: 1.5px solid #bbdefb; border-radius: 10px; padding: 11px 10px; font-size: 15px; font-family: inherit; color: #222; background: #f0f7ff; outline: none; appearance: none; -webkit-appearance: none; }
+.welfare-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+.welfare-type-btn { padding: 9px 4px; border: 1.5px solid #bbdefb; border-radius: 10px; font-size: 13px; font-weight: 600; color: #1565c0; background: #f0f7ff; cursor: pointer; font-family: inherit; text-align: center; -webkit-tap-highlight-color: transparent; }
+.welfare-type-btn.selected { background: #1565c0; color: #fff; border-color: #1565c0; }
+.welfare-search-btn { width: 100%; padding: 13px; background: #1565c0; color: #fff; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.welfare-search-btn:active { background: #0d47a1; }
+
+/* 복지시설 로딩 */
+.welfare-loading { display: none; text-align: center; padding: 30px 20px; }
+.welfare-loading.show { display: block; }
+.welfare-loading-icon { font-size: 36px; display: block; margin-bottom: 10px; animation: welfare-spin 1s linear infinite; }
+@keyframes welfare-spin { 0%{ transform: rotate(0deg); } 100%{ transform: rotate(360deg); } }
+.welfare-loading-txt { font-size: 16px; font-weight: 700; color: #1565c0; }
+
+/* 복지시설 결과 */
+.welfare-result { display: none; margin-top: 12px; }
+.welfare-result.show { display: block; }
+.welfare-result-header { background: #e3f2fd; padding: 10px 14px; font-size: 14px; font-weight: 700; color: #1565c0; border-radius: 10px 10px 0 0; }
+.welfare-card { background: #fff; border: 1.5px solid #bbdefb; border-radius: 12px; padding: 14px; margin-bottom: 8px; }
+.welfare-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+.welfare-card-name { font-size: 16px; font-weight: 700; color: #1a1a1a; flex: 1; }
+.welfare-card-type { font-size: 11px; font-weight: 700; background: #e3f2fd; color: #1565c0; padding: 3px 9px; border-radius: 8px; white-space: nowrap; margin-left: 6px; }
+.welfare-card-addr { font-size: 13px; color: #666; margin-bottom: 6px; line-height: 1.5; }
+.welfare-card-tel { display: inline-block; font-size: 15px; font-weight: 700; color: #1565c0; text-decoration: none; background: #e3f2fd; padding: 6px 14px; border-radius: 8px; }
+.welfare-empty { text-align: center; padding: 30px 20px; font-size: 15px; color: #999; }
+
+/* ── 긴급전화 ── */
+.tel-sec { margin: 24px 14px 0; }
+.tel-card { background: #fff; border-radius: 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); padding: 18px 16px 8px; }
+.tel-card-title { font-size: 22px; font-weight: 700; color: #222; margin-bottom: 16px; }
+.tel-card-item { display: flex; align-items: center; gap: 10px; background: #f7f8fa; border-radius: 12px; padding: 13px; margin-bottom: 8px; text-decoration: none; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tel-card-item:active { background: #eef2f8; }
+.tel-card-icon { font-size: 28px; width: 48px; height: 48px; background: #f0f4f8; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.tel-text { flex: 1; }
+.tel-name { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 2px; }
+.tel-desc { font-size: 13px; color: #666; }
+.tel-num { font-size: 20px; font-weight: 800; color: #4A90D9; margin-left: auto; white-space: nowrap; }
+.tel-divider { height: 1px; background: #f0f0f0; margin: 0 0 8px; }
+
+/* ── 공유·PWA·제휴 ── */
+.btn-kakao-main { display: block; width: calc(100% - 28px); margin: 24px 14px 0; padding: 14px; background: #FEE500; color: #1a1a1a; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
+.btn-pwa-main { display: block; width: calc(100% - 28px); margin: 8px 14px 0; padding: 13px; background: #7db8e8; color: #111; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
+.affiliate-notice-box { margin: 16px 14px 0; background: #fffbe6; border: 1px solid #ffe082; border-radius: 12px; padding: 12px 14px; font-size: 11px; color: #7a6000; line-height: 1.7; text-align: center; }
+
+/* ── 푸터 ── */
+.site-footer { margin: 16px 14px 0; text-align: center; padding-bottom: 8px; }
+.footer-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
+.footer-link { font-size: 11px; color: #999; text-decoration: none; }
+.footer-dot { font-size: 11px; color: #ccc; }
+
+/* ══════════════════════════════════════
+   전환 페이지 공통
+══════════════════════════════════════ */
+.page-view { display: none; }
+.page-view.active { display: block; }
+.back-btn { display: block; width: 100%; padding: 20px 16px; background: #2e7d32; color: #fff; border: none; font-size: 20px; font-weight: 900; cursor: pointer; font-family: inherit; text-align: center; letter-spacing: -0.3px; -webkit-tap-highlight-color: transparent; }
+.back-btn:active { background: #1b5e20; }
+.page-inner { padding: 16px 14px; }
+
+/* 페이지 헤더 */
+.page-sec-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 14px; border-bottom: 2px solid; }
+.page-sec-title { font-size: 22px; font-weight: 900; }
+.page-sec-badge { font-size: 14px; font-weight: 700; padding: 4px 12px; border-radius: 10px; }
+
+/* 공통 셀렉트 */
+.page-select { width: 100%; border: 2px solid #ddd; border-radius: 12px; padding: 13px 16px; font-size: 17px; font-weight: 600; font-family: inherit; color: #222; background: #fafafa; outline: none; appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='%23666' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; margin-bottom: 10px; }
+.page-label { font-size: 17px; font-weight: 700; color: #222; margin: 14px 0 8px; display: block; }
+.page-btn { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; margin-top: 4px; }
+
+/* 스켈레톤 로딩 */
+.skeleton-wrap { padding: 14px; }
+.skeleton-card { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 10px; border: 1px solid #eee; }
+.skeleton-line { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite; border-radius: 6px; margin-bottom: 8px; }
+@keyframes shimmer { 0%{ background-position: 200% 0; } 100%{ background-position: -200% 0; } }
+.skeleton-line.h20 { height: 20px; width: 70%; }
+.skeleton-line.h14 { height: 14px; width: 90%; }
+.skeleton-line.h14.w60 { width: 60%; }
+.skeleton-line.h14.w40 { width: 40%; }
+
+/* 결과 카드 공통 */
+.result-card { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); }
+.result-card-title { font-size: 17px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+.result-card-desc { font-size: 14px; color: #444; line-height: 1.7; margin-bottom: 8px; }
+.result-card-tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 8px; margin-right: 4px; margin-bottom: 4px; }
+.result-card-link { display: block; text-align: center; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; margin-top: 10px; }
+
+/* 쿠팡 링크 */
+.coupon-box { background: #f9fdf9; border: 1px solid #c8e6c9; border-radius: 12px; padding: 12px; margin-top: 14px; }
+.coupon-box-title { font-size: 12px; font-weight: 700; color: #2e7d32; margin-bottom: 8px; }
+.coupon-item { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; padding: 8px; background: #fff; border-radius: 10px; border: 1px solid #e8f5e9; }
+.coupon-item:active { background: #e8f5e9; }
+.coupon-icon { font-size: 24px; flex-shrink: 0; }
+.coupon-txt { flex: 1; }
+.coupon-txt strong { display: block; font-size: 13px; font-weight: 700; color: #222; margin-bottom: 2px; }
+.coupon-txt span { font-size: 11px; color: #666; }
+.coupon-arrow { font-size: 16px; color: #bbb; }
+
+/* 내장정보 카드 */
+.info-card { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 10px; border: 1.5px solid #e0e0e0; }
+.info-card-q { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 8px; line-height: 1.5; }
+.info-card-a { font-size: 14px; color: #444; line-height: 1.8; }
+.info-card-point { background: #e8f5e9; border-radius: 10px; padding: 10px 12px; margin-top: 8px; font-size: 13px; color: #2e7d32; font-weight: 600; line-height: 1.6; }
+.step-list { list-style: none; padding: 0; margin: 8px 0; }
+.step-list li { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 14px; color: #333; line-height: 1.6; }
+.step-list li:last-child { border-bottom: none; }
+.step-num { background: #2e7d32; color: #fff; font-size: 12px; font-weight: 900; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.badge-green { background: #e8f5e9; color: #2e7d32; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+.badge-blue { background: #e3f2fd; color: #1565c0; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+.badge-orange { background: #fff3e0; color: #e65100; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+.badge-red { background: #fce4ec; color: #c62828; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+.amount-box { background: #f1f8e9; border: 2px solid #a5d6a7; border-radius: 12px; padding: 14px; margin: 10px 0; text-align: center; }
+.amount-main { font-size: 28px; font-weight: 900; color: #2e7d32; }
+.amount-sub { font-size: 13px; color: #555; margin-top: 4px; }
+.notice-box { background: #fffde7; border: 1px solid #ffe082; border-radius: 10px; padding: 11px 13px; margin-top: 10px; font-size: 12px; color: #7a6000; line-height: 1.7; }
+
+/* 검색 입력 */
+.search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.search-input { flex: 1; border: 1.5px solid #c8e6c9; border-radius: 10px; padding: 12px 13px; font-size: 16px; font-family: inherit; color: #222; background: #f9fdf9; outline: none; }
+.search-input:focus { border-color: #2e7d32; }
+.search-btn { padding: 12px 16px; background: #2e7d32; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.search-btn:active { background: #1b5e20; }
+
+/* 마을변호사 카드 */
+.lawyer-card { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 10px; border: 1.5px solid #d1c4e9; }
+.lawyer-card-name { font-size: 17px; font-weight: 700; color: #4527a0; margin-bottom: 4px; }
+.lawyer-card-area { font-size: 13px; color: #666; margin-bottom: 8px; }
+.lawyer-card-field { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+.lawyer-field-tag { background: #ede7f6; color: #4527a0; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 8px; }
+.lawyer-card-tel { display: inline-block; font-size: 15px; font-weight: 700; color: #4527a0; text-decoration: none; background: #ede7f6; padding: 7px 16px; border-radius: 8px; }
+
+/* 금융교육 카드 */
+.finance-card { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 10px; border: 1.5px solid #ffe082; }
+.finance-card-title { font-size: 16px; font-weight: 700; color: #e65100; margin-bottom: 6px; }
+.finance-card-desc { font-size: 13px; color: #555; line-height: 1.7; margin-bottom: 10px; }
+.finance-card-link { display: block; text-align: center; padding: 10px; border-radius: 10px; font-size: 14px; font-weight: 700; text-decoration: none; background: #fff3e0; color: #e65100; border: 1.5px solid #ffcc02; }
+
+/* 상가 카드 */
+.store-card { background: #fff; border-radius: 14px; padding: 14px; margin-bottom: 8px; border: 1.5px solid #f8bbd0; }
+.store-card-name { font-size: 16px; font-weight: 700; color: #880e4f; margin-bottom: 4px; }
+.store-card-type { font-size: 12px; font-weight: 600; background: #fce4ec; color: #880e4f; padding: 2px 9px; border-radius: 7px; display: inline-block; margin-bottom: 6px; }
+.store-card-addr { font-size: 13px; color: #666; margin-bottom: 8px; line-height: 1.5; }
+.store-card-tel { display: inline-block; font-size: 14px; font-weight: 700; color: #880e4f; text-decoration: none; background: #fce4ec; padding: 6px 14px; border-radius: 8px; }
+
+/* 로딩 공통 */
+.page-loading { display: none; text-align: center; padding: 32px 20px; }
+.page-loading.show { display: block; }
+.page-loading-icon { font-size: 36px; display: block; margin-bottom: 10px; animation: page-spin 1s linear infinite; }
+@keyframes page-spin { 0%{ transform: rotate(0deg); } 100%{ transform: rotate(360deg); } }
+.page-loading-txt { font-size: 16px; font-weight: 700; }
+.page-result { display: none; }
+.page-result.show { display: block; }
+.empty-msg { text-align: center; padding: 30px 20px; font-size: 15px; color: #999; line-height: 1.8; }
+
+/* ── 돋보기 버튼 ── */
+.zoom-btn { position: fixed; right: 16px; bottom: 24px; width: 54px; height: 54px; border-radius: 50%; background: #fff; border: 2px solid #4A90D9; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.14); -webkit-tap-highlight-color: transparent; gap: 1px; }
+.zoom-btn-icon { font-size: 22px; line-height: 1; }
+.zoom-btn-label { font-size: 13px; font-weight: 700; color: #111; line-height: 1; }
+
+/* ── 봄날톡톡 버튼 ── */
+.chat-btn { position: fixed; right: 16px; bottom: 86px; width: 54px; height: 54px; border-radius: 50%; background: #FEE500; border: 2px solid #e6ce00; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.14); -webkit-tap-highlight-color: transparent; gap: 1px; text-decoration: none; }
+.chat-btn-icon { font-size: 22px; line-height: 1; }
+.chat-btn-label { font-size: 11px; font-weight: 700; color: #111; line-height: 1; }
+
+/* ── 큰글씨 모드 ── */
+body.big-font { font-size: 135% !important; }
+body.big-font .zoom-btn-label { font-size: 18px !important; }
+body.big-font .zoom-btn-icon  { font-size: 30px !important; }
+</style>
+
+<div class="wrap">
+
+  <!-- ① 앱 헤더 -->
+  <div class="app-header">
+    <div class="header-left">
+      <span style="font-size:22px;">🌸</span>
+      <div>
+        <span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span>
+      </div>
+    </div>
+    <div class="header-date-box">
+      <span class="header-date-solar" id="date-solar">날짜 로딩중</span>
+      <span class="header-date-lunar" id="date-lunar">음력 로딩중</span>
+    </div>
   </div>
-</div>
 
-<!-- 쇼핑 바로가기 버튼 -->
-<button class="btn-kakao-main" onclick="switchTab('market')">
-  🛒 시니어 쇼핑 바로가기
-</button>
+  <!-- ② 홈바 -->
+  <div class="home-bar">
+    <button onclick="location.href='index.html'">🏠 홈으로</button>
+  </div>
+
+  <!-- ③ 메인 화면 -->
+  <div id="main-view">
+
+    <!-- 아이콘 그리드 -->
+    <div class="sec-wrap">
+      <div class="sec-title"><em>복지·혜택</em> 찾기</div>
+      <div class="cat-grid">
+        <button class="cat-item" style="background:#e8f5e9;" onclick="goPage('page-calc')">
+          <div class="cat-icon-box" style="background:#e8f5e9;">🧮</div>
+          <span class="cat-name" style="color:#2e7d32;">혜택계산기</span>
+        </button>
+        <button class="cat-item" style="background:#e3f2fd;" onclick="goPage('page-pension')">
+          <div class="cat-icon-box" style="background:#e3f2fd;">💰</div>
+          <span class="cat-name" style="color:#1565c0;">기초연금</span>
+        </button>
+        <button class="cat-item" style="background:#f3e5f5;" onclick="goPage('page-welfare')">
+          <div class="cat-icon-box" style="background:#f3e5f5;">🏢</div>
+          <span class="cat-name" style="color:#6a1b9a;">복지시설찾기</span>
+        </button>
+        <button class="cat-item" style="background:#ede7f6;" onclick="goPage('page-lawyer')">
+          <div class="cat-icon-box" style="background:#ede7f6;">👨‍⚖️</div>
+          <span class="cat-name" style="color:#4527a0;">마을변호사</span>
+        </button>
+        <button class="cat-item" style="background:#fce4ec;" onclick="goPage('page-longterm')">
+          <div class="cat-icon-box" style="background:#fce4ec;">🏥</div>
+          <span class="cat-name" style="color:#c62828;">장기요양</span>
+        </button>
+        <button class="cat-item" style="background:#fff8e1;" onclick="goPage('page-finance')">
+          <div class="cat-icon-box" style="background:#fff8e1;">📚</div>
+          <span class="cat-name" style="color:#e65100;">서민금융교육</span>
+        </button>
+        <button class="cat-item" style="background:#e8f5e9;" onclick="goPage('page-benefit')">
+          <div class="cat-icon-box" style="background:#e8f5e9;">🎁</div>
+          <span class="cat-name" style="color:#2e7d32;">복지혜택검색</span>
+        </button>
+        <button class="cat-item" style="background:#fce4ec;" onclick="goPage('page-store')">
+          <div class="cat-icon-box" style="background:#fce4ec;">🏪</div>
+          <span class="cat-name" style="color:#880e4f;">전통시장·상가</span>
+        </button>
+        <button class="cat-item" style="background:#fff3e0;" onclick="goPage('page-shopping')">
+          <div class="cat-icon-box" style="background:#fff3e0;">🛒</div>
+          <span class="cat-name" style="color:#bf360c;">시니어쇼핑</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 섹션1: 혜택계산기 -->
+    <div class="calc-sec" id="calc-sec">
+      <div class="calc-sec-header" onclick="scrollToCalc()">
+        <span class="calc-sec-title">🧮 혜택계산기</span>
+        <span class="calc-sec-badge">2026년 최신 기준</span>
+      </div>
+      <div class="calc-body">
+        <div class="calc-input-row">
+          <label class="calc-label">나이 (만 나이 기준)</label>
+          <input class="calc-input" type="number" id="inp-age" placeholder="예: 67" min="60" max="100">
+        </div>
+        <div class="calc-input-row">
+          <label class="calc-label">월 소득인정액 (만원)</label>
+          <input class="calc-input" type="number" id="inp-income" placeholder="예: 100 (잘 모르면 0 입력)">
+        </div>
+        <div class="calc-input-row">
+          <label class="calc-label">가구 형태</label>
+          <select class="calc-select" id="inp-family">
+            <option value="single">단독가구 (혼자 사심)</option>
+            <option value="couple">부부가구 (배우자와 함께)</option>
+          </select>
+        </div>
+        <div class="calc-input-row">
+          <label class="calc-label">장애 여부</label>
+          <select class="calc-select" id="inp-disability">
+            <option value="none">해당없음</option>
+            <option value="yes">장애인 등록</option>
+          </select>
+        </div>
+        <button class="calc-btn" onclick="calcBenefit()">✅ 내가 받을 수 있는 혜택 확인하기</button>
+
+        <div class="result-box" id="result-box">
+          <div class="result-header">📋 2026년 예상 혜택 결과</div>
+          <div class="result-item">
+            <div class="result-name">💰 기초연금<small>65세 이상·소득기준 충족 시</small></div>
+            <div class="result-val" id="res-pension">—</div>
+          </div>
+          <div class="result-item">
+            <div class="result-name">👷 노인일자리<small>공익활동형 월 30시간 기준</small></div>
+            <div class="result-val" id="res-job">—</div>
+          </div>
+          <div class="result-item">
+            <div class="result-name">🏥 건강보험료 경감<small>65세 이상 피부양자</small></div>
+            <div class="result-val" id="res-health">—</div>
+          </div>
+          <div class="result-item">
+            <div class="result-name">🚌 교통카드 할인<small>경로우대 65세 이상</small></div>
+            <div class="result-val" id="res-traffic">—</div>
+          </div>
+          <div class="result-item">
+            <div class="result-name">♿ 장애인 혜택<small>장애인 등록 시</small></div>
+            <div class="result-val" id="res-disability">—</div>
+          </div>
+          <div class="result-total" id="result-total" style="display:none;">
+            <span class="result-total-label">💵 월 예상 수령액</span>
+            <span class="result-total-val" id="res-total">0원</span>
+          </div>
+          <div class="result-notice">
+            ※ 위 결과는 입력값 기준 참고용이며, 실제 수령액은 담당기관 확인이 필요합니다.<br>
+            ※ 소득인정액은 소득·재산을 종합 산정한 금액으로 주민센터에서 확인하실 수 있습니다.
+          </div>
+        </div>
+
+        <a onclick="confirmExternalLink('https://www.bokjiro.go.kr');return false;" class="bokjiro-btn" id="bokjiro-link" href="#"  rel="noopener">
+          🏛 복지로에서 정확히 확인·신청하기 →
+        </a>
+      </div>
+    </div>
+
+    <!-- 섹션2: 내 주변 복지시설 찾기 -->
+    <div class="welfare-sec">
+      <div class="welfare-sec-header">
+        <span class="welfare-sec-title">🏢 내 주변 복지시설 찾기</span>
+        <span class="welfare-sec-badge">GPS 검색</span>
+      </div>
+      <div class="welfare-body">
+        <button class="welfare-gps-btn" onclick="searchWelfareGPS()">📍 내 위치로 찾기</button>
+        <div class="welfare-or">— 또는 지역으로 검색 —</div>
+        <div class="welfare-select-row">
+          <select class="welfare-select" id="welfare-sido" onchange="updateSigungu()">
+            <option value="">시·도 선택</option>
+            <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
+            <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
+            <option>울산광역시</option><option>세종특별자치시</option><option>경기도</option>
+            <option>강원도</option><option>충청북도</option><option>충청남도</option>
+            <option>전라북도</option><option>전라남도</option><option>경상북도</option>
+            <option>경상남도</option><option>제주특별자치도</option>
+          </select>
+          <select class="welfare-select" id="welfare-sigungu">
+            <option value="">시·군·구 선택</option>
+          </select>
+        </div>
+        <div class="welfare-type-grid">
+          <button class="welfare-type-btn selected" onclick="selectWelfareType(this,'')">전체</button>
+          <button class="welfare-type-btn" onclick="selectWelfareType(this,'노인복지관')">노인복지관</button>
+          <button class="welfare-type-btn" onclick="selectWelfareType(this,'경로당')">경로당</button>
+          <button class="welfare-type-btn" onclick="selectWelfareType(this,'노인요양')">요양시설</button>
+          <button class="welfare-type-btn" onclick="selectWelfareType(this,'종합사회복지관')">종합복지관</button>
+          <button class="welfare-type-btn" onclick="selectWelfareType(this,'장애인복지관')">장애인복지관</button>
+        </div>
+        <button class="welfare-search-btn" onclick="searchWelfare()">🔍 복지시설 검색하기</button>
+
+        <div class="welfare-loading" id="welfare-loading">
+          <span class="welfare-loading-icon">🏢</span>
+          <div class="welfare-loading-txt">주변 복지시설을 찾고 있어요...</div>
+        </div>
+        <div class="welfare-result" id="welfare-result">
+          <div class="welfare-result-header" id="welfare-result-header">검색 결과</div>
+          <div id="welfare-cards"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 긴급전화 -->
+    <div class="tel-sec">
+      <div class="tel-card">
+        <div class="tel-card-title">📞 어르신 긴급 전화</div>
+        <a class="tel-card-item" href="tel:129">
+          <div class="tel-card-icon">🏛</div>
+          <div class="tel-text">
+            <div class="tel-name">보건복지상담센터</div>
+            <div class="tel-desc">복지·의료 상담 (24시간)</div>
+          </div>
+          <span class="tel-num">129</span>
+        </a>
+        <div class="tel-divider"></div>
+        <a class="tel-card-item" href="tel:1355">
+          <div class="tel-card-icon">💰</div>
+          <div class="tel-text">
+            <div class="tel-name">국민연금공단</div>
+            <div class="tel-desc">연금 상담·신청</div>
+          </div>
+          <span class="tel-num">1355</span>
+        </a>
+        <div class="tel-divider"></div>
+        <a class="tel-card-item" href="tel:1393">
+          <div class="tel-card-icon">👴</div>
+          <div class="tel-text">
+            <div class="tel-name">노인학대신고센터</div>
+            <div class="tel-desc">노인 보호·신고 (24시간)</div>
+          </div>
+          <span class="tel-num">1393</span>
+        </a>
+        <div class="tel-divider"></div>
+        <a class="tel-card-item" href="tel:1688-0120">
+          <div class="tel-card-icon">📚</div>
+          <div class="tel-text">
+            <div class="tel-name">서민금융진흥원</div>
+            <div class="tel-desc">서민금융·교육 상담</div>
+          </div>
+          <span class="tel-num">1688-0120</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 카카오 공유 / PWA -->
+    <button class="btn-kakao-main" onclick="shareKakao()">💛 카카오톡 친구에게 공유하기</button>
+    <button class="btn-pwa-main" onclick="savePWA()">📲 봄날마당 홈화면에 저장하기</button>
+
+    <!-- 제휴 고지 -->
+    <div class="affiliate-notice-box">
+      ※ 이 웹앱은 쿠팡파트너스의 제휴마케팅 프로그램에 참여하고 있습니다.<br>
+      이 링크를 통해 구매 시 봄날마당이 일정액의 수수료를 받을 수 있으며, 구매자분께 추가 비용은 없습니다.
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="site-footer">
+      <div class="footer-row">
+        <a class="footer-link" href="privacy.html">개인정보처리방침</a>
+        <span class="footer-dot">·</span>
+        <a class="footer-link" href="terms.html">이용약관</a>
+        <span class="footer-dot">·</span>
+        <a class="footer-link" href="affiliate.html">제휴 공개</a>
+      </div>
+      <div class="footer-row">
+        <a class="footer-link" href="contact.html">문의하기</a>
+        <span class="footer-dot">·</span>
+        <a class="footer-link" href="about.html">봄날마당 소개</a>
+      </div>
+    </footer>
+
+  </div><!-- /main-view -->
+
+  <!-- ══════════════════════════════════════
+       전환 페이지 0 — 혜택계산기
+  ══════════════════════════════════════ -->
+  <div id="page-calc" class="page-view">
+    <button class="back-btn" onclick="goBack()">◀ 복지혜택쇼핑으로 돌아가기</button>
+    <div class="page-sec-header" style="background:#e8f5e9; border-color:#c8e6c9;">
+      <span class="page-sec-title" style="color:#2e7d32;">🧮 혜택계산기</span>
+      <span class="page-sec-badge" style="background:#c8e6c9; color:#2e7d32;">2026년 최신 기준</span>
+    </div>
+    <div class="page-inner">
+
+      <div class="notice-box" style="margin-bottom:14px;">💡 나이·소득·가구형태를 입력하시면 받을 수 있는 혜택을 바로 계산해 드립니다!</div>
+
+      <div class="calc-input-row">
+        <label class="calc-label">나이 (만 나이 기준)</label>
+        <input class="calc-input" type="number" id="pc-age" placeholder="예: 67" min="50" max="100">
+      </div>
+      <div class="calc-input-row">
+        <label class="calc-label">월 소득인정액 (만원)</label>
+        <input class="calc-input" type="number" id="pc-income" placeholder="예: 100 (잘 모르면 0 입력)">
+      </div>
+      <div class="calc-input-row">
+        <label class="calc-label">가구 형태</label>
+        <select class="calc-select" id="pc-family">
+          <option value="single">단독가구 (혼자 사심)</option>
+          <option value="couple">부부가구 (배우자와 함께)</option>
+        </select>
+      </div>
+      <div class="calc-input-row">
+        <label class="calc-label">장애 여부</label>
+        <select class="calc-select" id="pc-disability">
+          <option value="none">해당없음</option>
+          <option value="yes">장애인 등록</option>
+        </select>
+      </div>
+      <button class="calc-btn" onclick="calcBenefitPage()">✅ 내가 받을 수 있는 혜택 확인하기</button>
+
+      <div class="result-box" id="pc-result-box">
+        <div class="result-header">📋 2026년 예상 혜택 결과</div>
+        <div class="result-item">
+          <div class="result-name">💰 기초연금<small>65세 이상·소득기준 충족 시</small></div>
+          <div class="result-val" id="pc-res-pension">—</div>
+        </div>
+        <div class="result-item">
+          <div class="result-name">👷 노인일자리<small>공익활동형 월 30시간 기준</small></div>
+          <div class="result-val" id="pc-res-job">—</div>
+        </div>
+        <div class="result-item">
+          <div class="result-name">🏥 건강보험료 경감<small>65세 이상 피부양자</small></div>
+          <div class="result-val" id="pc-res-health">—</div>
+        </div>
+        <div class="result-item">
+          <div class="result-name">🚌 교통카드 할인<small>경로우대 65세 이상</small></div>
+          <div class="result-val" id="pc-res-traffic">—</div>
+        </div>
+        <div class="result-item">
+          <div class="result-name">♿ 장애인 혜택<small>장애인 등록 시</small></div>
+          <div class="result-val" id="pc-res-disability">—</div>
+        </div>
+        <div class="result-total" id="pc-result-total" style="display:none;">
+          <span class="result-total-label">💵 월 예상 수령액</span>
+          <span class="result-total-val" id="pc-res-total">0원</span>
+        </div>
+        <div class="result-notice">
+          ※ 위 결과는 입력값 기준 참고용이며, 실제 수령액은 담당기관 확인이 필요합니다.<br>
+          ※ 소득인정액은 소득·재산을 종합 산정한 금액으로 주민센터에서 확인하실 수 있습니다.
+        </div>
+      </div>
+
+      <a onclick="confirmExternalLink('https://www.bokjiro.go.kr');return false;" class="bokjiro-btn" id="pc-bokjiro-link" href="#"  rel="noopener">
+        🏛 복지로에서 정확히 확인·신청하기 →
+      </a>
+
+      <!-- 쿠팡 -->
+      <div class="coupon-box" style="margin-top:16px;">
+        <div class="coupon-box-title">🛒 어르신께 도움이 되는 상품</div>
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/eprmVzlcaG');return false;" class="coupon-item" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">🩺</span>
+          <div class="coupon-txt"><strong>가정용 혈압계 (팔뚝형)</strong><span>큰 글씨 화면, 어르신 사용 편리</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+      </div>
+      <div style="font-size:11px;color:#888;text-align:center;margin-top:6px;">※ 쿠팡파트너스 제휴 링크 포함</div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       전환 페이지 1 — 기초연금
+  ══════════════════════════════════════ -->
+  <div id="page-pension" class="page-view">
+    <button class="back-btn" onclick="goBack()">◀ 복지혜택쇼핑으로 돌아가기</button>
+    <div class="page-sec-header" style="background:#e3f2fd; border-color:#bbdefb;">
+      <span class="page-sec-title" style="color:#1565c0;">💰 기초연금</span>
+      <span class="page-sec-badge" style="background:#bbdefb; color:#1565c0;">2026년 최신</span>
+    </div>
+    <div class="page-inner">
+
+      <!-- 기초연금이란 -->
+      <div class="info-card">
+        <div class="info-card-q">📌 기초연금이란?</div>
+        <div class="info-card-a">만 65세 이상 어르신 중 소득·재산이 일정 기준 이하인 분들께 매달 드리는 나라의 연금입니다. 노후 생활 안정을 위해 2014년부터 시행 중입니다.</div>
+        <div class="amount-box" style="margin-top:10px;">
+          <div class="amount-main">월 최대 349,700원</div>
+          <div class="amount-sub">단독가구 기준 · 부부가구는 각 279,760원 · 매월 25일 지급</div>
+        </div>
+      </div>
+
+      <!-- ✅ 수급 자가진단 -->
+      <div class="info-card" style="border-color:#1565c0;">
+        <div class="info-card-q" style="color:#1565c0;">🔍 수급 자가진단 — 내가 받을 수 있을까요?</div>
+        <div style="font-size:13px;color:#666;margin-bottom:14px;">아래 항목을 입력하시면 수급 가능성을 바로 알려드립니다.</div>
+
+        <!-- 1. 나이 -->
+        <div class="calc-input-row">
+          <label class="calc-label" style="color:#1565c0;">① 만 나이</label>
+          <input class="calc-input" style="border-color:#bbdefb;" type="number" id="pp-age" placeholder="예: 67" min="50" max="100">
+        </div>
+
+        <!-- 2. 국적·거주지 -->
+        <div class="calc-input-row">
+          <label class="calc-label" style="color:#1565c0;">② 국적 및 거주지</label>
+          <select class="calc-select" style="border-color:#bbdefb;" id="pp-nation">
+            <option value="ok">대한민국 국적 + 국내 거주 중</option>
+            <option value="no">해외 거주 또는 외국 국적</option>
+          </select>
+        </div>
+
+        <!-- 3. 가구형태 -->
+        <div class="calc-input-row">
+          <label class="calc-label" style="color:#1565c0;">③ 가구 형태</label>
+          <select class="calc-select" style="border-color:#bbdefb;" id="pp-family">
+            <option value="single">단독가구 (혼자 사심)</option>
+            <option value="couple">부부가구 (배우자와 함께)</option>
+          </select>
+        </div>
+
+        <!-- 4. 월 소득 -->
+        <div class="calc-input-row">
+          <label class="calc-label" style="color:#1565c0;">④ 월 소득 합계 (만원) <small style="font-weight:400;color:#888;">근로·사업·연금 등 모두 합산</small></label>
+          <input class="calc-input" style="border-color:#bbdefb;" type="number" id="pp-income" placeholder="예: 80 (잘 모르면 0 입력)">
+        </div>
+
+        <!-- 5. 부동산 -->
+        <div class="calc-input-row">
+          <label class="calc-label" style="color:#1565c0;">⑤ 부동산 (집·토지 등) 시가 합계 (만원)</label>
+          <select class="calc-select" style="border-color:#bbdefb;" id="pp-estate">
+            <option value="0">없음</option>
+            <option value="5000">5,000만원 미만</option>
+            <option value="10000">5,000만~1억원</option>
+            <option value="20000">1억~2억원</option>
+            <option value="30000">2억~3억원</option>
+            <option value="50000">3억~5억원</option>
+            <option value="99999">5억원 초과</option>
+          </select>
+        </div>
+
+        <!-- 6. 금융재산 -->
+        <div class="calc-input-row">
+          <label class="calc-label" style="color:#1565c0;">⑥ 금융재산 (예금·적금·주식 등) 합계 (만원)</label>
+          <select class="calc-select" style="border-color:#bbdefb;" id="pp-finance">
+            <option value="0">없음 또는 2,000만원 미만</option>
+            <option value="3000">2,000만~5,000만원</option>
+            <option value="8000">5,000만~1억원</option>
+            <option value="15000">1억원 초과</option>
+          </select>
+        </div>
+
+        <!-- 7. 국민연금 -->
+        <div class="calc-input-row">
+          <label class="calc-label" style="color:#1565c0;">⑦ 국민연금 수령 여부</label>
+          <select class="calc-select" style="border-color:#bbdefb;" id="pp-pension">
+            <option value="none">받지 않음</option>
+            <option value="low">받음 — 월 50만원 미만</option>
+            <option value="mid">받음 — 월 50~100만원</option>
+            <option value="high">받음 — 월 100만원 초과</option>
+          </select>
+        </div>
+
+        <!-- 8. 자동차 -->
+        <div class="calc-input-row">
+          <label class="calc-label" style="color:#1565c0;">⑧ 자동차 보유 여부</label>
+          <select class="calc-select" style="border-color:#bbdefb;" id="pp-car">
+            <option value="none">없음</option>
+            <option value="old">있음 — 차량가액 4,000만원 이하 (일반재산 산정)</option>
+            <option value="new">있음 — 차량가액 4,000만원 초과 (소득 산정)</option>
+          </select>
+        </div>
+
+        <button class="page-btn" style="background:#1565c0;color:#fff;margin-top:6px;" onclick="checkPension()">🔍 수급 가능성 확인하기</button>
+
+        <!-- 진단 결과 -->
+        <div id="pp-result" style="display:none;margin-top:14px;">
+          <div id="pp-result-box"></div>
+        </div>
+      </div>
+
+      <!-- 액션 버튼 -->
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        <a onclick="confirmExternalLink('https://www.bokjiro.go.kr/ssis-tbu/twataa/wlfareInfo/moveTWAT52011M.do');return false;" href="#"  rel="noopener"
+           style="display:block;padding:14px;background:#1565c0;color:#fff;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+          🏛 복지로 온라인 신청하기 →
+        </a>
+        <a href="tel:1355"
+           style="display:block;padding:14px;background:#fff;color:#1565c0;border:2px solid #1565c0;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+          📞 국민연금공단 전화상담 ☎ 1355
+        </a>
+        <a onclick="confirmExternalLink('https://map.kakao.com/?q=%EC%A3%BC%EB%AF%BC%EC%84%BC%ED%84%B0');return false;" href="#"  rel="noopener"
+           style="display:block;padding:14px;background:#FEE500;color:#1a1a1a;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+          📍 가까운 주민센터 찾기
+        </a>
+      </div>
+
+      <!-- 소득인정액 기준 -->
+      <div class="info-card">
+        <div class="info-card-q">📊 2026년 소득인정액 기준</div>
+        <div class="info-card-point">
+          단독가구: 월 2,470,000원 이하<br>
+          부부가구: 월 3,952,000원 이하<br>
+          <small style="color:#666;">※ 소득인정액 = 소득평가액 + 재산의 소득환산액</small>
+        </div>
+        <div class="notice-box">💡 소득인정액이 얼마인지 모르실 때는 주민센터나 국민연금공단(☎ 1355)에 문의하시면 무료로 계산해 드립니다.</div>
+      </div>
+
+      <!-- 신청 방법 -->
+      <div class="info-card">
+        <div class="info-card-q">📝 신청 방법 (4단계)</div>
+        <ul class="step-list">
+          <li><span class="step-num">1</span>주민센터·국민연금공단 지사 방문 또는 복지로 온라인 신청</li>
+          <li><span class="step-num">2</span>신청서 작성 + 신분증·통장사본 제출</li>
+          <li><span class="step-num">3</span>소득·재산 조사 (약 30일 소요)</li>
+          <li><span class="step-num">4</span>결과 통보 → 수급자 결정 시 다음달 25일 지급 시작</li>
+        </ul>
+      </div>
+
+      <!-- 자주 묻는 질문 -->
+      <div class="info-card">
+        <div class="info-card-q">❓ 자주 묻는 질문</div>
+        <div class="info-card-a"><strong>Q. 국민연금을 받으면 기초연금도 받을 수 있나요?</strong><br>네, 받을 수 있습니다. 단, 국민연금 수령액이 높을수록 기초연금이 일부 감액될 수 있습니다.</div>
+        <div style="height:10px;"></div>
+        <div class="info-card-a"><strong>Q. 재산이 있어도 받을 수 있나요?</strong><br>재산이 있어도 소득인정액이 기준 이하면 받을 수 있습니다. 집 한 채 있는 분들도 많이 수급 중입니다.</div>
+        <div style="height:10px;"></div>
+        <div class="info-card-a"><strong>Q. 해외에 살면 못 받나요?</strong><br>국내 거주자만 수급 가능합니다. 해외 장기 체류 시 지급이 정지됩니다.</div>
+      </div>
+
+      <!-- 쿠팡 -->
+      <div class="coupon-box">
+        <div class="coupon-box-title">🛒 어르신께 도움이 되는 상품</div>
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/eprmVzlcaG');return false;" class="coupon-item" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">🩺</span>
+          <div class="coupon-txt"><strong>가정용 혈압계 (팔뚝형)</strong><span>큰 글씨 화면, 어르신 사용 편리</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+      </div>
+      <div style="font-size:11px;color:#888;text-align:center;margin-top:6px;">※ 쿠팡파트너스 제휴 링크 포함</div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       전환 페이지 2 — 복지시설찾기
+  ══════════════════════════════════════ -->
+  <div id="page-welfare" class="page-view">
+    <button class="back-btn" onclick="goBack()">◀ 복지혜택쇼핑으로 돌아가기</button>
+    <div class="page-sec-header" style="background:#f3e5f5; border-color:#e1bee7;">
+      <span class="page-sec-title" style="color:#6a1b9a;">🏢 복지시설 찾기</span>
+      <span class="page-sec-badge" style="background:#e1bee7; color:#6a1b9a;">전국 검색</span>
+    </div>
+    <div class="page-inner">
+
+      <!-- 검색 먼저 -->
+      <div style="font-size:16px;font-weight:700;color:#6a1b9a;margin-bottom:10px;">🔍 내 주변 복지시설 검색</div>
+      <button class="page-btn" style="background:#6a1b9a;color:#fff;margin-bottom:10px;" onclick="searchWelfareGPSPage()">📍 내 위치로 찾기</button>
+      <div style="text-align:center;font-size:13px;color:#999;margin-bottom:10px;">— 또는 지역으로 검색 —</div>
+
+      <span class="page-label">📍 지역 선택</span>
+      <select class="page-select" id="pw-sido" style="border-color:#e1bee7;" onchange="updatePWSigungu()">
+        <option value="">시·도 선택</option>
+        <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
+        <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
+        <option>울산광역시</option><option>세종특별자치시</option><option>경기도</option>
+        <option>강원도</option><option>충청북도</option><option>충청남도</option>
+        <option>전라북도</option><option>전라남도</option><option>경상북도</option>
+        <option>경상남도</option><option>제주특별자치도</option>
+      </select>
+      <select class="page-select" id="pw-sigungu" style="border-color:#e1bee7;">
+        <option value="">시·군·구 선택</option>
+      </select>
+
+      <span class="page-label">🏠 시설 종류</span>
+      <select class="page-select" id="pw-type" style="border-color:#e1bee7;">
+        <option value="">전체</option>
+        <option value="노인복지관">노인복지관</option>
+        <option value="경로당">경로당</option>
+        <option value="노인요양">노인요양시설</option>
+        <option value="종합사회복지관">종합사회복지관</option>
+        <option value="장애인복지관">장애인복지관</option>
+        <option value="지역자활센터">지역자활센터</option>
+        <option value="여성복지관">여성복지관</option>
+      </select>
+
+      <button class="page-btn" style="background:#6a1b9a;color:#fff;" onclick="searchWelfarePage()">🔍 복지시설 검색하기</button>
+
+      <div class="page-loading" id="pw-loading" style="color:#6a1b9a;">
+        <span class="page-loading-icon">🏢</span>
+        <div class="page-loading-txt" style="color:#6a1b9a;">복지시설을 찾고 있어요...</div>
+      </div>
+      <div class="page-result" id="pw-result">
+        <div id="pw-cards" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- 시설 종류 안내 카드 (아래로) -->
+      <div style="font-size:16px;font-weight:700;color:#6a1b9a;margin:20px 0 10px;">📋 복지시설이란 어떤 곳인가요?</div>
+
+      <div class="info-card" style="border-color:#e1bee7;margin-bottom:8px;">
+        <div class="info-card-q" style="color:#6a1b9a;">🏛 노인복지관</div>
+        <div class="info-card-a">만 60세 이상 어르신이 무료 또는 저렴하게 이용할 수 있는 종합 복지 공간입니다.</div>
+        <div class="info-card-point" style="background:#f3e5f5;color:#4a148c;margin-top:8px;">
+          ✅ 건강체조·요가·노래·컴퓨터 교육 등 다양한 프로그램<br>
+          ✅ 무료 점심 급식 운영 (일부 복지관)<br>
+          ✅ 물리치료·한방진료 등 의료서비스<br>
+          ✅ 취업 상담·노인일자리 연계
+        </div>
+      </div>
+
+      <div class="info-card" style="border-color:#e1bee7;margin-bottom:8px;">
+        <div class="info-card-q" style="color:#6a1b9a;">🏠 경로당</div>
+        <div class="info-card-a">마을 어르신들이 모여 쉬고 교류하는 가장 가까운 복지공간입니다. 만 65세 이상 이용 가능합니다.</div>
+        <div class="info-card-point" style="background:#f3e5f5;color:#4a148c;margin-top:8px;">
+          ✅ 냉난방비·양곡 등 운영비 정부 지원<br>
+          ✅ 건강 체조·여가 프로그램 운영<br>
+          ✅ 전국 6만 7천여 개 — 가장 가까운 복지공간
+        </div>
+      </div>
+
+      <div class="info-card" style="border-color:#e1bee7;margin-bottom:8px;">
+        <div class="info-card-q" style="color:#6a1b9a;">🏥 노인요양시설</div>
+        <div class="info-card-a">혼자 생활이 어려운 어르신이 입소하여 24시간 돌봄을 받는 시설입니다. 장기요양등급이 있어야 입소 가능합니다.</div>
+        <div class="info-card-point" style="background:#f3e5f5;color:#4a148c;margin-top:8px;">
+          ✅ 식사·목욕·의료 등 24시간 케어<br>
+          ✅ 장기요양 1~5등급 수급자 이용 가능<br>
+          ✅ 본인부담금 비용의 20% (기초수급자 무료)
+        </div>
+      </div>
+
+      <div class="info-card" style="border-color:#e1bee7;margin-bottom:14px;">
+        <div class="info-card-q" style="color:#6a1b9a;">🤝 종합사회복지관</div>
+        <div class="info-card-a">지역 주민 누구나 이용 가능한 종합복지시설입니다. 어르신뿐 아니라 가족 전체가 이용할 수 있습니다.</div>
+        <div class="info-card-point" style="background:#f3e5f5;color:#4a148c;margin-top:8px;">
+          ✅ 가정상담·심리지원·법률 연계<br>
+          ✅ 식사 지원·생활용품 지원<br>
+          ✅ 지역 자원봉사·돌봄 연계
+        </div>
+      </div>
+
+      <!-- 신청 안내 -->
+      <div class="notice-box" style="margin-bottom:14px;">
+        💡 복지시설 이용 신청은 <strong>주민센터 방문</strong> 또는 <strong>복지로(bokjiro.go.kr)</strong>에서 할 수 있습니다.
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <a onclick="confirmExternalLink('https://www.bokjiro.go.kr');return false;" href="#"  rel="noopener"
+           style="flex:1;display:block;padding:12px;background:#6a1b9a;color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;">
+          🏛 복지로 바로가기
+        </a>
+        <a href="tel:129"
+           style="flex:1;display:block;padding:12px;background:#f3e5f5;color:#6a1b9a;border:2px solid #6a1b9a;border-radius:10px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;">
+          📞 복지상담 129
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       전환 페이지 3 — 마을변호사
+  ══════════════════════════════════════ -->
+  <div id="page-lawyer" class="page-view">
+    <button class="back-btn" onclick="goBack()">◀ 복지혜택쇼핑으로 돌아가기</button>
+    <div class="page-sec-header" style="background:#ede7f6; border-color:#d1c4e9;">
+      <span class="page-sec-title" style="color:#4527a0;">👨‍⚖️ 마을변호사</span>
+      <span class="page-sec-badge" style="background:#d1c4e9; color:#4527a0;">무료 법률상담</span>
+    </div>
+    <div class="page-inner">
+
+      <div class="notice-box" style="margin-bottom:14px;">💡 마을변호사는 법무부에서 운영하는 <strong>무료 법률상담 서비스</strong>입니다. 가까운 마을변호사를 찾아 상담하세요!</div>
+
+      <span class="page-label">📍 지역 선택</span>
+      <select class="page-select" id="pl-sido" style="border-color:#d1c4e9;" onchange="updatePLSigungu()">
+        <option value="">시·도 선택</option>
+        <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
+        <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
+        <option>울산광역시</option><option>세종특별자치시</option><option>경기도</option>
+        <option>강원도</option><option>충청북도</option><option>충청남도</option>
+        <option>전라북도</option><option>전라남도</option><option>경상북도</option>
+        <option>경상남도</option><option>제주특별자치도</option>
+      </select>
+      <select class="page-select" id="pl-sigungu" style="border-color:#d1c4e9;">
+        <option value="">시·군·구 선택</option>
+      </select>
+
+      <button class="page-btn" style="background:#4527a0; color:#fff;" onclick="searchLawyer()">🔍 마을변호사 찾기</button>
+
+      <div class="page-loading" id="pl-loading">
+        <span class="page-loading-icon">👨‍⚖️</span>
+        <div class="page-loading-txt" style="color:#4527a0;">마을변호사를 찾고 있어요...</div>
+      </div>
+      <div class="page-result" id="pl-result">
+        <div id="pl-cards" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- 자주 묻는 법률 상담 주제 -->
+      <div style="margin-top:16px;">
+        <div style="font-size:16px;font-weight:700;color:#4527a0;margin-bottom:10px;">📋 자주 묻는 법률 상담 주제</div>
+        <div class="badge-row">
+          <span class="badge-blue">상속·유언</span>
+          <span class="badge-blue">임대차 분쟁</span>
+          <span class="badge-blue">사기 피해</span>
+          <span class="badge-blue">금전 거래</span>
+          <span class="badge-blue">이혼·가족</span>
+          <span class="badge-blue">노인학대</span>
+          <span class="badge-blue">소비자 분쟁</span>
+          <span class="badge-blue">교통사고</span>
+        </div>
+      </div>
+
+      <!-- 생활법률상식 Q&A -->
+      <div style="font-size:16px;font-weight:700;color:#4527a0;margin:20px 0 10px;">⚖️ 꼭 알아두는 생활법률상식</div>
+
+      <div class="info-card">
+        <div class="info-card-q">📜 상속·유언 — 내 재산은 어떻게 나눠지나요?</div>
+        <div class="info-card-a">법정상속순위: ① 자녀(직계비속) → ② 부모(직계존속) → ③ 형제자매 → ④ 4촌 이내 친족</div>
+        <div class="info-card-point" style="background:#ede7f6; color:#4527a0;">
+          ✅ 유언장을 미리 작성하면 본인 뜻대로 재산을 나눌 수 있습니다.<br>
+          ✅ 자필증서유언: 전문·날짜·성명·도장을 직접 손으로 써야 효력이 있습니다.<br>
+          ✅ 공증유언: 공증인 앞에서 작성 (가장 안전)
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-q">🏠 전월세 계약 — 보증금 지키는 방법</div>
+        <div class="info-card-a">
+          ① <strong>전입신고</strong>: 이사 당일 주민센터에서 꼭 하세요<br>
+          ② <strong>확정일자</strong>: 주민센터 또는 등기소에서 받으세요 (300원)<br>
+          ③ <strong>등기부등본</strong>: 계약 전 꼭 확인 (근저당·압류 여부)
+        </div>
+        <div class="info-card-point" style="background:#ede7f6; color:#4527a0;">전입신고 + 확정일자를 받으면 집이 경매에 넘어가도 보증금을 먼저 돌려받을 수 있습니다!</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-q">🚨 보이스피싱·사기 — 당했을 때 대처법</div>
+        <div class="info-card-a">
+          ① 즉시 <strong>112</strong> 신고<br>
+          ② 해당 은행 콜센터에 전화해 <strong>지급정지 요청</strong><br>
+          ③ 금융감독원 <strong>1332</strong>에 피해 신고<br>
+          ④ 경찰서 방문 → 피해신고서 접수
+        </div>
+        <div class="info-card-point" style="background:#ede7f6; color:#4527a0;">⚡ 이체 후 30분 내 신고가 중요합니다!</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-q">🤝 노인학대 — 신고하면 어떻게 되나요?</div>
+        <div class="info-card-a">
+          노인학대신고센터 ☎ 1393 (24시간 무료)<br>
+          신고 시 전담공무원이 현장 출동해 즉시 조사합니다.<br>
+          신고자 신분은 절대 보호됩니다.
+        </div>
+        <div class="info-card-point" style="background:#ede7f6; color:#4527a0;">가정 내 폭행·방임·정서적 학대·재산 탈취 모두 신고 대상입니다.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-q">📞 무료 법률 지원 기관</div>
+        <div class="badge-row">
+          <span class="badge-blue">대한법률구조공단 132</span>
+          <span class="badge-blue">마을변호사 (무료)</span>
+          <span class="badge-orange">법무부 법사랑 1301</span>
+          <span class="badge-green">금융감독원 1332</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       전환 페이지 4 — 장기요양
+  ══════════════════════════════════════ -->
+  <div id="page-longterm" class="page-view">
+    <button class="back-btn" onclick="goBack()">◀ 복지혜택쇼핑으로 돌아가기</button>
+    <div class="page-sec-header" style="background:#fce4ec; border-color:#f8bbd0;">
+      <span class="page-sec-title" style="color:#c62828;">🏥 장기요양</span>
+      <span class="page-sec-badge" style="background:#f8bbd0; color:#c62828;">등급·신청 안내</span>
+    </div>
+    <div class="page-inner">
+
+      <!-- 장기요양이란 -->
+      <div class="info-card">
+        <div class="info-card-q">📌 노인장기요양보험이란?</div>
+        <div class="info-card-a">혼자서 일상생활이 어려운 65세 이상 어르신 또는 65세 미만 치매·뇌졸중 등 노인성 질환자에게 목욕·간호·요양 서비스를 제공하는 사회보험입니다.</div>
+        <div class="badge-row">
+          <span class="badge-red">65세 이상</span>
+          <span class="badge-orange">65세 미만 노인성질환</span>
+          <span class="badge-green">건강보험 가입자</span>
+        </div>
+      </div>
+
+      <!-- ✅ 등급 자가체크 -->
+      <div class="info-card" style="border-color:#c62828;">
+        <div class="info-card-q" style="color:#c62828;">🔍 등급 자가체크 — 신청이 필요할까요?</div>
+        <div style="font-size:13px;color:#666;margin-bottom:14px;">해당하는 항목에 모두 체크해 주세요. (복수 선택 가능)</div>
+
+        <!-- 신체기능 -->
+        <div style="font-size:14px;font-weight:700;color:#c62828;margin-bottom:8px;">🦶 신체기능 (해당 항목 체크)</div>
+        <div id="lt-physical" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="3" style="width:20px;height:20px;"> 혼자 걷거나 이동하기 어렵다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="3" style="width:20px;height:20px;"> 혼자 옷 입기·벗기가 어렵다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="3" style="width:20px;height:20px;"> 혼자 세수·목욕이 어렵다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="3" style="width:20px;height:20px;"> 혼자 식사하기가 어렵다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="3" style="width:20px;height:20px;"> 대소변을 혼자 처리하기 어렵다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="2" style="width:20px;height:20px;"> 침대·의자에서 혼자 일어나기 어렵다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="2" style="width:20px;height:20px;"> 계단 오르내리기가 매우 힘들다
+          </label>
+        </div>
+
+        <!-- 인지기능 -->
+        <div style="font-size:14px;font-weight:700;color:#c62828;margin-bottom:8px;">🧠 인지기능 (해당 항목 체크)</div>
+        <div id="lt-cognitive" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="4" style="width:20px;height:20px;"> 치매 진단을 받았다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="3" style="width:20px;height:20px;"> 오늘 날짜·장소를 자주 잊는다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="3" style="width:20px;height:20px;"> 가족 얼굴이나 이름을 잊는 경우가 있다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="2" style="width:20px;height:20px;"> 혼자 약을 챙겨 먹기 어렵다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="2" style="width:20px;height:20px;"> 돈 관리·계산이 어렵다
+          </label>
+        </div>
+
+        <!-- 행동변화 -->
+        <div style="font-size:14px;font-weight:700;color:#c62828;margin-bottom:8px;">😟 행동변화 (해당 항목 체크)</div>
+        <div id="lt-behavior" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="3" style="width:20px;height:20px;"> 밤낮이 바뀌거나 수면 장애가 심하다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="3" style="width:20px;height:20px;"> 이유 없이 소리 지르거나 공격적 행동을 한다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="2" style="width:20px;height:20px;"> 혼자 있으면 불안해하거나 徘徊(배회)한다
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;font-size:15px;cursor:pointer;">
+            <input type="checkbox" value="2" style="width:20px;height:20px;"> 의심이 많아지고 환청·환시가 있다
+          </label>
+        </div>
+
+        <!-- 기간 -->
+        <div class="calc-input-row">
+          <label class="calc-label" style="color:#c62828;">위 증상이 얼마나 지속됐나요?</label>
+          <select class="calc-select" style="border-color:#f8bbd0;" id="lt-duration">
+            <option value="0">6개월 미만</option>
+            <option value="1">6개월 이상</option>
+          </select>
+        </div>
+
+        <button class="page-btn" style="background:#c62828;color:#fff;margin-top:6px;" onclick="checkLongterm()">🔍 등급 신청 필요 여부 확인하기</button>
+
+        <!-- 자가체크 결과 -->
+        <div id="lt-result" style="display:none;margin-top:14px;">
+          <div id="lt-result-box"></div>
+        </div>
+      </div>
+
+      <!-- 액션 버튼 -->
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+        <a href="tel:1577-1000"
+           style="display:block;padding:14px;background:#c62828;color:#fff;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+          📞 국민건강보험공단 ☎ 1577-1000
+        </a>
+        <a onclick="confirmExternalLink('https://www.longtermcare.or.kr');return false;" href="#"  rel="noopener"
+           style="display:block;padding:14px;background:#fff;color:#c62828;border:2px solid #c62828;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+          🏥 장기요양보험 온라인 신청하기 →
+        </a>
+        <button onclick="goPage('page-welfare')"
+           style="display:block;padding:14px;background:#f3e5f5;color:#6a1b9a;border:none;border-radius:12px;font-size:16px;font-weight:700;text-align:center;cursor:pointer;font-family:inherit;width:100%;">
+          🏢 가까운 요양시설 찾기 →
+        </button>
+      </div>
+
+      <!-- 등급 기준 -->
+      <div class="info-card">
+        <div class="info-card-q">📊 장기요양 등급 기준</div>
+        <ul class="step-list">
+          <li><span class="step-num" style="background:#c62828;">1</span><strong>1등급</strong> — 최중증. 혼자서 일상생활이 전혀 불가능한 상태</li>
+          <li><span class="step-num" style="background:#e53935;">2</span><strong>2등급</strong> — 중증. 상당 부분 도움 필요한 상태</li>
+          <li><span class="step-num" style="background:#f57f17;">3</span><strong>3등급</strong> — 중등증. 부분적으로 도움 필요한 상태</li>
+          <li><span class="step-num" style="background:#f9a825;">4</span><strong>4등급</strong> — 경증. 일정 부분 도움 필요한 상태</li>
+          <li><span class="step-num" style="background:#2e7d32;">5</span><strong>5등급</strong> — 치매 특별등급 (치매 진단자)</li>
+          <li><span class="step-num" style="background:#1565c0;">인</span><strong>인지지원등급</strong> — 경증 치매 (치매 진단자, 경미한 수준)</li>
+        </ul>
+      </div>
+
+      <!-- 서비스 종류 -->
+      <div class="info-card">
+        <div class="info-card-q">🏠 이용할 수 있는 서비스 종류</div>
+        <div class="info-card-point" style="background:#fce4ec;">
+          <strong style="color:#c62828;">재가급여</strong> — 집에서 받는 서비스<br>
+          방문요양·방문목욕·방문간호·주야간보호·단기보호
+        </div>
+        <div class="info-card-point" style="background:#e8f5e9;margin-top:8px;">
+          <strong style="color:#2e7d32;">시설급여</strong> — 요양원 입소 서비스<br>
+          노인요양시설·노인요양공동생활가정
+        </div>
+        <div class="info-card-point" style="background:#e3f2fd;margin-top:8px;">
+          <strong style="color:#1565c0;">특별현금급여</strong> — 가족이 직접 돌볼 때<br>
+          가족요양비 (도서·벽지 거주 시)
+        </div>
+      </div>
+
+      <!-- 본인부담금 -->
+      <div class="info-card">
+        <div class="info-card-q">💰 본인부담금은 얼마인가요?</div>
+        <div class="info-card-point">
+          재가급여: 해당 비용의 <strong>15%</strong> 부담<br>
+          시설급여: 해당 비용의 <strong>20%</strong> 부담<br>
+          기초수급자: <strong>무료</strong> (전액 면제)<br>
+          차상위계층: <strong>7.5~10%</strong> 경감
+        </div>
+        <div class="info-card-point" style="background:#e3f2fd;margin-top:8px;">
+          <strong style="color:#1565c0;">🆕 2026년 신규 혜택</strong><br>
+          ✅ 중증(1·2등급) 최초 방문간호 이용 시 <strong>3회까지 본인부담금 면제</strong><br>
+          ✅ 방문목욕 중증 가산 신설 (60분 이상 시 추가 지원)<br>
+          ✅ 재가급여 월 한도액 등급별 <strong>최대 24만 7,800원 인상</strong><br>
+          ✅ 병원동행 지원 서비스 시범사업 추진
+        </div>
+      </div>
+
+      <!-- 쿠팡 -->
+      <div class="coupon-box">
+        <div class="coupon-box-title">🛒 요양·건강 관련 추천 상품</div>
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/epro9WKk4i');return false;" class="coupon-item" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">🤸</span>
+          <div class="coupon-txt"><strong>어르신용 스트레칭 밴드</strong><span>재활·근력 강화에 도움</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+      </div>
+      <div style="font-size:11px;color:#888;text-align:center;margin-top:6px;">※ 쿠팡파트너스 제휴 링크 포함</div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       전환 페이지 5 — 서민금융교육
+  ══════════════════════════════════════ -->
+  <div id="page-finance" class="page-view">
+    <button class="back-btn" onclick="goBack()">◀ 복지혜택쇼핑으로 돌아가기</button>
+    <div class="page-sec-header" style="background:#fff8e1; border-color:#ffe082;">
+      <span class="page-sec-title" style="color:#e65100;">📚 서민금융교육</span>
+      <span class="page-sec-badge" style="background:#ffe082; color:#e65100;">무료 교육</span>
+    </div>
+    <div class="page-inner">
+
+      <div class="notice-box" style="margin-bottom:14px;">💡 서민금융진흥원에서 제공하는 <strong>무료 금융교육 콘텐츠</strong>입니다. 대출·보이스피싱·노후설계 등 다양한 교육을 받아보세요!</div>
+
+      <button class="page-btn" style="background:#e65100; color:#fff; margin-bottom:14px;" onclick="loadFinanceEdu()">📚 금융교육 콘텐츠 불러오기</button>
+
+      <div class="page-loading" id="pf-loading">
+        <span class="page-loading-icon">📚</span>
+        <div class="page-loading-txt" style="color:#e65100;">금융교육 콘텐츠를 불러오고 있어요...</div>
+      </div>
+      <div class="page-result" id="pf-result">
+        <div id="pf-cards"></div>
+      </div>
+
+      <!-- 내장 금융교육 주제 카드 -->
+      <div style="font-size:16px;font-weight:700;color:#e65100;margin:16px 0 10px;">📋 꼭 알아야 할 금융 상식</div>
+
+      <div class="finance-card">
+        <div class="finance-card-title">🚨 보이스피싱 예방법</div>
+        <div class="finance-card-desc">
+          ① 모르는 번호 전화는 일단 끊으세요<br>
+          ② 금융기관은 절대 통화 중 앱 설치를 요구하지 않습니다<br>
+          ③ 계좌번호·카드번호는 절대 알려주지 마세요<br>
+          ④ 의심되면 즉시 112 또는 1332에 신고하세요
+        </div>
+        <div class="badge-row"><span class="badge-red">신고: 112</span><span class="badge-red">금융감독원: 1332</span></div>
+      </div>
+
+      <div class="finance-card">
+        <div class="finance-card-title">💳 햇살론 (서민 저금리 대출)</div>
+        <div class="finance-card-desc">
+          연소득 3,500만원 이하 또는 신용점수 하위 20% 이하인 분들이 이용할 수 있는 정책 대출입니다.<br>
+          최대 3,000만원 · 연 10% 내외 금리로 이용 가능합니다.
+        </div>
+        <div class="badge-row"><span class="badge-orange">최대 3,000만원</span><span class="badge-green">연 10% 내외</span></div>
+        <a onclick="confirmExternalLink('https://www.kinfa.or.kr');return false;" class="finance-card-link" href="#"  rel="noopener">🔗 서민금융진흥원 바로가기</a>
+      </div>
+
+      <div class="finance-card">
+        <div class="finance-card-title">🏦 안심통장 (압류방지 통장)</div>
+        <div class="finance-card-desc">
+          기초연금·국민연금 등 복지급여가 입금되는 전용 통장으로, 채권자도 압류할 수 없어 안전하게 수령할 수 있습니다.
+        </div>
+        <div class="badge-row"><span class="badge-blue">압류 불가</span><span class="badge-green">복지급여 전용</span></div>
+      </div>
+
+      <div class="finance-card">
+        <div class="finance-card-title">📊 노후 생활비 계산법</div>
+        <div class="finance-card-desc">
+          국민연금연구원에 따르면 65세 이상 적정 생활비는 단독 148만원, 부부 237만원 수준입니다.<br>
+          기초연금 + 국민연금 + 개인연금을 합산해 부족한 부분을 미리 준비하세요.
+        </div>
+        <div class="badge-row"><span class="badge-blue">단독 약 148만원</span><span class="badge-blue">부부 약 237만원</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       전환 페이지 6 — 복지혜택검색
+  ══════════════════════════════════════ -->
+  <div id="page-benefit" class="page-view">
+    <button class="back-btn" onclick="goBack()">◀ 복지혜택쇼핑으로 돌아가기</button>
+    <div class="page-sec-header" style="background:#e8f5e9; border-color:#c8e6c9;">
+      <span class="page-sec-title" style="color:#2e7d32;">🎁 복지혜택 검색</span>
+      <span class="page-sec-badge" style="background:#c8e6c9; color:#2e7d32;">전국 복지서비스</span>
+    </div>
+    <div class="page-inner">
+
+      <!-- 검색 먼저 -->
+      <div style="font-size:16px;font-weight:700;color:#2e7d32;margin-bottom:10px;">🔍 복지혜택 키워드 검색</div>
+      <div class="notice-box" style="margin-bottom:12px;">💡 키워드를 입력하면 관련 복지서비스를 찾아드립니다. 예: <strong>기초연금, 의료비, 주거, 교육</strong></div>
+
+      <div class="search-row">
+        <input class="search-input" type="text" id="pb-keyword" placeholder="예: 기초연금, 의료비, 돌봄" maxlength="20">
+        <button class="search-btn" onclick="searchBenefit()">검색</button>
+      </div>
+
+      <div class="badge-row" style="margin-bottom:14px;">
+        <span class="badge-green" style="cursor:pointer;" onclick="quickSearch('기초연금')">기초연금</span>
+        <span class="badge-green" style="cursor:pointer;" onclick="quickSearch('의료비')">의료비 지원</span>
+        <span class="badge-green" style="cursor:pointer;" onclick="quickSearch('주거')">주거지원</span>
+        <span class="badge-green" style="cursor:pointer;" onclick="quickSearch('돌봄')">돌봄서비스</span>
+        <span class="badge-green" style="cursor:pointer;" onclick="quickSearch('일자리')">노인일자리</span>
+        <span class="badge-green" style="cursor:pointer;" onclick="quickSearch('교통')">교통할인</span>
+      </div>
+
+      <div class="page-loading" id="pb-loading">
+        <span class="page-loading-icon">🎁</span>
+        <div class="page-loading-txt" style="color:#2e7d32;">복지혜택을 검색하고 있어요...</div>
+      </div>
+      <div class="page-result" id="pb-result">
+        <div id="pb-cards"></div>
+      </div>
+
+      <!-- 꼭 챙겨야 할 혜택 5가지 (아래로) -->
+      <div style="font-size:16px;font-weight:700;color:#2e7d32;margin:20px 0 10px;">⭐ 어르신이 꼭 챙겨야 할 혜택 5가지</div>
+      <div class="notice-box" style="margin-bottom:12px;">💡 아래 혜택은 신청해야만 받을 수 있습니다! 해당되시면 바로 신청하세요.</div>
+
+      <div class="info-card" style="border-color:#c8e6c9;margin-bottom:8px;">
+        <div class="info-card-q" style="color:#2e7d32;">💰 기초연금</div>
+        <div class="info-card-a">만 65세 이상 소득 하위 70% 어르신께 매달 드리는 연금입니다. 신청하지 않으면 못 받습니다!</div>
+        <div class="badge-row" style="margin-bottom:10px;">
+          <span class="badge-green">만 65세 이상</span>
+          <span class="badge-green">소득기준 충족</span>
+          <span class="badge-green">매월 25일 지급</span>
+        </div>
+        <a onclick="confirmExternalLink('https://www.bokjiro.go.kr');return false;" href="#"  rel="noopener"
+           style="display:block;padding:10px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;border:1.5px solid #c8e6c9;">
+          🔗 복지로에서 신청하기 →
+        </a>
+      </div>
+
+      <div class="info-card" style="border-color:#c8e6c9;margin-bottom:8px;">
+        <div class="info-card-q" style="color:#2e7d32;">👷 노인일자리</div>
+        <div class="info-card-a">만 65세 이상 기초연금 수급자라면 공익활동형 노인일자리에 참여할 수 있습니다. 매년 연말에 모집합니다.</div>
+        <div class="badge-row" style="margin-bottom:10px;">
+          <span class="badge-green">만 65세 이상</span>
+          <span class="badge-green">기초연금 수급자</span>
+          <span class="badge-blue">문의: 1544-3388</span>
+        </div>
+        <a onclick="confirmExternalLink('https://www.seniorro.or.kr');return false;" href="#"  rel="noopener"
+           style="display:block;padding:10px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;border:1.5px solid #c8e6c9;">
+          🔗 노인일자리 여기에서 신청하기 →
+        </a>
+      </div>
+
+      <div class="info-card" style="border-color:#c8e6c9;margin-bottom:8px;">
+        <div class="info-card-q" style="color:#2e7d32;">🤝 노인맞춤돌봄서비스</div>
+        <div class="info-card-a">혼자 생활이 어려운 65세 이상 어르신께 안부확인·가사지원·병원동행 등을 무료로 제공합니다.</div>
+        <div class="badge-row" style="margin-bottom:10px;">
+          <span class="badge-green">만 65세 이상</span>
+          <span class="badge-green">기초·차상위·기초연금 수급자</span>
+          <span class="badge-green">전액 무료</span>
+        </div>
+        <a onclick="confirmExternalLink('https://www.bokjiro.go.kr');return false;" href="#"  rel="noopener"
+           style="display:block;padding:10px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;border:1.5px solid #c8e6c9;">
+          🔗 주민센터 방문 또는 복지로 신청 →
+        </a>
+      </div>
+
+      <div class="info-card" style="border-color:#c8e6c9;margin-bottom:8px;">
+        <div class="info-card-q" style="color:#2e7d32;">💊 의료비 지원 (본인부담상한제)</div>
+        <div class="info-card-a">1년간 의료비가 소득 수준별 상한액을 초과하면 초과분을 건강보험공단이 돌려줍니다. 자동 지급되지만 확인이 필요합니다.</div>
+        <div class="badge-row" style="margin-bottom:10px;">
+          <span class="badge-blue">건강보험 가입자</span>
+          <span class="badge-blue">소득 수준별 차등</span>
+          <span class="badge-blue">문의: 1577-1000</span>
+        </div>
+        <a onclick="confirmExternalLink('https://www.nhis.or.kr');return false;" href="#"  rel="noopener"
+           style="display:block;padding:10px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;border:1.5px solid #c8e6c9;">
+          🔗 국민건강보험공단 확인하기 →
+        </a>
+      </div>
+
+      <div class="info-card" style="border-color:#c8e6c9;margin-bottom:14px;">
+        <div class="info-card-q" style="color:#2e7d32;">⚡ 에너지바우처</div>
+        <div class="info-card-a">기초생활수급자 중 노인·장애인·영유아 가구에 전기·가스·등유 요금을 지원합니다. 매년 신청해야 합니다.</div>
+        <div class="badge-row" style="margin-bottom:10px;">
+          <span class="badge-red">기초생활수급자</span>
+          <span class="badge-orange">노인·장애인·영유아 포함</span>
+          <span class="badge-blue">문의: 1600-3190</span>
+        </div>
+        <a onclick="confirmExternalLink('https://www.energyv.or.kr');return false;" href="#"  rel="noopener"
+           style="display:block;padding:10px;background:#e8f5e9;color:#2e7d32;border-radius:10px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;border:1.5px solid #c8e6c9;">
+          🔗 한국에너지공단 신청하기 →
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       전환 페이지 7 — 전통시장·상가
+  ══════════════════════════════════════ -->
+  <div id="page-store" class="page-view">
+    <button class="back-btn" onclick="goBack()">◀ 복지혜택쇼핑으로 돌아가기</button>
+    <div class="page-sec-header" style="background:#fce4ec; border-color:#f8bbd0;">
+      <span class="page-sec-title" style="color:#880e4f;">🏪 전통시장·상가</span>
+      <span class="page-sec-badge" style="background:#f8bbd0; color:#880e4f;">내 주변 찾기</span>
+    </div>
+    <div class="page-inner">
+
+      <!-- 검색 먼저 -->
+      <div style="font-size:16px;font-weight:700;color:#880e4f;margin-bottom:10px;">🔍 내 주변 상가 검색</div>
+      <button class="page-btn" style="background:#880e4f;color:#fff;margin-bottom:10px;" onclick="searchStoreGPSPage()">📍 내 위치로 찾기</button>
+      <div style="text-align:center;font-size:13px;color:#999;margin-bottom:10px;">— 또는 지역으로 검색 —</div>
+
+      <span class="page-label">📍 지역 선택</span>
+      <select class="page-select" id="ps-sido" style="border-color:#f8bbd0;" onchange="updatePSSigungu()">
+        <option value="">시·도 선택</option>
+        <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
+        <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
+        <option>울산광역시</option><option>세종특별자치시</option><option>경기도</option>
+        <option>강원도</option><option>충청북도</option><option>충청남도</option>
+        <option>전라북도</option><option>전라남도</option><option>경상북도</option>
+        <option>경상남도</option><option>제주특별자치도</option>
+      </select>
+      <select class="page-select" id="ps-sigungu" style="border-color:#f8bbd0;">
+        <option value="">시·군·구 선택</option>
+      </select>
+
+      <span class="page-label">🏪 업종 선택</span>
+      <select class="page-select" id="ps-type" style="border-color:#f8bbd0;">
+        <option value="전통시장">전통시장</option>
+        <option value="슈퍼마켓">슈퍼마켓</option>
+        <option value="약국">약국</option>
+        <option value="병원">병원·의원</option>
+        <option value="음식점">음식점</option>
+        <option value="미용실">미용실</option>
+      </select>
+
+      <button class="page-btn" style="background:#880e4f;color:#fff;" onclick="searchStore()">🔍 주변 상가 찾기</button>
+
+      <div class="page-loading" id="ps-loading">
+        <span class="page-loading-icon">🏪</span>
+        <div class="page-loading-txt" style="color:#880e4f;">주변 상가를 찾고 있어요...</div>
+      </div>
+      <div class="page-result" id="ps-result">
+        <div id="ps-cards" style="margin-top:12px;"></div>
+      </div>
+
+      <!-- 온누리상품권 안내 (아래로) -->
+      <div style="font-size:16px;font-weight:700;color:#880e4f;margin:20px 0 10px;">🎫 온누리상품권 — 전통시장 할인 혜택</div>
+
+      <div class="info-card" style="border-color:#f8bbd0;margin-bottom:8px;">
+        <div class="info-card-q" style="color:#880e4f;">📱 디지털 온누리상품권</div>
+        <div class="info-card-a">스마트폰 앱에 카드를 등록하고 충전하면 전통시장에서 10% 할인된 가격으로 쓸 수 있습니다.</div>
+        <div class="info-card-point" style="background:#fce4ec;color:#880e4f;margin-top:8px;">
+          ✅ 할인율: <strong>10%</strong><br>
+          ✅ 월 구매한도: <strong>100만원</strong><br>
+          ✅ 구매방법: '디지털온누리' 앱 설치 → 카드등록 → 충전<br>
+          ✅ 연말정산 전통시장 소득공제 <strong>40%</strong> 적용
+        </div>
+      </div>
+
+      <div class="info-card" style="border-color:#f8bbd0;margin-bottom:8px;">
+        <div class="info-card-q" style="color:#880e4f;">📄 지류(종이) 온누리상품권</div>
+        <div class="info-card-a">스마트폰이 불편하신 어르신은 은행 창구에서 종이 상품권으로 구매하실 수 있습니다.</div>
+        <div class="info-card-point" style="background:#fce4ec;color:#880e4f;margin-top:8px;">
+          ✅ 할인율: <strong>5%</strong><br>
+          ✅ 월 구매한도: <strong>50만원</strong><br>
+          ✅ 구매장소: 농협·신한·국민·우체국 등 은행 창구<br>
+          ✅ 5천원·1만원권 단위 구매
+        </div>
+      </div>
+
+      <div class="notice-box" style="margin-bottom:8px;">
+        ⚠️ 할인율과 한도는 예산 상황에 따라 변동될 수 있습니다. 최신 정보는 공식 사이트에서 확인하세요.
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <a onclick="confirmExternalLink('https://onnurigift.or.kr');return false;" href="#"  rel="noopener"
+           style="flex:1;display:block;padding:12px;background:#880e4f;color:#fff;border-radius:10px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;">
+          🔗 온누리상품권 공식 사이트
+        </a>
+        <a onclick="confirmExternalLink('https://map.kakao.com/?q=전통시장');return false;" href="#"  rel="noopener"
+           style="flex:1;display:block;padding:12px;background:#FEE500;color:#1a1a1a;border-radius:10px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;">
+          📍 전통시장 지도 찾기
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       전환 페이지 — 시니어쇼핑
+  ══════════════════════════════════════ -->
+  <div id="page-shopping" class="page-view">
+    <button class="back-btn" onclick="goBack()">◀ 복지혜택쇼핑으로 돌아가기</button>
+    <div class="page-sec-header" style="background:#fff3e0; border-color:#ffe0b2;">
+      <span class="page-sec-title" style="color:#bf360c;">🛒 시니어쇼핑</span>
+      <span class="page-sec-badge" style="background:#ffe0b2; color:#bf360c;">어르신 맞춤 추천</span>
+    </div>
+    <div class="page-inner">
+
+      <div class="notice-box" style="margin-bottom:16px;">💡 어르신들이 자주 찾으시는 상품을 카테고리별로 모았습니다. 링크 클릭 시 쿠팡으로 이동합니다.</div>
+
+      <!-- 건강·의료 -->
+      <div style="font-size:16px;font-weight:700;color:#bf360c;margin-bottom:10px;">💊 건강·의료용품</div>
+      <div class="coupon-box" style="margin-top:0;margin-bottom:14px;">
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/eprmVzlcaG');return false;" class="coupon-item" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">🩺</span>
+          <div class="coupon-txt"><strong>가정용 혈압계 (팔뚝형)</strong><span>큰 글씨 화면, 어르신 사용 편리</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/eprkafAUCa');return false;" class="coupon-item" style="margin-top:8px;" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">💊</span>
+          <div class="coupon-txt"><strong>종합 영양제 (60대 이상 전용)</strong><span>면역·관절·눈 건강 한번에</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/epro9WKk4i');return false;" class="coupon-item" style="margin-top:8px;" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">🤸</span>
+          <div class="coupon-txt"><strong>어르신용 스트레칭 밴드</strong><span>재활·근력 강화, 집에서 간편하게</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+      </div>
+
+      <!-- 생활편의 -->
+      <div style="font-size:16px;font-weight:700;color:#bf360c;margin-bottom:10px;">🏠 생활편의용품</div>
+      <div class="coupon-box" style="margin-top:0;margin-bottom:14px;">
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/eprIwyvJAq');return false;" class="coupon-item" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">📱</span>
+          <div class="coupon-txt"><strong>스마트폰 학습책 (어르신용)</strong><span>큰 글씨·사진으로 쉽게 배우는 스마트폰</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/eprv1Z5nEa');return false;" class="coupon-item" style="margin-top:8px;" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">🗂️</span>
+          <div class="coupon-txt"><strong>중요 서류 보관함</strong><span>계약서·증서·통장 안전하게 보관</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/epr6gu1q1s');return false;" class="coupon-item" style="margin-top:8px;" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">☂️</span>
+          <div class="coupon-txt"><strong>자동 우산 (대형)</strong><span>한 손으로 펴지는 어르신 편의 우산</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+      </div>
+
+      <!-- 식품·건강식 -->
+      <div style="font-size:16px;font-weight:700;color:#bf360c;margin-bottom:10px;">🍵 식품·건강식</div>
+      <div class="coupon-box" style="margin-top:0;margin-bottom:14px;">
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/eprPjdkp2W');return false;" class="coupon-item" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">🍵</span>
+          <div class="coupon-txt"><strong>전통차 선물세트</strong><span>국화차·녹차·둥굴레차 모음</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/eprkafAUCa');return false;" class="coupon-item" style="margin-top:8px;" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">🌿</span>
+          <div class="coupon-txt"><strong>홍삼 정 (6년근)</strong><span>면역력·피로회복에 도움</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+      </div>
+
+      <!-- 여가·취미 -->
+      <div style="font-size:16px;font-weight:700;color:#bf360c;margin-bottom:10px;">🎒 여가·취미</div>
+      <div class="coupon-box" style="margin-top:0;margin-bottom:14px;">
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/epr05XTGAS');return false;" class="coupon-item" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">🎒</span>
+          <div class="coupon-txt"><strong>등산 배낭 (20L)</strong><span>가볍고 허리 편한 시니어 등산용</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+        <a onclick="confirmExternalLink('https://link.coupang.com/a/eprrnP9xhQ');return false;" class="coupon-item" style="margin-top:8px;" href="#"  rel="noopener noreferrer sponsored">
+          <span class="coupon-icon">📖</span>
+          <div class="coupon-txt"><strong>베스트셀러 도서</strong><span>어르신 인기 도서 모음</span></div>
+          <span class="coupon-arrow">→</span>
+        </a>
+      </div>
+
+      <div style="font-size:11px;color:#888;text-align:center;margin-top:6px;line-height:1.7;">
+        ※ 이 페이지는 쿠팡파트너스 제휴 링크를 포함하고 있습니다.<br>
+        링크를 통해 구매 시 봄날마당이 일정 수수료를 받을 수 있으며, 구매자분께 추가 비용은 없습니다.
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /wrap -->
 
 <script>
-function showToast(msg){
-  var t=document.getElementById('toast-msg');
-  if(!t){t=document.createElement('div');t.id='toast-msg';t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:700;z-index:9999;text-align:center;max-width:85%;line-height:1.6;word-break:keep-all;';document.body.appendChild(t);}
-  t.textContent=msg;t.style.display='block';
-  clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display='none';},3500);
+/* 날짜 표시 → 하단 initDate() 에서 처리 */
+
+/* ══════════════════════════════════════
+   전환 페이지 — 복지시설 GPS 검색
+══════════════════════════════════════ */
+function searchWelfareGPSPage() {
+  if (!navigator.geolocation) { alert('위치 서비스를 지원하지 않는 기기입니다.'); return; }
+  var type    = document.getElementById('pw-type').value;
+  var loading = document.getElementById('pw-loading');
+  var result  = document.getElementById('pw-result');
+  loading.classList.add('show'); result.classList.remove('show');
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    fetch('/api/benefit?type=welfare&lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&facilityType='+encodeURIComponent(type))
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        loading.classList.remove('show');
+        var items = [];
+        try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+        if (items.length === 0) {
+          document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 주변 복지시설이 없습니다.<br>지역 선택으로 검색해 보세요.</div>';
+        } else {
+          document.getElementById('pw-cards').innerHTML = items.map(function(item){
+            return '<div class="welfare-card">'
+              +'<div class="welfare-card-top"><span class="welfare-card-name">'+(item.fcltNm||item.fcltyNm||'시설명 없음')+'</span>'
+              +'<span class="welfare-card-type">'+(item.fcltyTy||item.fcltKindNm||'복지시설')+'</span></div>'
+              +'<div class="welfare-card-addr">📍 '+(item.rdnmadr||item.lotnoAddr||'주소 없음')+'</div>'
+              +(item.phoneNo ? '<a class="welfare-card-tel" href="tel:'+item.phoneNo+'">📞 '+item.phoneNo+'</a>' : '')
+              +'</div>';
+          }).join('');
+        }
+        result.classList.add('show');
+      })
+      .catch(function(){ loading.classList.remove('show'); document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다.</div>'; result.classList.add('show'); });
+  }, function(){ loading.classList.remove('show'); alert('위치 정보를 가져오지 못했습니다.\n지역을 직접 선택해 주세요.'); });
 }
 
-function calcSupport(){
-  var age=parseInt(document.getElementById('calc-age').value);
-  var income=parseInt(document.getElementById('calc-income').value)||0;
-  var pension=document.getElementById('calc-pension').value;
-  if(!age||!pension){showToast('나이, 연금 수령 여부를 모두 선택해 주세요!');return;}
-  var amount=0,desc='';
-  if(age>=65){
-    if(income<2000000){amount+=334000;}else if(income<3000000){amount+=200000;}
-    desc+='✅ 기초연금: 올해 기준 최대 334,000원\n';
+/* ══════════════════════════════════════
+   전환 페이지 — 전통시장·상가 GPS 검색
+══════════════════════════════════════ */
+function searchStoreGPSPage() {
+  if (!navigator.geolocation) { alert('위치 서비스를 지원하지 않는 기기입니다.'); return; }
+  var type    = document.getElementById('ps-type').value;
+  var loading = document.getElementById('ps-loading');
+  var result  = document.getElementById('ps-result');
+  loading.classList.add('show'); result.classList.remove('show');
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    fetch('/api/benefit?type=store&lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&keyword='+encodeURIComponent(type))
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        loading.classList.remove('show');
+        var items = [];
+        try { items = data.data || data.response?.body?.items?.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+        if (items.length === 0) {
+          document.getElementById('ps-cards').innerHTML = '<div class="empty-msg">😔 주변 상가가 없습니다.<br>지역 선택으로 검색해 보세요.</div>';
+        } else {
+          document.getElementById('ps-cards').innerHTML = items.map(function(item){
+            return '<div class="store-card">'
+              +'<div class="store-card-name">'+(item.bizesNm||item.bsnNm||'상호명 없음')+'</div>'
+              +'<span class="store-card-type">'+(item.uptaeNm||item.indsLclsNm||type)+'</span>'
+              +'<div class="store-card-addr">📍 '+(item.rdnmadr||item.lnmAddr||'주소 없음')+'</div>'
+              +(item.telNo ? '<a class="store-card-tel" href="tel:'+item.telNo+'">📞 '+item.telNo+'</a>' : '')
+              +'</div>';
+          }).join('');
+        }
+        result.classList.add('show');
+      })
+      .catch(function(){ loading.classList.remove('show'); document.getElementById('ps-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다.</div>'; result.classList.add('show'); });
+  }, function(){ loading.classList.remove('show'); alert('위치 정보를 가져오지 못했습니다.\n지역을 직접 선택해 주세요.'); });
+}
+
+/* ══════════════════════════════════════
+   기초연금 수급 자가진단
+══════════════════════════════════════ */
+function checkPension() {
+  var age      = parseInt(document.getElementById('pp-age').value) || 0;
+  var nation   = document.getElementById('pp-nation').value;
+  var family   = document.getElementById('pp-family').value;
+  var income   = parseInt(document.getElementById('pp-income').value) || 0;
+  var estate   = parseInt(document.getElementById('pp-estate').value) || 0;
+  var finance  = parseInt(document.getElementById('pp-finance').value) || 0;
+  var pension  = document.getElementById('pp-pension').value;
+  var car      = document.getElementById('pp-car').value;
+
+  if (!age) { alert('나이를 입력해 주세요'); return; }
+
+  var result = '';
+  var color  = '';
+  var icon   = '';
+
+  /* 기본 불가 조건 */
+  if (age < 65) {
+    result = '<strong>65세 미만 — 신청 불가</strong><br>기초연금은 만 65세 이상부터 신청 가능합니다.<br><br>👉 만 65세가 되시면 바로 신청하세요!';
+    color = '#e53935'; icon = '❌';
+  } else if (nation === 'no') {
+    result = '<strong>해외 거주·외국 국적 — 신청 불가</strong><br>대한민국 국적자이며 국내 거주자만 수급 가능합니다.';
+    color = '#e53935'; icon = '❌';
+  } else {
+    /* 소득인정액 간이 계산 */
+    var incomeLimit = family === 'single' ? 247 : 395;
+    /* 재산 소득환산 (간이): 부동산·금융재산 합산 후 월 환산 (약 4% / 12개월) */
+    var estateIncome  = Math.round(estate  * 0.04 / 12);
+    var financeIncome = Math.round(finance * 0.04 / 12);
+    /* 국민연금 소득 */
+    var pensionIncome = pension === 'low' ? 25 : pension === 'mid' ? 75 : pension === 'high' ? 120 : 0;
+    /* 자동차 환산 */
+    var carIncome = car === 'new' ? 30 : 0;
+
+    var totalIncome = income + estateIncome + financeIncome + pensionIncome + carIncome;
+
+    if (totalIncome <= incomeLimit * 0.7) {
+      result = '<strong>수급 가능성 높음 ✅</strong><br>입력하신 정보 기준으로 기초연금 수급 가능성이 높습니다.<br><br>'
+        + '예상 소득인정액: 약 <strong>' + totalIncome.toLocaleString() + '만원</strong> / 월<br>'
+        + '기준: ' + incomeLimit.toLocaleString() + '만원 이하<br><br>'
+        + '👉 아래 버튼으로 복지로에서 정확하게 확인하고 신청하세요!';
+      color = '#2e7d32'; icon = '✅';
+    } else if (totalIncome <= incomeLimit) {
+      result = '<strong>수급 가능성 있음 🔶</strong><br>소득인정액 기준에 근접합니다. 정확한 확인이 필요합니다.<br><br>'
+        + '예상 소득인정액: 약 <strong>' + totalIncome.toLocaleString() + '만원</strong> / 월<br>'
+        + '기준: ' + incomeLimit.toLocaleString() + '만원 이하<br><br>'
+        + '👉 주민센터 또는 국민연금공단(☎ 1355)에서 정확한 소득인정액을 계산받아보세요.';
+      color = '#f57f17'; icon = '🔶';
+    } else {
+      result = '<strong>수급 어려울 수 있음 ⚠️</strong><br>입력하신 정보 기준으로 소득인정액이 기준을 초과할 수 있습니다.<br><br>'
+        + '예상 소득인정액: 약 <strong>' + totalIncome.toLocaleString() + '만원</strong> / 월<br>'
+        + '기준: ' + incomeLimit.toLocaleString() + '만원 이하<br><br>'
+        + '👉 그래도 주민센터에서 정확한 계산을 받아보세요. 실제 결과는 다를 수 있습니다.';
+      color = '#e53935'; icon = '⚠️';
+    }
   }
-  if(age>=60&&income<1500000){amount+=300000;desc+='✅ 노인일자리: 공익활동형 월 270,000원\n';}
-  if(pension==='n'&&age>=60){desc+='✅ 국민연금 임의가입 검토 필요\n';}
-  desc+='\n※ 실제 수령 금액은 개인마다, 지역마다 다를 수 있어요\n지금 바로 복지로에서 정확하게 확인해 주세요!';
-  document.getElementById('calc-amount').textContent='월 '+amount.toLocaleString()+'원';
-  document.getElementById('calc-desc').textContent=desc;
-  document.getElementById('calc-result').classList.add('show');
+
+  var box = document.getElementById('pp-result-box');
+  box.innerHTML = '<div style="background:#f8f9ff;border:2px solid '+color+';border-radius:12px;padding:16px;">'
+    + '<div style="font-size:20px;margin-bottom:8px;">'+icon+'</div>'
+    + '<div style="font-size:14px;color:#333;line-height:1.8;">'+result+'</div>'
+    + '<div style="margin-top:10px;font-size:11px;color:#999;">※ 이 결과는 참고용이며 실제 수급 여부는 담당기관에서 확인하세요.</div>'
+    + '</div>';
+  document.getElementById('pp-result').style.display = 'block';
+  document.getElementById('pp-result').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ══════════════════════════════════════
+   장기요양 등급 자가체크
+══════════════════════════════════════ */
+function checkLongterm() {
+  var duration = parseInt(document.getElementById('lt-duration').value) || 0;
+  var score = 0;
+  var count = 0;
+  var hasDementia = false;
+
+  document.querySelectorAll('#lt-physical input[type=checkbox]:checked,#lt-cognitive input[type=checkbox]:checked,#lt-behavior input[type=checkbox]:checked')
+    .forEach(function(cb) {
+      score += parseInt(cb.value) || 0;
+      count++;
+      if (cb.value === '4') hasDementia = true;
+    });
+
+  var result = '';
+  var color  = '';
+  var icon   = '';
+  var countTxt = '체크하신 항목: <strong>' + count + '개</strong><br><br>';
+
+  if (score === 0) {
+    result = '<strong>해당 항목 없음</strong><br><br>'
+      + '현재 입력하신 내용으로는 장기요양 신청이 필요하지 않을 수 있습니다.<br><br>'
+      + '💡 증상이 생기시면 언제든지 다시 확인해 보세요.<br>'
+      + '궁금하신 점은 국민건강보험공단(☎ 1577-1000)에 문의하세요.';
+    color = '#2e7d32'; icon = '✅';
+
+  } else if (duration === 0) {
+    result = '<strong>아직 신청 시기가 아닙니다</strong><br><br>'
+      + countTxt
+      + '증상이 있으시지만 장기요양 신청은 <strong>6개월 이상 지속</strong>되어야 가능합니다.<br><br>'
+      + '<strong>📅 지금 해두실 것</strong><br>'
+      + '① 오늘 날짜를 메모해 두세요<br>'
+      + '② 증상이 언제부터 시작됐는지 기록해 두세요<br>'
+      + '③ 6개월이 지나면 바로 신청하세요!<br><br>'
+      + '<strong>💡 미리 알아두세요</strong><br>'
+      + '• 신청은 국민건강보험공단(☎ 1577-1000) 또는 주민센터에서 할 수 있습니다<br>'
+      + '• 신청 후 공단 직원이 댁으로 방문해서 직접 상태를 확인합니다 (약 30일 소요)<br>'
+      + '• 지금 미리 전화 상담만 받아보실 수도 있어요<br><br>'
+      + '⚠️ 단, 증상이 갑자기 심해지거나 응급 상황이라면 즉시 ☎ 1577-1000으로 연락하세요!';
+    color = '#f57f17'; icon = '🔶';
+
+  } else if (hasDementia) {
+    result = '<strong>장기요양 신청을 강력히 권장합니다 (치매 진단)</strong><br><br>'
+      + countTxt
+      + '장기요양 등급 기준으로 판단할 때 <strong>치매 특별등급(5등급) 또는 인지지원등급</strong> 수준입니다.<br><br>'
+      + '<strong>📋 지금 바로 하실 것</strong><br>'
+      + '① 국민건강보험공단(☎ 1577-1000) 전화 또는 주민센터 방문 신청<br>'
+      + '② 신분증 + 통장사본 준비하세요<br>'
+      + '③ 치매 진단서 또는 의사 소견서가 필요합니다<br><br>'
+      + '<strong>📅 신청 후 진행 과정</strong><br>'
+      + '• 공단 직원이 댁으로 방문 (약 14일 내)<br>'
+      + '• 등급 판정 결과 통보 (약 30일 소요)<br>'
+      + '• 등급 받으면 다음 달부터 서비스 이용 가능!<br><br>'
+      + '<strong>💡 받을 수 있는 서비스</strong><br>'
+      + '• 방문요양 — 요양보호사가 댁으로 방문<br>'
+      + '• 주야간보호 — 낮 동안 시설 이용<br>'
+      + '• 치매 전담 요양원 입소 가능';
+    color = '#c62828'; icon = '🚨';
+
+  } else if (score >= 15) {
+    result = '<strong>장기요양 신청을 강력히 권장합니다</strong><br><br>'
+      + countTxt
+      + '장기요양 등급 기준으로 판단할 때 <strong>중증 (상당 부분 도움 필요)</strong> 수준입니다.<br><br>'
+      + '<strong>📋 지금 바로 하실 것</strong><br>'
+      + '① 국민건강보험공단(☎ 1577-1000) 전화 또는 주민센터 방문 신청<br>'
+      + '② 신분증 + 통장사본 준비하세요<br>'
+      + '③ 담당 병원에서 의사 소견서를 받아두세요<br><br>'
+      + '<strong>📅 신청 후 진행 과정</strong><br>'
+      + '• 공단 직원이 댁으로 방문 (약 14일 내)<br>'
+      + '• 등급 판정 결과 통보 (약 30일 소요)<br>'
+      + '• 등급 받으면 다음 달부터 서비스 이용 가능!<br><br>'
+      + '<strong>💡 받을 수 있는 서비스</strong><br>'
+      + '• 방문요양 — 요양보호사가 댁으로 방문<br>'
+      + '• 방문목욕 — 목욕 서비스 제공<br>'
+      + '• 주야간보호 — 낮 동안 시설 이용<br>'
+      + '• 요양원 입소 — 24시간 케어';
+    color = '#c62828'; icon = '🚨';
+
+  } else if (score >= 10) {
+    result = '<strong>장기요양 신청을 권장합니다</strong><br><br>'
+      + countTxt
+      + '장기요양 등급 기준으로 판단할 때 <strong>중등증 (부분적으로 도움 필요)</strong> 수준입니다.<br><br>'
+      + '<strong>📋 이렇게 하세요</strong><br>'
+      + '① 국민건강보험공단(☎ 1577-1000) 전화<br>'
+      + '   → 신청 전 전화 상담도 가능합니다<br>'
+      + '② 신청 후 공단 직원이 댁으로 방문 조사<br>'
+      + '③ 등급 외 판정이 나와도 실망 마세요!<br><br>'
+      + '<strong>💡 등급 외 판정 시에도</strong><br>'
+      + '노인맞춤돌봄서비스(무료)를 받으실 수 있어요!<br>'
+      + '가까운 주민센터에 문의하세요.';
+    color = '#e53935'; icon = '🔴';
+
+  } else if (score >= 5) {
+    result = '<strong>전문가 상담을 받아보세요</strong><br><br>'
+      + countTxt
+      + '장기요양 등급 기준으로 판단할 때 <strong>경증 (일정 부분 도움 필요)</strong> 수준입니다.<br><br>'
+      + '💡 등급 받기 어려울 수 있지만<br>'
+      + '신청 자체는 누구나 할 수 있습니다!<br><br>'
+      + '등급 외 판정이 나와도<br>'
+      + '→ 노인맞춤돌봄서비스(무료)로 연계됩니다<br><br>'
+      + '<strong>📞 먼저 전화 상담해 보세요</strong><br>'
+      + '국민건강보험공단 ☎ 1577-1000';
+    color = '#f57f17'; icon = '🔶';
+
+  } else {
+    result = '<strong>전문가 상담을 받아보세요</strong><br><br>'
+      + countTxt
+      + '장기요양 등급 기준으로 판단할 때 <strong>경증 (일부 도움 필요)</strong> 수준으로 보입니다.<br><br>'
+      + '💡 해당 항목이 일부 있으시지만<br>'
+      + '신청 자체는 누구나 할 수 있습니다!<br><br>'
+      + '등급 외 판정이 나와도<br>'
+      + '→ 노인맞춤돌봄서비스(무료)로 연계됩니다<br><br>'
+      + '<strong>📞 먼저 전화 상담해 보세요</strong><br>'
+      + '국민건강보험공단 ☎ 1577-1000';
+    color = '#1565c0'; icon = 'ℹ️';
+  }
+
+  var box = document.getElementById('lt-result-box');
+  box.innerHTML = '<div style="background:#fff9f9;border:2px solid '+color+';border-radius:12px;padding:16px;">'
+    + '<div style="font-size:20px;margin-bottom:8px;">'+icon+'</div>'
+    + '<div style="font-size:14px;color:#333;line-height:1.9;">'+result+'</div>'
+    + '<div style="margin-top:12px;font-size:11px;color:#999;border-top:1px solid #eee;padding-top:10px;">※ 이 결과는 참고용이며 실제 등급은 공단 방문조사 후 결정됩니다.</div>'
+    + '</div>';
+  document.getElementById('lt-result').style.display = 'block';
+  document.getElementById('lt-result').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ══════════════════════════════════════
+   화면 전환
+══════════════════════════════════════ */
+var currentPage = null;
+
+function goPage(id) {
+  document.getElementById('main-view').style.display = 'none';
+  if (currentPage) {
+    document.getElementById(currentPage).classList.remove('active');
+  }
+  currentPage = id;
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+
+  /* ── 페이지별 리셋 ── */
+  resetPage(id);
+}
+
+function resetPage(id) {
+  /* 공통 헬퍼 — 값 초기화 */
+  function resetVal(elId, val) { var el = document.getElementById(elId); if (el) el.value = val !== undefined ? val : ''; }
+  function resetResult(elId) { var el = document.getElementById(elId); if (el) { el.classList.remove('show'); el.style.display = 'none'; } }
+  function hideEl(elId) { var el = document.getElementById(elId); if (el) el.style.display = 'none'; }
+  function removeShow(elId) { var el = document.getElementById(elId); if (el) el.classList.remove('show'); }
+
+  if (id === 'page-calc') {
+    /* 혜택계산기 전환 페이지 */
+    resetVal('pc-age'); resetVal('pc-income');
+    resetVal('pc-family', 'single'); resetVal('pc-disability', 'none');
+    document.getElementById('pc-result-box').classList.remove('show');
+    hideEl('pc-bokjiro-link');
+  }
+
+  else if (id === 'page-pension') {
+    /* 기초연금 자가진단 */
+    resetVal('pp-age'); resetVal('pp-income');
+    resetVal('pp-nation', 'ok'); resetVal('pp-family', 'single');
+    resetVal('pp-estate', '0'); resetVal('pp-finance', '0');
+    resetVal('pp-pension', 'none'); resetVal('pp-car', 'none');
+    hideEl('pp-result');
+  }
+
+  else if (id === 'page-welfare') {
+    /* 복지시설 찾기 */
+    resetVal('pw-sido'); resetVal('pw-sigungu'); resetVal('pw-type');
+    document.getElementById('pw-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
+    removeShow('pw-loading'); removeShow('pw-result');
+    document.getElementById('pw-cards').innerHTML = '';
+  }
+
+  else if (id === 'page-lawyer') {
+    /* 마을변호사 */
+    resetVal('pl-sido'); resetVal('pl-sigungu');
+    document.getElementById('pl-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
+    removeShow('pl-loading'); removeShow('pl-result');
+    document.getElementById('pl-cards').innerHTML = '';
+  }
+
+  else if (id === 'page-longterm') {
+    /* 장기요양 자가체크 */
+    document.querySelectorAll('#lt-physical input[type=checkbox],#lt-cognitive input[type=checkbox],#lt-behavior input[type=checkbox]')
+      .forEach(function(cb) { cb.checked = false; });
+    resetVal('lt-duration', '0');
+    hideEl('lt-result');
+    document.getElementById('lt-result-box').innerHTML = '';
+  }
+
+  else if (id === 'page-finance') {
+    /* 서민금융교육 */
+    removeShow('pf-loading'); removeShow('pf-result');
+    document.getElementById('pf-cards').innerHTML = '';
+  }
+
+  else if (id === 'page-benefit') {
+    /* 복지혜택 검색 */
+    resetVal('pb-keyword');
+    removeShow('pb-loading'); removeShow('pb-result');
+    document.getElementById('pb-cards').innerHTML = '';
+  }
+
+  else if (id === 'page-store') {
+    /* 전통시장·상가 */
+    resetVal('ps-sido'); resetVal('ps-sigungu');
+    document.getElementById('ps-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
+    resetVal('ps-type', '전통시장');
+    removeShow('ps-loading'); removeShow('ps-result');
+    document.getElementById('ps-cards').innerHTML = '';
+  }
+}
+
+function goBack() {
+  if (currentPage) {
+    document.getElementById(currentPage).classList.remove('active');
+    currentPage = null;
+  }
+  document.getElementById('main-view').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function scrollToCalc() {
+  document.getElementById('calc-sec').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ══════════════════════════════════════
+   혜택계산기
+══════════════════════════════════════ */
+function calcBenefit() {
+  var age        = parseInt(document.getElementById('inp-age').value)    || 0;
+  var income     = parseInt(document.getElementById('inp-income').value) || 0;
+  var family     = document.getElementById('inp-family').value;
+  var disability = document.getElementById('inp-disability').value;
+
+  if (age < 50) { alert('나이를 정확히 입력해 주세요 (만 50세 이상)'); return; }
+
+  var incomeLimit = family === 'single' ? 247 : 395;
+  var pensionAmt = 0, jobAmt = 0;
+
+  /* 기초연금 */
+  var resPension = document.getElementById('res-pension');
+  if (age >= 65 && income <= incomeLimit) {
+    pensionAmt = 349700;
+    resPension.textContent = '월 349,700원';
+    resPension.className = 'result-val possible';
+  } else if (age < 65) {
+    resPension.textContent = '65세 미만';
+    resPension.className = 'result-val none';
+  } else {
+    resPension.textContent = '소득 초과 가능성';
+    resPension.className = 'result-val check';
+  }
+
+  /* 노인일자리 */
+  var resJob = document.getElementById('res-job');
+  if (age >= 65 && pensionAmt > 0) {
+    jobAmt = 290000;
+    resJob.textContent = '월 290,000원';
+    resJob.className = 'result-val possible';
+  } else if (age < 65) {
+    resJob.textContent = '65세 미만';
+    resJob.className = 'result-val none';
+  } else {
+    resJob.textContent = '기초연금 수급 필요';
+    resJob.className = 'result-val check';
+  }
+
+  /* 건강보험료 경감 */
+  var resHealth = document.getElementById('res-health');
+  if (age >= 65) {
+    resHealth.textContent = '경감 가능';
+    resHealth.className = 'result-val possible';
+  } else {
+    resHealth.textContent = '65세 미만';
+    resHealth.className = 'result-val none';
+  }
+
+  /* 교통카드 할인 */
+  var resTraffic = document.getElementById('res-traffic');
+  if (age >= 65) {
+    resTraffic.textContent = '무료 이용 가능';
+    resTraffic.className = 'result-val possible';
+  } else if (age >= 60) {
+    resTraffic.textContent = '30~50% 할인';
+    resTraffic.className = 'result-val check';
+  } else {
+    resTraffic.textContent = '해당없음';
+    resTraffic.className = 'result-val none';
+  }
+
+  /* 장애인 혜택 */
+  var resDisab = document.getElementById('res-disability');
+  if (disability === 'yes') {
+    resDisab.textContent = '다양한 혜택 가능';
+    resDisab.className = 'result-val possible';
+  } else {
+    resDisab.textContent = '등록 시 가능';
+    resDisab.className = 'result-val none';
+  }
+
+  /* 총액 */
+  var total = pensionAmt + jobAmt;
+  var totalBox = document.getElementById('result-total');
+  if (total > 0) {
+    document.getElementById('res-total').textContent = '월 ' + total.toLocaleString() + '원';
+    totalBox.style.display = 'flex';
+  } else {
+    totalBox.style.display = 'none';
+  }
+
+  document.getElementById('result-box').classList.add('show');
+  document.getElementById('bokjiro-link').style.display = 'block';
+  document.getElementById('result-box').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ══════════════════════════════════════
+   혜택계산기 (전환 페이지용)
+══════════════════════════════════════ */
+function calcBenefitPage() {
+  var age        = parseInt(document.getElementById('pc-age').value)    || 0;
+  var income     = parseInt(document.getElementById('pc-income').value) || 0;
+  var family     = document.getElementById('pc-family').value;
+  var disability = document.getElementById('pc-disability').value;
+
+  if (age < 50) { alert('나이를 정확히 입력해 주세요 (만 50세 이상)'); return; }
+
+  var incomeLimit = family === 'single' ? 247 : 395;
+  var pensionAmt = 0, jobAmt = 0;
+
+  var resPension = document.getElementById('pc-res-pension');
+  if (age >= 65 && income <= incomeLimit) {
+    pensionAmt = 349700;
+    resPension.textContent = '월 349,700원';
+    resPension.className = 'result-val possible';
+  } else if (age < 65) {
+    resPension.textContent = '65세 미만';
+    resPension.className = 'result-val none';
+  } else {
+    resPension.textContent = '소득 초과 가능성';
+    resPension.className = 'result-val check';
+  }
+
+  var resJob = document.getElementById('pc-res-job');
+  if (age >= 65 && pensionAmt > 0) {
+    jobAmt = 290000;
+    resJob.textContent = '월 290,000원';
+    resJob.className = 'result-val possible';
+  } else if (age < 65) {
+    resJob.textContent = '65세 미만';
+    resJob.className = 'result-val none';
+  } else {
+    resJob.textContent = '기초연금 수급 필요';
+    resJob.className = 'result-val check';
+  }
+
+  var resHealth = document.getElementById('pc-res-health');
+  if (age >= 65) { resHealth.textContent = '경감 가능'; resHealth.className = 'result-val possible'; }
+  else { resHealth.textContent = '65세 미만'; resHealth.className = 'result-val none'; }
+
+  var resTraffic = document.getElementById('pc-res-traffic');
+  if (age >= 65) { resTraffic.textContent = '무료 이용 가능'; resTraffic.className = 'result-val possible'; }
+  else if (age >= 60) { resTraffic.textContent = '30~50% 할인'; resTraffic.className = 'result-val check'; }
+  else { resTraffic.textContent = '해당없음'; resTraffic.className = 'result-val none'; }
+
+  var resDisab = document.getElementById('pc-res-disability');
+  if (disability === 'yes') { resDisab.textContent = '다양한 혜택 가능'; resDisab.className = 'result-val possible'; }
+  else { resDisab.textContent = '등록 시 가능'; resDisab.className = 'result-val none'; }
+
+  var total = pensionAmt + jobAmt;
+  var totalBox = document.getElementById('pc-result-total');
+  if (total > 0) {
+    document.getElementById('pc-res-total').textContent = '월 ' + total.toLocaleString() + '원';
+    totalBox.style.display = 'flex';
+  } else {
+    totalBox.style.display = 'none';
+  }
+
+  document.getElementById('pc-result-box').classList.add('show');
+  document.getElementById('pc-bokjiro-link').style.display = 'block';
+  document.getElementById('pc-result-box').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ══════════════════════════════════════
+   시·군·구 데이터
+══════════════════════════════════════ */
+var SIGUNGU = {
+  '서울특별시':['종로구','중구','용산구','성동구','광진구','동대문구','중랑구','성북구','강북구','도봉구','노원구','은평구','서대문구','마포구','양천구','강서구','구로구','금천구','영등포구','동작구','관악구','서초구','강남구','송파구','강동구'],
+  '부산광역시':['중구','서구','동구','영도구','부산진구','동래구','남구','북구','해운대구','사하구','금정구','강서구','연제구','수영구','사상구','기장군'],
+  '대구광역시':['중구','동구','서구','남구','북구','수성구','달서구','달성군'],
+  '인천광역시':['중구','동구','미추홀구','연수구','남동구','부평구','계양구','서구','강화군','옹진군'],
+  '광주광역시':['동구','서구','남구','북구','광산구'],
+  '대전광역시':['동구','중구','서구','유성구','대덕구'],
+  '울산광역시':['중구','남구','동구','북구','울주군'],
+  '세종특별자치시':['세종시'],
+  '경기도':['수원시','성남시','의정부시','안양시','부천시','광명시','평택시','동두천시','안산시','고양시','과천시','구리시','남양주시','오산시','시흥시','군포시','의왕시','하남시','용인시','파주시','이천시','안성시','김포시','화성시','광주시','양주시','포천시','여주시','연천군','가평군','양평군'],
+  '강원도':['춘천시','원주시','강릉시','동해시','태백시','속초시','삼척시','홍천군','횡성군','영월군','평창군','정선군','철원군','화천군','양구군','인제군','고성군','양양군'],
+  '충청북도':['청주시','충주시','제천시','보은군','옥천군','영동군','증평군','진천군','괴산군','음성군','단양군'],
+  '충청남도':['천안시','공주시','보령시','아산시','서산시','논산시','계룡시','당진시','금산군','부여군','서천군','청양군','홍성군','예산군','태안군'],
+  '전라북도':['전주시','군산시','익산시','정읍시','남원시','김제시','완주군','진안군','무주군','장수군','임실군','순창군','고창군','부안군'],
+  '전라남도':['목포시','여수시','순천시','나주시','광양시','담양군','곡성군','구례군','고흥군','보성군','화순군','장흥군','강진군','해남군','영암군','무안군','함평군','영광군','장성군','완도군','진도군','신안군'],
+  '경상북도':['포항시','경주시','김천시','안동시','구미시','영주시','영천시','상주시','문경시','경산시','군위군','의성군','청송군','영양군','영덕군','청도군','고령군','성주군','칠곡군','예천군','봉화군','울진군','울릉군'],
+  '경상남도':['창원시','진주시','통영시','사천시','김해시','밀양시','거제시','양산시','의령군','함안군','창녕군','고성군','남해군','하동군','산청군','함양군','거창군','합천군'],
+  '제주특별자치도':['제주시','서귀포시']
+};
+
+function updateSigungu() {
+  var sido = document.getElementById('welfare-sido').value;
+  var sel  = document.getElementById('welfare-sigungu');
+  sel.innerHTML = '<option value="">시·군·구 선택</option>';
+  if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
+}
+function updatePWSigungu() {
+  var sido = document.getElementById('pw-sido').value;
+  var sel  = document.getElementById('pw-sigungu');
+  sel.innerHTML = '<option value="">시·군·구 선택</option>';
+  if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
+}
+function updatePLSigungu() {
+  var sido = document.getElementById('pl-sido').value;
+  var sel  = document.getElementById('pl-sigungu');
+  sel.innerHTML = '<option value="">시·군·구 선택</option>';
+  if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
+}
+function updatePSSigungu() {
+  var sido = document.getElementById('ps-sido').value;
+  var sel  = document.getElementById('ps-sigungu');
+  sel.innerHTML = '<option value="">시·군·구 선택</option>';
+  if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
+}
+
+/* ══════════════════════════════════════
+   복지시설 검색 (섹션2 GPS)
+══════════════════════════════════════ */
+var selectedWelfareType = '';
+function selectWelfareType(btn, type) {
+  document.querySelectorAll('.welfare-type-btn').forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  selectedWelfareType = type;
+}
+
+function searchWelfareGPS() {
+  if (!navigator.geolocation) { alert('위치 서비스를 지원하지 않는 기기입니다.'); return; }
+  navigator.geolocation.getCurrentPosition(function(pos) {
+    var loading = document.getElementById('welfare-loading');
+    loading.classList.add('show');
+    fetch('/api/benefit?type=welfare&lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&facilityType='+encodeURIComponent(selectedWelfareType))
+      .then(function(r){ return r.json(); })
+      .then(function(data){ renderWelfareCards(data, '내 주변'); loading.classList.remove('show'); })
+      .catch(function(){ loading.classList.remove('show'); showWelfareEmpty(); });
+  }, function(){ alert('위치 정보를 가져오지 못했습니다. 지역을 직접 선택해 주세요.'); });
+}
+
+function searchWelfare() {
+  var sido    = document.getElementById('welfare-sido').value;
+  var sigungu = document.getElementById('welfare-sigungu').value;
+  if (!sido) { alert('시·도를 선택해 주세요'); return; }
+  var loading = document.getElementById('welfare-loading');
+  loading.classList.add('show');
+  document.getElementById('welfare-result').classList.remove('show');
+  fetch('/api/benefit?type=welfare&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&facilityType='+encodeURIComponent(selectedWelfareType))
+    .then(function(r){ return r.json(); })
+    .then(function(data){ renderWelfareCards(data, sido+' '+sigungu); loading.classList.remove('show'); })
+    .catch(function(){ loading.classList.remove('show'); showWelfareEmpty(); });
+}
+
+function renderWelfareCards(data, areaName) {
+  var cards = document.getElementById('welfare-cards');
+  var header = document.getElementById('welfare-result-header');
+  var items = [];
+  try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+  header.textContent = '📍 ' + areaName + ' 복지시설 ' + items.length + '개';
+  if (items.length === 0) { showWelfareEmpty(); return; }
+  cards.innerHTML = items.map(function(item){
+    return '<div class="welfare-card">'
+      +'<div class="welfare-card-top"><span class="welfare-card-name">'+(item.fcltNm||item.fcltyNm||'시설명 없음')+'</span>'
+      +'<span class="welfare-card-type">'+(item.fcltyTy||item.fcltKindNm||'복지시설')+'</span></div>'
+      +'<div class="welfare-card-addr">📍 '+(item.rdnmadr||item.lotnoAddr||'주소 없음')+'</div>'
+      +(item.phoneNo ? '<a class="welfare-card-tel" href="tel:'+item.phoneNo+'">📞 '+item.phoneNo+'</a>' : '')
+      +'</div>';
+  }).join('');
+  document.getElementById('welfare-result').classList.add('show');
+}
+function showWelfareEmpty() {
+  document.getElementById('welfare-cards').innerHTML = '<div class="welfare-empty">😔 검색 결과가 없습니다.<br>다른 지역이나 시설 종류를 선택해 보세요.</div>';
+  document.getElementById('welfare-result').classList.add('show');
+}
+
+/* ══════════════════════════════════════
+   전환 페이지 — 복지시설 검색
+══════════════════════════════════════ */
+function searchWelfarePage() {
+  var sido    = document.getElementById('pw-sido').value;
+  var sigungu = document.getElementById('pw-sigungu').value;
+  var type    = document.getElementById('pw-type').value;
+  if (!sido) { alert('시·도를 선택해 주세요'); return; }
+  var loading = document.getElementById('pw-loading');
+  var result  = document.getElementById('pw-result');
+  loading.classList.add('show'); result.classList.remove('show');
+  fetch('/api/benefit?type=welfare&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&facilityType='+encodeURIComponent(type))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      loading.classList.remove('show');
+      var items = [];
+      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      if (items.length === 0) {
+        document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 검색 결과가 없습니다.<br>다른 조건으로 검색해 보세요.</div>';
+      } else {
+        document.getElementById('pw-cards').innerHTML = items.map(function(item){
+          return '<div class="welfare-card">'
+            +'<div class="welfare-card-top"><span class="welfare-card-name">'+(item.fcltNm||item.fcltyNm||'시설명 없음')+'</span>'
+            +'<span class="welfare-card-type">'+(item.fcltyTy||item.fcltKindNm||'복지시설')+'</span></div>'
+            +'<div class="welfare-card-addr">📍 '+(item.rdnmadr||item.lotnoAddr||'주소 없음')+'</div>'
+            +(item.phoneNo ? '<a class="welfare-card-tel" href="tel:'+item.phoneNo+'">📞 '+item.phoneNo+'</a>' : '')
+            +'</div>';
+        }).join('');
+      }
+      result.classList.add('show');
+    })
+    .catch(function(){ loading.classList.remove('show'); document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.</div>'; result.classList.add('show'); });
+}
+
+/* ══════════════════════════════════════
+   마을변호사 검색
+══════════════════════════════════════ */
+function searchLawyer() {
+  var sido    = document.getElementById('pl-sido').value;
+  var sigungu = document.getElementById('pl-sigungu').value;
+  if (!sido) { alert('시·도를 선택해 주세요'); return; }
+  var loading = document.getElementById('pl-loading');
+  var result  = document.getElementById('pl-result');
+  loading.classList.add('show'); result.classList.remove('show');
+  fetch('/api/benefit?type=lawyer&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      loading.classList.remove('show');
+      var items = [];
+      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      if (items.length === 0) {
+        document.getElementById('pl-cards').innerHTML = '<div class="empty-msg">😔 해당 지역 마을변호사 정보가 없습니다.<br>법률구조공단(☎ 132)에 문의해 보세요.</div>';
+      } else {
+        document.getElementById('pl-cards').innerHTML = items.map(function(item){
+          var fields = [item.cnslField1, item.cnslField2, item.cnslField3].filter(Boolean);
+          return '<div class="lawyer-card">'
+            +'<div class="lawyer-card-name">⚖️ '+(item.lawyerNm||'변호사')+'</div>'
+            +'<div class="lawyer-card-area">📍 '+(item.ctpvNm||'')+(item.signguNm?' '+item.signguNm:'')+(item.actAreaNm?' · '+item.actAreaNm:'')+'</div>'
+            +(fields.length ? '<div class="lawyer-card-field">'+fields.map(function(f){ return '<span class="lawyer-field-tag">'+f+'</span>'; }).join('')+'</div>' : '')
+            +(item.phoneNo ? '<a class="lawyer-card-tel" href="tel:'+item.phoneNo+'">📞 '+item.phoneNo+'</a>' : '<span style="font-size:13px;color:#999;">전화번호 문의: 법무부 1301</span>')
+            +'</div>';
+        }).join('');
+      }
+      result.classList.add('show');
+    })
+    .catch(function(){ loading.classList.remove('show'); document.getElementById('pl-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.</div>'; result.classList.add('show'); });
+}
+
+/* ══════════════════════════════════════
+   서민금융교육 콘텐츠
+══════════════════════════════════════ */
+function loadFinanceEdu() {
+  var loading = document.getElementById('pf-loading');
+  var result  = document.getElementById('pf-result');
+  loading.classList.add('show'); result.classList.remove('show');
+  fetch('/api/benefit?type=finance')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      loading.classList.remove('show');
+      var items = [];
+      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      if (items.length === 0) {
+        document.getElementById('pf-cards').innerHTML = '<div class="empty-msg">😔 콘텐츠를 불러오지 못했습니다.</div>';
+      } else {
+        document.getElementById('pf-cards').innerHTML = items.map(function(item){
+          return '<div class="finance-card">'
+            +'<div class="finance-card-title">'+(item.eduNm||item.title||'교육 콘텐츠')+'</div>'
+            +'<div class="finance-card-desc">'+(item.eduCn||item.contents||item.smry||'내용을 불러오는 중입니다.')+'</div>'
+            +(item.linkUrl ? '<a class="finance-card-link" href="#" onclick="confirmExternalLink(\''+item.linkUrl+'\');return false;">🔗 자세히 보기</a>' : '')
+            +'</div>';
+        }).join('');
+      }
+      result.classList.add('show');
+    })
+    .catch(function(){ loading.classList.remove('show'); document.getElementById('pf-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다.</div>'; result.classList.add('show'); });
+}
+
+/* ══════════════════════════════════════
+   복지혜택 검색
+══════════════════════════════════════ */
+function quickSearch(keyword) {
+  document.getElementById('pb-keyword').value = keyword;
+  searchBenefit();
+}
+
+function searchBenefit() {
+  var keyword = document.getElementById('pb-keyword').value.trim();
+  if (!keyword) { alert('키워드를 입력해 주세요'); return; }
+  var loading = document.getElementById('pb-loading');
+  var result  = document.getElementById('pb-result');
+  loading.classList.add('show'); result.classList.remove('show');
+  fetch('/api/benefit?type=benefit&keyword='+encodeURIComponent(keyword))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      loading.classList.remove('show');
+      var items = [];
+      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      if (items.length === 0) {
+        document.getElementById('pb-cards').innerHTML = '<div class="empty-msg">😔 "'+keyword+'" 관련 복지서비스가 없습니다.<br>다른 키워드로 검색해 보세요.</div>';
+      } else {
+        document.getElementById('pb-cards').innerHTML = items.map(function(item){
+          return '<div class="result-card">'
+            +'<div class="result-card-title">'+(item.servNm||item.wlfareInfoNm||'서비스명 없음')+'</div>'
+            +'<div class="result-card-desc">'+(item.servDgst||item.wlfareInfoOutlCn||'상세 내용을 확인하세요.')+'</div>'
+            +'<div class="badge-row">'
+            +(item.trgterIndvdlNm ? '<span class="badge-green">'+item.trgterIndvdlNm+'</span>' : '')
+            +(item.intrsThemaNmArray ? '<span class="badge-blue">'+item.intrsThemaNmArray+'</span>' : '')
+            +(item.lifeNmArray ? '<span class="badge-orange">'+item.lifeNmArray+'</span>' : '')
+            +'</div>'
+            +(item.srvUrl ? '<a class="result-card-link" style="background:#e8f5e9;color:#2e7d32;" href="#" onclick="confirmExternalLink(\''+item.srvUrl+'\');return false;">🔗 신청하기</a>' : '')
+            +'</div>';
+        }).join('');
+      }
+      result.classList.add('show');
+    })
+    .catch(function(){ loading.classList.remove('show'); document.getElementById('pb-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.</div>'; result.classList.add('show'); });
+}
+
+/* ══════════════════════════════════════
+   전통시장·상가 검색
+══════════════════════════════════════ */
+function searchStore() {
+  var sido    = document.getElementById('ps-sido').value;
+  var sigungu = document.getElementById('ps-sigungu').value;
+  var type    = document.getElementById('ps-type').value;
+  if (!sido) { alert('시·도를 선택해 주세요'); return; }
+  var loading = document.getElementById('ps-loading');
+  var result  = document.getElementById('ps-result');
+  loading.classList.add('show'); result.classList.remove('show');
+  fetch('/api/benefit?type=store&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&keyword='+encodeURIComponent(type))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      loading.classList.remove('show');
+      var items = [];
+      try { items = data.data || data.response?.body?.items?.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      if (items.length === 0) {
+        document.getElementById('ps-cards').innerHTML = '<div class="empty-msg">😔 검색 결과가 없습니다.<br>다른 지역이나 업종으로 검색해 보세요.</div>';
+      } else {
+        document.getElementById('ps-cards').innerHTML = items.map(function(item){
+          return '<div class="store-card">'
+            +'<div class="store-card-name">'+(item.bizesNm||item.bsnNm||item.upjongNm||'상호명 없음')+'</div>'
+            +'<span class="store-card-type">'+(item.uptaeNm||item.indsLclsNm||type)+'</span>'
+            +'<div class="store-card-addr">📍 '+(item.rdnmadr||item.lnmAddr||'주소 없음')+'</div>'
+            +(item.telNo ? '<a class="store-card-tel" href="tel:'+item.telNo+'">📞 '+item.telNo+'</a>' : '')
+            +'</div>';
+        }).join('');
+      }
+      result.classList.add('show');
+    })
+    .catch(function(){ loading.classList.remove('show'); document.getElementById('ps-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.</div>'; result.classList.add('show'); });
+}
+
+/* ══════════════════════════════════════
+   음력 날짜 표시
+══════════════════════════════════════ */
+function getLunarDate(solarDate) {
+  /* 양력→음력 변환 (1900~2100 근사 계산) */
+  var lunarInfo = [
+    0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+    0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+    0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+    0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+    0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+    0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
+    0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+    0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
+    0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+    0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06aa0,0x0a6b6,0x056a0,0x02b60,0x09570,
+    0x052b2,0x0a950,0x0e952,0x06ca0,0x0d0a8,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,
+    0x0d2b2,0x0a950,0x0b557,0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,
+    0x0a9a8,0x0e950,0x06aa0,0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,
+    0x0d950,0x05b57,0x056a0,0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,
+    0x0b540,0x0b6a0,0x195a6,0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,
+    0x0af46,0x0ab60,0x09570,0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06aa0,0x0a6b6,
+    0x056a0,0x02b60,0x09570,0x052b2,0x0a950,0x0e952,0x06ca0,0x0d0a8,0x0b550,0x056a0,
+    0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,0x06ca0,0x0b550,0x15355,0x04da0,
+    0x0a5d0,0x14573,0x052d0,0x0a9a8,0x0e950,0x06aa0,0x0aea6,0x0ab50,0x04b60,0x0aae4,
+    0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,0x096d0,0x04dd5,0x04ad0,0x0a4d0
+  ];
+  function lYearDays(y){ var i,s=348; for(i=0x8000;i>0x8;i>>=1) s+=((lunarInfo[y-1900]&i)?1:0); return s+leapDays(y); }
+  function leapDays(y){ if(leapMonth(y)){ return (lunarInfo[y-1900]&0x10000)?30:29; } return 0; }
+  function leapMonth(y){ return lunarInfo[y-1900]&0xf; }
+  function monthDays(y,m){ return (lunarInfo[y-1900]&(0x10000>>m))?30:29; }
+
+  var y=solarDate.getFullYear(), m=solarDate.getMonth()+1, d=solarDate.getDate();
+  var offset=(Date.UTC(y,m-1,d)-Date.UTC(1900,0,31))/86400000;
+  var i,temp=0,lunarYear,lunarMonth,lunarDay,isLeap=false;
+  for(i=1900;i<2101&&offset>0;i++){ temp=lYearDays(i); offset-=temp; }
+  if(offset<0){ offset+=temp; i--; }
+  lunarYear=i;
+  var leap=leapMonth(i),leapFlag=false;
+  for(i=1;i<13&&offset>0;i++){
+    if(leap>0&&i==leap+1&&!leapFlag){ i--; leapFlag=true; temp=leapDays(lunarYear); }
+    else{ temp=monthDays(lunarYear,i); }
+    if(leapFlag&&i==leap+1) leapFlag=false;
+    offset-=temp;
+  }
+  if(offset==0&&leap>0&&i==leap+1){ if(isLeap){ isLeap=false; }else{ isLeap=true; i--; } }
+  if(offset<0){ offset+=temp; i--; }
+  lunarMonth=i; lunarDay=offset+1;
+  var monthNames=['정월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  return '음력 '+(isLeap?'윤':'')+monthNames[lunarMonth-1]+' '+lunarDay+'일';
+}
+
+function initDate() {
+  var now = new Date();
+  var week = ['일','월','화','수','목','금','토'];
+  var solar = (now.getMonth()+1)+'월 '+now.getDate()+'일 ('+week[now.getDay()]+')';
+  document.getElementById('date-solar').textContent = solar;
+  try {
+    document.getElementById('date-lunar').textContent = getLunarDate(now);
+  } catch(e) {
+    document.getElementById('date-lunar').textContent = '';
+  }
+}
+initDate();
+
+/* ══════════════════════════════════════
+   핸드폰 뒤로가기 (popstate)
+══════════════════════════════════════ */
+history.pushState({page:'main'}, '', '');
+window.addEventListener('popstate', function(e) {
+  if (currentPage) {
+    goBack();
+    history.pushState({page:'main'}, '', '');
+  }
+});
+
+var _origGoPage = goPage;
+goPage = function(id) {
+  _origGoPage(id);
+  history.pushState({page:id}, '', '');
+};
+
+/* ══════════════════════════════════════
+   돋보기 (기본 ↔ 크게)
+══════════════════════════════════════ */
+var isBigFont = false;
+function toggleBigFont() {
+  isBigFont = !isBigFont;
+  document.body.classList.toggle('big-font', isBigFont);
+  document.getElementById('zoom-label').textContent = isBigFont ? '크게' : '기본';
+}
+
+/* ══════════════════════════════════════
+   카카오 공유 / PWA
+══════════════════════════════════════ */
+function shareKakao() { alert('카카오 공유 기능은 index.html에서 SDK 연동 후 활성화됩니다.'); }
+function savePWA() { alert('홈화면 저장: 브라우저 하단 공유 버튼 → 홈 화면에 추가를 눌러주세요!'); }
+
+function confirmExternalLink(url) {
+  if (confirm('외부 사이트로 이동합니다.\n봄날마당으로 돌아오려면 휴대폰 뒤로가기를 누르세요.')) {
+    window.open(url, '_blank');
+  }
 }
 </script>
+
+<!-- 봄날톡톡 버튼 (우하단 고정) -->
+<a class="chat-btn" href="talk-chat.html">
+  <span class="chat-btn-icon">💬</span>
+  <span class="chat-btn-label">톡톡</span>
+</a>
+
+<!-- 돋보기 버튼 (우하단 고정) -->
+<button class="zoom-btn" onclick="toggleBigFont()" id="zoom-btn">
+  <span class="zoom-btn-icon">🔍</span>
+  <span class="zoom-btn-label" id="zoom-label">기본</span>
+</button>
+
 </body>
 </html>
