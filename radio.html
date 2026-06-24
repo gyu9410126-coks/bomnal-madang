@@ -222,7 +222,7 @@
       <span class="radio-page-badge" style="background:#c62828;color:#fff;">영상보기</span>
     </div>
     <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
-    <div class="player-wrap"><iframe id="player-trot" src="" allowfullscreen allow="autoplay"></iframe></div>
+    <div class="player-wrap"><iframe id="player-trot" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock" style="border:none;" referrerpolicy="no-referrer"></iframe></div>
     <div class="player-now">
       <span class="player-now-icon">🎵</span>
       <span class="player-now-txt" id="now-trot">영상을 선택해주세요</span>
@@ -254,7 +254,7 @@
       <span class="radio-page-badge" style="background:#6a1b9a;color:#fff;">영상보기</span>
     </div>
     <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
-    <div class="player-wrap"><iframe id="player-mister" src="" allowfullscreen allow="autoplay"></iframe></div>
+    <div class="player-wrap"><iframe id="player-mister" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock" style="border:none;" referrerpolicy="no-referrer"></iframe></div>
     <div class="player-now">
       <span class="player-now-icon">🏆</span>
       <span class="player-now-txt" id="now-mister">영상을 선택해주세요</span>
@@ -285,7 +285,7 @@
       <span class="radio-page-badge" style="background:#1565c0;color:#fff;">영상보기</span>
     </div>
     <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
-    <div class="player-wrap"><iframe id="player-docu" src="" allowfullscreen allow="autoplay"></iframe></div>
+    <div class="player-wrap"><iframe id="player-docu" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock" style="border:none;" referrerpolicy="no-referrer"></iframe></div>
     <div class="player-now">
       <span class="player-now-icon">📺</span>
       <span class="player-now-txt" id="now-docu">영상을 선택해주세요</span>
@@ -317,7 +317,7 @@
       <span class="radio-page-badge" style="background:#2e7d32;color:#fff;">영상보기</span>
     </div>
     <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
-    <div class="player-wrap"><iframe id="player-health" src="" allowfullscreen allow="autoplay"></iframe></div>
+    <div class="player-wrap"><iframe id="player-health" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock" style="border:none;" referrerpolicy="no-referrer"></iframe></div>
     <div class="player-now">
       <span class="player-now-icon">🏥</span>
       <span class="player-now-txt" id="now-health">영상을 선택해주세요</span>
@@ -349,7 +349,7 @@
       <span class="radio-page-badge" style="background:#e65100;color:#fff;">영상보기</span>
     </div>
     <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
-    <div class="player-wrap"><iframe id="player-welfare" src="" allowfullscreen allow="autoplay"></iframe></div>
+    <div class="player-wrap"><iframe id="player-welfare" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock" style="border:none;" referrerpolicy="no-referrer"></iframe></div>
     <div class="player-now">
       <span class="player-now-icon">🏛️</span>
       <span class="player-now-txt" id="now-welfare">영상을 선택해주세요</span>
@@ -380,7 +380,7 @@
       <span class="radio-page-badge" style="background:#7b1fa2;color:#fff;">영상보기</span>
     </div>
     <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
-    <div class="player-wrap"><iframe id="player-healing" src="" allowfullscreen allow="autoplay"></iframe></div>
+    <div class="player-wrap"><iframe id="player-healing" src="" allowfullscreen allow="autoplay; fullscreen; screen-wake-lock" style="border:none;" referrerpolicy="no-referrer"></iframe></div>
     <div class="player-now">
       <span class="player-now-icon">🧘</span>
       <span class="player-now-txt" id="now-healing">영상을 선택해주세요</span>
@@ -445,6 +445,7 @@ function goPage(pageId) {
 }
 function goBack() {
   if (currentPage) {
+    document.getElementById('player-' + currentPage).src = '';
     document.getElementById('page-' + currentPage).classList.remove('active');
     currentPage = null;
   }
@@ -536,7 +537,7 @@ function playVideo(pageId, idx) {
   st.paused = false;
   var v = list[idx];
   var iframe = document.getElementById('player-' + pageId);
-  iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0';
+  iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0&hl=ko&cc_lang_pref=ko';
   document.getElementById('now-' + pageId).textContent = v.title;
   document.getElementById('count-' + pageId).textContent = (idx+1) + '/' + list.length;
   document.getElementById('pause-' + pageId).textContent = '⏸ 일시정지';
@@ -565,7 +566,7 @@ function togglePause(pageId) {
   var btn = document.getElementById('pause-' + pageId);
   if (st.paused) {
     var v = st.filtered[st.currentIdx];
-    iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0';
+    iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0&hl=ko&cc_lang_pref=ko';
     btn.textContent = '⏸ 일시정지';
     st.paused = false;
   } else {
