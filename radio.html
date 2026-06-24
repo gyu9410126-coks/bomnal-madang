@@ -486,16 +486,22 @@ function goPage(pageId) {
   document.getElementById('page-' + pageId).classList.add('active');
   window.scrollTo(0,0);
   if (STATE[pageId].allVideos.length === 0) loadVideos(pageId);
+  history.pushState({ page: pageId }, '', '');
 }
 function goBack() {
   if (currentPage) {
     document.getElementById('player-' + currentPage).src = '';
+    STATE[currentPage].paused = true;
+    document.getElementById('pause-' + currentPage).textContent = '▶ 재생';
     document.getElementById('page-' + currentPage).classList.remove('active');
     currentPage = null;
   }
   document.getElementById('main-view').style.display = 'block';
   window.scrollTo(0,0);
 }
+window.addEventListener('popstate', function() {
+  if (currentPage) goBack();
+});
 function goHome() { window.location.href = 'index.html'; }
 
 /* ════════════════════════════════
