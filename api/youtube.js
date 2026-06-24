@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   const apiKey = process.env.YOUTUBE_API_KEY;
-  const url = `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet&order=date&type=video&maxResults=${maxResults}`;
+  const url = `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet&order=date&type=video&videoEmbeddable=true&maxResults=${maxResults}`;
 
   try {
     const response = await fetch(url);

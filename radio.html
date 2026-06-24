@@ -537,12 +537,26 @@ function playVideo(pageId, idx) {
   st.paused = false;
   var v = list[idx];
   var iframe = document.getElementById('player-' + pageId);
-  iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0&hl=ko&cc_lang_pref=ko';
+  iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0&hl=ko&cc_lang_pref=ko&enablejsapi=1&origin=https://bomnal-madang.vercel.app';
+  iframe.onload = function() {
+    // iframe 로드 후 오류 감지를 위해 postMessage 리스너 활용
+  };
   document.getElementById('now-' + pageId).textContent = v.title;
   document.getElementById('count-' + pageId).textContent = (idx+1) + '/' + list.length;
   document.getElementById('pause-' + pageId).textContent = '⏸ 일시정지';
   renderList(pageId);
 }
+
+// 오류 153 자동 스킵
+window.addEventListener('message', function(e) {
+  if (e.origin !== 'https://www.youtube.com') return;
+  try {
+    var data = JSON.parse(e.data);
+    if (data.event === 'onError' && (data.info === 153 || data.info === 150 || data.info === 101)) {
+      if (currentPage) nextVideo(currentPage);
+    }
+  } catch(err) {}
+});
 
 function prevVideo(pageId) {
   var st = STATE[pageId];
@@ -566,7 +580,7 @@ function togglePause(pageId) {
   var btn = document.getElementById('pause-' + pageId);
   if (st.paused) {
     var v = st.filtered[st.currentIdx];
-    iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0&hl=ko&cc_lang_pref=ko';
+    iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0&hl=ko&cc_lang_pref=ko&enablejsapi=1&origin=https://bomnal-madang.vercel.app';
     btn.textContent = '⏸ 일시정지';
     st.paused = false;
   } else {
