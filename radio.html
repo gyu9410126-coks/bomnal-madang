@@ -758,10 +758,14 @@ async function toggleWake(pageId) {
 /* ════════════════════════════════
    미리보기 섹션 로드
 ════════════════════════════════ */
+var PREVIEW_CHANNELS = {
+  trot:   ['UC7ITxSrzq-nhyyYzozpPmLA'],
+  health: ['UCudsKcgg2SFhcT6H6RfLYGw']
+};
 function loadPreview(pageId, elId) {
   var el = document.getElementById(elId);
-  var channels = CHANNELS[pageId];
-  var promises = channels.slice(0,2).map(function(ch){ return fetchChannel(ch, 5); });
+  var channels = PREVIEW_CHANNELS[pageId] || CHANNELS[pageId].slice(0,1);
+  var promises = channels.map(function(ch){ return fetchChannel(ch, 5); });
   Promise.all(promises).then(function(results) {
     var videos = [];
     results.forEach(function(data) {

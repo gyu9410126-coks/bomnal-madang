@@ -27,7 +27,9 @@ export default async function handler(req, res) {
           return item.snippet &&
                  item.snippet.resourceId &&
                  item.snippet.resourceId.videoId &&
-                 item.snippet.resourceId.videoId !== 'videoseries';
+                 item.snippet.resourceId.videoId !== 'videoseries' &&
+                 item.snippet.title !== 'Private video' &&
+                 item.snippet.title !== 'Deleted video';
         })
         .map(function(item) {
           return {
