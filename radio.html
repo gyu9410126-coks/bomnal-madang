@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>라디오·미디어 - 시니어 봄날마당</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+</head>
+<body>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
+.wrap { background: #f7f8fa; max-width: 480px; margin: 0 auto; padding-bottom: 40px; }
+
+/* ── 헤더 ── */
+.app-header { background: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+.header-left { display: flex; align-items: center; gap: 8px; }
+.logo-senior { color: #eb840f; font-weight: 900; font-size: 18px; }
+.logo-bomnal { color: #4A90D9; font-weight: 900; font-size: 18px; }
+.header-date-box { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.header-date-solar { font-size: 15px; font-weight: 700; color: #111; }
+.header-date-lunar { font-size: 12px; font-weight: 700; color: #1a5fa0; }
+
+/* ── 홈바 ── */
+.home-bar { background: #fff; border-bottom: 1px solid #eee; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
+.home-bar button { background: #4A90D9; color: #fff; border: none; border-radius: 20px; padding: 10px 22px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+/* ── 아이콘 그리드 ── */
+.sec-wrap { margin: 18px 14px 0; }
+.sec-title { font-size: 22px; font-weight: 700; color: #222; margin-bottom: 12px; }
+.sec-title em { font-style: normal; color: #7b1fa2; }
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cat-item { display: flex; flex-direction: column; align-items: center; border: none; border-radius: 14px; padding: 11px 4px 10px; gap: 7px; cursor: pointer; background: none; -webkit-tap-highlight-color: transparent; }
+.cat-item:active { transform: scale(0.95); }
+.cat-icon-box { width: 100%; height: 64px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 34px; line-height: 1; }
+.cat-name { font-size: 13px; font-weight: 700; text-align: center; line-height: 1.3; word-break: keep-all; }
+
+/* ── 미리보기 섹션 ── */
+.preview-sec { background: #fff; border-radius: 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); margin: 18px 14px 0; overflow: hidden; }
+.preview-header { padding: 13px 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.preview-header:active { opacity: 0.8; }
+.preview-header-title { font-size: 18px; font-weight: 800; }
+.preview-header-arrow { font-size: 15px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.15); border-radius: 20px; padding: 5px 12px; }
+.preview-body { padding: 10px 12px 12px; }
+.preview-video-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.preview-video-item:last-child { border-bottom: none; }
+.preview-video-item:active { opacity: 0.7; }
+.preview-thumb { width: 96px; height: 54px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #e0e0e0; }
+.preview-info { flex: 1; overflow: hidden; }
+.preview-title { font-size: 15px; font-weight: 700; color: #111; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.preview-channel { font-size: 12px; color: #888; margin-top: 3px; }
+.preview-loading { padding: 16px; }
+.skeleton { background: #f0f0f0; border-radius: 8px; animation: skeleton-ani 1.2s infinite; }
+@keyframes skeleton-ani { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+/* ── 전환 페이지 공통 ── */
+.radio-page { display: none; }
+.radio-page.active { display: block; }
+.radio-back-btn { display: block; width: calc(100% - 28px); margin: 14px 14px 0; padding: 13px 16px; background: #e0f5f1; border: 1.5px solid #1a7a6a; border-radius: 12px; font-size: 16px; font-weight: 700; color: #1a7a6a; cursor: pointer; text-align: left; font-family: inherit; }
+.radio-back-btn:active { background: #c8ece7; }
+.radio-page-header { margin: 10px 14px 0; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+.radio-page-title { font-size: 22px; font-weight: 900; }
+.radio-page-badge { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 8px; background: rgba(255,255,255,0.35); }
+
+/* ── 광고 안내 박스 ── */
+.ad-notice { margin: 10px 14px 0; background: #fff8e1; border: 1.5px solid #ffe082; border-radius: 12px; padding: 11px 14px; font-size: 14px; color: #7a5800; line-height: 1.7; }
+
+/* ── 유튜브 플레이어 ── */
+.player-wrap { margin: 10px 14px 0; background: #000; border-radius: 14px; overflow: hidden; position: relative; padding-top: 56.25%; }
+.player-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+.player-now { margin: 8px 14px 0; background: #fff; border-radius: 12px; padding: 11px 14px; display: flex; align-items: center; gap: 8px; }
+.player-now-icon { font-size: 20px; }
+.player-now-txt { flex: 1; font-size: 15px; font-weight: 700; color: #111; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.player-now-count { font-size: 13px; color: #888; white-space: nowrap; flex-shrink: 0; }
+
+/* ── 왕버튼 ── */
+.ctrl-wrap { margin: 8px 14px 0; display: flex; gap: 8px; }
+.ctrl-btn { flex: 1; padding: 16px 8px; border: none; border-radius: 14px; font-size: 18px; font-weight: 800; cursor: pointer; font-family: inherit; background: #212121; color: #fff; -webkit-tap-highlight-color: transparent; }
+.ctrl-btn:active { opacity: 0.8; }
+.ctrl-btn-main { flex: 1.4; background: #7b1fa2; }
+.ctrl-btn-wake { width: calc(100% - 28px); margin: 8px 14px 0; display: block; padding: 13px; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; background: #f3e5f5; color: #6a1b9a; text-align: center; }
+
+/* ── 채널 필터 탭 ── */
+.filter-wrap { margin: 10px 14px 0; display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+.filter-wrap::-webkit-scrollbar { display: none; }
+.filter-tab { flex-shrink: 0; padding: 9px 16px; border: 1.5px solid #e0e0e0; border-radius: 20px; font-size: 14px; font-weight: 700; cursor: pointer; background: #f5f5f5; color: #888; font-family: inherit; white-space: nowrap; }
+.filter-tab.active { background: #7b1fa2; color: #fff; border-color: #7b1fa2; }
+
+/* ── 영상 목록 ── */
+.video-list-wrap { margin: 10px 14px 0; display: flex; flex-direction: column; gap: 8px; }
+.video-item { background: #fff; border-radius: 14px; padding: 12px; display: flex; gap: 12px; cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,0.07); -webkit-tap-highlight-color: transparent; }
+.video-item:active { opacity: 0.8; }
+.video-item.playing { border: 2px solid #7b1fa2; background: #f9f0ff; }
+.video-thumb { width: 110px; height: 62px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #e0e0e0; position: relative; }
+.video-playing-badge { position: absolute; top: 4px; left: 4px; background: #7b1fa2; color: #fff; font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 6px; }
+.video-info { flex: 1; overflow: hidden; }
+.video-title { font-size: 15px; font-weight: 700; color: #111; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.video-channel { font-size: 12px; color: #7b1fa2; font-weight: 600; margin-top: 4px; }
+.video-date { font-size: 11px; color: #aaa; margin-top: 2px; }
+.more-btn { display: block; width: 100%; margin: 10px 0 0; padding: 15px; border: 1.5px solid #e0e0e0; border-radius: 14px; font-size: 17px; font-weight: 700; color: #7b1fa2; background: #f9f0ff; cursor: pointer; font-family: inherit; text-align: center; }
+.video-loading { text-align: center; padding: 32px 20px; color: #888; font-size: 16px; }
+.video-error { background: #fff3f3; border-radius: 12px; padding: 16px; color: #c62828; font-size: 15px; font-weight: 700; text-align: center; margin: 0 14px; }
+
+/* ── 하단 공통 ── */
+.btn-kakao-main { display: block; width: calc(100% - 28px); margin: 24px 14px 0; padding: 14px; background: #FEE500; color: #1a1a1a; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
+.btn-pwa-main { display: block; width: calc(100% - 28px); margin: 8px 14px 0; padding: 13px; background: #7db8e8; color: #111; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
+.affiliate-notice-box { margin: 16px 14px 0; background: #fffbe6; border: 1px solid #ffe082; border-radius: 12px; padding: 12px 14px; font-size: 11px; color: #7a6000; line-height: 1.7; text-align: center; }
+.site-footer { margin: 16px 14px 0; text-align: center; padding-bottom: 8px; }
+.footer-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
+.footer-link { font-size: 11px; color: #999; text-decoration: none; }
+.footer-dot { font-size: 11px; color: #ccc; }
+</style>
+
+<div class="wrap">
+  <!-- 헤더 -->
+  <div class="app-header">
+    <div class="header-left">
+      <span style="font-size:22px;">🌸</span>
+      <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
+    </div>
+    <div class="header-date-box">
+      <span class="header-date-solar" id="date-solar">날짜 로딩중</span>
+      <span class="header-date-lunar" id="date-lunar">음력 로딩중</span>
+    </div>
+  </div>
+
+  <!-- 홈바 -->
+  <div class="home-bar">
+    <button onclick="goHome()">🏠 홈으로</button>
+  </div>
+
+  <!-- ══════════════════════════════
+       메인 화면
+  ══════════════════════════════ -->
+  <div id="main-view">
+    <div class="sec-wrap">
+      <div class="sec-title"><em>📻 라디오·미디어</em></div>
+      <div class="cat-grid">
+        <button class="cat-item" style="background:#fce4ec;" onclick="goPage('trot')">
+          <div class="cat-icon-box" style="background:#fce4ec;">🎤</div>
+          <span class="cat-name" style="color:#c62828;">트로트·가요</span>
+        </button>
+        <button class="cat-item" style="background:#ede7f6;" onclick="goPage('mister')">
+          <div class="cat-icon-box" style="background:#ede7f6;">🏆</div>
+          <span class="cat-name" style="color:#6a1b9a;">미스터·<br>미스트롯</span>
+        </button>
+        <button class="cat-item" style="background:#e3f2fd;" onclick="goPage('docu')">
+          <div class="cat-icon-box" style="background:#e3f2fd;">📺</div>
+          <span class="cat-name" style="color:#1565c0;">다큐·교양</span>
+        </button>
+        <button class="cat-item" style="background:#e8f5e9;" onclick="goPage('health')">
+          <div class="cat-icon-box" style="background:#e8f5e9;">🏥</div>
+          <span class="cat-name" style="color:#2e7d32;">건강정보</span>
+        </button>
+        <button class="cat-item" style="background:#fff3e0;" onclick="goPage('welfare')">
+          <div class="cat-icon-box" style="background:#fff3e0;">🏛️</div>
+          <span class="cat-name" style="color:#e65100;">복지·<br>생활정보</span>
+        </button>
+        <button class="cat-item" style="background:#f3e5f5;" onclick="goPage('healing')">
+          <div class="cat-icon-box" style="background:#f3e5f5;">🧘</div>
+          <span class="cat-name" style="color:#7b1fa2;">명상·힐링</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 미리보기 섹션1: 트로트·가요 -->
+    <div class="preview-sec">
+      <div class="preview-header" style="background:#fce4ec;" onclick="goPage('trot')">
+        <span class="preview-header-title" style="color:#c62828;">🎤 트로트·가요</span>
+        <span class="preview-header-arrow" style="background:#c62828;">전체보기 →</span>
+      </div>
+      <div class="preview-body" id="preview-trot">
+        <div class="preview-loading">
+          <div class="skeleton" style="height:54px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:54px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:54px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:54px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:54px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 미리보기 섹션2: 건강정보 -->
+    <div class="preview-sec">
+      <div class="preview-header" style="background:#e8f5e9;" onclick="goPage('health')">
+        <span class="preview-header-title" style="color:#2e7d32;">🏥 건강정보</span>
+        <span class="preview-header-arrow" style="background:#2e7d32;">전체보기 →</span>
+      </div>
+      <div class="preview-body" id="preview-health">
+        <div class="preview-loading">
+          <div class="skeleton" style="height:54px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:54px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:54px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:54px;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:54px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-kakao-main" onclick="confirmExternalLink('https://pf.kakao.com/_bomnal')">💬 카카오톡 채널 추가하기</button>
+    <button class="btn-pwa-main" onclick="alert('홈 화면에 추가하면 앱처럼 사용하실 수 있어요! 📱')">📱 홈 화면에 추가하기</button>
+    <div class="affiliate-notice-box">이 페이지의 일부 링크는 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</div>
+    <div class="site-footer">
+      <div class="footer-row">
+        <a class="footer-link" href="privacy.html">개인정보처리방침</a>
+        <span class="footer-dot">·</span>
+        <a class="footer-link" href="terms.html">이용약관</a>
+        <span class="footer-dot">·</span>
+        <a class="footer-link" href="about.html">봄날마당 소개</a>
+      </div>
+    </div>
+  </div><!-- /main-view -->
+
+
+  <!-- ══════════════════════════════
+       전환페이지 1 — 트로트·가요
+  ══════════════════════════════ -->
+  <div id="page-trot" class="radio-page">
+    <button class="radio-back-btn" onclick="goBack()">◀ 라디오·미디어로 돌아가기</button>
+    <div class="radio-page-header" style="background:#fce4ec; border:1.5px solid #f2c4cf;">
+      <span class="radio-page-title" style="color:#c62828;">🎤 트로트·가요</span>
+      <span class="radio-page-badge" style="background:#c62828;color:#fff;">영상보기</span>
+    </div>
+    <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
+    <div class="player-wrap"><iframe id="player-trot" src="" allowfullscreen allow="autoplay"></iframe></div>
+    <div class="player-now">
+      <span class="player-now-icon">🎵</span>
+      <span class="player-now-txt" id="now-trot">영상을 선택해주세요</span>
+      <span class="player-now-count" id="count-trot"></span>
+    </div>
+    <div class="ctrl-wrap">
+      <button class="ctrl-btn" onclick="prevVideo('trot')">⏮ 이전</button>
+      <button class="ctrl-btn ctrl-btn-main" id="pause-trot" onclick="togglePause('trot')">⏸ 일시정지</button>
+      <button class="ctrl-btn" onclick="nextVideo('trot')">다음 ⏭</button>
+    </div>
+    <button class="ctrl-btn-wake" id="wake-trot" onclick="toggleWake('trot')">💡 화면 꺼짐 방지 켜기</button>
+    <div class="filter-wrap" id="filter-trot">
+      <button class="filter-tab active" onclick="filterVideos('trot','all',this)">전체</button>
+      <button class="filter-tab" onclick="filterVideos('trot','UCnGPNqCeHOBTDoKbNLMPbqw',this)">여수MBC</button>
+      <button class="filter-tab" onclick="filterVideos('trot','UCUHMoJEAsWVNOQbFMbgFuSQ',this)">트로트라디오</button>
+      <button class="filter-tab" onclick="filterVideos('trot','UCOz3PCJ6OOBiLtpNqpFUMrA',this)">목포MBC</button>
+    </div>
+    <div class="video-list-wrap" id="list-trot"></div>
+  </div>
+
+
+  <!-- ══════════════════════════════
+       전환페이지 2 — 미스터·미스트롯
+  ══════════════════════════════ -->
+  <div id="page-mister" class="radio-page">
+    <button class="radio-back-btn" onclick="goBack()">◀ 라디오·미디어로 돌아가기</button>
+    <div class="radio-page-header" style="background:#ede7f6; border:1.5px solid #ce93d8;">
+      <span class="radio-page-title" style="color:#6a1b9a;">🏆 미스터·미스트롯</span>
+      <span class="radio-page-badge" style="background:#6a1b9a;color:#fff;">영상보기</span>
+    </div>
+    <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
+    <div class="player-wrap"><iframe id="player-mister" src="" allowfullscreen allow="autoplay"></iframe></div>
+    <div class="player-now">
+      <span class="player-now-icon">🏆</span>
+      <span class="player-now-txt" id="now-mister">영상을 선택해주세요</span>
+      <span class="player-now-count" id="count-mister"></span>
+    </div>
+    <div class="ctrl-wrap">
+      <button class="ctrl-btn" style="background:#6a1b9a;" onclick="prevVideo('mister')">⏮ 이전</button>
+      <button class="ctrl-btn ctrl-btn-main" style="background:#4a148c;" id="pause-mister" onclick="togglePause('mister')">⏸ 일시정지</button>
+      <button class="ctrl-btn" style="background:#6a1b9a;" onclick="nextVideo('mister')">다음 ⏭</button>
+    </div>
+    <button class="ctrl-btn-wake" id="wake-mister" onclick="toggleWake('mister')">💡 화면 꺼짐 방지 켜기</button>
+    <div class="filter-wrap" id="filter-mister">
+      <button class="filter-tab active" onclick="filterVideos('mister','all',this)">전체</button>
+      <button class="filter-tab" onclick="filterVideos('mister','UCxkyfPIB5LFVqHcBn5RXRvQ',this)">미스&미스터트롯</button>
+      <button class="filter-tab" onclick="filterVideos('mister','UCk8GzjMOrta8yxDcKfylJYw',this)">골든케이팝</button>
+    </div>
+    <div class="video-list-wrap" id="list-mister"></div>
+  </div>
+
+
+  <!-- ══════════════════════════════
+       전환페이지 3 — 다큐·교양
+  ══════════════════════════════ -->
+  <div id="page-docu" class="radio-page">
+    <button class="radio-back-btn" onclick="goBack()">◀ 라디오·미디어로 돌아가기</button>
+    <div class="radio-page-header" style="background:#e3f2fd; border:1.5px solid #90caf9;">
+      <span class="radio-page-title" style="color:#1565c0;">📺 다큐·교양</span>
+      <span class="radio-page-badge" style="background:#1565c0;color:#fff;">영상보기</span>
+    </div>
+    <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
+    <div class="player-wrap"><iframe id="player-docu" src="" allowfullscreen allow="autoplay"></iframe></div>
+    <div class="player-now">
+      <span class="player-now-icon">📺</span>
+      <span class="player-now-txt" id="now-docu">영상을 선택해주세요</span>
+      <span class="player-now-count" id="count-docu"></span>
+    </div>
+    <div class="ctrl-wrap">
+      <button class="ctrl-btn" style="background:#1565c0;" onclick="prevVideo('docu')">⏮ 이전</button>
+      <button class="ctrl-btn ctrl-btn-main" style="background:#0d47a1;" id="pause-docu" onclick="togglePause('docu')">⏸ 일시정지</button>
+      <button class="ctrl-btn" style="background:#1565c0;" onclick="nextVideo('docu')">다음 ⏭</button>
+    </div>
+    <button class="ctrl-btn-wake" id="wake-docu" onclick="toggleWake('docu')">💡 화면 꺼짐 방지 켜기</button>
+    <div class="filter-wrap" id="filter-docu">
+      <button class="filter-tab active" onclick="filterVideos('docu','all',this)">전체</button>
+      <button class="filter-tab" onclick="filterVideos('docu','UCkinYTS9IHqOEFiAhvB_cjQ',this)">KBS다큐</button>
+      <button class="filter-tab" onclick="filterVideos('docu','UCbFSExq5VXKBX7l0aTDuoNw',this)">EBSLife</button>
+      <button class="filter-tab" onclick="filterVideos('docu','UCEtOejnNJGGQTwNmqNqWfDA',this)">EBS문화사</button>
+    </div>
+    <div class="video-list-wrap" id="list-docu"></div>
+  </div>
+
+
+  <!-- ══════════════════════════════
+       전환페이지 4 — 건강정보
+  ══════════════════════════════ -->
+  <div id="page-health" class="radio-page">
+    <button class="radio-back-btn" onclick="goBack()">◀ 라디오·미디어로 돌아가기</button>
+    <div class="radio-page-header" style="background:#e8f5e9; border:1.5px solid #a5d6a7;">
+      <span class="radio-page-title" style="color:#2e7d32;">🏥 건강정보</span>
+      <span class="radio-page-badge" style="background:#2e7d32;color:#fff;">영상보기</span>
+    </div>
+    <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
+    <div class="player-wrap"><iframe id="player-health" src="" allowfullscreen allow="autoplay"></iframe></div>
+    <div class="player-now">
+      <span class="player-now-icon">🏥</span>
+      <span class="player-now-txt" id="now-health">영상을 선택해주세요</span>
+      <span class="player-now-count" id="count-health"></span>
+    </div>
+    <div class="ctrl-wrap">
+      <button class="ctrl-btn" style="background:#2e7d32;" onclick="prevVideo('health')">⏮ 이전</button>
+      <button class="ctrl-btn ctrl-btn-main" style="background:#1b5e20;" id="pause-health" onclick="togglePause('health')">⏸ 일시정지</button>
+      <button class="ctrl-btn" style="background:#2e7d32;" onclick="nextVideo('health')">다음 ⏭</button>
+    </div>
+    <button class="ctrl-btn-wake" id="wake-health" onclick="toggleWake('health')">💡 화면 꺼짐 방지 켜기</button>
+    <div class="filter-wrap" id="filter-health">
+      <button class="filter-tab active" onclick="filterVideos('health','all',this)">전체</button>
+      <button class="filter-tab" onclick="filterVideos('health','UCR5HFSqISdPTNruBi0PmSYw',this)">시니어건강정보</button>
+      <button class="filter-tab" onclick="filterVideos('health','UCnJPAVKMDrFWbSssPKNXMmw',this)">건강오름</button>
+      <button class="filter-tab" onclick="filterVideos('health','UCIm7Qfw7yOVsg3eVMSymBpA',this)">시니어세상</button>
+    </div>
+    <div class="video-list-wrap" id="list-health"></div>
+  </div>
+
+
+  <!-- ══════════════════════════════
+       전환페이지 5 — 복지·생활정보
+  ══════════════════════════════ -->
+  <div id="page-welfare" class="radio-page">
+    <button class="radio-back-btn" onclick="goBack()">◀ 라디오·미디어로 돌아가기</button>
+    <div class="radio-page-header" style="background:#fff3e0; border:1.5px solid #ffcc80;">
+      <span class="radio-page-title" style="color:#e65100;">🏛️ 복지·생활정보</span>
+      <span class="radio-page-badge" style="background:#e65100;color:#fff;">영상보기</span>
+    </div>
+    <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
+    <div class="player-wrap"><iframe id="player-welfare" src="" allowfullscreen allow="autoplay"></iframe></div>
+    <div class="player-now">
+      <span class="player-now-icon">🏛️</span>
+      <span class="player-now-txt" id="now-welfare">영상을 선택해주세요</span>
+      <span class="player-now-count" id="count-welfare"></span>
+    </div>
+    <div class="ctrl-wrap">
+      <button class="ctrl-btn" style="background:#e65100;" onclick="prevVideo('welfare')">⏮ 이전</button>
+      <button class="ctrl-btn ctrl-btn-main" style="background:#bf360c;" id="pause-welfare" onclick="togglePause('welfare')">⏸ 일시정지</button>
+      <button class="ctrl-btn" style="background:#e65100;" onclick="nextVideo('welfare')">다음 ⏭</button>
+    </div>
+    <button class="ctrl-btn-wake" id="wake-welfare" onclick="toggleWake('welfare')">💡 화면 꺼짐 방지 켜기</button>
+    <div class="filter-wrap" id="filter-welfare">
+      <button class="filter-tab active" onclick="filterVideos('welfare','all',this)">전체</button>
+      <button class="filter-tab" onclick="filterVideos('welfare','UCmNNaVDtEhiMDSVbLIbh1gQ',this)">서울시50플러스</button>
+      <button class="filter-tab" onclick="filterVideos('welfare','UCxbcjFYVhFLmvDzWkyiRgqA',this)">시니어잡화점</button>
+    </div>
+    <div class="video-list-wrap" id="list-welfare"></div>
+  </div>
+
+
+  <!-- ══════════════════════════════
+       전환페이지 6 — 명상·힐링
+  ══════════════════════════════ -->
+  <div id="page-healing" class="radio-page">
+    <button class="radio-back-btn" onclick="goBack()">◀ 라디오·미디어로 돌아가기</button>
+    <div class="radio-page-header" style="background:#f3e5f5; border:1.5px solid #ce93d8;">
+      <span class="radio-page-title" style="color:#7b1fa2;">🧘 명상·힐링</span>
+      <span class="radio-page-badge" style="background:#7b1fa2;color:#fff;">영상보기</span>
+    </div>
+    <div class="ad-notice">📺 유튜브 영상 특성상 중간에 광고가 나올 수 있어요.<br>광고는 잠시 후 자동으로 넘어가거나 우측 하단 <strong>[광고 건너뛰기]</strong> 버튼을 눌러주세요 😊</div>
+    <div class="player-wrap"><iframe id="player-healing" src="" allowfullscreen allow="autoplay"></iframe></div>
+    <div class="player-now">
+      <span class="player-now-icon">🧘</span>
+      <span class="player-now-txt" id="now-healing">영상을 선택해주세요</span>
+      <span class="player-now-count" id="count-healing"></span>
+    </div>
+    <div class="ctrl-wrap">
+      <button class="ctrl-btn" style="background:#7b1fa2;" onclick="prevVideo('healing')">⏮ 이전</button>
+      <button class="ctrl-btn ctrl-btn-main" style="background:#4a148c;" id="pause-healing" onclick="togglePause('healing')">⏸ 일시정지</button>
+      <button class="ctrl-btn" style="background:#7b1fa2;" onclick="nextVideo('healing')">다음 ⏭</button>
+    </div>
+    <button class="ctrl-btn-wake" id="wake-healing" onclick="toggleWake('healing')">💡 화면 꺼짐 방지 켜기</button>
+    <div class="filter-wrap" id="filter-healing">
+      <button class="filter-tab active" onclick="filterVideos('healing','all',this)">전체</button>
+      <button class="filter-tab" onclick="filterVideos('healing','UCmaumnmMuMR8l9RlblMXpwA',this)">마음쉼표</button>
+      <button class="filter-tab" onclick="filterVideos('healing','UC7p6vdRZw-DgFrvkWfI3Dsw',this)">시니어채널S</button>
+    </div>
+    <div class="video-list-wrap" id="list-healing"></div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+/* ════════════════════════════════
+   채널 설정
+════════════════════════════════ */
+var CHANNELS = {
+  trot:    ['UCnGPNqCeHOBTDoKbNLMPbqw','UCUHMoJEAsWVNOQbFMbgFuSQ','UCOz3PCJ6OOBiLtpNqpFUMrA'],
+  mister:  ['UCxkyfPIB5LFVqHcBn5RXRvQ','UCk8GzjMOrta8yxDcKfylJYw'],
+  docu:    ['UCkinYTS9IHqOEFiAhvB_cjQ','UCbFSExq5VXKBX7l0aTDuoNw','UCEtOejnNJGGQTwNmqNqWfDA'],
+  health:  ['UCR5HFSqISdPTNruBi0PmSYw','UCnJPAVKMDrFWbSssPKNXMmw','UCIm7Qfw7yOVsg3eVMSymBpA'],
+  welfare: ['UCmNNaVDtEhiMDSVbLIbh1gQ','UCxbcjFYVhFLmvDzWkyiRgqA'],
+  healing: ['UCmaumnmMuMR8l9RlblMXpwA','UC7p6vdRZw-DgFrvkWfI3Dsw']
+};
+
+/* 페이지별 상태 */
+var STATE = {};
+['trot','mister','docu','health','welfare','healing'].forEach(function(k){
+  STATE[k] = { allVideos:[], filtered:[], currentIdx:0, showing:5, paused:false, wakeLock:null };
+});
+
+/* ════════════════════════════════
+   날짜
+════════════════════════════════ */
+function setDate() {
+  var now = new Date();
+  var days = ['일','월','화','수','목','금','토'];
+  document.getElementById('date-solar').textContent =
+    (now.getMonth()+1) + '월 ' + now.getDate() + '일 (' + days[now.getDay()] + ')';
+}
+
+/* ════════════════════════════════
+   화면 전환
+════════════════════════════════ */
+var currentPage = null;
+function goPage(pageId) {
+  document.getElementById('main-view').style.display = 'none';
+  if (currentPage) document.getElementById('page-' + currentPage).classList.remove('active');
+  currentPage = pageId;
+  document.getElementById('page-' + pageId).classList.add('active');
+  window.scrollTo(0,0);
+  if (STATE[pageId].allVideos.length === 0) loadVideos(pageId);
+}
+function goBack() {
+  if (currentPage) {
+    document.getElementById('page-' + currentPage).classList.remove('active');
+    currentPage = null;
+  }
+  document.getElementById('main-view').style.display = 'block';
+  window.scrollTo(0,0);
+}
+function goHome() { window.location.href = 'index.html'; }
+
+/* ════════════════════════════════
+   YouTube API 호출
+════════════════════════════════ */
+function fetchChannel(channelId, maxResults) {
+  return fetch('/api/youtube?channelId=' + channelId + '&maxResults=' + (maxResults||10))
+    .then(function(r){ return r.json(); });
+}
+
+function loadVideos(pageId) {
+  var listEl = document.getElementById('list-' + pageId);
+  listEl.innerHTML = '<div class="video-loading">🎬 영상을 불러오는 중이에요...</div>';
+  var channels = CHANNELS[pageId];
+  var promises = channels.map(function(ch){ return fetchChannel(ch, 10); });
+  Promise.all(promises).then(function(results) {
+    var allVideos = [];
+    results.forEach(function(data) {
+      if (data.items) {
+        data.items.forEach(function(item) {
+          if (item.id && item.id.videoId) {
+            allVideos.push({
+              videoId: item.id.videoId,
+              title: item.snippet.title,
+              channel: item.snippet.channelTitle,
+              channelId: item.snippet.channelId,
+              thumb: item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : '',
+              date: item.snippet.publishedAt ? item.snippet.publishedAt.slice(0,10) : ''
+            });
+          }
+        });
+      }
+    });
+    STATE[pageId].allVideos = allVideos;
+    STATE[pageId].filtered = allVideos;
+    STATE[pageId].showing = 5;
+    renderList(pageId);
+    if (allVideos.length > 0) playVideo(pageId, 0);
+  }).catch(function() {
+    listEl.innerHTML = '<div class="video-error">⚠️ 영상을 불러오지 못했어요.<br>잠시 후 다시 시도해주세요.</div>';
+  });
+}
+
+function renderList(pageId) {
+  var st = STATE[pageId];
+  var list = st.filtered;
+  var showing = st.showing;
+  var listEl = document.getElementById('list-' + pageId);
+  if (list.length === 0) { listEl.innerHTML = '<div class="video-error">😢 영상이 없어요.</div>'; return; }
+  var html = '';
+  list.slice(0, showing).forEach(function(v, i) {
+    var isPlaying = i === st.currentIdx;
+    html += '<div class="video-item' + (isPlaying ? ' playing' : '') + '" onclick="playVideo(\'' + pageId + '\',' + i + ')">'
+      + '<div class="video-thumb" style="background:#111;">'
+      + (v.thumb ? '<img src="' + v.thumb + '" style="width:100%;height:100%;border-radius:8px;object-fit:cover;">' : '')
+      + (isPlaying ? '<div class="video-playing-badge">▶ 재생중</div>' : '')
+      + '</div>'
+      + '<div class="video-info">'
+      + '<div class="video-title">' + escHtml(v.title) + '</div>'
+      + '<div class="video-channel">' + escHtml(v.channel) + '</div>'
+      + '<div class="video-date">' + v.date + '</div>'
+      + '</div></div>';
+  });
+  if (list.length > showing) {
+    html += '<button class="more-btn" onclick="showMore(\'' + pageId + '\')">+ 더보기 (' + (list.length - showing) + '개 더 있어요)</button>';
+  }
+  listEl.innerHTML = html;
+}
+
+function showMore(pageId) {
+  STATE[pageId].showing += 5;
+  renderList(pageId);
+}
+
+/* ════════════════════════════════
+   재생 제어
+════════════════════════════════ */
+function playVideo(pageId, idx) {
+  var st = STATE[pageId];
+  var list = st.filtered;
+  if (!list[idx]) return;
+  st.currentIdx = idx;
+  st.paused = false;
+  var v = list[idx];
+  var iframe = document.getElementById('player-' + pageId);
+  iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0';
+  document.getElementById('now-' + pageId).textContent = v.title;
+  document.getElementById('count-' + pageId).textContent = (idx+1) + '/' + list.length;
+  document.getElementById('pause-' + pageId).textContent = '⏸ 일시정지';
+  renderList(pageId);
+}
+
+function prevVideo(pageId) {
+  var st = STATE[pageId];
+  var idx = st.currentIdx - 1;
+  if (idx < 0) idx = st.filtered.length - 1;
+  if (idx >= st.showing) { STATE[pageId].showing = idx + 1; }
+  playVideo(pageId, idx);
+}
+
+function nextVideo(pageId) {
+  var st = STATE[pageId];
+  var idx = st.currentIdx + 1;
+  if (idx >= st.filtered.length) idx = 0;
+  if (idx >= st.showing) { STATE[pageId].showing = idx + 1; }
+  playVideo(pageId, idx);
+}
+
+function togglePause(pageId) {
+  var st = STATE[pageId];
+  var iframe = document.getElementById('player-' + pageId);
+  var btn = document.getElementById('pause-' + pageId);
+  if (st.paused) {
+    var v = st.filtered[st.currentIdx];
+    iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0';
+    btn.textContent = '⏸ 일시정지';
+    st.paused = false;
+  } else {
+    iframe.src = '';
+    btn.textContent = '▶ 재생';
+    st.paused = true;
+  }
+}
+
+/* ════════════════════════════════
+   채널 필터
+════════════════════════════════ */
+function filterVideos(pageId, channelId, btn) {
+  var st = STATE[pageId];
+  var tabs = document.querySelectorAll('#filter-' + pageId + ' .filter-tab');
+  tabs.forEach(function(t){ t.classList.remove('active'); });
+  btn.classList.add('active');
+  if (channelId === 'all') {
+    st.filtered = st.allVideos;
+  } else {
+    st.filtered = st.allVideos.filter(function(v){ return v.channelId === channelId; });
+  }
+  st.currentIdx = 0;
+  st.showing = 5;
+  renderList(pageId);
+  if (st.filtered.length > 0) playVideo(pageId, 0);
+}
+
+/* ════════════════════════════════
+   화면 꺼짐 방지
+════════════════════════════════ */
+async function toggleWake(pageId) {
+  var st = STATE[pageId];
+  var btn = document.getElementById('wake-' + pageId);
+  if (st.wakeLock) {
+    try { await st.wakeLock.release(); } catch(e) {}
+    st.wakeLock = null;
+    btn.textContent = '💡 화면 꺼짐 방지 켜기';
+    btn.style.background = '#f3e5f5';
+    btn.style.color = '#6a1b9a';
+  } else {
+    try {
+      st.wakeLock = await navigator.wakeLock.request('screen');
+      btn.textContent = '✅ 화면 꺼짐 방지 ON (탭하면 꺼짐)';
+      btn.style.background = '#e8f5e9';
+      btn.style.color = '#2e7d32';
+    } catch(e) {
+      alert('이 기기에서는 화면 꺼짐 방지가 지원되지 않아요 😢');
+    }
+  }
+}
+
+/* ════════════════════════════════
+   미리보기 섹션 로드
+════════════════════════════════ */
+function loadPreview(pageId, elId) {
+  var el = document.getElementById(elId);
+  var channels = CHANNELS[pageId];
+  var promises = channels.slice(0,2).map(function(ch){ return fetchChannel(ch, 5); });
+  Promise.all(promises).then(function(results) {
+    var videos = [];
+    results.forEach(function(data) {
+      if (data.items) {
+        data.items.forEach(function(item) {
+          if (item.id && item.id.videoId) {
+            videos.push({
+              videoId: item.id.videoId,
+              title: item.snippet.title,
+              channel: item.snippet.channelTitle,
+              thumb: item.snippet.thumbnails.medium ? item.snippet.thumbnails.medium.url : ''
+            });
+          }
+        });
+      }
+    });
+    videos = videos.slice(0,5);
+    if (videos.length === 0) { el.innerHTML = '<div style="text-align:center;padding:16px;color:#aaa;font-size:14px;">😥 영상을 불러오지 못했어요.</div>'; return; }
+    var html = '';
+    videos.forEach(function(v) {
+      html += '<div class="preview-video-item" onclick="goPage(\'' + pageId + '\')">'
+        + (v.thumb ? '<img class="preview-thumb" src="' + v.thumb + '">' : '<div class="preview-thumb"></div>')
+        + '<div class="preview-info">'
+        + '<div class="preview-title">' + escHtml(v.title) + '</div>'
+        + '<div class="preview-channel">' + escHtml(v.channel) + '</div>'
+        + '</div></div>';
+    });
+    el.innerHTML = html;
+  }).catch(function() {
+    el.innerHTML = '<div style="text-align:center;padding:16px;color:#aaa;font-size:14px;">😥 영상을 불러오지 못했어요.</div>';
+  });
+}
+
+/* ════════════════════════════════
+   외부 링크
+════════════════════════════════ */
+function confirmExternalLink(url) {
+  if (confirm('외부 사이트로 이동할게요.\n계속하시겠어요?')) window.open(url,'_blank');
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ════════════════════════════════
+   초기화
+════════════════════════════════ */
+window.onload = function() {
+  setDate();
+  loadPreview('trot', 'preview-trot');
+  loadPreview('health', 'preview-health');
+};
+</script>
+</body>
+</html>
