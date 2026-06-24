@@ -566,7 +566,13 @@ function goBack() {
   window.scrollTo(0,0);
 }
 window.addEventListener('popstate', function() {
-  if (currentPage) goBack();
+  if (currentPage) {
+    goBack();
+  } else {
+    ['trot','mister','docu','health','welfare','healing'].forEach(function(p) {
+      document.getElementById('player-' + p).src = '';
+    });
+  }
 });
 function goHome() { window.location.href = 'index.html'; }
 
