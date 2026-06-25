@@ -238,21 +238,6 @@
 .page-result { display: none; }
 .page-result.show { display: block; }
 .empty-msg { text-align: center; padding: 30px 20px; font-size: 15px; color: #999; line-height: 1.8; }
-
-/* ── 돋보기 버튼 ── */
-.zoom-btn { position: fixed; right: 16px; bottom: 24px; width: 54px; height: 54px; border-radius: 50%; background: #fff; border: 2px solid #4A90D9; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.14); -webkit-tap-highlight-color: transparent; gap: 1px; }
-.zoom-btn-icon { font-size: 22px; line-height: 1; }
-.zoom-btn-label { font-size: 13px; font-weight: 700; color: #111; line-height: 1; }
-
-/* ── 봄날톡톡 버튼 ── */
-.chat-btn { position: fixed; right: 16px; bottom: 86px; width: 54px; height: 54px; border-radius: 50%; background: #FEE500; border: 2px solid #e6ce00; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.14); -webkit-tap-highlight-color: transparent; gap: 1px; text-decoration: none; }
-.chat-btn-icon { font-size: 22px; line-height: 1; }
-.chat-btn-label { font-size: 11px; font-weight: 700; color: #111; line-height: 1; }
-
-/* ── 큰글씨 모드 ── */
-body.big-font { font-size: 135% !important; }
-body.big-font .zoom-btn-label { font-size: 18px !important; }
-body.big-font .zoom-btn-icon  { font-size: 30px !important; }
 </style>
 
 <div class="wrap">
@@ -1541,7 +1526,15 @@ body.big-font .zoom-btn-icon  { font-size: 30px !important; }
 </div><!-- /wrap -->
 
 <script>
-/* 날짜 표시 → 하단 initDate() 에서 처리 */
+/* ══════════════════════════════════════
+   날짜 표시
+══════════════════════════════════════ */
+(function(){
+  var d = new Date();
+  var days = ['일','월','화','수','목','금','토'];
+  document.getElementById('date-solar').textContent =
+    (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
+})();
 
 /* ══════════════════════════════════════
    전환 페이지 — 복지시설 GPS 검색
@@ -2291,20 +2284,20 @@ function searchBenefit() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('pb-cards').innerHTML = '<div class="empty-msg">😔 "'+keyword+'" 관련 복지서비스가 없습니다.<br>다른 키워드로 검색해 보세요.</div>';
       } else {
         document.getElementById('pb-cards').innerHTML = items.map(function(item){
           return '<div class="result-card">'
-            +'<div class="result-card-title">'+(item.servNm||item.wlfareInfoNm||'서비스명 없음')+'</div>'
-            +'<div class="result-card-desc">'+(item.servDgst||item.wlfareInfoOutlCn||'상세 내용을 확인하세요.')+'</div>'
+            +'<div class="result-card-title">'+(item.servNm||'서비스명 없음')+'</div>'
+            +'<div class="result-card-desc">'+(item.servDgst||'상세 내용을 확인하세요.')+'</div>'
             +'<div class="badge-row">'
-            +(item.trgterIndvdlNm ? '<span class="badge-green">'+item.trgterIndvdlNm+'</span>' : '')
-            +(item.intrsThemaNmArray ? '<span class="badge-blue">'+item.intrsThemaNmArray+'</span>' : '')
-            +(item.lifeNmArray ? '<span class="badge-orange">'+item.lifeNmArray+'</span>' : '')
+            +(item.trgterIndvdlArray ? '<span class="badge-green">'+item.trgterIndvdlArray+'</span>' : '')
+            +(item.intrsThemaArray ? '<span class="badge-blue">'+item.intrsThemaArray+'</span>' : '')
+            +(item.lifeArray ? '<span class="badge-orange">'+item.lifeArray+'</span>' : '')
             +'</div>'
-            +(item.srvUrl ? '<a class="result-card-link" style="background:#e8f5e9;color:#2e7d32;" href="#" onclick="confirmExternalLink(\''+item.srvUrl+'\');return false;">🔗 신청하기</a>' : '')
+            +(item.servDtlLink ? '<a class="result-card-link" style="background:#e8f5e9;color:#2e7d32;" href="#" onclick="confirmExternalLink(\''+item.servDtlLink.replace(/&amp;/g,'&')+'\');return false;">🔗 신청하기</a>' : '')
             +'</div>';
         }).join('');
       }
@@ -2348,98 +2341,6 @@ function searchStore() {
 }
 
 /* ══════════════════════════════════════
-   음력 날짜 표시
-══════════════════════════════════════ */
-function getLunarDate(solarDate) {
-  /* 양력→음력 변환 (1900~2100 근사 계산) */
-  var lunarInfo = [
-    0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
-    0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
-    0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
-    0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
-    0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
-    0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,
-    0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
-    0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,
-    0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
-    0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06aa0,0x0a6b6,0x056a0,0x02b60,0x09570,
-    0x052b2,0x0a950,0x0e952,0x06ca0,0x0d0a8,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,
-    0x0d2b2,0x0a950,0x0b557,0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,
-    0x0a9a8,0x0e950,0x06aa0,0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,
-    0x0d950,0x05b57,0x056a0,0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,
-    0x0b540,0x0b6a0,0x195a6,0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,
-    0x0af46,0x0ab60,0x09570,0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06aa0,0x0a6b6,
-    0x056a0,0x02b60,0x09570,0x052b2,0x0a950,0x0e952,0x06ca0,0x0d0a8,0x0b550,0x056a0,
-    0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,0x06ca0,0x0b550,0x15355,0x04da0,
-    0x0a5d0,0x14573,0x052d0,0x0a9a8,0x0e950,0x06aa0,0x0aea6,0x0ab50,0x04b60,0x0aae4,
-    0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,0x096d0,0x04dd5,0x04ad0,0x0a4d0
-  ];
-  function lYearDays(y){ var i,s=348; for(i=0x8000;i>0x8;i>>=1) s+=((lunarInfo[y-1900]&i)?1:0); return s+leapDays(y); }
-  function leapDays(y){ if(leapMonth(y)){ return (lunarInfo[y-1900]&0x10000)?30:29; } return 0; }
-  function leapMonth(y){ return lunarInfo[y-1900]&0xf; }
-  function monthDays(y,m){ return (lunarInfo[y-1900]&(0x10000>>m))?30:29; }
-
-  var y=solarDate.getFullYear(), m=solarDate.getMonth()+1, d=solarDate.getDate();
-  var offset=(Date.UTC(y,m-1,d)-Date.UTC(1900,0,31))/86400000;
-  var i,temp=0,lunarYear,lunarMonth,lunarDay,isLeap=false;
-  for(i=1900;i<2101&&offset>0;i++){ temp=lYearDays(i); offset-=temp; }
-  if(offset<0){ offset+=temp; i--; }
-  lunarYear=i;
-  var leap=leapMonth(i),leapFlag=false;
-  for(i=1;i<13&&offset>0;i++){
-    if(leap>0&&i==leap+1&&!leapFlag){ i--; leapFlag=true; temp=leapDays(lunarYear); }
-    else{ temp=monthDays(lunarYear,i); }
-    if(leapFlag&&i==leap+1) leapFlag=false;
-    offset-=temp;
-  }
-  if(offset==0&&leap>0&&i==leap+1){ if(isLeap){ isLeap=false; }else{ isLeap=true; i--; } }
-  if(offset<0){ offset+=temp; i--; }
-  lunarMonth=i; lunarDay=offset+1;
-  var monthNames=['정월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
-  return '음력 '+(isLeap?'윤':'')+monthNames[lunarMonth-1]+' '+lunarDay+'일';
-}
-
-function initDate() {
-  var now = new Date();
-  var week = ['일','월','화','수','목','금','토'];
-  var solar = (now.getMonth()+1)+'월 '+now.getDate()+'일 ('+week[now.getDay()]+')';
-  document.getElementById('date-solar').textContent = solar;
-  try {
-    document.getElementById('date-lunar').textContent = getLunarDate(now);
-  } catch(e) {
-    document.getElementById('date-lunar').textContent = '';
-  }
-}
-initDate();
-
-/* ══════════════════════════════════════
-   핸드폰 뒤로가기 (popstate)
-══════════════════════════════════════ */
-history.pushState({page:'main'}, '', '');
-window.addEventListener('popstate', function(e) {
-  if (currentPage) {
-    goBack();
-    history.pushState({page:'main'}, '', '');
-  }
-});
-
-var _origGoPage = goPage;
-goPage = function(id) {
-  _origGoPage(id);
-  history.pushState({page:id}, '', '');
-};
-
-/* ══════════════════════════════════════
-   돋보기 (기본 ↔ 크게)
-══════════════════════════════════════ */
-var isBigFont = false;
-function toggleBigFont() {
-  isBigFont = !isBigFont;
-  document.body.classList.toggle('big-font', isBigFont);
-  document.getElementById('zoom-label').textContent = isBigFont ? '크게' : '기본';
-}
-
-/* ══════════════════════════════════════
    카카오 공유 / PWA
 ══════════════════════════════════════ */
 function shareKakao() { alert('카카오 공유 기능은 index.html에서 SDK 연동 후 활성화됩니다.'); }
@@ -2451,18 +2352,5 @@ function confirmExternalLink(url) {
   }
 }
 </script>
-
-<!-- 봄날톡톡 버튼 (우하단 고정) -->
-<a class="chat-btn" href="talk-chat.html">
-  <span class="chat-btn-icon">💬</span>
-  <span class="chat-btn-label">톡톡</span>
-</a>
-
-<!-- 돋보기 버튼 (우하단 고정) -->
-<button class="zoom-btn" onclick="toggleBigFont()" id="zoom-btn">
-  <span class="zoom-btn-icon">🔍</span>
-  <span class="zoom-btn-label" id="zoom-label">기본</span>
-</button>
-
 </body>
 </html>
