@@ -1798,14 +1798,14 @@ function loadWeather() {
   document.getElementById('date-lunar').textContent = lunarText;
 
   /* 달력 바 날짜 */
-  document.getElementById('cal-date').textContent = mon + '월 ' + dat + '일 (' + dow + ')';
+  var calDate = document.getElementById('cal-date');
+  if (calDate) calDate.textContent = mon + '월 ' + dat + '일 (' + dow + ')';
 
   /* 절기/손없는날 */
   var seasonText = getTodaySeasonText(lunar.lunarDay);
-  if (seasonText) {
-    document.getElementById('cal-season').textContent = '· ' + seasonText;
-  } else {
-    document.getElementById('cal-season').textContent = '· ' + lunarText;
+  var calSeason = document.getElementById('cal-season');
+  if (calSeason) {
+    calSeason.textContent = seasonText ? '· ' + seasonText : '· ' + lunarText;
   }
 
   /* 날씨 실제 API 호출 (GPS 위치 기반) */
