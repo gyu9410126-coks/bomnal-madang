@@ -1542,13 +1542,42 @@
 history.replaceState({ page: null }, '', '');
 
 /* ══════════════════════════════════════
-   날짜 표시
+   음력 변환 함수 (양력→음력 근사 계산)
+══════════════════════════════════════ */
+function getSolarLunarInfo() {
+  var BASE_SOLAR      = new Date(2025, 0, 1);
+  var BASE_LUNAR_MONTH = 12;
+  var BASE_LUNAR_DAY   = 2;
+  var BASE_LUNAR_YEAR  = 2024;
+  var LUNAR_MONTH_DAYS = 29.5306;
+  var today = new Date();
+  var diffDays = Math.floor((today - BASE_SOLAR) / (1000 * 60 * 60 * 24));
+  var totalLunarDays = BASE_LUNAR_DAY + diffDays;
+  var lunarMonth = BASE_LUNAR_MONTH;
+  var lunarYear  = BASE_LUNAR_YEAR;
+  while (totalLunarDays > 29) {
+    var daysInThisMonth = (lunarMonth % 2 === 1) ? 30 : 29;
+    if (totalLunarDays > daysInThisMonth) {
+      totalLunarDays -= daysInThisMonth;
+      lunarMonth++;
+      if (lunarMonth > 12) { lunarMonth = 1; lunarYear++; }
+    } else { break; }
+  }
+  if (totalLunarDays < 1) { totalLunarDays = 1; }
+  return { lunarYear: lunarYear, lunarMonth: lunarMonth, lunarDay: Math.floor(totalLunarDays) };
+}
+
+/* ══════════════════════════════════════
+   날짜 표시 (양력 + 음력)
 ══════════════════════════════════════ */
 (function(){
-  var d = new Date();
+  var d    = new Date();
   var days = ['일','월','화','수','목','금','토'];
   document.getElementById('date-solar').textContent =
     (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
+  var lunar = getSolarLunarInfo();
+  document.getElementById('date-lunar').textContent =
+    '음력 '+lunar.lunarMonth+'월 '+lunar.lunarDay+'일';
 })();
 
 /* ══════════════════════════════════════
