@@ -74,8 +74,7 @@ export default async function handler(req, res) {
 
       const r = await fetch(url);
       const xml = await r.text();
-      const items = parseXmlItems(xml, 'item');
-      return res.status(200).json({ items });
+      return res.status(200).json({ debug_xml: xml });
     }
 
     // ── 4. 서민금융교육 콘텐츠 ─────────────────────────────────────
