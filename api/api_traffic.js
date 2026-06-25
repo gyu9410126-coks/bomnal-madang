@@ -15,7 +15,7 @@ export default async function handler(req, res) {
       let allItems = [];
 
       for (const code of cityCodes) {
-        const url = `http://apis.data.go.kr/1613000/BusSttnInfoInqireService/getSttnNoList`
+        const url = `https://apis.data.go.kr/1613000/BusSttnInfoInqireService/getSttnNoList`
           + `?serviceKey=${encodeURIComponent(process.env.TAGO_BUS_STOP_KEY)}`
           + `&numOfRows=5&pageNo=1&_type=json`
           + `&cityCode=${code}&nodeNm=${encodeURIComponent(keyword)}`;
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
     if (type === 'busArrival') {
       if (!nodeId || !cityCode) return res.json({ ok: false, message: '파라미터 없음' });
 
-      const url = `http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList`
+      const url = `https://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList`
         + `?serviceKey=${encodeURIComponent(process.env.TAGO_BUS_ARRIVAL_KEY)}`
         + `&numOfRows=10&pageNo=1&_type=json`
         + `&cityCode=${cityCode}&nodeId=${encodeURIComponent(nodeId)}`;
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
       if (!keyword) return res.json({ ok: false, message: '키워드 없음' });
 
       // TAGO 지하철 정보 API
-      const url = `http://apis.data.go.kr/1613000/SubwayInfoService/getSubwaySttnAcctoArvlPrearngeInfoList`
+      const url = `https://apis.data.go.kr/1613000/SubwayInfoService/getSubwaySttnAcctoArvlPrearngeInfoList`
         + `?serviceKey=${encodeURIComponent(process.env.TAGO_SUBWAY_KEY)}`
         + `&numOfRows=10&pageNo=1&_type=json`
         + `&subwayStationName=${encodeURIComponent(keyword)}`
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
     if (type === 'train') {
       if (!depart || !arrive || !date) return res.json({ ok: false, message: '파라미터 없음' });
 
-      const url = `http://apis.data.go.kr/1613000/TrainInfoService/getStrtpntAlocFndTrainInfo`
+      const url = `https://apis.data.go.kr/B551457/run/v2/get/trainInfo`
         + `?serviceKey=${encodeURIComponent(process.env.KORAIL_TRAIN_KEY)}`
         + `&numOfRows=10&pageNo=1&_type=json`
         + `&depPlaceId=${encodeURIComponent(depart)}`
@@ -93,7 +93,7 @@ export default async function handler(req, res) {
         + String(today.getMonth()+1).padStart(2,'0')
         + String(today.getDate()).padStart(2,'0');
 
-      const url = `http://apis.data.go.kr/1613000/ExpBusInfoService/getExpBusTimeTable`
+      const url = `https://apis.data.go.kr/1613000/ExpBusInfoService/getExpBusTimeTable`
         + `?serviceKey=${encodeURIComponent(process.env.TAGO_EXPRESS_KEY)}`
         + `&numOfRows=10&pageNo=1&_type=json`
         + `&depTerminalId=${encodeURIComponent(depart)}`

@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     // 파라미터: Q0(시도명), Q1(시군구명), pageNo, numOfRows
     // ─────────────────────────────────────────
     if (type === 'pharmacy') {
-      url = 'http://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyListInfoInqire';
+      url = 'https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyListInfoInqire';
       queryParams.append('serviceKey', process.env.PHARMACY_API_KEY);
       queryParams.append('Q0', params.Q0 || '서울특별시');
       queryParams.append('Q1', params.Q1 || '');
@@ -47,7 +47,7 @@ export default async function handler(req, res) {
     // 파라미터: Q0(시도명), Q1(시군구명), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'emergency') {
-      url = 'http://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytBassInfoInqire';
+      url = 'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytBassInfoInqire';
       queryParams.append('serviceKey', process.env.EMERGENCY_API_KEY);
       queryParams.append('Q0', params.Q0 || '서울특별시');
       queryParams.append('Q1', params.Q1 || '');
@@ -62,7 +62,7 @@ export default async function handler(req, res) {
     // 파라미터: itemName(약품명 검색어), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'medicine') {
-      url = 'http://apis.data.go.kr/1471000/DrbEasyDrugInfoService/getDrbEasyDrugList';
+      url = 'https://apis.data.go.kr/1471000/DrbEasyDrugInfoService/getDrbEasyDrugList';
       queryParams.append('serviceKey', process.env.MEDICINE_API_KEY);
       queryParams.append('itemName', params.itemName || '');
       queryParams.append('pageNo', params.pageNo || '1');
@@ -77,7 +77,7 @@ export default async function handler(req, res) {
     // 건강관련 업종 중분류코드: I2(보건업), 건강용품: Q(스포츠·여가)
     // ─────────────────────────────────────────
     else if (type === 'store') {
-      url = 'http://apis.data.go.kr/B553077/api/open/sdsc2/storeListInDong';
+      url = 'https://apis.data.go.kr/B553077/api/open/sdsc2/storeListInDong';
       queryParams.append('serviceKey', process.env.STORE_API_KEY);
       queryParams.append('pageNo', params.pageNo || '1');
       queryParams.append('numOfRows', params.numOfRows || '10');
@@ -94,7 +94,7 @@ export default async function handler(req, res) {
     // 파라미터: itemName(약재명), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'herbal') {
-      url = 'http://apis.data.go.kr/1471000/HerbalMdcinInfoService/getHerbalMdcinList';
+      url = 'https://apis.data.go.kr/1430000/MatInfoService/getMatInfoList';
       queryParams.append('serviceKey', process.env.HERBAL_API_KEY);
       queryParams.append('itemName', params.itemName || '');
       queryParams.append('pageNo', params.pageNo || '1');
@@ -108,7 +108,7 @@ export default async function handler(req, res) {
     // 파라미터: emdongNm(읍면동명), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'care') {
-      url = 'http://apis.data.go.kr/B550928/LtcInsttInfoService2/getLtcInsttList2';
+      url = 'https://apis.data.go.kr/B550928/getLtcInsttDetailInfoService02/getLtcInsttDetailInfo02';
       queryParams.append('serviceKey', process.env.CARE_API_KEY);
       queryParams.append('emdongNm', params.emdongNm || '');
       if (params.siDoNm) queryParams.append('siDoNm', params.siDoNm);
@@ -124,7 +124,7 @@ export default async function handler(req, res) {
     // 파라미터: desc_kor(식품명), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'nutrition') {
-      url = 'http://apis.data.go.kr/1471000/FoodNtrIrdntInfoService1/getFoodNtrItdntList1';
+      url = 'https://apis.data.go.kr/1471000/FoodNtrCpntDbInfo02/getFoodNtrCpntDbInAttrbInfo02';
       queryParams.append('serviceKey', process.env.FOOD_NUTRITION_API_KEY);
       queryParams.append('desc_kor', params.desc_kor || '');
       queryParams.append('pageNo', params.pageNo || '1');
@@ -139,7 +139,7 @@ export default async function handler(req, res) {
     // 출처표시 필수: 건강보험심사평가원 (공공저작물 제1유형)
     // ─────────────────────────────────────────
     else if (type === 'hospital') {
-      url = 'http://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList';
+      url = 'https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList';
       queryParams.append('serviceKey', process.env.HOSPITAL_API_KEY);
       if (params.sidoCd) queryParams.append('sidoCd', params.sidoCd);
       if (params.sgguCd) queryParams.append('sgguCd', params.sgguCd);
@@ -155,7 +155,7 @@ export default async function handler(req, res) {
     // 파라미터: prdlstNm(제품명), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'supplement') {
-      url = 'http://apis.data.go.kr/1471000/HealthFoodInfoService/getHealthFoodList';
+      url = 'https://apis.data.go.kr/1471000/HealthFoodInfoService/getHealthFoodList';
       queryParams.append('serviceKey', process.env.HEALTH_FUNC_API_KEY);
       queryParams.append('prdlstNm', params.prdlstNm || '');
       queryParams.append('pageNo', params.pageNo || '1');

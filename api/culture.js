@@ -44,7 +44,7 @@ export default async function handler(req, res) {
       const now   = new Date();
       const year  = req.query.year  || now.getFullYear();
       const month = req.query.month || String(now.getMonth()+1).padStart(2,'0');
-      const url   = `http://www.khs.go.kr/cha/openapi/selectEventListOpenapi.do?searchYear=${year}&searchMonth=${month}`;
+      const url   = `https://www.khs.go.kr/cha/openapi/selectEventListOpenapi.do?searchYear=${year}&searchMonth=${month}`;
       const xmlText = await (await fetch(url)).text();
       const items = parseItems(xmlText,'item').map(function(x){
         return {
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
       const ccbaKdcd  = req.query.ccbaKdcd  || '11';
       const pageUnit  = req.query.pageUnit  || '10';
       const pageIndex = req.query.pageIndex || '1';
-      const url = `http://www.khs.go.kr/cha/SearchKindOpenapiList.do?ccbaKdcd=${ccbaKdcd}&pageUnit=${pageUnit}&pageIndex=${pageIndex}`;
+      const url = `https://www.khs.go.kr/cha/SearchKindOpenapiList.do?ccbaKdcd=${ccbaKdcd}&pageUnit=${pageUnit}&pageIndex=${pageIndex}`;
       const xmlText = await (await fetch(url)).text();
       const items = parseItems(xmlText,'item').map(function(x){
         return {
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
       if (!ccbaAsno || !ccbaCtcd) {
         return res.status(400).json({ ok:false, message:'ccbaAsno, ccbaCtcd 필요' });
       }
-      const url = `http://www.khs.go.kr/cha/SearchImageOpenapi.do?ccbaKdcd=${ccbaKdcd}&ccbaAsno=${ccbaAsno}&ccbaCtcd=${ccbaCtcd}`;
+      const url = `https://www.khs.go.kr/cha/SearchImageOpenapi.do?ccbaKdcd=${ccbaKdcd}&ccbaAsno=${ccbaAsno}&ccbaCtcd=${ccbaCtcd}`;
       const xmlText = await (await fetch(url)).text();
       const images = (xmlText.match(/<imageUrl>([\s\S]*?)<\/imageUrl>/g) || [])
         .map(function(m){ return m.replace(/<\/?imageUrl>/g,'').replace(/<!\[CDATA\[|\]\]>/g,'').trim(); })
@@ -115,10 +115,11 @@ export default async function handler(req, res) {
       const to    = req.query.to    || getMonthLaterStr();
       const rows  = req.query.rows  || '10';
       const cPage = req.query.cPage || '1';
-      const url = `http://www.culture.go.kr/openapi/rest/publicperformancedisplays/period`
-        + `?from=${from}&to=${to}&cPage=${cPage}&rows=${rows}`
+      const url = `https://apis.data.go.kr/B553457/cultureinfo/getCultureInfo`
+        + `?serviceKey=${encodeURIComponent(apiKey)}`
+        + `&pageNo=${cPage}&numOfRows=${rows}`
         + (realmCode ? `&realmCode=${realmCode}` : '')
-        + `&sortStdr=1&serviceKey=${encodeURIComponent(apiKey)}`;
+        + `&from=${from}&to=${to}`;
       const xmlText = await (await fetch(url)).text();
       const items = parseItems(xmlText,'db').map(function(x){
         return {
