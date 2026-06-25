@@ -13,7 +13,7 @@
 .wrap { background: #f7f8fa; max-width: 480px; margin: 0 auto; padding-bottom: 40px; }
 
 /* ── 헤더 ── */
-.app-header { background: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+.app-header { background: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
 .header-left { display: flex; align-items: center; gap: 8px; }
 .logo-senior { color: #eb840f; font-weight: 900; font-size: 18px; }
 .logo-bomnal { color: #4A90D9; font-weight: 900; font-size: 18px; }
@@ -245,25 +245,6 @@
 </style>
 
 <div class="wrap">
-
-  <!-- ① 앱 헤더 -->
-  <div class="app-header">
-    <div class="header-left">
-      <span style="font-size:22px;">🌸</span>
-      <div>
-        <span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span>
-      </div>
-    </div>
-    <div class="header-date-box">
-      <span class="header-date-solar" id="date-solar">날짜 로딩중</span>
-      <span class="header-date-lunar" id="date-lunar">음력 로딩중</span>
-    </div>
-  </div>
-
-  <!-- ② 홈바 -->
-  <div class="home-bar">
-    <button onclick="location.href='index.html'">🏠 홈으로</button>
-  </div>
 
   <!-- ③ 메인 화면 -->
   <div id="main-view">
@@ -1540,45 +1521,6 @@
 <script>
 /* 뒤로가기 기준점 설정 */
 history.replaceState({ page: null }, '', '');
-
-/* ══════════════════════════════════════
-   음력 변환 함수 (양력→음력 근사 계산)
-══════════════════════════════════════ */
-function getSolarLunarInfo() {
-  var BASE_SOLAR      = new Date(2025, 0, 1);
-  var BASE_LUNAR_MONTH = 12;
-  var BASE_LUNAR_DAY   = 2;
-  var BASE_LUNAR_YEAR  = 2024;
-  var LUNAR_MONTH_DAYS = 29.5306;
-  var today = new Date();
-  var diffDays = Math.floor((today - BASE_SOLAR) / (1000 * 60 * 60 * 24));
-  var totalLunarDays = BASE_LUNAR_DAY + diffDays;
-  var lunarMonth = BASE_LUNAR_MONTH;
-  var lunarYear  = BASE_LUNAR_YEAR;
-  while (totalLunarDays > 29) {
-    var daysInThisMonth = (lunarMonth % 2 === 1) ? 30 : 29;
-    if (totalLunarDays > daysInThisMonth) {
-      totalLunarDays -= daysInThisMonth;
-      lunarMonth++;
-      if (lunarMonth > 12) { lunarMonth = 1; lunarYear++; }
-    } else { break; }
-  }
-  if (totalLunarDays < 1) { totalLunarDays = 1; }
-  return { lunarYear: lunarYear, lunarMonth: lunarMonth, lunarDay: Math.floor(totalLunarDays) };
-}
-
-/* ══════════════════════════════════════
-   날짜 표시 (양력 + 음력)
-══════════════════════════════════════ */
-(function(){
-  var d    = new Date();
-  var days = ['일','월','화','수','목','금','토'];
-  document.getElementById('date-solar').textContent =
-    (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
-  var lunar = getSolarLunarInfo();
-  document.getElementById('date-lunar').textContent =
-    '음력 '+lunar.lunarMonth+'월 '+lunar.lunarDay+'일';
-})();
 
 /* ══════════════════════════════════════
    전환 페이지 — 복지시설 GPS 검색
