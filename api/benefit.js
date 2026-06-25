@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     if (type === 'welfare') {
       const { sido, sigungu, type: facilityType } = req.query;
       const key = encodeURIComponent(process.env.WELFARE_API_KEY);
-      const url = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getSclWlfrFcltInfoInqirService1`
+      const url = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getNFcltBizInqire`
         + `?serviceKey=${key}`
         + `&pageNo=1&numOfRows=20`
         + (sido        ? `&ctpvNm=${encodeURIComponent(sido)}`       : '')
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
     if (type === 'benefit') {
       const { keyword } = req.query;
       const key = encodeURIComponent(process.env.BENEFIT_API_KEY);
-      const url = `https://apis.data.go.kr/B554287/NationalWelfareInformationsV001/getNationalWelfarelistV001`
+      const url = `https://apis.data.go.kr/B554287/NationalWelfareInformationsV001/NationalWelfarelistV001`
         + `?serviceKey=${key}`
         + `&pageNo=1&numOfRows=10`
         + (keyword ? `&srchKeyword=${encodeURIComponent(keyword)}` : '');
@@ -66,7 +66,7 @@ export default async function handler(req, res) {
     if (type === 'lawyer') {
       const { sido, sigungu } = req.query;
       const key = encodeURIComponent(process.env.LAWYER_API_KEY);
-      const url = `https://apis.data.go.kr/1270000/mojmabyun/getMojmabyunList`
+      const url = `https://apis.data.go.kr/1270000/mojmabyun/mabyun`
         + `?serviceKey=${key}`
         + `&pageNo=1&numOfRows=20`
         + (sido    ? `&ctpvNm=${encodeURIComponent(sido)}`     : '')
@@ -74,14 +74,15 @@ export default async function handler(req, res) {
 
       const r = await fetch(url);
       const xml = await r.text();
-      return res.status(200).json({ debug_xml: xml });
+      const items = parseXmlItems(xml, 'item');
+      return res.status(200).json({ items });
     }
 
     // ── 4. 서민금융교육 콘텐츠 ─────────────────────────────────────
     if (type === 'finance') {
       const { pageNo } = req.query;
       const key = encodeURIComponent(process.env.FINANCE_EDU_KEY);
-      const url = `https://apis.data.go.kr/B553701/SeominFinancialEducationContentsInfoService/getSeominFinancialEducationContentsInfo`
+      const url = `https://apis.data.go.kr/B553701/SeominFinancialEducationContentsInfoService/getFinancialEducationContentsInfo`
         + `?serviceKey=${key}`
         + `&pageNo=${pageNo || 1}&numOfRows=10`;
 
