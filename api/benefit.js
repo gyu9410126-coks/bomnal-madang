@@ -58,11 +58,8 @@ export default async function handler(req, res) {
 
       const r = await fetch(url);
       const xml = await r.text();
-      const items = parseXmlItems(xml, 'item');
-      return res.status(200).json({ items });
-    }
-
-    // ── 3. 마을변호사 지역별 현황 ───────────────────────────────────
+      return res.status(200).json({ debug_xml: xml });
+    } 지역별 현황 ───────────────────────────────────
     if (type === 'lawyer') {
       const { sido, sigungu } = req.query;
       const key = encodeURIComponent(process.env.LAWYER_API_KEY);
