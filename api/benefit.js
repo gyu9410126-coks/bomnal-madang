@@ -53,12 +53,15 @@ export default async function handler(req, res) {
       const key = encodeURIComponent(process.env.BENEFIT_API_KEY);
       const url = `https://apis.data.go.kr/B554287/NationalWelfareInformationsV001/NationalWelfarelistV001`
         + `?serviceKey=${key}`
+        + `&callTp=L`
         + `&pageNo=1&numOfRows=10`
-        + (keyword ? `&srchKeyword=${encodeURIComponent(keyword)}` : '');
+        + (keyword ? `&searchWrd=${encodeURIComponent(keyword)}` : '')
+        + `&srchKeyCode=001`;
 
       const r = await fetch(url);
       const xml = await r.text();
-      return res.status(200).json({ debug_xml: xml });
+      const items = parseXmlItems(xml, 'servList');
+      return res.status(200).json({ items });
     }
 
     // ── 3. 마을변호사 지역별 현황 ───────────────────────────────────
