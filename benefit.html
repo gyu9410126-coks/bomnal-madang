@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>복지·혜택 - 시니어 봄날마당</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 </head>
 <body>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; }
 
 /* ── 전체 래퍼 ── */
 .wrap { background: #f7f8fa; max-width: 480px; margin: 0 auto; padding-bottom: 40px; }
@@ -22,7 +23,7 @@
 .header-date-lunar { font-size: 12px; font-weight: 700; color: #1a5fa0; }
 
 /* ── 홈바 ── */
-.home-bar { background: #fff; border-bottom: 1px solid #eee; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; position: static; }
+.home-bar { background: #fff; border-bottom: 1px solid #eee; padding: 8px 14px; }
 .home-bar button { background: #4A90D9; color: #fff; border: none; border-radius: 20px; padding: 10px 22px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; }
 
 /* ── 아이콘 그리드 ── */
@@ -229,10 +230,6 @@
 .store-card-addr { font-size: 13px; color: #666; margin-bottom: 8px; line-height: 1.5; }
 .store-card-tel { display: inline-block; font-size: 14px; font-weight: 700; color: #880e4f; text-decoration: none; background: #fce4ec; padding: 6px 14px; border-radius: 8px; }
 
-/* 리셋 버튼 */
-.reset-btn { width: 100%; margin-top: 10px; padding: 13px; background: #f5f5f5; color: #666; border: 1.5px solid #ddd; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; }
-.reset-btn:active { background: #eeeeee; }
-
 /* 로딩 공통 */
 .page-loading { display: none; text-align: center; padding: 32px 20px; }
 .page-loading.show { display: block; }
@@ -245,6 +242,25 @@
 </style>
 
 <div class="wrap">
+
+  <!-- ① 앱 헤더 -->
+  <div class="app-header">
+    <div class="header-left">
+      <span style="font-size:22px;">🌸</span>
+      <div>
+        <span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span>
+      </div>
+    </div>
+    <div class="header-date-box">
+      <span class="header-date-solar" id="date-solar">날짜 로딩중</span>
+      <span class="header-date-lunar" id="date-lunar">음력 로딩중</span>
+    </div>
+  </div>
+
+  <!-- ② 홈바 -->
+  <div class="home-bar">
+    <button onclick="location.href='index.html'">🏠 홈으로</button>
+  </div>
 
   <!-- ③ 메인 화면 -->
   <div id="main-view">
@@ -511,7 +527,6 @@
         </select>
       </div>
       <button class="calc-btn" onclick="calcBenefitPage()">✅ 내가 받을 수 있는 혜택 확인하기</button>
-      <button class="reset-btn" onclick="resetPage('page-calc')">🔄 다시 입력하기</button>
 
       <div class="result-box" id="pc-result-box">
         <div class="result-header">📋 2026년 예상 혜택 결과</div>
@@ -666,7 +681,6 @@
         </div>
 
         <button class="page-btn" style="background:#1565c0;color:#fff;margin-top:6px;" onclick="checkPension()">🔍 수급 가능성 확인하기</button>
-        <button class="reset-btn" onclick="resetPage('page-pension')">🔄 다시 입력하기</button>
 
         <!-- 진단 결과 -->
         <div id="pp-result" style="display:none;margin-top:14px;">
@@ -779,7 +793,6 @@
       </select>
 
       <button class="page-btn" style="background:#6a1b9a;color:#fff;" onclick="searchWelfarePage()">🔍 복지시설 검색하기</button>
-      <button class="reset-btn" onclick="resetPage('page-welfare')">🔄 다시 검색하기</button>
 
       <div class="page-loading" id="pw-loading" style="color:#6a1b9a;">
         <span class="page-loading-icon">🏢</span>
@@ -879,7 +892,6 @@
       </select>
 
       <button class="page-btn" style="background:#4527a0; color:#fff;" onclick="searchLawyer()">🔍 마을변호사 찾기</button>
-      <button class="reset-btn" onclick="resetPage('page-lawyer')">🔄 다시 검색하기</button>
 
       <div class="page-loading" id="pl-loading">
         <span class="page-loading-icon">👨‍⚖️</span>
@@ -1061,7 +1073,6 @@
         </div>
 
         <button class="page-btn" style="background:#c62828;color:#fff;margin-top:6px;" onclick="checkLongterm()">🔍 등급 신청 필요 여부 확인하기</button>
-        <button class="reset-btn" onclick="resetPage('page-longterm')">🔄 다시 체크하기</button>
 
         <!-- 자가체크 결과 -->
         <div id="lt-result" style="display:none;margin-top:14px;">
@@ -1160,8 +1171,7 @@
 
       <div class="notice-box" style="margin-bottom:14px;">💡 서민금융진흥원에서 제공하는 <strong>무료 금융교육 콘텐츠</strong>입니다. 대출·보이스피싱·노후설계 등 다양한 교육을 받아보세요!</div>
 
-      <button class="page-btn" style="background:#e65100; color:#fff; margin-bottom:10px;" onclick="loadFinanceEdu()">📚 금융교육 콘텐츠 불러오기</button>
-      <button class="reset-btn" style="margin-bottom:4px;" onclick="resetPage('page-finance')">🔄 콘텐츠 초기화</button>
+      <button class="page-btn" style="background:#e65100; color:#fff; margin-bottom:14px;" onclick="loadFinanceEdu()">📚 금융교육 콘텐츠 불러오기</button>
 
       <div class="page-loading" id="pf-loading">
         <span class="page-loading-icon">📚</span>
@@ -1234,7 +1244,6 @@
         <input class="search-input" type="text" id="pb-keyword" placeholder="예: 기초연금, 의료비, 돌봄" maxlength="20">
         <button class="search-btn" onclick="searchBenefit()">검색</button>
       </div>
-      <button class="reset-btn" style="margin-bottom:10px;" onclick="resetPage('page-benefit')">🔄 다시 검색하기</button>
 
       <div class="badge-row" style="margin-bottom:14px;">
         <span class="badge-green" style="cursor:pointer;" onclick="quickSearch('기초연금')">기초연금</span>
@@ -1371,7 +1380,6 @@
       </select>
 
       <button class="page-btn" style="background:#880e4f;color:#fff;" onclick="searchStore()">🔍 주변 상가 찾기</button>
-      <button class="reset-btn" onclick="resetPage('page-store')">🔄 다시 검색하기</button>
 
       <div class="page-loading" id="ps-loading">
         <span class="page-loading-icon">🏪</span>
@@ -1519,8 +1527,15 @@
 </div><!-- /wrap -->
 
 <script>
-/* 뒤로가기 기준점 설정 */
-history.replaceState({ page: null }, '', '');
+/* ══════════════════════════════════════
+   날짜 표시
+══════════════════════════════════════ */
+(function(){
+  var d = new Date();
+  var days = ['일','월','화','수','목','금','토'];
+  document.getElementById('date-solar').textContent =
+    (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
+})();
 
 /* ══════════════════════════════════════
    전환 페이지 — 복지시설 GPS 검색
@@ -1537,7 +1552,7 @@ function searchWelfareGPSPage() {
       .then(function(data){
         loading.classList.remove('show');
         var items = [];
-        try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+        try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
         if (items.length === 0) {
           document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 주변 복지시설이 없습니다.<br>지역 선택으로 검색해 보세요.</div>';
         } else {
@@ -1571,7 +1586,7 @@ function searchStoreGPSPage() {
       .then(function(data){
         loading.classList.remove('show');
         var items = [];
-        try { items = data.body?.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+        try { items = data.data || data.response?.body?.items?.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
         if (items.length === 0) {
           document.getElementById('ps-cards').innerHTML = '<div class="empty-msg">😔 주변 상가가 없습니다.<br>지역 선택으로 검색해 보세요.</div>';
         } else {
@@ -1803,22 +1818,9 @@ function goPage(id) {
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
 
-  /* 뒤로가기 히스토리 추가 */
-  history.pushState({ page: id }, '', '');
-
   /* ── 페이지별 리셋 ── */
   resetPage(id);
 }
-
-/* 핸드폰 뒤로가기 → 카테고리 메인으로 */
-window.addEventListener('popstate', function(e) {
-  if (currentPage) {
-    document.getElementById(currentPage).classList.remove('active');
-    currentPage = null;
-    document.getElementById('main-view').style.display = 'block';
-    window.scrollTo(0, 0);
-  }
-});
 
 function resetPage(id) {
   /* 공통 헬퍼 — 값 초기화 */
@@ -2149,7 +2151,7 @@ function renderWelfareCards(data, areaName) {
   var cards = document.getElementById('welfare-cards');
   var header = document.getElementById('welfare-result-header');
   var items = [];
-  try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+  try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
   header.textContent = '📍 ' + areaName + ' 복지시설 ' + items.length + '개';
   if (items.length === 0) { showWelfareEmpty(); return; }
   cards.innerHTML = items.map(function(item){
@@ -2183,7 +2185,7 @@ function searchWelfarePage() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 검색 결과가 없습니다.<br>다른 조건으로 검색해 보세요.</div>';
       } else {
@@ -2216,7 +2218,7 @@ function searchLawyer() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('pl-cards').innerHTML = '<div class="empty-msg">😔 해당 지역 마을변호사 정보가 없습니다.<br>법률구조공단(☎ 132)에 문의해 보세요.</div>';
       } else {
@@ -2247,7 +2249,7 @@ function loadFinanceEdu() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('pf-cards').innerHTML = '<div class="empty-msg">😔 콘텐츠를 불러오지 못했습니다.</div>';
       } else {
@@ -2283,20 +2285,20 @@ function searchBenefit() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('pb-cards').innerHTML = '<div class="empty-msg">😔 "'+keyword+'" 관련 복지서비스가 없습니다.<br>다른 키워드로 검색해 보세요.</div>';
       } else {
         document.getElementById('pb-cards').innerHTML = items.map(function(item){
           return '<div class="result-card">'
-            +'<div class="result-card-title">'+(item.servNm||'서비스명 없음')+'</div>'
-            +'<div class="result-card-desc">'+(item.servDgst||'상세 내용을 확인하세요.')+'</div>'
+            +'<div class="result-card-title">'+(item.servNm||item.wlfareInfoNm||'서비스명 없음')+'</div>'
+            +'<div class="result-card-desc">'+(item.servDgst||item.wlfareInfoOutlCn||'상세 내용을 확인하세요.')+'</div>'
             +'<div class="badge-row">'
-            +(item.trgterIndvdlArray ? '<span class="badge-green">'+item.trgterIndvdlArray+'</span>' : '')
-            +(item.intrsThemaArray ? '<span class="badge-blue">'+item.intrsThemaArray+'</span>' : '')
-            +(item.lifeArray ? '<span class="badge-orange">'+item.lifeArray+'</span>' : '')
+            +(item.trgterIndvdlNm ? '<span class="badge-green">'+item.trgterIndvdlNm+'</span>' : '')
+            +(item.intrsThemaNmArray ? '<span class="badge-blue">'+item.intrsThemaNmArray+'</span>' : '')
+            +(item.lifeNmArray ? '<span class="badge-orange">'+item.lifeNmArray+'</span>' : '')
             +'</div>'
-            +(item.servDtlLink ? '<a class="result-card-link" style="background:#e8f5e9;color:#2e7d32;" href="#" onclick="confirmExternalLink(\''+item.servDtlLink.replace(/&amp;/g,'&')+'\');return false;">🔗 신청하기</a>' : '')
+            +(item.srvUrl ? '<a class="result-card-link" style="background:#e8f5e9;color:#2e7d32;" href="#" onclick="confirmExternalLink(\''+item.srvUrl+'\');return false;">🔗 신청하기</a>' : '')
             +'</div>';
         }).join('');
       }
@@ -2321,7 +2323,7 @@ function searchStore() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.body?.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = data.data || data.response?.body?.items?.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('ps-cards').innerHTML = '<div class="empty-msg">😔 검색 결과가 없습니다.<br>다른 지역이나 업종으로 검색해 보세요.</div>';
       } else {
