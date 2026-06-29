@@ -1299,7 +1299,7 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   <!-- ① 배너 슬라이더 5개 -->
   <div class="bnr-wrap">
     <!-- 배너1: 복지혜택 -->
-    <div class="bnr-item bnr-1 on" onclick="switchTab('benefit')">
+    <div class="bnr-item bnr-1 on" onclick="location.href='benefit.html'">
       <div class="bnr-tag">🎁 복지·혜택</div>
       <div class="bnr-title">복지혜택<br>한눈에!</div>
       <div class="bnr-cta">바로가기 →</div>
@@ -1400,7 +1400,7 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   <div class="sec-wrap">
     <div class="sec-title"><em>카테고리</em> 찾기</div>
     <div class="cat-grid">
-      <button class="cat-item" onclick="switchTab('benefit')" style="background:#e8f5e9;">
+      <button class="cat-item" onclick="location.href='benefit.html'" style="background:#e8f5e9;">
         <div class="cat-icon-box" style="background:#e8f5e9;">🎁</div>
         <span class="cat-name" style="color:#2e7d32;">복지·혜택쇼핑</span>
       </button>
@@ -1440,17 +1440,17 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   </div>
 
   <!-- ⑤ 복지혜택 소식 섹션 -->
-  <div class="news-sec" onclick="switchTab('benefit')" style="cursor:pointer;-webkit-tap-highlight-color:transparent;">
+  <div class="news-sec" onclick="location.href='benefit.html'" style="cursor:pointer;-webkit-tap-highlight-color:transparent;">
     <div class="news-sec-header">
       <span class="news-sec-title">🎁 복지혜택 소식</span>
       <span class="news-sec-badge">최신정보</span>
     </div>
     <div class="news-sec-body">
-      <div class="news-item" onclick="switchTab('benefit')">
+      <div class="news-item" onclick="location.href='benefit.html'">
         <span class="news-tag">[복지·보조금]</span>
         <span class="news-text">기초연금 월 최대 33만원 지급</span>
       </div>
-      <div class="news-item" onclick="switchTab('benefit')">
+      <div class="news-item" onclick="location.href='benefit.html'">
         <span class="news-tag">[건강·의료]</span>
         <span class="news-text">무릎 인공관절 수술 건강보험 적용</span>
       </div>
@@ -1458,7 +1458,7 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
         <span class="news-tag">[일자리]</span>
         <span class="news-text">시니어 일자리 115만개 신청 안내</span>
       </div>
-      <button class="news-all-btn" onclick="switchTab('benefit')">📋 복지혜택 전체보기 →</button>
+      <button class="news-all-btn" onclick="location.href='benefit.html'">📋 복지혜택 전체보기 →</button>
     </div>
   </div>
 
@@ -1574,8 +1574,7 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
 <div class="tab-content" id="tab-fortune"><div class="tab-loading"><span class="tab-loading-spinner">🔮</span>운세 불러오는 중...</div></div>
 <!-- 게임 탭 -->
 <div class="tab-content" id="tab-game"><div class="tab-loading"><span class="tab-loading-spinner">🎮</span>게임 불러오는 중...</div></div>
-<!-- 복지 탭 -->
-<div class="tab-content" id="tab-benefit"><div class="tab-loading"><span class="tab-loading-spinner">🎁</span>복지 불러오는 중...</div></div>
+
 <!-- 건강 탭 -->
 <div class="tab-content" id="tab-health"><div class="tab-loading"><span class="tab-loading-spinner">💊</span>건강 불러오는 중...</div></div>
 <!-- 소통 탭 -->
@@ -1848,7 +1847,6 @@ var loadedTabs = { home: true };
 var tabFiles = {
   fortune: 'fortune.html',
   game:    'game.html',
-  benefit: 'benefit.html',
   health:  'health.html',
   talk:    'talk.html',
   market:  'market.html',
@@ -2131,7 +2129,7 @@ window.addEventListener('popstate', function() {
 window.addEventListener('DOMContentLoaded', function() {
   // 새로고침 시 URL의 # 값을 읽어서 해당 탭 유지
   var hash = location.hash.replace('#', '');
-  var validTabs = ['home','fortune','game','benefit','health','talk','market','trot','job'];
+  var validTabs = ['home','fortune','game','health','talk','market','trot','job'];
   if (hash && validTabs.indexOf(hash) >= 0) {
     history.replaceState({ tab: hash }, '', '#' + hash);
     switchTab(hash, true);
