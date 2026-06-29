@@ -3,258 +3,1699 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>일자리탭 — 시니어 봄날마당</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<title>일자리 - 시니어 봄날마당</title>
+</head>
+<body>
 <style>
-/* ───── 채용공고 링크 버튼 ───── */
-.job-link-btn {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: #f7f8fa;
-  border-radius: 14px;
-  padding: 16px 14px;
-  margin-bottom: 10px;
-  text-decoration: none;
-  color: inherit;
-  transition: background 0.15s;
-  -webkit-tap-highlight-color: transparent;
-}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
+.wrap { background: #f7f8fa; max-width: 480px; margin: 0 auto; padding-bottom: 32px; }
+.app-header { background: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
+.header-left { display: flex; align-items: center; gap: 8px; }
+.logo-senior { color: #eb840f; font-weight: 900; font-size: 18px; }
+.logo-bomnal { color: #4A90D9; font-weight: 900; font-size: 18px; }
+.header-date-box { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.header-date-solar { font-size: 15px; font-weight: 700; color: #111; }
+.header-date-lunar { font-size: 12px; font-weight: 700; color: #1a5fa0; }
+.home-bar { background: #fff; border-bottom: 1px solid #eee; padding: 8px 14px; }
+.home-bar button { background: #4A90D9; color: #fff; border: none; border-radius: 20px; padding: 10px 22px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.sec-wrap { margin: 18px 14px 0; }
+.sec-title { font-size: 22px; font-weight: 700; color: #222; margin-bottom: 12px; }
+.sec-title em { font-style: normal; color: #1a6fc4; }
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cat-item { display: flex; flex-direction: column; align-items: center; border: none; border-radius: 14px; padding: 11px 4px 10px; gap: 7px; cursor: pointer; }
+.cat-icon-box { width: 64px; height: 64px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 34px; line-height: 1; }
+.cat-name { font-size: 13px; font-weight: 600; text-align: center; line-height: 1.3; word-break: keep-all; }
+
+/* ── 카드 공통 ── */
+.card { background: #fff; border-radius: 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); margin: 24px 14px 0; padding: 16px 14px; }
+.card-title { font-size: 20px; font-weight: 700; color: #222; margin-bottom: 14px; }
+.calc-label { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 5px; display: block; margin-top: 10px; }
+.calc-select { width: 100%; border: 1.5px solid #ffe082; border-radius: 10px; padding: 10px 13px; font-size: 15px; font-family: inherit; color: #222; background: #fffde7; outline: none; appearance: none; }
+.calc-input { width: 100%; border: 1.5px solid #ffe082; border-radius: 10px; padding: 10px 13px; font-size: 15px; font-family: inherit; color: #222; background: #fffde7; outline: none; }
+.btn-main { width: 100%; margin-top: 12px; padding: 13px; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.orange { background: #f57f17; }
+.orange:active { background: #e65100; }
+.calc-result-box { margin-top: 14px; background: #fff8e1; border-radius: 12px; padding: 14px; display: none; }
+.calc-result-box.show { display: block; }
+.calc-result-label { font-size: 13px; color: #7a5c00; margin-bottom: 6px; }
+.calc-result-amount { font-size: 26px; font-weight: 900; color: #e65100; margin-bottom: 6px; }
+.calc-result-desc { font-size: 13px; color: #555; line-height: 1.7; white-space: pre-wrap; }
+.calc-result-divider { height: 1px; background: #ffe082; margin: 12px 0; }
+.calc-result-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.calc-result-row-label { font-size: 13px; color: #7a5c00; font-weight: 600; }
+.calc-result-row-val { font-size: 15px; font-weight: 700; color: #e65100; }
+.calc-result-qual { font-size: 13px; color: #555; line-height: 1.8; background: #fff; border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; word-break: keep-all; }
+.calc-result-link-btn { display: block; width: 100%; padding: 12px; background: #f57f17; color: #fff; border-radius: 10px; font-size: 15px; font-weight: 700; text-align: center; text-decoration: none; margin-top: 4px; }
+
+/* ── 채용공고 링크 버튼 ── */
+.job-link-btn { display: flex; align-items: center; gap: 14px; background: #f7f8fa; border-radius: 14px; padding: 16px 14px; margin-bottom: 10px; text-decoration: none; color: inherit; -webkit-tap-highlight-color: transparent; }
 .job-link-btn:active { background: #eef2f8; }
-.jlb-icon {
-  font-size: 24px;
-  width: 44px;
-  height: 44px;
-  background: #e8f0fb;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
+.jlb-icon { font-size: 24px; width: 44px; height: 44px; background: #e8f0fb; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .jlb-text { flex: 1; }
 .jlb-title { font-size: 16px; font-weight: 800; color: #222; margin-bottom: 3px; }
 .jlb-desc { font-size: 13px; color: #666; line-height: 1.5; }
 .jlb-arrow { font-size: 20px; color: #4A90D9; flex-shrink: 0; font-weight: 900; }
 
-/* ───── 실시간 API 채용공고 카드 스타일 ───── */
-
-/* 스켈레톤 UI — 데이터 불러오는 동안 깜빡이는 회색 카드 */
-@keyframes shimmer {
-  0%   { background-position: -400px 0; }
-  100% { background-position: 400px 0; }
-}
-.skel {
-  background: linear-gradient(90deg, #efefef 25%, #e0e0e0 50%, #efefef 75%);
-  background-size: 800px 100%;
-  animation: shimmer 1.4s infinite linear;
-  border-radius: 8px;
-}
-.skel-job-item {
-  background: #f7f8fa;
-  border-radius: 14px;
-  padding: 15px 14px;
-  margin-bottom: 10px;
-}
+/* ── 스켈레톤 ── */
+@keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+.skel { background: linear-gradient(90deg,#efefef 25%,#e0e0e0 50%,#efefef 75%); background-size: 800px 100%; animation: shimmer 1.4s infinite linear; border-radius: 8px; }
+.skel-job-item { background: #f7f8fa; border-radius: 14px; padding: 15px 14px; margin-bottom: 10px; }
 .skel-job-title  { height: 18px; width: 80%; margin-bottom: 10px; }
 .skel-job-line   { height: 14px; width: 65%; margin-bottom: 6px; }
 .skel-job-line2  { height: 14px; width: 50%; margin-bottom: 6px; }
 .skel-job-line3  { height: 14px; width: 40%; }
-
-/* 팝업 스켈레톤 */
 .skel-popup-title { height: 22px; width: 75%; margin-bottom: 20px; }
 .skel-popup-row   { height: 16px; width: 90%; margin-bottom: 12px; }
 .skel-popup-btn   { height: 52px; width: 100%; border-radius: 14px; margin-top: 20px; }
 
-/* 채용공고 카드 */
-.job-api-item {
-  background: #f7f8fa;
-  border-radius: 14px;
-  padding: 15px 14px;
-  margin-bottom: 10px;
-}
-.job-api-title {
-  font-size: 17px;
-  font-weight: 800;
-  color: #1a1a1a;
-  margin-bottom: 6px;
-  line-height: 1.45;
-  word-break: keep-all;
-}
-.job-api-meta {
-  font-size: 15px;
-  color: #555;
-  line-height: 1.7;
-}
+/* ── 채용공고 카드 ── */
+.job-api-item { background: #f7f8fa; border-radius: 14px; padding: 15px 14px; margin-bottom: 10px; }
+.job-api-title { font-size: 17px; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; line-height: 1.45; word-break: keep-all; }
+.job-api-meta { font-size: 15px; color: #555; line-height: 1.7; }
 .job-api-meta span { display: inline-block; margin-right: 8px; }
 .job-api-deadline-urgent { color: #e53935; font-weight: 700; }
+.job-api-error { background: #fff3f3; border-left: 3px solid #e53935; border-radius: 10px; padding: 14px; font-size: 14px; color: #c00; line-height: 1.6; }
+.job-refresh-btn { display: block; width: 100%; margin-top: 12px; padding: 13px; background: #4A90D9; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.job-refresh-btn:active { background: #357abd; }
 
-/* 공고 상세 팝업 — 화면 아래에서 올라오는 창 */
-.job-popup-overlay {
-  position:fixed;top:0;left:0;right:0;bottom:0;
-  background:rgba(0,0,0,0.55);
-  z-index:9000;
-  display:flex;align-items:flex-end;
-  animation:fadeIn 0.2s ease;
-}
+/* ── 공고 상세 팝업 ── */
+.job-popup-overlay { position:fixed;top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.55); z-index:9000; display:flex;align-items:flex-end; animation:fadeIn 0.2s ease; }
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-.job-popup-box {
-  background:#fff;
-  width:100%;
-  max-height:80vh;
-  border-radius:24px 24px 0 0;
-  padding:24px 20px 36px;
-  overflow-y:auto;
-  animation:slideUp 0.25s ease;
-}
+.job-popup-box { background:#fff; width:100%; max-height:80vh; border-radius:24px 24px 0 0; padding:24px 20px 36px; overflow-y:auto; animation:slideUp 0.25s ease; }
 @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
-.job-popup-title {
-  font-size:20px;font-weight:900;color:#1a1a1a;
-  line-height:1.4;word-break:keep-all;
-  margin-bottom:16px;padding-bottom:14px;
-  border-bottom:2px solid #f0f0f0;
-}
-.job-popup-row {
-  display:flex;gap:10px;margin-bottom:10px;
-  font-size:16px;line-height:1.6;word-break:keep-all;
-}
+.job-popup-title { font-size:20px;font-weight:900;color:#1a1a1a; line-height:1.4;word-break:keep-all; margin-bottom:16px;padding-bottom:14px; border-bottom:2px solid #f0f0f0; }
+.job-popup-row { display:flex;gap:10px;margin-bottom:10px; font-size:16px;line-height:1.6;word-break:keep-all; }
 .job-popup-label { font-weight:800;color:#4A90D9;flex-shrink:0;width:72px; }
 .job-popup-value { color:#333;flex:1; }
-.job-popup-contents {
-  background:#f7f8fa;border-radius:12px;padding:14px;
-  font-size:15px;color:#444;line-height:1.8;
-  margin-top:4px;word-break:keep-all;white-space:pre-wrap;
-}
-.job-popup-phone {
-  display:block;width:100%;margin-top:16px;padding:15px;
-  background:#4A90D9;color:#fff;border:none;border-radius:14px;
-  font-size:18px;font-weight:900;cursor:pointer;
-  text-align:center;text-decoration:none;
-  -webkit-tap-highlight-color:transparent;
-}
-.job-popup-close {
-  display:block;width:100%;margin-top:10px;padding:14px;
-  background:#f0f0f0;color:#555;border:none;border-radius:14px;
-  font-size:16px;font-weight:800;cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-}
-.job-api-error {
-  background: #fff3f3;
-  border-left: 3px solid #e53935;
-  border-radius: 10px;
-  padding: 14px;
-  font-size: 14px;
-  color: #c00;
-  line-height: 1.6;
-}
-.job-refresh-btn {
-  display: block;
-  width: 100%;
-  margin-top: 12px;
-  padding: 13px;
-  background: #4A90D9;
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 800;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-.job-refresh-btn:active { background: #357abd; }
+.job-popup-contents { background:#f7f8fa;border-radius:12px;padding:14px; font-size:15px;color:#444;line-height:1.8; margin-top:4px;word-break:keep-all;white-space:pre-wrap; }
+.job-popup-phone { display:block;width:100%;margin-top:16px;padding:15px; background:#4A90D9;color:#fff;border:none;border-radius:14px; font-size:18px;font-weight:900;cursor:pointer; text-align:center;text-decoration:none; -webkit-tap-highlight-color:transparent; }
+.job-popup-close { display:block;width:100%;margin-top:10px;padding:14px; background:#f0f0f0;color:#555;border:none;border-radius:14px; font-size:16px;font-weight:800;cursor:pointer; -webkit-tap-highlight-color:transparent; }
+
+.tel-sec { margin: 24px 14px 0; }
+.tel-card { background: #fff; border-radius: 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); padding: 18px 16px 8px; }
+.tel-card-title { font-size: 22px; font-weight: 700; color: #222; margin-bottom: 16px; }
+.tel-card-item { display: flex; align-items: center; gap: 10px; background: #f7f8fa; border-radius: 12px; padding: 13px; margin-bottom: 8px; text-decoration: none; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tel-card-item:active { background: #eef2f8; }
+.tel-card-icon { font-size: 28px; width: 48px; height: 48px; background: #f0f4f8; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.tel-text { flex: 1; }
+.tel-name { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 2px; }
+.tel-desc { font-size: 13px; color: #666; }
+.tel-num { font-size: 20px; font-weight: 800; color: #4A90D9; margin-left: auto; white-space: nowrap; }
+.tel-divider { height: 1px; background: #f0f0f0; margin: 0; }
+.btn-kakao-main { display: block; width: calc(100% - 28px); margin: 24px 14px 0; padding: 14px; background: #FEE500; color: #1a1a1a; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
+.btn-pwa-main { display: block; width: calc(100% - 28px); margin: 8px 14px 0; padding: 13px; background: #7db8e8; color: #111; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
+.affiliate-notice-box { margin: 16px 14px 0; background: #fffbe6; border: 1px solid #ffe082; border-radius: 12px; padding: 12px 14px; font-size: 11px; color: #7a6000; line-height: 1.7; text-align: center; }
+/* ── 전환 페이지 공통 ── */
+.job-page-view { display:none; }
+.job-page-view.active { display:block; }
+.job-back-btn { display:block;width:100%;padding:20px 16px;background:#f57f17;color:#fff;border:none;font-size:20px;font-weight:900;cursor:pointer;font-family:inherit;text-align:center;letter-spacing:-0.3px;-webkit-tap-highlight-color:transparent; }
+.job-back-btn:active { background:#e65100; }
+.job-page-header { display:flex;align-items:center;justify-content:space-between;padding:16px 14px;border-bottom:2px solid; }
+.job-page-title { font-size:22px;font-weight:900; }
+.job-page-badge { font-size:14px;font-weight:700;padding:4px 12px;border-radius:10px; }
+.job-page-inner { padding:16px 14px; }
+.job-notice-box { background:#fffde7;border:1px solid #ffe082;border-radius:10px;padding:11px 13px;margin-bottom:12px;font-size:13px;color:#7a6000;line-height:1.7; }
+.job-info-card { background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;border:1.5px solid #e0e0e0; }
+.job-info-q { font-size:16px;font-weight:700;margin-bottom:8px;line-height:1.5; }
+.job-info-a { font-size:14px;color:#444;line-height:1.8;margin-bottom:8px; }
+.job-info-point { border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;line-height:1.7; }
+.job-step-list { list-style:none;padding:0;margin:8px 0; }
+.job-step-list li { display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:14px;color:#333;line-height:1.6; }
+.job-step-list li:last-child { border-bottom:none; }
+.job-step-num { background:#f57f17;color:#fff;font-size:12px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px; }
+.site-footer { margin:16px 14px 0;text-align:center;padding-bottom:8px; }
+.footer-row { display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:4px; }
+.footer-link { font-size:11px;color:#999;text-decoration:none; }
+.footer-dot { font-size:11px;color:#ccc; }
 </style>
-</head>
-<body>
 
-<!-- ============================================
-     일자리 탭 (job.html)
-     index.html이 fetch()로 이 파일을 불러와서
-     #tab-job 안에 innerHTML로 삽입합니다
-     ============================================ -->
+<div class="wrap">
+  <div class="app-header">
+    <div class="header-left">
+      <span style="font-size:22px;">🌸</span>
+      <div>
+        <span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span>
+      </div>
+    </div>
+    <div class="header-date-box">
+      <span class="header-date-solar" id="date-solar">날짜 로딩중</span>
+      <span class="header-date-lunar" style="font-size:12px;font-weight:700;color:#1a5fa0;">음력 로딩중</span>
+    </div>
+  </div>
 
-<!-- 노인일자리 월급 계산기 카드 -->
-<div class="card">
-  <div class="card-title">💼 노인일자리 월급 계산기</div>
-  <div class="calc-label">일자리 종류</div>
-  <select class="calc-select" id="job-type">
-    <option value="">일자리 종류를 선택해 주세요</option>
-    <option value="public">공익활동형 (만 65세 이상)</option>
-    <option value="social">사회서비스형 (만 65~78세)</option>
-    <option value="market">시장형 (취업 희망 어르신)</option>
-  </select>
-  <div class="calc-label">주당 근무 시간</div>
-  <input class="calc-input" type="number" id="job-hours" placeholder="예: 15 (주당 3일, 주5시간)" min="1" max="40">
-  <button class="btn-main orange" onclick="calcJobWage()">📊 이번 달 예상 월급 계산하기</button>
-  <div class="calc-result-box" id="job-result">
-    <div class="calc-result-label">이번 달 예상 월급</div>
-    <div class="calc-result-amount" id="job-amount">월 0원</div>
-    <div class="calc-result-desc" id="job-desc">구체적인 안내를 확인해 주세요</div>
+  <div class="home-bar">
+    <button onclick="location.href='index.html'">🏠 홈으로</button>
+  </div>
+
+  <div id="main-view">
+
+  <div class="sec-wrap">
+    <div class="sec-title"><em>일자리</em> 찾기</div>
+    <div class="cat-grid">
+      <button class="cat-item" onclick="goPage('page-senior-job')" style="background:#fff8e1;">
+        <div class="cat-icon-box" style="background:#fff8e1;">👴</div>
+        <span class="cat-name" style="color:#f57f17;">노인일자리</span>
+      </button>
+      <button class="cat-item" onclick="goPage('page-job-search')" style="background:#e3f2fd;">
+        <div class="cat-icon-box" style="background:#e3f2fd;">🔍</div>
+        <span class="cat-name" style="color:#1565c0;">채용공고검색</span>
+      </button>
+      <button class="cat-item" onclick="goPage('page-job-resume')" style="background:#e8eaf6;">
+        <div class="cat-icon-box" style="background:#e8eaf6;">📝</div>
+        <span class="cat-name" style="color:#283593;">면접·이력서</span>
+      </button>
+      <button class="cat-item" onclick="goPage('page-job-support')" style="background:#e8f5e9;">
+        <div class="cat-icon-box" style="background:#e8f5e9;">🏢</div>
+        <span class="cat-name" style="color:#2e7d32;">고용지원금</span>
+      </button>
+      <button class="cat-item" onclick="goPage('page-job-cert')" style="background:#fce4ec;">
+        <div class="cat-icon-box" style="background:#fce4ec;">📜</div>
+        <span class="cat-name" style="color:#c62828;">자격증안내</span>
+      </button>
+      <button class="cat-item" onclick="goPage('page-job-edu')" style="background:#f3e5f5;">
+        <div class="cat-icon-box" style="background:#f3e5f5;">🎓</div>
+        <span class="cat-name" style="color:#6a1b9a;">취업교육</span>
+      </button>
+      <button class="cat-item" onclick="goPage('page-job-startup')" style="background:#e8eaf6;">
+        <div class="cat-icon-box" style="background:#e8eaf6;">🏪</div>
+        <span class="cat-name" style="color:#283593;">시니어창업</span>
+      </button>
+      <button class="cat-item" onclick="goPage('page-job-wage')" style="background:#fbe9e7;">
+        <div class="cat-icon-box" style="background:#fbe9e7;">💰</div>
+        <span class="cat-name" style="color:#bf360c;">임금정보</span>
+      </button>
+      <button class="cat-item" onclick="goPage('page-job-counsel')" style="background:#e0f2f1;">
+        <div class="cat-icon-box" style="background:#e0f2f1;">📞</div>
+        <span class="cat-name" style="color:#00695c;">취업상담</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 노인일자리 월급 계산기 카드 -->
+  <div class="card">
+    <div class="card-title">💼 노인일자리 월급 계산기</div>
+    <label class="calc-label">일자리 종류</label>
+    <select class="calc-select" id="job-type">
+      <option value="">일자리 종류를 선택해 주세요</option>
+      <option value="public">공익활동형 (만 65세 이상)</option>
+      <option value="social">사회서비스형 (만 65~78세)</option>
+      <option value="market">시장형 (취업 희망 어르신)</option>
+    </select>
+    <label class="calc-label">주당 근무 시간</label>
+    <input class="calc-input" type="number" id="job-hours" placeholder="예: 15 (주당 3일, 주5시간)" min="1" max="40">
+    <button class="btn-main orange" onclick="calcJobWage()">📊 이번 달 예상 월급 계산하기</button>
+    <div class="calc-result-box" id="job-result">
+      <div class="calc-result-label">이번 달 예상 월급</div>
+      <div class="calc-result-amount" id="job-amount">월 0원</div>
+      <div class="calc-result-desc" id="job-desc">구체적인 안내를 확인해 주세요</div>
+      <div class="calc-result-divider"></div>
+      <div class="calc-result-row">
+        <span class="calc-result-row-label">📅 연간 예상 수입</span>
+        <span class="calc-result-row-val" id="job-annual">-</span>
+      </div>
+      <div class="calc-result-row">
+        <span class="calc-result-row-label">💳 공제 후 실수령액</span>
+        <span class="calc-result-row-val" id="job-real">-</span>
+      </div>
+      <div class="calc-result-divider"></div>
+      <div class="calc-result-qual" id="job-qual"></div>
+      <a class="calc-result-link-btn" id="job-apply-btn" href="#" onclick="confirmExternalLink(this.dataset.url);return false;">📋 신청하러 바로가기 →</a>
+      <button class="btn-main" style="background:#e0e0e0;color:#555;margin-top:10px;" onclick="resetMainCalc()">🔄 다시 계산하기</button>
+    </div>
+  </div>
+
+  <!-- 실시간 노인일자리 채용공고 API 카드 -->
+  <div class="card">
+    <div class="card-title">🔴 실시간 노인일자리 채용공고 <span style="font-size:15px;font-weight:400;color:#4A90D9;">(노인인력개발원)</span></div>
+    <p style="font-size:13px;color:#666;margin-bottom:14px;line-height:1.6;word-break:keep-all;">
+      한국노인인력개발원에서 실시간으로 올라온 공고예요.<br>매번 최신 공고를 자동으로 불러옵니다.
+    </p>
+    <div id="job-api-list">
+      <div class="job-loading">공고를 불러오는 중이에요…</div>
+    </div>
+    <button class="job-refresh-btn" onclick="loadJobApi()">🔄 공고 새로고침</button>
+  </div>
+
+  <!-- 시니어 채용공고 바로가기 카드 -->
+  <div class="card">
+    <div class="card-title" onclick="goPage('page-job-search')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+      <span>📋 시니어 채용공고 바로가기</span>
+      <span style="font-size:16px;color:#4A90D9;font-weight:900;">전체보기 →</span>
+    </div>
+    <a onclick="confirmExternalLink('https://www.work24.go.kr');return false;" class="job-link-btn" href="#"  rel="noopener noreferrer">
+      <div class="jlb-icon">👴</div>
+      <div class="jlb-text">
+        <div class="jlb-title">고령자 채용공고 전체보기</div>
+        <div class="jlb-desc">고용24 (워크넷) · 만 50세 이상 채용정보</div>
+      </div>
+      <div class="jlb-arrow">→</div>
+    </a>
+    <a onclick="confirmExternalLink('https://www.seniorro.or.kr');return false;" class="job-link-btn" href="#"  rel="noopener noreferrer">
+      <div class="jlb-icon">👴</div>
+      <div class="jlb-text">
+        <div class="jlb-title">노인일자리 구인정보 보기</div>
+        <div class="jlb-desc">노인일자리여기 · 전국 노인 전용 채용공고</div>
+      </div>
+      <div class="jlb-arrow">→</div>
+    </a>
+    <a onclick="confirmExternalLink('https://senior.saramin.co.kr');return false;" class="job-link-btn" href="#"  rel="noopener noreferrer">
+      <div class="jlb-icon">🔍</div>
+      <div class="jlb-text">
+        <div class="jlb-title">사람인 시니어 채용공고</div>
+        <div class="jlb-desc">사람인 중장년 전용 · 민간기업 채용정보</div>
+      </div>
+      <div class="jlb-arrow">→</div>
+    </a>
+    <a onclick="confirmExternalLink('https://www.work24.go.kr/wk/a/b/1200/retrivJobSrchList.do');return false;" class="job-link-btn" href="#"  rel="noopener noreferrer">
+      <div class="jlb-icon">🏢</div>
+      <div class="jlb-text">
+        <div class="jlb-title">공익활동형 일자리 찾기</div>
+        <div class="jlb-desc">복지관·어린이집 등 공익 일자리 모음</div>
+      </div>
+      <div class="jlb-arrow">→</div>
+    </a>
+    <div style="background:#fff8e1;border-radius:12px;padding:12px 14px;margin-top:4px;border-left:3px solid #FFB300;">
+      <p style="font-size:13px;color:#7a5c00;line-height:1.6;">📌 버튼을 누르면 해당 채용 사이트로 이동해요.<br>실제 공고를 직접 확인하고 지원하실 수 있어요.</p>
+    </div>
+  </div>
+
+  <div class="tel-sec">
+    <div class="tel-card">
+      <div class="tel-card-title">📞 어르신 긴급 전화</div>
+      <a class="tel-card-item" href="tel:1355">
+        <span class="tel-card-icon">🏛</span>
+        <div class="tel-text">
+          <div class="tel-name">국민연금공단</div>
+          <div class="tel-desc">연금 상담·신청</div>
+        </div>
+        <span class="tel-num">1355</span>
+      </a>
+      <div class="tel-divider"></div>
+      <a class="tel-card-item" href="tel:129">
+        <span class="tel-card-icon">🏥</span>
+        <div class="tel-text">
+          <div class="tel-name">보건복지상담센터</div>
+          <div class="tel-desc">복지·의료 상담</div>
+        </div>
+        <span class="tel-num">129</span>
+      </a>
+      <div class="tel-divider"></div>
+      <a class="tel-card-item" href="tel:1577-1389">
+        <span class="tel-card-icon">🛡️</span>
+        <div class="tel-text">
+          <div class="tel-name">노인학대 신고센터</div>
+          <div class="tel-desc">24시간 신고·상담</div>
+        </div>
+        <span class="tel-num">1577-1389</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="affiliate-notice-box">
+    ※ 이 웹앱은 쿠팡파트너스의 제휴마케팅 프로그램에 참여하고 있습니다.<br>
+    이 링크를 통해 구매 시 봄날마당이 일정액의 수수료를 받을 수 있으며, 구매자분께 추가 비용은 없습니다.
+  </div>
+
+  <button class="btn-kakao-main">💛 카카오톡 친구에게 공유하기</button>
+  <button class="btn-pwa-main">📲 봄날마당 홈화면에 저장하기</button>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a class="footer-link" href="privacy.html">개인정보처리방침</a>
+      <span class="footer-dot">·</span>
+      <a class="footer-link" href="terms.html">이용약관</a>
+      <span class="footer-dot">·</span>
+      <a class="footer-link" href="affiliate.html">제휴 공개</a>
+    </div>
+    <div class="footer-row">
+      <a class="footer-link" href="contact.html">문의하기</a>
+      <span class="footer-dot">·</span>
+      <a class="footer-link" href="about.html">봄날마당 소개</a>
+    </div>
+  </footer>
+
+</div><!-- /main-view -->
+
+<!-- ══════════════════════════════════════
+     전환 페이지 1 — 노인일자리
+══════════════════════════════════════ -->
+<div id="page-senior-job" class="job-page-view">
+  <button class="job-back-btn" onclick="goBack()">◀ 일자리로 돌아가기</button>
+  <div class="job-page-header" style="background:#fff8e1;border-color:#ffe082;">
+    <span class="job-page-title" style="color:#f57f17;">👴 노인일자리</span>
+    <span class="job-page-badge" style="background:#ffe082;color:#f57f17;">2026 최신</span>
+  </div>
+  <div class="job-page-inner">
+
+    <!-- 노인일자리 월급 계산기 — 건드리지 않음 -->
+    <div class="card" style="margin:0 0 16px;">
+      <div class="card-title">💼 노인일자리 월급 계산기</div>
+      <label class="calc-label">일자리 종류</label>
+      <select class="calc-select" id="job-type3">
+        <option value="">일자리 종류를 선택해 주세요</option>
+        <option value="public">공익활동형 (만 65세 이상)</option>
+        <option value="social">사회서비스형 (만 65~78세)</option>
+        <option value="market">시장형 (취업 희망 어르신)</option>
+      </select>
+      <label class="calc-label">주당 근무 시간</label>
+      <input class="calc-input" type="number" id="job-hours3" placeholder="예: 15 (주당 3일, 주5시간)" min="1" max="40">
+      <button class="btn-main orange" onclick="calcJobWage3()">📊 이번 달 예상 월급 계산하기</button>
+      <div class="calc-result-box" id="job-result3">
+        <div class="calc-result-label">이번 달 예상 월급</div>
+        <div class="calc-result-amount" id="job-amount3">월 0원</div>
+        <div class="calc-result-desc" id="job-desc3"></div>
+        <div class="calc-result-divider"></div>
+        <div class="calc-result-row">
+          <span class="calc-result-row-label">📅 연간 예상 수입</span>
+          <span class="calc-result-row-val" id="job-annual3">-</span>
+        </div>
+        <div class="calc-result-row">
+          <span class="calc-result-row-label">💳 공제 후 실수령액</span>
+          <span class="calc-result-row-val" id="job-real3">-</span>
+        </div>
+        <div class="calc-result-divider"></div>
+        <div class="calc-result-qual" id="job-qual3"></div>
+        <a class="calc-result-link-btn" id="job-apply-btn3" href="#" onclick="confirmExternalLink(this.dataset.url);return false;">📋 신청하러 바로가기 →</a>
+        <button class="btn-main" style="background:#e0e0e0;color:#555;margin-top:10px;" onclick="resetCalc3()">🔄 다시 계산하기</button>
+      </div>
+    </div>
+
+    <div class="job-notice-box" style="font-size:15px;">💡 2026년 역대 최대 <strong>115만 2천 개</strong> 일자리 모집! 신청해야만 참여할 수 있어요. 매년 11~12월 집중 모집, 결원 시 수시 모집합니다.</div>
+
+    <!-- 일자리 유형 4종 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#f57f17;font-size:18px;">📋 노인일자리 유형 한눈에 보기</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+
+        <div style="background:#fff8e1;border-radius:12px;padding:14px 16px;border-left:4px solid #f57f17;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="font-size:17px;font-weight:900;color:#e65100;">🌿 공익활동형</div>
+            <div style="background:#f57f17;color:#fff;border-radius:8px;padding:4px 10px;font-size:14px;font-weight:800;">월 290,000원</div>
+          </div>
+          <div style="font-size:15px;color:#333;line-height:1.7;margin-bottom:8px;">노노케어·등하교 안전지도·환경정비·경로당 배식 지원 등 지역사회 봉사 성격의 일자리.</div>
+          <div style="font-size:14px;color:#7a5c00;line-height:1.8;">
+            ✅ 대상: 만 65세 이상 기초연금 수급자<br>
+            ✅ 월 30시간 · 체력 부담 거의 없음<br>
+            ✅ 활동비는 기초연금 감액에 영향 없음 (소득 산정 제외)
+          </div>
+        </div>
+
+        <div style="background:#fff8e1;border-radius:12px;padding:14px 16px;border-left:4px solid #fb8c00;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="font-size:17px;font-weight:900;color:#e65100;">🏥 사회서비스형</div>
+            <div style="background:#fb8c00;color:#fff;border-radius:8px;padding:4px 10px;font-size:14px;font-weight:800;">최대 월 76만원</div>
+          </div>
+          <div style="font-size:15px;color:#333;line-height:1.7;margin-bottom:8px;">보육시설·행정업무 보조·우체국 지원 등 사회적으로 필요한 서비스 제공.</div>
+          <div style="font-size:14px;color:#7a5c00;line-height:1.8;">
+            ✅ 대상: 만 65세 이상<br>
+            ✅ 월 60시간 · 최저임금 기준 급여<br>
+            ✅ 2026년 유아돌봄 특화형 확대 (교육 이수 시 월 90만원)
+          </div>
+        </div>
+
+        <div style="background:#fff8e1;border-radius:12px;padding:14px 16px;border-left:4px solid #ef6c00;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="font-size:17px;font-weight:900;color:#e65100;">🏪 시장형 (공동체사업단)</div>
+            <div style="background:#ef6c00;color:#fff;border-radius:8px;padding:4px 10px;font-size:14px;font-weight:800;">수익배분</div>
+          </div>
+          <div style="font-size:15px;color:#333;line-height:1.7;margin-bottom:8px;">실버카페·택배사업단·도시락사업단 등 소규모 수익사업 운영.</div>
+          <div style="font-size:14px;color:#7a5c00;line-height:1.8;">
+            ✅ 대상: 만 60세 이상<br>
+            ✅ 최저시급 이상 + 수익에 따라 추가 배분<br>
+            ✅ 자신의 경험·기술을 살릴 수 있는 유형
+          </div>
+        </div>
+
+        <div style="background:#e3f2fd;border-radius:12px;padding:14px 16px;border-left:4px solid #1565c0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="font-size:17px;font-weight:900;color:#1565c0;">🏢 시니어 인턴십 (민간취업)</div>
+            <div style="background:#1565c0;color:#fff;border-radius:8px;padding:4px 10px;font-size:14px;font-weight:800;">최저임금 이상</div>
+          </div>
+          <div style="font-size:15px;color:#333;line-height:1.7;margin-bottom:8px;">민간기업에 정식 취업하는 방식. 정부가 기업 인건비를 지원해 채용을 유도하는 프로그램.</div>
+          <div style="font-size:14px;color:#1a237e;line-height:1.8;">
+            ✅ 대상: 만 60세 이상 미취업자<br>
+            ✅ 급여: 2026년 최저임금(시간당 10,320원) 이상<br>
+            ✅ 4대 보험 의무 가입 · 정규 근로계약 체결<br>
+            ✅ 신청: 시니어클럽·노인복지관·노인일자리여기<br>
+            ✅ 연중 상시 모집 (예산 소진 시 마감)
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 신청 시기 달력 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#f57f17;font-size:18px;">📅 신청 시기 달력</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+        <div style="display:flex;align-items:center;background:#fff8e1;border-radius:10px;padding:12px 14px;gap:12px;">
+          <div style="font-size:24px;font-weight:900;color:#f57f17;min-width:48px;text-align:center;">11월<br>12월</div>
+          <div>
+            <div style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:3px;">🔥 집중 모집 기간</div>
+            <div style="font-size:14px;color:#555;line-height:1.7;">가장 많은 유형·자리를 선택할 수 있는 시기. 이때 신청하는 것이 가장 유리합니다!</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;background:#fff8e1;border-radius:10px;padding:12px 14px;gap:12px;">
+          <div style="font-size:24px;font-weight:900;color:#f57f17;min-width:48px;text-align:center;">1월<br>2월</div>
+          <div>
+            <div style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:3px;">🌱 사업 시작</div>
+            <div style="font-size:14px;color:#555;line-height:1.7;">선발된 분들이 교육 이수 후 본격 활동 시작.</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;background:#fff8e1;border-radius:10px;padding:12px 14px;gap:12px;">
+          <div style="font-size:24px;font-weight:900;color:#f57f17;min-width:48px;text-align:center;">연중<br>상시</div>
+          <div>
+            <div style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:3px;">🔄 수시 모집</div>
+            <div style="font-size:14px;color:#555;line-height:1.7;">결원 발생 시 수시 추가 모집. 집중 모집 놓쳤다면 시니어클럽·주민센터에 대기자 등록!</div>
+          </div>
+        </div>
+      </div>
+      <div style="background:#fff3e0;border-radius:10px;padding:12px 14px;margin-top:8px;font-size:14px;color:#7a5c00;line-height:1.7;">
+        💡 시니어 인턴십(민간취업)은 예산 소진 전까지 연중 언제든 신청 가능해요!
+      </div>
+    </div>
+
+    <!-- 신청 방법 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#f57f17;font-size:18px;">📝 신청 방법 (단계별)</div>
+      <ul class="job-step-list" style="margin-top:10px;">
+        <li><span class="job-step-num" style="background:#f57f17;">1</span><div style="font-size:15px;line-height:1.7;"><strong>유형 선택</strong> — 내 나이·건강·희망 직종에 맞는 유형 선택 (위 유형 참고)</div></li>
+        <li><span class="job-step-num" style="background:#f57f17;">2</span><div style="font-size:15px;line-height:1.7;"><strong>신청 장소</strong> — 주민센터·시니어클럽·노인복지관 방문 또는 노인일자리여기(seniorro.or.kr) 온라인 신청</div></li>
+        <li><span class="job-step-num" style="background:#f57f17;">3</span><div style="font-size:15px;line-height:1.7;"><strong>준비 서류</strong> — 신분증 필수 · 기초연금 수급확인서(해당자) · 자격증 사본(가점용)</div></li>
+        <li><span class="job-step-num" style="background:#f57f17;">4</span><div style="font-size:15px;line-height:1.7;"><strong>선발</strong> — 점수 높은 순 선발 (기초연금 수급·연령·건강상태 등 기준)</div></li>
+        <li><span class="job-step-num" style="background:#f57f17;">5</span><div style="font-size:15px;line-height:1.7;"><strong>시작</strong> — 협약서 작성 → 교육 이수 → 사업 참여 시작</div></li>
+      </ul>
+    </div>
+
+    <!-- FAQ -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#f57f17;font-size:18px;">❓ 자주 묻는 질문 (FAQ)</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+
+        <div style="background:#fff8e1;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:5px;">Q. 기초연금 받는데 노인일자리 하면 연금이 깎이나요?</div>
+          <div style="font-size:15px;color:#333;line-height:1.7;background:#fff;border-radius:8px;padding:10px 12px;">✅ 공익활동형은 활동비가 소득 산정에서 전액 제외되어 기초연금에 영향이 없습니다. 사회서비스형·시장형은 소득으로 잡히지만 근로소득 공제(2026년 116만원)가 적용되어 실제 감액은 거의 없어요.</div>
+        </div>
+
+        <div style="background:#fff8e1;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:5px;">Q. 부부가 함께 신청할 수 있나요?</div>
+          <div style="font-size:15px;color:#333;line-height:1.7;background:#fff;border-radius:8px;padding:10px 12px;">✅ 가능합니다! 부부 각각 신청하면 됩니다. 단, 같은 사업단에 중복 배치는 되지 않을 수 있으니 각자 다른 유형으로 신청하는 것이 유리해요.</div>
+        </div>
+
+        <div style="background:#fff8e1;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:5px;">Q. 작년에 참여했는데 올해도 다시 신청해야 하나요?</div>
+          <div style="font-size:15px;color:#333;line-height:1.7;background:#fff;border-radius:8px;padding:10px 12px;">✅ 네, 매년 새로 신청해야 합니다. 이전 참여 경력은 일부 사업에서 가점이 주어질 수 있어요.</div>
+        </div>
+
+        <div style="background:#fff8e1;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:5px;">Q. 모집 기간을 놓쳤어요. 어떻게 하나요?</div>
+          <div style="font-size:15px;color:#333;line-height:1.7;background:#fff;border-radius:8px;padding:10px 12px;">✅ 결원 발생 시 수시 추가 모집이 진행됩니다. 가까운 시니어클럽이나 주민센터에 대기자 등록을 해두면 연락이 와요.</div>
+        </div>
+
+        <div style="background:#fff8e1;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:5px;">Q. 생계급여 수급자도 신청할 수 있나요?</div>
+          <div style="font-size:15px;color:#333;line-height:1.7;background:#fff;border-radius:8px;padding:10px 12px;">⚠️ 기초생활보장 생계급여 수급자는 참여 제한됩니다. 단, 의료·주거·교육급여 수급자는 신청 가능합니다. 정확한 내용은 주민센터에 문의하세요.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <a onclick="confirmExternalLink('https://www.seniorro.or.kr');return false;" href="#"
+         style="flex:1;display:block;padding:15px;background:#f57f17;color:#fff;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+        🔗 노인일자리여기 신청
+      </a>
+      <a href="tel:1544-3388"
+         style="flex:1;display:block;padding:15px;background:#fff8e1;color:#f57f17;border:2px solid #f57f17;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+        📞 1544-3388
+      </a>
+    </div>
   </div>
 </div>
 
-<!-- 시니어 채용공고 바로가기 카드 -->
-<div class="card">
-  <div class="card-title">📋 시니어 채용공고 바로가기</div>
-
-  <a class="job-link-btn" href="https://www.work24.go.kr" target="_blank" rel="noopener noreferrer">
-    <div class="jlb-icon">👴</div>
-    <div class="jlb-text">
-      <div class="jlb-title">고령자 채용공고 전체보기</div>
-      <div class="jlb-desc">고용24 (워크넷) · 만 50세 이상 채용정보</div>
+<!-- ══════════════════════════════════════
+     전환 페이지 2 — 채용공고검색
+══════════════════════════════════════ -->
+<div id="page-job-search" class="job-page-view">
+  <button class="job-back-btn" onclick="goBack()">◀ 일자리로 돌아가기</button>
+  <div class="job-page-header" style="background:#e3f2fd;border-color:#bbdefb;">
+    <span class="job-page-title" style="color:#1565c0;">🔍 채용공고 검색</span>
+    <span class="job-page-badge" style="background:#bbdefb;color:#1565c0;">실시간</span>
+  </div>
+  <div class="job-page-inner">
+    <div class="job-notice-box" style="margin-bottom:14px;">💡 한국노인인력개발원에서 실시간으로 올라온 공고입니다. 공고를 누르면 상세정보를 볼 수 있어요.</div>
+    <div id="job-api-list2">
+      <div style="text-align:center;padding:30px;color:#666;">공고를 불러오는 중이에요...</div>
     </div>
-    <div class="jlb-arrow">→</div>
-  </a>
+    <button class="job-refresh-btn" onclick="loadJobApi2()" style="margin-top:12px;">🔄 공고 새로고침</button>
 
-  <a class="job-link-btn" href="https://www.seniorro.or.kr" target="_blank" rel="noopener noreferrer">
-    <div class="jlb-icon">👴</div>
-    <div class="jlb-text">
-      <div class="jlb-title">노인일자리 구인정보 보기</div>
-      <div class="jlb-desc">노인일자리여기 · 전국 노인 전용 채용공고</div>
+    <div class="card" style="margin:20px 0 0;">
+      <div class="card-title" style="font-size:18px;margin-bottom:10px;">🔗 다른 채용 사이트</div>
+      <a onclick="confirmExternalLink('https://www.work24.go.kr');return false;" class="job-link-btn" href="#">
+        <div class="jlb-icon">👴</div>
+        <div class="jlb-text">
+          <div class="jlb-title">고령자 채용공고 전체보기</div>
+          <div class="jlb-desc">고용24 (워크넷) · 만 50세 이상 채용정보</div>
+        </div>
+        <div class="jlb-arrow">→</div>
+      </a>
+      <a onclick="confirmExternalLink('https://www.seniorro.or.kr');return false;" class="job-link-btn" href="#">
+        <div class="jlb-icon">👴</div>
+        <div class="jlb-text">
+          <div class="jlb-title">노인일자리 구인정보 보기</div>
+          <div class="jlb-desc">노인일자리여기 · 전국 노인 전용 채용공고</div>
+        </div>
+        <div class="jlb-arrow">→</div>
+      </a>
+      <a onclick="confirmExternalLink('https://senior.saramin.co.kr');return false;" class="job-link-btn" href="#">
+        <div class="jlb-icon">🔍</div>
+        <div class="jlb-text">
+          <div class="jlb-title">사람인 시니어 채용공고</div>
+          <div class="jlb-desc">사람인 중장년 전용 · 민간기업 채용정보</div>
+        </div>
+        <div class="jlb-arrow">→</div>
+      </a>
+      <a onclick="confirmExternalLink('https://www.work24.go.kr/wk/a/b/1200/retrivJobSrchList.do');return false;" class="job-link-btn" href="#">
+        <div class="jlb-icon">🏢</div>
+        <div class="jlb-text">
+          <div class="jlb-title">공익활동형 일자리 찾기</div>
+          <div class="jlb-desc">복지관·어린이집 등 공익 일자리 모음</div>
+        </div>
+        <div class="jlb-arrow">→</div>
+      </a>
+      <div style="background:#fff8e1;border-radius:12px;padding:12px 14px;margin-top:4px;border-left:3px solid #FFB300;">
+        <p style="font-size:13px;color:#7a5c00;line-height:1.6;">📌 버튼을 누르면 해당 채용 사이트로 이동해요.<br>실제 공고를 직접 확인하고 지원하실 수 있어요.</p>
+      </div>
     </div>
-    <div class="jlb-arrow">→</div>
-  </a>
-
-  <a class="job-link-btn" href="https://senior.saramin.co.kr" target="_blank" rel="noopener noreferrer">
-    <div class="jlb-icon">🔍</div>
-    <div class="jlb-text">
-      <div class="jlb-title">사람인 시니어 채용공고</div>
-      <div class="jlb-desc">사람인 중장년 전용 · 민간기업 채용정보</div>
-    </div>
-    <div class="jlb-arrow">→</div>
-  </a>
-
-  <a class="job-link-btn" href="https://www.work24.go.kr/wk/a/b/1200/retrivJobSrchList.do" target="_blank" rel="noopener noreferrer">
-    <div class="jlb-icon">🏢</div>
-    <div class="jlb-text">
-      <div class="jlb-title">공익활동형 일자리 찾기</div>
-      <div class="jlb-desc">복지관·어린이집 등 공익 일자리 모음</div>
-    </div>
-    <div class="jlb-arrow">→</div>
-  </a>
-
-  <div style="background:#fff8e1;border-radius:12px;padding:12px 14px;margin-top:4px;border-left:3px solid #FFB300;">
-    <p style="font-size:13px;color:#7a5c00;line-height:1.6;">📌 버튼을 누르면 해당 채용 사이트로 이동해요.<br>실제 공고를 직접 확인하고 지원하실 수 있어요.</p>
   </div>
 </div>
 
-<!-- 실시간 노인일자리 채용공고 API 카드 -->
-<div class="card">
-  <div class="card-title">🔴 실시간 노인일자리 채용공고 <span style="font-size:15px;font-weight:400;color:#4A90D9;">(노인인력개발원)</span></div>
-  <p style="font-size:13px;color:#666;margin-bottom:14px;line-height:1.6;word-break:keep-all;">
-    한국노인인력개발원에서 실시간으로 올라온 공고예요.<br>매번 최신 공고를 자동으로 불러옵니다.
-  </p>
-  <!-- 공고 목록이 여기에 자동으로 채워집니다 -->
-  <div id="job-api-list">
-    <div class="job-loading">공고를 불러오는 중이에요…</div>
+<!-- ══════════════════════════════════════
+     전환 페이지 3 — 면접·이력서
+══════════════════════════════════════ -->
+<div id="page-job-resume" class="job-page-view">
+  <button class="job-back-btn" onclick="goBack()">◀ 일자리로 돌아가기</button>
+  <div class="job-page-header" style="background:#e8eaf6;border-color:#c5cae9;">
+    <span class="job-page-title" style="color:#283593;">📝 면접·이력서</span>
+    <span class="job-page-badge" style="background:#c5cae9;color:#283593;">2026 최신</span>
   </div>
-  <!-- 새로고침 버튼 -->
-  <button class="job-refresh-btn" onclick="loadJobApi()">🔄 공고 새로고침</button>
+  <div class="job-page-inner">
+    <div class="job-notice-box" style="font-size:15px;">💡 시니어 재취업 전문가들이 강조하는 이력서·면접 핵심 노하우를 알려드립니다!</div>
+
+    <!-- 이력서 핵심 원칙 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#283593;font-size:18px;">📄 시니어 이력서 5대 핵심 원칙</div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin:8px 0 12px;">오랜 경력을 가진 시니어에게는 <strong>경력 나열이 아닌 나의 쓸모를 어필하는 이력서</strong>가 합격을 부릅니다.</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#e8eaf6;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:5px;">① 핵심 경력은 상단에 배치</div>
+          <div style="font-size:15px;color:#444;line-height:1.7;">면접관이 한눈에 파악할 수 있도록 가장 중요한 경력과 성과를 맨 위에 배치하세요. 연대기식 나열은 금물!</div>
+        </div>
+        <div style="background:#e8eaf6;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:5px;">② 직무와 무관한 경력은 과감히 삭제</div>
+          <div style="font-size:15px;color:#444;line-height:1.7;">지원 직무와 관련 없는 경력은 오히려 마이너스. 지원할 때마다 직무에 맞게 새로 작성하세요.</div>
+        </div>
+        <div style="background:#e8eaf6;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:5px;">③ 성과는 숫자로 표현</div>
+          <div style="font-size:15px;color:#444;line-height:1.7;">"열심히 했다" 대신 <strong>"매출 20% 향상"</strong>, <strong>"30명 교육 담당"</strong> 처럼 구체적 숫자로 표현하면 신뢰도가 올라가요.</div>
+        </div>
+        <div style="background:#e8eaf6;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:5px;">④ 사진은 반드시 최근 6개월 이내로</div>
+          <div style="font-size:15px;color:#444;line-height:1.7;">오래된 사진은 성의 없다는 인상을 줍니다. 단정한 복장으로 촬영한 최근 사진을 사용하세요.</div>
+        </div>
+        <div style="background:#e8eaf6;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:5px;">⑤ 채용 플랫폼 기본 서식은 피하기</div>
+          <div style="font-size:15px;color:#444;line-height:1.7;">플랫폼 기본 서식 그대로 보내면 성의 없어 보입니다. 별도 양식으로 작성해 이메일로 보내는 것이 좋아요.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 절대 하지 말아야 할 실수 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#c62828;font-size:18px;">❌ 이력서 절대 하지 말아야 할 실수</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+        <div style="background:#fff3f3;border-left:4px solid #e53935;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:5px;">❌ "열심히 하겠습니다" 같은 진부한 표현</div>
+          <div style="font-size:15px;color:#555;line-height:1.7;">"제2의 인생을 시작하겠습니다"는 채용 담당자가 가장 싫어하는 표현. 구체적인 기여 방법을 써주세요.</div>
+        </div>
+        <div style="background:#fff3f3;border-left:4px solid #e53935;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:5px;">❌ 같은 이력서를 여러 회사에 돌리기</div>
+          <div style="font-size:15px;color:#555;line-height:1.7;">회사마다 다른 이력서가 필요합니다. 마스터 이력서 하나 만들어두고 지원할 때마다 수정하세요.</div>
+        </div>
+        <div style="background:#fff3f3;border-left:4px solid #e53935;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:5px;">❌ 이메일 파일명 무성의하게 보내기</div>
+          <div style="font-size:15px;color:#555;line-height:1.7;">파일명: <strong>홍길동_이력서_○○회사.pdf</strong> / 제목: <strong>○○직 지원_홍길동</strong> 처럼 명확하게 작성하세요.</div>
+        </div>
+        <div style="background:#fff3f3;border-left:4px solid #e53935;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:5px;">❌ 수십 년 경력을 모두 나열</div>
+          <div style="font-size:15px;color:#555;line-height:1.7;">읽기 어려워집니다. 지원 직무와 관련된 핵심 경력 위주로 간결하게 정리하세요.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 자기소개서 템플릿 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#283593;font-size:18px;">✍️ 자기소개서 작성 템플릿</div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin:8px 0 12px;">아래 틀에 본인 내용을 채워 넣으세요. <strong>[ ]</strong> 안의 내용을 본인 것으로 바꾸면 됩니다!</div>
+
+      <div style="background:#f5f5ff;border-radius:12px;padding:16px;margin-bottom:12px;">
+        <div style="font-size:15px;font-weight:800;color:#283593;margin-bottom:8px;">📌 단락 1 — 경력 소개</div>
+        <div style="font-size:15px;color:#333;line-height:2;background:#fff;border-radius:8px;padding:12px 14px;">
+          저는 <span style="background:#e8eaf6;border-radius:4px;padding:1px 6px;color:#283593;font-weight:700;">[직종/업종]</span> 분야에서 <span style="background:#e8eaf6;border-radius:4px;padding:1px 6px;color:#283593;font-weight:700;">[○년간]</span> 근무하며 <span style="background:#e8eaf6;border-radius:4px;padding:1px 6px;color:#283593;font-weight:700;">[주요 담당 업무]</span>를 담당했습니다.
+        </div>
+        <div style="font-size:13px;color:#888;margin-top:6px;">예시: "저는 식품 제조업 분야에서 15년간 근무하며 품질관리와 생산 라인 관리를 담당했습니다."</div>
+      </div>
+
+      <div style="background:#f5f5ff;border-radius:12px;padding:16px;margin-bottom:12px;">
+        <div style="font-size:15px;font-weight:800;color:#283593;margin-bottom:8px;">📌 단락 2 — 대표 성과</div>
+        <div style="font-size:15px;color:#333;line-height:2;background:#fff;border-radius:8px;padding:12px 14px;">
+          특히 <span style="background:#e8eaf6;border-radius:4px;padding:1px 6px;color:#283593;font-weight:700;">[대표 성과나 경험]</span>을 통해 <span style="background:#e8eaf6;border-radius:4px;padding:1px 6px;color:#283593;font-weight:700;">[본인의 강점]</span>을 키울 수 있었습니다.
+        </div>
+        <div style="font-size:13px;color:#888;margin-top:6px;">예시: "특히 불량률을 30% 줄이는 공정 개선을 이끌며 꼼꼼함과 문제 해결 능력을 키울 수 있었습니다."</div>
+      </div>
+
+      <div style="background:#f5f5ff;border-radius:12px;padding:16px;margin-bottom:12px;">
+        <div style="font-size:15px;font-weight:800;color:#283593;margin-bottom:8px;">📌 단락 3 — 지원 동기</div>
+        <div style="font-size:15px;color:#333;line-height:2;background:#fff;border-radius:8px;padding:12px 14px;">
+          귀사의 <span style="background:#e8eaf6;border-radius:4px;padding:1px 6px;color:#283593;font-weight:700;">[지원 직무]</span> 포지션에서 제 경험을 살려 <span style="background:#e8eaf6;border-radius:4px;padding:1px 6px;color:#283593;font-weight:700;">[구체적 기여 방법]</span>으로 보답하겠습니다.
+        </div>
+        <div style="font-size:13px;color:#888;margin-top:6px;">예시: "귀사의 조리보조 포지션에서 제 30년 주방 경험을 살려 위생 관리와 식재료 절감에 기여하겠습니다."</div>
+      </div>
+
+      <div style="background:#f5f5ff;border-radius:12px;padding:16px;">
+        <div style="font-size:15px;font-weight:800;color:#283593;margin-bottom:8px;">📌 단락 4 — 마무리</div>
+        <div style="font-size:15px;color:#333;line-height:2;background:#fff;border-radius:8px;padding:12px 14px;">
+          건강하고 성실하게 <span style="background:#e8eaf6;border-radius:4px;padding:1px 6px;color:#283593;font-weight:700;">[근무 가능 조건]</span> 하겠습니다. 부족한 부분은 <span style="background:#e8eaf6;border-radius:4px;padding:1px 6px;color:#283593;font-weight:700;">[배우겠다는 의지]</span>로 채우겠습니다.
+        </div>
+        <div style="font-size:13px;color:#888;margin-top:6px;">예시: "건강하고 성실하게 주 5일 풀타임 근무 하겠습니다. 새로운 업무도 빠르게 익혀 팀에 보탬이 되겠습니다."</div>
+      </div>
+
+      <div style="background:#fff8e1;border-radius:10px;padding:12px 14px;margin-top:10px;font-size:14px;color:#7a5c00;line-height:1.7;">
+        💡 완성된 자기소개서는 중장년 내일센터(☎ 1350)에서 무료로 첨삭받을 수 있어요!
+      </div>
+    </div>
+
+    <!-- 면접 질문 & 모범 답변 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#283593;font-size:18px;">💬 면접 자주 나오는 질문 & 모범 답변</div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin:8px 0 12px;"><strong>소통 능력과 긍정적인 태도</strong>가 가장 중요합니다. 미리 준비해두세요!</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="background:#f5f5ff;border-radius:12px;padding:14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:8px;">Q. 나이가 있으신데 왜 지원하셨나요?</div>
+          <div style="font-size:15px;color:#333;line-height:1.8;background:#fff;border-radius:8px;padding:12px 14px;">💡 "오랜 경험을 통해 쌓은 노하우를 이 회사에서 의미 있게 활용하고 싶습니다. 체력적으로도 건강하며, 꾸준히 배우고 성장하는 것을 즐깁니다."</div>
+        </div>
+        <div style="background:#f5f5ff;border-radius:12px;padding:14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:8px;">Q. 젊은 상사 밑에서 일할 수 있겠습니까?</div>
+          <div style="font-size:15px;color:#333;line-height:1.8;background:#fff;border-radius:8px;padding:12px 14px;">💡 "나이보다 역할이 중요하다고 생각합니다. 직급에 맞는 역할에 충실히 임하겠으며, 경험을 바탕으로 팀에 도움이 되는 방향으로 협력하겠습니다."</div>
+        </div>
+        <div style="background:#f5f5ff;border-radius:12px;padding:14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:8px;">Q. 자기소개를 해보세요. (1분)</div>
+          <div style="font-size:15px;color:#333;line-height:1.8;background:#fff;border-radius:8px;padding:12px 14px;">💡 "저는 ○○ 분야에서 ○년간 ○○을 담당했으며, 특히 ○○ 성과를 냈습니다. 이 경험을 귀사에서 ○○하는 데 활용하고 싶습니다. 성실하고 꾸준히 일하는 것이 제 장점입니다."</div>
+        </div>
+        <div style="background:#f5f5ff;border-radius:12px;padding:14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:8px;">Q. 퇴직 이후 어떻게 지내셨나요?</div>
+          <div style="font-size:15px;color:#333;line-height:1.8;background:#fff;border-radius:8px;padding:12px 14px;">💡 공백기를 솔직하게 말하되, 자격증 취득·봉사활동·건강관리 등 생산적 활동을 했다면 구체적으로 언급하세요. "○○ 자격증을 취득하고 건강을 관리하며 재취업을 준비했습니다."</div>
+        </div>
+        <div style="background:#f5f5ff;border-radius:12px;padding:14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:8px;">Q. 급여 조건이 이전보다 낮은데 괜찮으세요?</div>
+          <div style="font-size:15px;color:#333;line-height:1.8;background:#fff;border-radius:8px;padding:12px 14px;">💡 "급여보다 이 일을 통해 사회에 기여하고 활발히 활동하는 것이 더 중요합니다. 주어진 역할에 최선을 다하겠습니다."</div>
+        </div>
+        <div style="background:#f5f5ff;border-radius:12px;padding:14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:8px;">Q. 장점과 단점을 말씀해보세요.</div>
+          <div style="font-size:15px;color:#333;line-height:1.8;background:#fff;border-radius:8px;padding:12px 14px;">💡 장점은 직무와 연관된 것으로 구체적 사례와 함께. 단점은 "꼼꼼한 편이라 속도가 느릴 수 있지만, 정확성을 위해 미리미리 준비하며 보완합니다"처럼 극복 노력을 함께 말하세요.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 면접 복장 가이드 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#283593;font-size:18px;">👔 면접 복장 가이드</div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin:8px 0 12px;">첫인상은 3초 안에 결정됩니다. 단정하고 깔끔한 차림이 기본이에요!</div>
+      <div style="display:flex;gap:10px;margin-bottom:10px;">
+        <div style="flex:1;background:#e8eaf6;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:8px;">👔 남성</div>
+          <div style="font-size:14px;color:#333;line-height:1.9;">
+            ✅ 정장 또는 깔끔한 슬랙스+셔츠<br>
+            ✅ 넥타이는 선택 (있으면 플러스)<br>
+            ✅ 구두 (깨끗이 닦아서)<br>
+            ✅ 흰색·남색·회색 계열 권장<br>
+            ❌ 청바지·운동화 금물<br>
+            ❌ 향수 과하게 금물
+          </div>
+        </div>
+        <div style="flex:1;background:#e8eaf6;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#283593;margin-bottom:8px;">👗 여성</div>
+          <div style="font-size:14px;color:#333;line-height:1.9;">
+            ✅ 정장 또는 단정한 블라우스+슬랙스<br>
+            ✅ 무릎 아래 길이 치마도 OK<br>
+            ✅ 낮은 굽 구두 또는 단정한 플랫슈즈<br>
+            ✅ 네이비·베이지·검정 계열 권장<br>
+            ❌ 화려한 패턴·원색 금물<br>
+            ❌ 너무 진한 화장 금물
+          </div>
+        </div>
+      </div>
+      <div style="background:#fff8e1;border-radius:10px;padding:12px 14px;font-size:14px;color:#7a5c00;line-height:1.7;">
+        💡 면접 당일 아침에 전신 거울로 한번 체크하세요. 머리카락·손톱·옷 주름도 확인!
+      </div>
+    </div>
+
+    <!-- 면접 당일 체크리스트 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#283593;font-size:18px;">🎯 면접 당일 체크리스트</div>
+      <div style="background:#e8eaf6;border-radius:12px;padding:14px;margin-top:10px;">
+        <div style="font-size:15px;color:#1a237e;line-height:2;">
+          ✅ 면접 <strong>30분 전 도착</strong> (지각은 즉시 탈락)<br>
+          ✅ 단정한 복장 착용 (위 복장 가이드 참고)<br>
+          ✅ 지원 회사·직무 미리 파악해두기<br>
+          ✅ 자기소개 <strong>1분 버전</strong> 외워두기<br>
+          ✅ 이력서·자기소개서 1부 출력해 지참<br>
+          ✅ 핸드폰 <strong>면접 전 무음으로</strong><br>
+          ✅ <strong>"라떼는~" 설교식 대답 절대 금지</strong><br>
+          ✅ 모르는 것은 "모르지만 열심히 배우겠다"고 솔직하게<br>
+          ✅ 면접 후 <strong>감사 인사 문자·메일</strong> 보내기
+        </div>
+      </div>
+    </div>
+
+    <!-- 이력서 양식 바로가기 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#283593;font-size:18px;">🔗 이력서 양식 및 도움받기</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+        <a href="#" onclick="confirmExternalLink('https://www.work24.go.kr');return false;" style="display:flex;align-items:center;justify-content:space-between;background:#e8eaf6;border-radius:12px;padding:14px 16px;text-decoration:none;color:inherit;">
+          <div><div style="font-size:16px;font-weight:800;color:#283593;">고용24 이력서 작성</div><div style="font-size:14px;color:#666;margin-top:2px;">워크넷 공식 이력서 양식 무료 제공</div></div>
+          <span style="font-size:20px;color:#283593;font-weight:800;">→</span>
+        </a>
+        <a href="#" onclick="confirmExternalLink('https://www.saramin.co.kr/zf_user/pds-resume/resume-download');return false;" style="display:flex;align-items:center;justify-content:space-between;background:#e8eaf6;border-radius:12px;padding:14px 16px;text-decoration:none;color:inherit;">
+          <div><div style="font-size:16px;font-weight:800;color:#283593;">사람인 이력서 무료 양식</div><div style="font-size:14px;color:#666;margin-top:2px;">한글·워드·PDF 67종 무료 다운로드</div></div>
+          <span style="font-size:20px;color:#283593;font-weight:800;">→</span>
+        </a>
+        <a href="tel:1350" style="display:flex;align-items:center;justify-content:space-between;background:#e8eaf6;border-radius:12px;padding:14px 16px;text-decoration:none;color:inherit;">
+          <div><div style="font-size:16px;font-weight:800;color:#283593;">중장년 내일센터 무료 첨삭</div><div style="font-size:14px;color:#666;margin-top:2px;">이력서·자소서 1:1 무료 첨삭 서비스</div></div>
+          <span style="font-size:22px;font-weight:900;color:#283593;">1350</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     전환 페이지 4 — 고용지원금
+══════════════════════════════════════ -->
+<div id="page-job-support" class="job-page-view">
+  <button class="job-back-btn" onclick="goBack()">◀ 일자리로 돌아가기</button>
+  <div class="job-page-header" style="background:#e8f5e9;border-color:#c8e6c9;">
+    <span class="job-page-title" style="color:#2e7d32;">🏢 고용지원금</span>
+    <span class="job-page-badge" style="background:#c8e6c9;color:#2e7d32;">2026년 최신</span>
+  </div>
+  <div class="job-page-inner">
+    <div class="job-notice-box" style="font-size:15px;">💡 고령자를 채용하거나 계속 고용하는 기업에 정부가 지원금을 드립니다. 주변 고용주분께 꼭 알려드리세요!</div>
+
+    <!-- 지원금 한눈에 보기 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#2e7d32;font-size:18px;">📋 2026년 고령자 고용지원금 한눈에 보기</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+        <div style="background:#e8f5e9;border-radius:12px;padding:14px 16px;border-left:4px solid #2e7d32;">
+          <div style="font-size:17px;font-weight:900;color:#1b5e20;margin-bottom:4px;">💰 고령자 고용지원금</div>
+          <div style="font-size:22px;font-weight:900;color:#2e7d32;margin-bottom:6px;">분기 30만원 × 최대 2년</div>
+          <div style="font-size:15px;color:#333;line-height:1.7;">60세 이상 근로자 수가 <strong>이전보다 증가</strong>한 사업주에게 지급<br>1인당 연간 120만원 (최대 2년간 240만원)</div>
+        </div>
+        <div style="background:#e8f5e9;border-radius:12px;padding:14px 16px;border-left:4px solid #388e3c;">
+          <div style="font-size:17px;font-weight:900;color:#1b5e20;margin-bottom:4px;">🔄 계속고용장려금</div>
+          <div style="font-size:22px;font-weight:900;color:#2e7d32;margin-bottom:6px;">월 30~40만원 × 최대 2년</div>
+          <div style="font-size:15px;color:#333;line-height:1.7;">정년 도달 근로자를 <strong>계속 고용</strong>하는 사업주에게 지급<br>수도권: 월 30만원 / 비수도권: 월 40만원</div>
+        </div>
+        <div style="background:#e8f5e9;border-radius:12px;padding:14px 16px;border-left:4px solid #43a047;">
+          <div style="font-size:17px;font-weight:900;color:#1b5e20;margin-bottom:4px;">🎓 현장실습 훈련 지원</div>
+          <div style="font-size:22px;font-weight:900;color:#2e7d32;margin-bottom:6px;">최대 270만원 지원</div>
+          <div style="font-size:15px;color:#333;line-height:1.7;">60세 이상 신규 채용 후 <strong>3개월 현장실습</strong> 진행 시<br>근로계약 체결하면 1인당 최대 270만원 인건비 지원</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 신청 자격 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#2e7d32;font-size:18px;">✅ 신청 자격 조건</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+        <div style="background:#f1f8e9;border-radius:10px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:800;color:#2e7d32;margin-bottom:5px;">📌 신청 가능한 기업</div>
+          <div style="font-size:15px;color:#333;line-height:1.8;">✔ 고용보험에 가입된 우선지원대상기업<br>✔ 중견기업 · 사회적기업<br>✔ 고용보험 성립일로부터 1년 이상 된 사업장</div>
+        </div>
+        <div style="background:#fff3e0;border-radius:10px;padding:13px 14px;border-left:3px solid #fb8c00;">
+          <div style="font-size:16px;font-weight:800;color:#e65100;margin-bottom:5px;">⚠️ 주의사항</div>
+          <div style="font-size:15px;color:#333;line-height:1.8;">✔ 단순 채용만으로는 안 됨 — 이전 기간 대비 <strong>고령자 수 증가</strong>해야 함<br>✔ 고용보험료 체납 시 지급 불가<br>✔ 수급 중 인위적 감원 시 지원 중단 및 환수</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 신청 방법 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#2e7d32;font-size:18px;">📮 신청 방법 (단계별)</div>
+      <ul class="job-step-list" style="margin-top:10px;">
+        <li><span class="job-step-num" style="background:#2e7d32;">1</span><div style="font-size:15px;line-height:1.7;"><strong>자격 확인</strong> — 고용24(work24.go.kr)에서 지원 대상 여부 먼저 확인</div></li>
+        <li><span class="job-step-num" style="background:#2e7d32;">2</span><div style="font-size:15px;line-height:1.7;"><strong>서류 준비</strong> — 신청서, 60세 이상 근로자 명부, 임금대장·근로계약서 사본</div></li>
+        <li><span class="job-step-num" style="background:#2e7d32;">3</span><div style="font-size:15px;line-height:1.7;"><strong>신청 접수</strong> — 온라인(고용24) 또는 관할 고용센터 방문·우편 접수</div></li>
+        <li><span class="job-step-num" style="background:#2e7d32;">4</span><div style="font-size:15px;line-height:1.7;"><strong>심사 후 지급</strong> — 접수 후 14일 이내 결과 통보, 분기별 지원금 지급</div></li>
+      </ul>
+    </div>
+
+    <!-- 전화·링크 -->
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <a onclick="confirmExternalLink('https://www.work24.go.kr');return false;" href="#"
+         style="flex:1;display:block;padding:15px;background:#2e7d32;color:#fff;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+        🔗 고용24 신청하기
+      </a>
+      <a href="tel:1350"
+         style="flex:1;display:block;padding:15px;background:#e8f5e9;color:#2e7d32;border:2px solid #2e7d32;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+        📞 1350 상담
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     전환 페이지 5 — 자격증안내
+══════════════════════════════════════ -->
+<div id="page-job-cert" class="job-page-view">
+  <button class="job-back-btn" onclick="goBack()">◀ 일자리로 돌아가기</button>
+  <div class="job-page-header" style="background:#fce4ec;border-color:#f8bbd0;">
+    <span class="job-page-title" style="color:#c62828;">📜 자격증 안내</span>
+    <span class="job-page-badge" style="background:#f8bbd0;color:#c62828;">2026 추천</span>
+  </div>
+  <div class="job-page-inner">
+    <div class="job-notice-box" style="font-size:15px;">💡 2026년 시니어 재취업률이 높은 자격증을 난이도·월급 기준으로 정리했어요. 국민내일배움카드로 무료 취득 가능!</div>
+
+    <!-- 요양보호사 -->
+    <div class="job-info-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:32px;">🏥</span>
+        <div>
+          <div style="font-size:18px;font-weight:900;color:#c62828;">요양보호사</div>
+          <div style="font-size:13px;color:#888;">난이도 ★★☆☆☆ · 국가자격증</div>
+        </div>
+        <div style="margin-left:auto;background:#fce4ec;border-radius:10px;padding:6px 12px;text-align:center;">
+          <div style="font-size:11px;color:#c62828;font-weight:700;">평균 월급</div>
+          <div style="font-size:18px;font-weight:900;color:#c62828;">200~250만원</div>
+        </div>
+      </div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:8px;">노인 돌봄 서비스를 제공하는 국가자격증. 시니어에게 가장 인기 높고 취업 연계가 빠릅니다. 가족 요양 시 본인 가족 돌보며 급여 수령도 가능.</div>
+      <div class="job-info-point" style="background:#fce4ec;color:#b71c1c;">
+        ✅ 취득방법: 요양보호사 교육원 수료 후 필기·실기 시험<br>
+        ✅ 교육시간: 이론 240시간 + 실습 80시간 (약 3~4개월)<br>
+        ✅ 비용: 국민내일배움카드로 거의 무료<br>
+        ✅ 취업처: 요양원·재가요양센터·복지관·가족요양<br>
+        ✅ 문의: 국시원 ☎ 1544-4244
+      </div>
+    </div>
+
+    <!-- 경비원 -->
+    <div class="job-info-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:32px;">🔒</span>
+        <div>
+          <div style="font-size:18px;font-weight:900;color:#c62828;">경비원 교육이수증</div>
+          <div style="font-size:13px;color:#888;">난이도 ★☆☆☆☆ · 나이 제한 없음</div>
+        </div>
+        <div style="margin-left:auto;background:#fce4ec;border-radius:10px;padding:6px 12px;text-align:center;">
+          <div style="font-size:11px;color:#c62828;font-weight:700;">평균 월급</div>
+          <div style="font-size:18px;font-weight:900;color:#c62828;">200~250만원</div>
+        </div>
+      </div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:8px;">아파트·건물·주차장 경비 업무. 60~70대 시니어 채용이 가장 많은 직종 중 하나. 24시간 교대 근무이므로 본인 건강 상태 확인 필요.</div>
+      <div class="job-info-point" style="background:#fce4ec;color:#b71c1c;">
+        ✅ 취득방법: 경비업 허가업체에서 신임 교육 24시간 이수<br>
+        ✅ 비용: 거의 무료 (업체 부담)<br>
+        ✅ 취업처: 아파트·빌딩·주차장·학교·공공기관<br>
+        ✅ 문의: 관할 경찰서 생활안전과
+      </div>
+    </div>
+
+    <!-- 조리기능사 -->
+    <div class="job-info-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:32px;">🍳</span>
+        <div>
+          <div style="font-size:18px;font-weight:900;color:#c62828;">조리기능사</div>
+          <div style="font-size:13px;color:#888;">난이도 ★★☆☆☆ · 국가기술자격</div>
+        </div>
+        <div style="margin-left:auto;background:#fce4ec;border-radius:10px;padding:6px 12px;text-align:center;">
+          <div style="font-size:11px;color:#c62828;font-weight:700;">평균 월급</div>
+          <div style="font-size:18px;font-weight:900;color:#c62828;">200~230만원</div>
+        </div>
+      </div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:8px;">한식·양식·중식·일식 조리 국가기술자격. 식당·급식소·복지관·학교 취업에 유리. 평생 주부로 요리 경험 있는 분들에게 특히 추천.</div>
+      <div class="job-info-point" style="background:#fce4ec;color:#b71c1c;">
+        ✅ 취득방법: 큐넷(q-net.or.kr)에서 시험 접수<br>
+        ✅ 고령자 응시 제한 없음<br>
+        ✅ 취업처: 식당·학교급식·복지관 식당·병원 구내식당<br>
+        ✅ 문의: 한국산업인력공단 ☎ 1644-8000
+      </div>
+    </div>
+
+    <!-- 사회복지사 -->
+    <div class="job-info-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:32px;">🤝</span>
+        <div>
+          <div style="font-size:18px;font-weight:900;color:#c62828;">사회복지사 2급</div>
+          <div style="font-size:13px;color:#888;">난이도 ★★★☆☆ · 국가전문자격</div>
+        </div>
+        <div style="margin-left:auto;background:#fce4ec;border-radius:10px;padding:6px 12px;text-align:center;">
+          <div style="font-size:11px;color:#c62828;font-weight:700;">평균 월급</div>
+          <div style="font-size:18px;font-weight:900;color:#c62828;">220~280만원</div>
+        </div>
+      </div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:8px;">노인·장애인·아동 등을 돕는 전문 자격증. 복지관·요양시설·상담소 등에서 안정적으로 일할 수 있어요.</div>
+      <div class="job-info-point" style="background:#fce4ec;color:#b71c1c;">
+        ✅ 취득방법: 학점은행제 온라인 17과목 이수 + 실습 160시간<br>
+        ✅ 기간: 약 1~2년 (온라인 수업으로 집에서 가능)<br>
+        ✅ 취업처: 노인복지관·장애인시설·사회복지관<br>
+        ✅ 비용: 국민내일배움카드 활용 시 대폭 할인
+      </div>
+    </div>
+
+    <!-- 공인중개사 -->
+    <div class="job-info-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:32px;">🏠</span>
+        <div>
+          <div style="font-size:18px;font-weight:900;color:#c62828;">공인중개사</div>
+          <div style="font-size:13px;color:#888;">난이도 ★★★★☆ · 국가전문자격</div>
+        </div>
+        <div style="margin-left:auto;background:#fce4ec;border-radius:10px;padding:6px 12px;text-align:center;">
+          <div style="font-size:11px;color:#c62828;font-weight:700;">수입</div>
+          <div style="font-size:18px;font-weight:900;color:#c62828;">개인별 상이</div>
+        </div>
+      </div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:8px;">부동산 매매·임대 중개를 하는 전문직. 개업 또는 취업 모두 가능. 경력 쌓으면 노후까지 안정적으로 일할 수 있는 자격증.</div>
+      <div class="job-info-point" style="background:#fce4ec;color:#b71c1c;">
+        ✅ 시험: 매년 10월 (1차 객관식, 2차 주관식)<br>
+        ✅ 합격률: 약 20~30% (난이도 있음, 1~2년 준비 권장)<br>
+        ✅ 나이 제한 없음, 70대 합격자도 다수<br>
+        ✅ 문의: 한국산업인력공단 ☎ 1644-8000
+      </div>
+    </div>
+
+    <!-- 병원동행매니저 -->
+    <div class="job-info-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:32px;">🚑</span>
+        <div>
+          <div style="font-size:18px;font-weight:900;color:#c62828;">병원동행매니저</div>
+          <div style="font-size:13px;color:#888;">난이도 ★☆☆☆☆ · 2026년 급성장 직종</div>
+        </div>
+        <div style="margin-left:auto;background:#fce4ec;border-radius:10px;padding:6px 12px;text-align:center;">
+          <div style="font-size:11px;color:#c62828;font-weight:700;">시간당</div>
+          <div style="font-size:18px;font-weight:900;color:#c62828;">2.5~3.5만원</div>
+        </div>
+      </div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:8px;">혼자 병원 가기 어려운 어르신을 동행·보조해드리는 직종. 2026년 고령화로 수요가 급증했고, 프리랜서로 유연하게 일할 수 있어요.</div>
+      <div class="job-info-point" style="background:#fce4ec;color:#b71c1c;">
+        ✅ 취득방법: 관련 기관 교육 이수 (수십 시간)<br>
+        ✅ 체력 부담 낮음, 정서적 지원 중심<br>
+        ✅ 플랫폼: 케어닥·돌봄플러스 등에서 매칭<br>
+        ✅ 65세 이상도 활발히 활동 중
+      </div>
+    </div>
+
+    <!-- 자격증 취득 지원 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#c62828;font-size:18px;">💳 자격증 무료로 따는 방법</div>
+      <div style="font-size:15px;color:#333;line-height:1.8;margin-top:8px;">
+        <strong>국민내일배움카드</strong>를 발급받으면 300~500만원 한도 내에서 자격증 교육비를 지원받을 수 있어요.<br><br>
+        ✅ 대상: 만 15세 이상 누구나 (현직 공무원 제외)<br>
+        ✅ 발급: 고용24(work24.go.kr) 또는 고용센터 방문<br>
+        ✅ 문의: ☎ 1350
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <a onclick="confirmExternalLink('https://www.q-net.or.kr');return false;" href="#"
+         style="flex:1;display:block;padding:15px;background:#c62828;color:#fff;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+        🔗 큐넷 시험접수
+      </a>
+      <a href="tel:1644-8000"
+         style="flex:1;display:block;padding:15px;background:#fce4ec;color:#c62828;border:2px solid #c62828;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+        📞 1644-8000
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     전환 페이지 6 — 취업교육
+══════════════════════════════════════ -->
+<div id="page-job-edu" class="job-page-view">
+  <button class="job-back-btn" onclick="goBack()">◀ 일자리로 돌아가기</button>
+  <div class="job-page-header" style="background:#f3e5f5;border-color:#e1bee7;">
+    <span class="job-page-title" style="color:#6a1b9a;">🎓 취업교육</span>
+    <span class="job-page-badge" style="background:#e1bee7;color:#6a1b9a;">전부 무료!</span>
+  </div>
+  <div class="job-page-inner">
+    <div class="job-notice-box" style="font-size:15px;">💡 아래 교육들은 대부분 <strong>무료</strong>입니다! 국민내일배움카드 하나면 다양한 직업훈련을 받을 수 있어요.</div>
+
+    <!-- 국민내일배움카드 핵심 강조 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#6a1b9a;font-size:18px;">💳 국민내일배움카드 — 꼭 만드세요!</div>
+      <div style="background:#f3e5f5;border-radius:12px;padding:16px;margin:10px 0;text-align:center;">
+        <div style="font-size:15px;color:#6a1b9a;font-weight:700;margin-bottom:6px;">정부가 드리는 교육비 지원</div>
+        <div style="font-size:28px;font-weight:900;color:#6a1b9a;">300 ~ 500만원</div>
+        <div style="font-size:14px;color:#666;margin-top:4px;">5년간 사용 가능 · 자격증·직업훈련 모두 OK</div>
+      </div>
+      <div style="font-size:15px;color:#333;line-height:1.8;">
+        ✅ 대상: 만 15세 이상 누구나 (현직 공무원 제외)<br>
+        ✅ 발급장소: 고용24(work24.go.kr) 또는 고용센터 방문<br>
+        ✅ 발급기간: 신청 후 약 2~3주 이내<br>
+        ✅ 문의: ☎ 1350
+      </div>
+    </div>
+
+    <!-- 고령자 능력개발 훈련 -->
+    <div class="job-info-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:30px;">🏫</span>
+        <div>
+          <div style="font-size:18px;font-weight:900;color:#6a1b9a;">고령자 능력개발 훈련</div>
+          <div style="font-size:13px;color:#888;">고용노동부 운영 · 만 50세 이상 대상</div>
+        </div>
+      </div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:8px;">고령자 맞춤 직업훈련 프로그램. 재취업에 필요한 실질적인 기술을 배울 수 있어요.</div>
+      <div class="job-info-point" style="background:#f3e5f5;color:#4a148c;">
+        ✅ 비용: 국민내일배움카드로 무료<br>
+        ✅ 주요 과정: 요양보호사·조리기능사·컴퓨터·사무보조·경비원 교육<br>
+        ✅ 신청: 고용24 → 직업훈련 → 훈련과정 검색<br>
+        ✅ 교육 후 취업 연계까지 지원
+      </div>
+    </div>
+
+    <!-- 중장년 내일센터 -->
+    <div class="job-info-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:30px;">🏢</span>
+        <div>
+          <div style="font-size:18px;font-weight:900;color:#6a1b9a;">중장년 내일센터</div>
+          <div style="font-size:13px;color:#888;">만 40세 이상 전용 · 전국 40개소 운영</div>
+        </div>
+      </div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:8px;">중장년 재취업 전담 기관. 이력서부터 면접까지 1:1 전문 상담을 무료로 받을 수 있어요.</div>
+      <div class="job-info-point" style="background:#f3e5f5;color:#4a148c;">
+        ✅ 이력서·자기소개서 1:1 첨삭 무료<br>
+        ✅ 직업심리검사 무료 (나에게 맞는 직종 찾기)<br>
+        ✅ 모의면접·디지털 역량 교육 무료<br>
+        ✅ 기업 채용 연계 서비스 제공<br>
+        ✅ 문의: ☎ 1350
+      </div>
+    </div>
+
+    <!-- HRD-Net -->
+    <div class="job-info-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:30px;">💻</span>
+        <div>
+          <div style="font-size:18px;font-weight:900;color:#6a1b9a;">HRD-Net 직업훈련 포털</div>
+          <div style="font-size:13px;color:#888;">전국 훈련과정 한눈에 검색</div>
+        </div>
+      </div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:8px;">전국 직업훈련 과정을 한 곳에서 검색하고 신청할 수 있는 정부 포털. 내 주변 교육기관과 강좌를 쉽게 찾을 수 있어요.</div>
+      <div class="job-info-point" style="background:#f3e5f5;color:#4a148c;">
+        ✅ 지역·직종별 훈련과정 검색<br>
+        ✅ 국비지원 여부·교육비·기간 한번에 확인<br>
+        ✅ 국민내일배움카드 연계 신청 가능<br>
+        ✅ 사이트: www.hrd.go.kr
+      </div>
+    </div>
+
+    <!-- 서울런4050 -->
+    <div class="job-info-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:30px;">🌱</span>
+        <div>
+          <div style="font-size:18px;font-weight:900;color:#6a1b9a;">서울런 4050</div>
+          <div style="font-size:13px;color:#888;">서울시 운영 · 만 40~59세 서울시민</div>
+        </div>
+      </div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin-bottom:8px;">서울시에서 운영하는 중장년 취업 지원 플랫폼. 자격증 정보부터 채용 기업 매칭까지 통합 지원.</div>
+      <div class="job-info-point" style="background:#f3e5f5;color:#4a148c;">
+        ✅ 역량 강화 교육 무료 제공<br>
+        ✅ 취업시장 필요 자격증 정보 제공<br>
+        ✅ 채용 기업 발굴 및 1:1 매칭<br>
+        ✅ 사이트: seoullearn.seoul.go.kr
+      </div>
+    </div>
+
+    <!-- 신청 순서 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#6a1b9a;font-size:18px;">📋 취업교육 신청 순서</div>
+      <ul class="job-step-list" style="margin-top:10px;">
+        <li><span class="job-step-num" style="background:#6a1b9a;">1</span><div style="font-size:15px;line-height:1.7;"><strong>고용센터 방문 또는 고용24 접속</strong> — 내일배움카드 발급 신청</div></li>
+        <li><span class="job-step-num" style="background:#6a1b9a;">2</span><div style="font-size:15px;line-height:1.7;"><strong>HRD-Net에서 훈련과정 검색</strong> — 내 주변 교육기관 찾기</div></li>
+        <li><span class="job-step-num" style="background:#6a1b9a;">3</span><div style="font-size:15px;line-height:1.7;"><strong>수강 신청 및 교육 이수</strong> — 내일배움카드로 결제</div></li>
+        <li><span class="job-step-num" style="background:#6a1b9a;">4</span><div style="font-size:15px;line-height:1.7;"><strong>취업 연계</strong> — 고용센터·중장년내일센터 통해 취업 지원</div></li>
+      </ul>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <a onclick="confirmExternalLink('https://www.work24.go.kr');return false;" href="#"
+         style="flex:1;display:block;padding:15px;background:#6a1b9a;color:#fff;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+        🔗 고용24 교육신청
+      </a>
+      <a href="tel:1350"
+         style="flex:1;display:block;padding:15px;background:#f3e5f5;color:#6a1b9a;border:2px solid #6a1b9a;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+        📞 1350 상담
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     전환 페이지 7 — 시니어창업
+══════════════════════════════════════ -->
+<div id="page-job-startup" class="job-page-view">
+  <button class="job-back-btn" onclick="goBack()">◀ 일자리로 돌아가기</button>
+  <div class="job-page-header" style="background:#e8eaf6;border-color:#c5cae9;">
+    <span class="job-page-title" style="color:#283593;">🏪 시니어 창업</span>
+    <span class="job-page-badge" style="background:#c5cae9;color:#283593;">2026 지원</span>
+  </div>
+  <div class="job-page-inner">
+    <div class="job-notice-box" style="font-size:15px;">💡 2026년 시니어 창업 지원이 역대 최대 규모입니다! 소자본으로도 시작할 수 있는 정부 지원제도를 꼭 확인하세요.</div>
+
+    <!-- 정부 지원 한눈에 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#283593;font-size:18px;">🏛️ 정부 시니어 창업 지원 프로그램</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;">
+
+        <div style="background:#e8eaf6;border-radius:12px;padding:14px 16px;border-left:4px solid #283593;">
+          <div style="font-size:17px;font-weight:900;color:#283593;margin-bottom:4px;">🌱 소상공인진흥공단 창업지원</div>
+          <div style="font-size:22px;font-weight:900;color:#283593;margin-bottom:6px;">최대 7,000만원 저금리 대출</div>
+          <div style="font-size:15px;color:#333;line-height:1.7;">시니어 전용 창업 교육(온·오프라인 무료) + 창업자금 대출 지원<br>문의: 소상공인지원센터 ☎ 1357</div>
+        </div>
+
+        <div style="background:#e8eaf6;border-radius:12px;padding:14px 16px;border-left:4px solid #3949ab;">
+          <div style="font-size:17px;font-weight:900;color:#283593;margin-bottom:4px;">🏗️ 중장년 기술창업센터</div>
+          <div style="font-size:22px;font-weight:900;color:#283593;margin-bottom:6px;">최대 1억원 사업화 자금</div>
+          <div style="font-size:15px;color:#333;line-height:1.7;">만 40세 이상 퇴직자·예비창업자 대상. 창업공간·멘토링·네트워킹까지 지원<br>신청: K-Startup(k-startup.go.kr)</div>
+        </div>
+
+        <div style="background:#e8eaf6;border-radius:12px;padding:14px 16px;border-left:4px solid #5c6bc0;">
+          <div style="font-size:17px;font-weight:900;color:#283593;margin-bottom:4px;">🌆 서울시 지역상생 창업지원</div>
+          <div style="font-size:22px;font-weight:900;color:#283593;margin-bottom:6px;">교육·컨설팅·공간 무료</div>
+          <div style="font-size:15px;color:#333;line-height:1.7;">만 40~65세 서울시민 대상. 창업교육부터 경영 코칭까지 통합 지원<br>(서울시 외 지역은 각 지자체 별도 공고 확인)</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 2026 추천 창업 아이템 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#283593;font-size:18px;">🔥 2026년 시니어 추천 창업 아이템</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+
+        <div style="background:#f5f5ff;border-radius:10px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">👵 시니어 돌봄·라이프케어 서비스</div>
+          <div style="font-size:15px;color:#444;line-height:1.7;">병원동행·식사돌봄·말벗서비스 등. 고령화로 2026년 수요 폭발적 증가. 초기 비용 거의 없이 시작 가능.</div>
+        </div>
+
+        <div style="background:#f5f5ff;border-radius:10px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">☕ 노인일자리 연계 카페·식당 사업단</div>
+          <div style="font-size:15px;color:#444;line-height:1.7;">노인일자리 시장형(카페사업단·도시락사업단) 연계로 창업 리스크 줄임. 전통시장 입점 지원도 받을 수 있음.</div>
+        </div>
+
+        <div style="background:#f5f5ff;border-radius:10px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">📱 스마트스토어·온라인 판매</div>
+          <div style="font-size:15px;color:#444;line-height:1.7;">농산물·수공예품·지역특산물 온라인 판매. 초기 비용 거의 없고 스마트폰만 있으면 시작 가능. 중장년 내일센터에서 디지털 창업 교육 무료 제공.</div>
+        </div>
+
+        <div style="background:#f5f5ff;border-radius:10px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">🏠 정리수납·청소 전문 서비스</div>
+          <div style="font-size:15px;color:#444;line-height:1.7;">1인 가구 증가로 2026년 컨설팅 수요 급증. 자격증(정리수납전문가) 취득 후 프리랜서로 활동 가능.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 창업 전 체크리스트 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#c62828;font-size:18px;">⚠️ 창업 전 반드시 확인하세요!</div>
+      <div style="background:#fff3f3;border-radius:10px;padding:14px;margin-top:10px;">
+        <div style="font-size:15px;color:#333;line-height:1.9;">
+          ❶ <strong>국민연금 수령 중이라면</strong> — 소득 발생 시 연금이 줄어들 수 있으니 미리 계산<br>
+          ❷ <strong>의료급여 수급자라면</strong> — 창업 소득으로 수급자격 박탈될 수 있음<br>
+          ❸ <strong>창업 자금을 한꺼번에 투자 금지</strong> — 소자본으로 테스트 후 확장 권장<br>
+          ❹ <strong>먼저 소상공인 컨설팅 받기</strong> — 무료 창업 컨설팅 꼭 활용<br>
+          ❺ <strong>폐업 지원도 있음</strong> — 어렵다면 소상공인 희망리턴패키지 활용
+        </div>
+      </div>
+    </div>
+
+    <!-- 창업 신청 순서 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#283593;font-size:18px;">📋 창업 지원 신청 순서</div>
+      <ul class="job-step-list" style="margin-top:10px;">
+        <li><span class="job-step-num" style="background:#283593;">1</span><div style="font-size:15px;line-height:1.7;"><strong>소상공인지원센터 상담</strong> — 내 아이템이 가능한지 무료 컨설팅 (☎ 1357)</div></li>
+        <li><span class="job-step-num" style="background:#283593;">2</span><div style="font-size:15px;line-height:1.7;"><strong>창업교육 이수</strong> — 소상공인진흥공단·중장년 내일센터 무료 교육 수강</div></li>
+        <li><span class="job-step-num" style="background:#283593;">3</span><div style="font-size:15px;line-height:1.7;"><strong>창업자금 신청</strong> — 소상공인 정책자금 또는 기술창업센터 사업화 자금 신청</div></li>
+        <li><span class="job-step-num" style="background:#283593;">4</span><div style="font-size:15px;line-height:1.7;"><strong>사업자 등록</strong> — 관할 세무서 또는 온라인(hometax.go.kr)</div></li>
+      </ul>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <a onclick="confirmExternalLink('https://www.sbiz.or.kr');return false;" href="#"
+         style="flex:1;display:block;padding:15px;background:#283593;color:#fff;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+        🔗 소상공인진흥공단
+      </a>
+      <a href="tel:1357"
+         style="flex:1;display:block;padding:15px;background:#e8eaf6;color:#283593;border:2px solid #283593;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+        📞 1357 상담
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     전환 페이지 8 — 임금정보
+══════════════════════════════════════ -->
+<div id="page-job-wage" class="job-page-view">
+  <button class="job-back-btn" onclick="goBack()">◀ 일자리로 돌아가기</button>
+  <div class="job-page-header" style="background:#fbe9e7;border-color:#ffccbc;">
+    <span class="job-page-title" style="color:#bf360c;">💰 임금정보</span>
+    <span class="job-page-badge" style="background:#ffccbc;color:#bf360c;">2026년 기준</span>
+  </div>
+  <div class="job-page-inner">
+    <div class="job-notice-box" style="font-size:15px;">💡 2026년 최저임금·직종별 평균임금·실업급여까지 한눈에 확인하세요!</div>
+
+    <!-- 실업급여 계산기 — 제일 위 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#bf360c;font-size:18px;">💸 실업급여 예상액 계산기</div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin:8px 0;">퇴직 전 월급과 고용보험 가입기간을 입력하면 예상 실업급여를 계산해드립니다.</div>
+      <div style="background:#fbe9e7;border-radius:12px;padding:13px 14px;margin-bottom:12px;">
+        <div style="font-size:15px;color:#bf360c;font-weight:700;">📌 2026년 기준</div>
+        <div style="display:flex;gap:12px;margin-top:6px;">
+          <div style="flex:1;text-align:center;background:#fff;border-radius:10px;padding:10px;">
+            <div style="font-size:12px;color:#888;margin-bottom:2px;">1일 하한액</div>
+            <div style="font-size:20px;font-weight:900;color:#bf360c;">66,048원</div>
+          </div>
+          <div style="flex:1;text-align:center;background:#fff;border-radius:10px;padding:10px;">
+            <div style="font-size:12px;color:#888;margin-bottom:2px;">1일 상한액</div>
+            <div style="font-size:20px;font-weight:900;color:#bf360c;">68,100원</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#666;margin-top:8px;text-align:center;">월 환산 약 <strong>198만원 ~ 204만원</strong> 수준</div>
+      </div>
+      <label class="calc-label">퇴직 전 월 평균임금 (세전)</label>
+      <input class="calc-input" type="number" id="unemp-salary" placeholder="예: 2500000 (250만원)" min="0">
+      <label class="calc-label">퇴직 당시 만 나이</label>
+      <select class="calc-select" id="unemp-age">
+        <option value="">나이를 선택해 주세요</option>
+        <option value="u50">50세 미만</option>
+        <option value="50">50세 이상 ~ 60세 미만</option>
+        <option value="60">60세 이상</option>
+      </select>
+      <label class="calc-label">고용보험 가입기간</label>
+      <select class="calc-select" id="unemp-period">
+        <option value="">가입기간을 선택해 주세요</option>
+        <option value="1">1년 미만</option>
+        <option value="3">1년 이상 ~ 3년 미만</option>
+        <option value="5">3년 이상 ~ 5년 미만</option>
+        <option value="10">5년 이상 ~ 10년 미만</option>
+        <option value="99">10년 이상</option>
+      </select>
+      <button class="btn-main" style="background:#bf360c;margin-top:14px;font-size:16px;" onclick="calcUnemp()">💸 실업급여 예상액 계산하기</button>
+      <div class="calc-result-box" id="unemp-result" style="margin-top:14px;">
+        <div class="calc-result-label">예상 1일 실업급여</div>
+        <div class="calc-result-amount" id="unemp-daily" style="color:#bf360c;">-</div>
+        <div class="calc-result-divider"></div>
+        <div class="calc-result-row">
+          <span class="calc-result-row-label">📅 수급 가능 일수</span>
+          <span class="calc-result-row-val" id="unemp-days" style="color:#bf360c;">-</span>
+        </div>
+        <div class="calc-result-row">
+          <span class="calc-result-row-label">💰 예상 총 수령액</span>
+          <span class="calc-result-row-val" id="unemp-total" style="color:#bf360c;">-</span>
+        </div>
+        <div class="calc-result-divider"></div>
+        <div class="calc-result-qual" id="unemp-note" style="font-size:13px;color:#666;line-height:1.8;white-space:pre-wrap;"></div>
+        <button class="btn-main" style="background:#e0e0e0;color:#555;margin-top:10px;" onclick="resetUnempCalc()">🔄 다시 계산하기</button>
+        <a href="tel:1350" style="display:block;width:100%;margin-top:8px;padding:13px;background:#fbe9e7;color:#bf360c;border:2px solid #bf360c;border-radius:10px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">📞 고용노동부 상담 1350</a>
+      </div>
+      <div style="margin-top:10px;background:#fff8e1;border-radius:10px;padding:12px 14px;font-size:13px;color:#7a5c00;line-height:1.7;">
+        ⚠️ 본 계산기는 참고용 모의계산입니다. 실제 수급액은 고용센터 심사 결과에 따라 다를 수 있습니다.<br>
+        ⚠️ 비자발적 퇴직(권고사직·계약만료·정년퇴직 등)에 해당해야 수급 가능합니다.
+      </div>
+    </div>
+
+    <!-- 2026 최저임금 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#bf360c;font-size:18px;">📊 2026년 최저임금</div>
+      <div style="background:#fbe9e7;border:2px solid #ffab91;border-radius:14px;padding:18px;margin-top:10px;text-align:center;">
+        <div style="font-size:14px;color:#888;margin-bottom:4px;">2026년 법정 최저임금</div>
+        <div style="font-size:36px;font-weight:900;color:#bf360c;">시간당 10,320원</div>
+        <div style="font-size:15px;color:#555;margin-top:8px;">주 40시간 기준 월급 <strong style="color:#bf360c;">2,156,880원</strong></div>
+        <div style="font-size:13px;color:#888;margin-top:4px;">2025년(10,030원) 대비 <strong>2.9% 인상</strong></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <div style="flex:1;background:#fff3e0;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:12px;color:#888;margin-bottom:3px;">주 5일 × 하루 4시간</div>
+          <div style="font-size:17px;font-weight:900;color:#e65100;">월 약 89만원</div>
+        </div>
+        <div style="flex:1;background:#fff3e0;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:12px;color:#888;margin-bottom:3px;">주 5일 × 하루 6시간</div>
+          <div style="font-size:17px;font-weight:900;color:#e65100;">월 약 134만원</div>
+        </div>
+        <div style="flex:1;background:#fff3e0;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:12px;color:#888;margin-bottom:3px;">주 5일 × 하루 8시간</div>
+          <div style="font-size:17px;font-weight:900;color:#e65100;">월 약 215만원</div>
+        </div>
+      </div>
+      <div style="background:#fff3e0;border-radius:10px;padding:12px 14px;margin-top:8px;font-size:14px;color:#7a5c00;line-height:1.7;">
+        ✅ 5인 미만 소규모 사업장에도 동일 적용<br>
+        ✅ 최저임금 미달 시 신고 → 고용노동부 ☎ 1350
+      </div>
+    </div>
+
+    <!-- 직종별 평균임금 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#bf360c;font-size:18px;">👷 시니어 주요 직종 평균임금</div>
+      <div style="font-size:14px;color:#888;margin:6px 0 12px;">※ 지역·경력·근무형태에 따라 다를 수 있습니다</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;background:#fbe9e7;border-radius:12px;padding:13px 14px;gap:12px;">
+          <span style="font-size:26px;">🏥</span>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:800;color:#1a1a1a;">요양보호사</div>
+            <div style="font-size:13px;color:#666;">시설 근무 · 방문 요양 모두 해당</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:18px;font-weight:900;color:#bf360c;">월 215~250만원</div>
+            <div style="font-size:12px;color:#888;">가족요양 시 60~90만원</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;background:#fbe9e7;border-radius:12px;padding:13px 14px;gap:12px;">
+          <span style="font-size:26px;">🔒</span>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:800;color:#1a1a1a;">경비원</div>
+            <div style="font-size:13px;color:#666;">아파트·빌딩·주차장</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:18px;font-weight:900;color:#bf360c;">월 200~250만원</div>
+            <div style="font-size:12px;color:#888;">24시간 교대 근무</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;background:#fbe9e7;border-radius:12px;padding:13px 14px;gap:12px;">
+          <span style="font-size:26px;">🍳</span>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:800;color:#1a1a1a;">조리사</div>
+            <div style="font-size:13px;color:#666;">식당·급식소·복지관</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:18px;font-weight:900;color:#bf360c;">월 200~230만원</div>
+            <div style="font-size:12px;color:#888;">조리기능사 자격증 유리</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;background:#fbe9e7;border-radius:12px;padding:13px 14px;gap:12px;">
+          <span style="font-size:26px;">🚑</span>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:800;color:#1a1a1a;">병원동행매니저</div>
+            <div style="font-size:13px;color:#666;">프리랜서 · 유연근무</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:18px;font-weight:900;color:#bf360c;">시간당 2.5~3.5만원</div>
+            <div style="font-size:12px;color:#888;">2026 급성장 직종</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;background:#e8f5e9;border-radius:12px;padding:13px 14px;gap:12px;">
+          <span style="font-size:26px;">🌿</span>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:800;color:#1a1a1a;">공익활동형 노인일자리</div>
+            <div style="font-size:13px;color:#666;">만 65세 이상 · 월 30시간</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:18px;font-weight:900;color:#2e7d32;">월 290,000원</div>
+            <div style="font-size:12px;color:#888;">활동비 (고정)</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;background:#e8f5e9;border-radius:12px;padding:13px 14px;gap:12px;">
+          <span style="font-size:26px;">🏥</span>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:800;color:#1a1a1a;">사회서비스형 노인일자리</div>
+            <div style="font-size:13px;color:#666;">만 65세 이상</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:18px;font-weight:900;color:#2e7d32;">최대 월 76만원</div>
+            <div style="font-size:12px;color:#888;">시간당 최저임금 적용</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;background:#e3f2fd;border-radius:12px;padding:13px 14px;gap:12px;">
+          <span style="font-size:26px;">🏢</span>
+          <div style="flex:1;">
+            <div style="font-size:16px;font-weight:800;color:#1a1a1a;">시니어 인턴십</div>
+            <div style="font-size:13px;color:#666;">만 60세 이상 · 민간기업 취업</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:18px;font-weight:900;color:#1565c0;">최저임금 이상</div>
+            <div style="font-size:12px;color:#888;">정부 인건비 일부 지원</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4대 보험 공제 안내 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#bf360c;font-size:18px;">💳 4대 보험 공제 — 실수령액은 얼마?</div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin:8px 0;">월급에서 4대 보험료와 세금이 빠진 나머지가 실제 통장에 들어오는 금액이에요.</div>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+        <div style="display:flex;justify-content:space-between;background:#fbe9e7;border-radius:10px;padding:11px 14px;">
+          <span style="font-size:15px;color:#333;">국민연금</span>
+          <span style="font-size:15px;font-weight:700;color:#bf360c;">월급의 4.5%</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;background:#fbe9e7;border-radius:10px;padding:11px 14px;">
+          <span style="font-size:15px;color:#333;">건강보험</span>
+          <span style="font-size:15px;font-weight:700;color:#bf360c;">월급의 3.545%</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;background:#fbe9e7;border-radius:10px;padding:11px 14px;">
+          <span style="font-size:15px;color:#333;">고용보험</span>
+          <span style="font-size:15px;font-weight:700;color:#bf360c;">월급의 0.9%</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;background:#fbe9e7;border-radius:10px;padding:11px 14px;">
+          <span style="font-size:15px;color:#333;">장기요양보험</span>
+          <span style="font-size:15px;font-weight:700;color:#bf360c;">건강보험료의 12.95%</span>
+        </div>
+      </div>
+      <div style="background:#fff8e1;border-radius:10px;padding:12px 14px;margin-top:8px;">
+        <div style="font-size:15px;color:#7a5c00;line-height:1.8;">
+          💡 월급 215만원 기준 예시<br>
+          · 공제 총액: 약 <strong>19~22만원</strong><br>
+          · 실수령액: 약 <strong>193~196만원</strong><br>
+          <span style="font-size:13px;color:#aaa;">(부양가족 수·비과세 수당에 따라 달라질 수 있음)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 임금 체불 대처법 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#c62828;font-size:18px;">⚠️ 임금 체불 시 대처법</div>
+      <div style="font-size:15px;color:#444;line-height:1.7;margin:8px 0;">월급을 제때 못 받았다면 아래 순서대로 대처하세요. 임금 체불은 <strong>형사처벌 대상</strong>입니다!</div>
+      <ul class="job-step-list" style="margin-top:10px;">
+        <li><span class="job-step-num" style="background:#c62828;">1</span><div style="font-size:15px;line-height:1.7;"><strong>서면 요청</strong> — 사업주에게 카카오톡·문자·내용증명으로 임금 지급 요청 (증거 보관)</div></li>
+        <li><span class="job-step-num" style="background:#c62828;">2</span><div style="font-size:15px;line-height:1.7;"><strong>고용노동부 신고</strong> — 관할 고용노동청 방문 또는 고용24 온라인 진정 접수</div></li>
+        <li><span class="job-step-num" style="background:#c62828;">3</span><div style="font-size:15px;line-height:1.7;"><strong>무료 법률 지원</strong> — 대한법률구조공단에 무료 법률 상담 신청</div></li>
+      </ul>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <a href="tel:1350" style="flex:1;display:block;padding:14px;background:#c62828;color:#fff;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">📞 고용노동부 1350</a>
+        <a href="tel:132" style="flex:1;display:block;padding:14px;background:#fce4ec;color:#c62828;border:2px solid #c62828;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">📞 법률구조공단 132</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     전환 페이지 9 — 취업상담
+══════════════════════════════════════ -->
+<div id="page-job-counsel" class="job-page-view">
+  <button class="job-back-btn" onclick="goBack()">◀ 일자리로 돌아가기</button>
+  <div class="job-page-header" style="background:#e0f2f1;border-color:#b2dfdb;">
+    <span class="job-page-title" style="color:#00695c;">📞 취업상담</span>
+    <span class="job-page-badge" style="background:#b2dfdb;color:#00695c;">전부 무료!</span>
+  </div>
+  <div class="job-page-inner">
+    <div class="job-notice-box" style="font-size:15px;">💡 아래 기관들은 모두 <strong>무료</strong>로 취업 상담을 해드립니다. 전화 한 통이면 시작할 수 있어요!</div>
+
+    <!-- 전화 상담 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#00695c;font-size:18px;">📞 전화 상담 — 지금 바로 누르세요!</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+
+        <a href="tel:1350" style="display:flex;align-items:center;background:#e0f2f1;border-radius:12px;padding:14px 16px;text-decoration:none;color:inherit;gap:14px;">
+          <span style="font-size:28px;">☎️</span>
+          <div style="flex:1;">
+            <div style="font-size:17px;font-weight:900;color:#00695c;">고용노동부 고객상담</div>
+            <div style="font-size:14px;color:#555;margin-top:2px;">취업·임금·실업급여·노동법 상담<br>평일 09:00~18:00</div>
+          </div>
+          <div style="font-size:24px;font-weight:900;color:#00695c;">1350</div>
+        </a>
+
+        <a href="tel:1544-3388" style="display:flex;align-items:center;background:#e0f2f1;border-radius:12px;padding:14px 16px;text-decoration:none;color:inherit;gap:14px;">
+          <span style="font-size:28px;">👴</span>
+          <div style="flex:1;">
+            <div style="font-size:17px;font-weight:900;color:#00695c;">노인일자리 대표전화</div>
+            <div style="font-size:14px;color:#555;margin-top:2px;">노인일자리 신청·문의·불편사항<br>한국노인인력개발원 운영</div>
+          </div>
+          <div style="font-size:22px;font-weight:900;color:#00695c;">1544-3388</div>
+        </a>
+
+        <a href="tel:1357" style="display:flex;align-items:center;background:#e0f2f1;border-radius:12px;padding:14px 16px;text-decoration:none;color:inherit;gap:14px;">
+          <span style="font-size:28px;">🏪</span>
+          <div style="flex:1;">
+            <div style="font-size:17px;font-weight:900;color:#00695c;">소상공인 지원센터</div>
+            <div style="font-size:14px;color:#555;margin-top:2px;">창업·경영·자금 지원 상담<br>소상공인진흥공단 운영</div>
+          </div>
+          <div style="font-size:24px;font-weight:900;color:#00695c;">1357</div>
+        </a>
+
+        <a href="tel:1644-8000" style="display:flex;align-items:center;background:#e0f2f1;border-radius:12px;padding:14px 16px;text-decoration:none;color:inherit;gap:14px;">
+          <span style="font-size:28px;">📜</span>
+          <div style="flex:1;">
+            <div style="font-size:17px;font-weight:900;color:#00695c;">한국산업인력공단</div>
+            <div style="font-size:14px;color:#555;margin-top:2px;">자격증 시험·직업훈련 상담<br>큐넷(q-net.or.kr) 연계</div>
+          </div>
+          <div style="font-size:22px;font-weight:900;color:#00695c;">1644-8000</div>
+        </a>
+
+        <a href="tel:1588-1919" style="display:flex;align-items:center;background:#e0f2f1;border-radius:12px;padding:14px 16px;text-decoration:none;color:inherit;gap:14px;">
+          <span style="font-size:28px;">🏥</span>
+          <div style="flex:1;">
+            <div style="font-size:17px;font-weight:900;color:#00695c;">국민건강보험공단</div>
+            <div style="font-size:14px;color:#555;margin-top:2px;">4대 보험·장기요양 신청 상담<br>24시간 운영</div>
+          </div>
+          <div style="font-size:22px;font-weight:900;color:#00695c;">1588-1919</div>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- 방문 상담 기관 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#00695c;font-size:18px;">🏢 방문 상담 기관</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+
+        <div style="background:#e0f2f1;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#00695c;margin-bottom:4px;">📍 고용센터 (고용복지플러스센터)</div>
+          <div style="font-size:14px;color:#333;line-height:1.7;">취업·훈련·실업급여 통합 상담 기관. 전국 100여 곳 운영.<br>내일배움카드 발급도 여기서!</div>
+        </div>
+
+        <div style="background:#e0f2f1;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#00695c;margin-bottom:4px;">📍 중장년 내일센터</div>
+          <div style="font-size:14px;color:#333;line-height:1.7;">만 40세 이상 전문 취업 상담 기관. 전국 40개소.<br>이력서 첨삭·모의면접·직업심리검사 무료 제공.</div>
+        </div>
+
+        <div style="background:#e0f2f1;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#00695c;margin-bottom:4px;">📍 시니어클럽</div>
+          <div style="font-size:14px;color:#333;line-height:1.7;">노인일자리 전담 기관. 공익활동형·사회서비스형 신청 여기서!<br>전국 350여 개 운영 중.</div>
+        </div>
+
+        <div style="background:#e0f2f1;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#00695c;margin-bottom:4px;">📍 노인복지관</div>
+          <div style="font-size:14px;color:#333;line-height:1.7;">취업 정보 제공 및 일자리 연계 서비스.<br>컴퓨터·스마트폰 교육도 무료 제공.</div>
+        </div>
+
+        <div style="background:#e0f2f1;border-radius:12px;padding:13px 14px;">
+          <div style="font-size:16px;font-weight:900;color:#00695c;margin-bottom:4px;">📍 주민센터 (행정복지센터)</div>
+          <div style="font-size:14px;color:#333;line-height:1.7;">복지·일자리 통합 안내. 가장 가까운 상담 창구.<br>공공근로·자활사업 신청도 여기서!</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 온라인 상담 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#00695c;font-size:18px;">💻 온라인 상담·구직 사이트</div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+        <a onclick="confirmExternalLink('https://www.work24.go.kr');return false;" href="#" style="display:flex;align-items:center;justify-content:space-between;background:#e0f2f1;border-radius:10px;padding:13px 14px;text-decoration:none;color:inherit;">
+          <div><div style="font-size:16px;font-weight:800;color:#00695c;">고용24 (워크넷)</div><div style="font-size:13px;color:#555;">채용공고·훈련과정·지원금 한번에</div></div>
+          <span style="font-size:18px;color:#00695c;font-weight:800;">→</span>
+        </a>
+        <a onclick="confirmExternalLink('https://www.seniorro.or.kr');return false;" href="#" style="display:flex;align-items:center;justify-content:space-between;background:#e0f2f1;border-radius:10px;padding:13px 14px;text-decoration:none;color:inherit;">
+          <div><div style="font-size:16px;font-weight:800;color:#00695c;">노인일자리여기</div><div style="font-size:13px;color:#555;">노인일자리 전용 구인·구직 포털</div></div>
+          <span style="font-size:18px;color:#00695c;font-weight:800;">→</span>
+        </a>
+        <a onclick="confirmExternalLink('https://www.hrd.go.kr');return false;" href="#" style="display:flex;align-items:center;justify-content:space-between;background:#e0f2f1;border-radius:10px;padding:13px 14px;text-decoration:none;color:inherit;">
+          <div><div style="font-size:16px;font-weight:800;color:#00695c;">HRD-Net</div><div style="font-size:13px;color:#555;">전국 직업훈련 과정 검색·신청</div></div>
+          <span style="font-size:18px;color:#00695c;font-weight:800;">→</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- 상담 전 준비사항 -->
+    <div class="job-info-card">
+      <div class="job-info-q" style="color:#00695c;font-size:18px;">📋 상담 전 준비하면 좋은 것들</div>
+      <div style="background:#e0f2f1;border-radius:12px;padding:14px;margin-top:10px;">
+        <div style="font-size:15px;color:#333;line-height:1.9;">
+          ✅ <strong>신분증</strong> (주민등록증 또는 운전면허증)<br>
+          ✅ <strong>이력서</strong> (없으면 상담 중 작성 도움 받기 가능)<br>
+          ✅ <strong>건강보험카드</strong> (4대 보험 확인용)<br>
+          ✅ <strong>보유 자격증</strong> 사본 (해당자만)<br>
+          ✅ <strong>희망 직종·근무시간·월급</strong> 대략 생각해두기<br>
+          ✅ <strong>거주지 주소</strong> (내 주변 기관 연결용)
+        </div>
+      </div>
+      <div style="background:#fff8e1;border-radius:10px;padding:12px 14px;margin-top:8px;font-size:14px;color:#7a5c00;line-height:1.7;">
+        💡 아무것도 준비 안 해도 괜찮아요! 담당자가 처음부터 차근차근 안내해드립니다.
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <a onclick="confirmExternalLink('https://www.work24.go.kr');return false;" href="#"
+         style="flex:1;display:block;padding:15px;background:#00695c;color:#fff;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+        🔗 고용24 바로가기
+      </a>
+      <a href="tel:1350"
+         style="flex:1;display:block;padding:15px;background:#e0f2f1;color:#00695c;border:2px solid #00695c;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
+        📞 1350 상담
+      </a>
+    </div>
+  </div>
 </div>
 
 <script>
+var d = new Date();
+var days = ['일','월','화','수','목','금','토'];
+document.getElementById('date-solar').textContent = (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
+
+/* ── 화면 전환 ── */
+var currentJobPage = null;
+function goPage(id) {
+  document.getElementById('main-view').style.display = 'none';
+  if (currentJobPage) document.getElementById(currentJobPage).classList.remove('active');
+  currentJobPage = id;
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  resetJobPage(id);
+}
+function goBack() {
+  if (currentJobPage) { document.getElementById(currentJobPage).classList.remove('active'); currentJobPage = null; }
+  document.getElementById('main-view').style.display = 'block';
+  window.scrollTo(0, 0);
+  resetMainCalc();
+}
+function resetMainCalc() {
+  var el = document.getElementById('job-type'); if(el) el.value = '';
+  var el2 = document.getElementById('job-hours'); if(el2) el2.value = '';
+  var rb = document.getElementById('job-result'); if(rb) rb.classList.remove('show');
+}
+function resetJobPage(id) {
+  if (id === 'page-job-calc') {
+    var el = document.getElementById('job-type2'); if(el) el.value = '';
+    var el2 = document.getElementById('job-hours2'); if(el2) el2.value = '';
+    var rb = document.getElementById('job-result2'); if(rb) rb.classList.remove('show');
+  }
+  if (id === 'page-senior-job') {
+    var el = document.getElementById('job-type3'); if(el) el.value = '';
+    var el2 = document.getElementById('job-hours3'); if(el2) el2.value = '';
+    var rb = document.getElementById('job-result3'); if(rb) rb.classList.remove('show');
+  }
+  if (id === 'page-job-search') { loadJobApi2(); }
+}
+
 function showToast(msg){
   var t=document.getElementById('toast-msg');
   if(!t){t=document.createElement('div');t.id='toast-msg';t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:700;z-index:9999;text-align:center;max-width:85%;line-height:1.6;word-break:keep-all;';document.body.appendChild(t);}
@@ -262,220 +1703,283 @@ function showToast(msg){
   clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display='none';},3500);
 }
 
-/* ───── 노인일자리 월급 계산기 ───── */
 function calcJobWage(){
   var type=document.getElementById('job-type').value;
   var hours=parseInt(document.getElementById('job-hours').value)||0;
   if(!type){showToast('일자리 종류를 먼저 선택해 주세요!');return;}
-  var amount=0,desc='';
+  var amount=0, desc='', qual='', applyUrl='', real=0, annual=0;
   if(type==='public'){
-    amount=270000;desc='공익활동형은 주 30시간 기준 월 270,000원 고정이에요\n복지관·어린이집 등에 배치됩니다';
-  }else if(type==='social'){
-    var wage=Math.min(hours,40)*9860;
-    amount=Math.max(590000,Math.min(wage,780000));
-    desc='사회서비스형은 시급 9,860원 (2026년 최저임금)\n주당 '+hours+'시간 기준 예상 월급이에요';
-  }else{
-    amount=0;desc='시장형은 개인 역량에 따라 달라요\n시니어봄날마당 채용공고에서 관심 직종을 찾아보세요!';
+    amount=290000; real=290000;
+    desc='공익활동형은 월 30시간 기준 월 290,000원 고정이에요\n복지관·어린이집 등에 배치됩니다';
+    qual='✅ 신청 자격\n· 만 65세 이상\n· 기초연금 수급자\n· 건강보험료 기준 충족자';
+    applyUrl='https://www.seniorro.or.kr';
+  } else if(type==='social'){
+    var wage=Math.min(hours,40)*10320;
+    amount=Math.max(619200,Math.min(wage,760000));
+    real=Math.round(amount*(1-0.009));
+    desc='사회서비스형은 시급 10,320원 (2026년 최저임금)\n주당 '+hours+'시간 기준 예상 월급이에요';
+    qual='✅ 신청 자격\n· 만 65세 이상\n· 노인복지관·요양원 등 사회서비스 기관 배치';
+    applyUrl='https://www.seniorro.or.kr';
+  } else {
+    amount=0; real=0;
+    desc='시장형은 개인 역량에 따라 달라요\n시니어봄날마당 채용공고에서 관심 직종을 찾아보세요!';
+    qual='✅ 신청 자격\n· 만 60세 이상 취업 희망 어르신\n· 소득 기준 제한 없음';
+    applyUrl='https://www.work24.go.kr';
   }
+  annual=amount*12;
   document.getElementById('job-amount').textContent=amount>0?'월 '+amount.toLocaleString()+'원':'개인별 협의';
   document.getElementById('job-desc').textContent=desc;
+  document.getElementById('job-annual').textContent=annual>0?'연 '+annual.toLocaleString()+'원':'개인별 협의';
+  document.getElementById('job-real').textContent=real>0?'월 '+real.toLocaleString()+'원':'개인별 협의';
+  document.getElementById('job-qual').textContent=qual;
+  document.getElementById('job-apply-btn').dataset.url=applyUrl;
   document.getElementById('job-result').classList.add('show');
 }
 
-/* ───── 실시간 API 채용공고 불러오기 ───── */
+function calcJobWage2(){
+  var type=document.getElementById('job-type2').value;
+  var hours=parseInt(document.getElementById('job-hours2').value)||0;
+  if(!type){showToast('일자리 종류를 먼저 선택해 주세요!');return;}
+  var amount=0, desc='', qual='', applyUrl='', real=0, annual=0;
+  if(type==='public'){
+    amount=290000; real=290000;
+    desc='공익활동형은 월 30시간 기준 월 290,000원 고정이에요\n복지관·어린이집 등에 배치됩니다';
+    qual='✅ 신청 자격\n· 만 65세 이상\n· 기초연금 수급자\n· 건강보험료 기준 충족자';
+    applyUrl='https://www.seniorro.or.kr';
+  } else if(type==='social'){
+    var wage=Math.min(hours,40)*10320;
+    amount=Math.max(619200,Math.min(wage,760000));
+    real=Math.round(amount*(1-0.009));
+    desc='사회서비스형은 시급 10,320원 (2026년 최저임금)\n주당 '+hours+'시간 기준 예상 월급이에요';
+    qual='✅ 신청 자격\n· 만 65세 이상\n· 노인복지관·요양원 등 사회서비스 기관 배치';
+    applyUrl='https://www.seniorro.or.kr';
+  } else {
+    amount=0; real=0;
+    desc='시장형은 개인 역량에 따라 달라요\n노인일자리여기에서 관심 직종을 찾아보세요!';
+    qual='✅ 신청 자격\n· 만 60세 이상 취업 희망 어르신\n· 소득 기준 제한 없음';
+    applyUrl='https://www.work24.go.kr';
+  }
+  annual=amount*12;
+  document.getElementById('job-amount2').textContent=amount>0?'월 '+amount.toLocaleString()+'원':'개인별 협의';
+  document.getElementById('job-desc2').textContent=desc;
+  document.getElementById('job-annual2').textContent=annual>0?'연 '+annual.toLocaleString()+'원':'개인별 협의';
+  document.getElementById('job-real2').textContent=real>0?'월 '+real.toLocaleString()+'원':'개인별 협의';
+  document.getElementById('job-qual2').textContent=qual;
+  document.getElementById('job-apply-btn2').dataset.url=applyUrl;
+  document.getElementById('job-result2').classList.add('show');
+}
 
-// 캐시 저장소 — 5분간 공고 데이터 보관 (같은 데이터를 여러 번 불러오지 않도록)
-var jobCache = null;
-var jobCacheTime = 0;
-var JOB_CACHE_TTL = 5 * 60 * 1000; // 5분
 
-// 데이터 불러오는 동안 보여줄 깜빡이는 회색 카드 10개
-function getJobSkeletonHTML() {
-  var card =
-    '<div class="skel-job-item">' +
-      '<div class="skel skel-job-title"></div>' +
-      '<div class="skel skel-job-line"></div>' +
-      '<div class="skel skel-job-line2"></div>' +
-      '<div class="skel skel-job-line3"></div>' +
-    '</div>';
-  var html = '';
-  for (var i = 0; i < 10; i++) html += card;
+function calcJobWage3(){
+  var type=document.getElementById('job-type3').value;
+  var hours=parseInt(document.getElementById('job-hours3').value)||0;
+  if(!type){showToast('일자리 종류를 먼저 선택해 주세요!');return;}
+  var amount=0, desc='', qual='', applyUrl='', real=0, annual=0;
+  if(type==='public'){
+    amount=290000; real=290000;
+    desc='공익활동형은 월 30시간 기준 월 290,000원 고정이에요\n복지관·어린이집 등에 배치됩니다';
+    qual='✅ 신청 자격\n· 만 65세 이상\n· 기초연금 수급자\n· 건강보험료 기준 충족자';
+    applyUrl='https://www.seniorro.or.kr';
+  } else if(type==='social'){
+    var wage=Math.min(hours,40)*10320;
+    amount=Math.max(619200,Math.min(wage,760000));
+    real=Math.round(amount*(1-0.009));
+    desc='사회서비스형은 시급 10,320원 (2026년 최저임금)\n주당 '+hours+'시간 기준 예상 월급이에요';
+    qual='✅ 신청 자격\n· 만 65세 이상\n· 노인복지관·요양원 등 사회서비스 기관 배치';
+    applyUrl='https://www.seniorro.or.kr';
+  } else {
+    amount=0; real=0;
+    desc='시장형은 개인 역량에 따라 달라요\n노인일자리여기에서 관심 직종을 찾아보세요!';
+    qual='✅ 신청 자격\n· 만 60세 이상 취업 희망 어르신\n· 소득 기준 제한 없음';
+    applyUrl='https://www.work24.go.kr';
+  }
+  annual=amount*12;
+  document.getElementById('job-amount3').textContent=amount>0?'월 '+amount.toLocaleString()+'원':'개인별 협의';
+  document.getElementById('job-desc3').textContent=desc;
+  document.getElementById('job-annual3').textContent=annual>0?'연 '+annual.toLocaleString()+'원':'개인별 협의';
+  document.getElementById('job-real3').textContent=real>0?'월 '+real.toLocaleString()+'원':'개인별 협의';
+  document.getElementById('job-qual3').textContent=qual;
+  document.getElementById('job-apply-btn3').dataset.url=applyUrl;
+  document.getElementById('job-result3').classList.add('show');
+}
+
+function calcUnemp(){
+  var salary = parseInt(document.getElementById('unemp-salary').value)||0;
+  var age    = document.getElementById('unemp-age').value;
+  var period = document.getElementById('unemp-period').value;
+  if(!salary||!age||!period){showToast('모든 항목을 입력해 주세요!');return;}
+
+  // 1일 평균임금 (월급 ÷ 30일)
+  var dailyAvg = Math.round(salary / 30);
+  // 1일 구직급여액 = 1일 평균임금 × 60%
+  var dailyBenefit = Math.round(dailyAvg * 0.6);
+  // 2026년 상한·하한 적용
+  var LOWER = 66048;
+  var UPPER = 68100;
+  dailyBenefit = Math.max(LOWER, Math.min(UPPER, dailyBenefit));
+
+  // 수급일수 결정 (연령 × 가입기간 기준, 고용보험법 별표1)
+  // 50세 미만
+  var days = 120;
+  if(age==='u50'){
+    if(period==='1')       days=120;
+    else if(period==='3')  days=150;
+    else if(period==='5')  days=180;
+    else if(period==='10') days=210;
+    else                   days=240;
+  } else if(age==='50'){
+    // 50세 이상 ~ 60세 미만
+    if(period==='1')       days=120;
+    else if(period==='3')  days=180;
+    else if(period==='5')  days=210;
+    else if(period==='10') days=240;
+    else                   days=270;
+  } else {
+    // 60세 이상 (장애인 포함 동일)
+    if(period==='1')       days=120;
+    else if(period==='3')  days=180;
+    else if(period==='5')  days=210;
+    else if(period==='10') days=240;
+    else                   days=270;
+  }
+
+  var total = dailyBenefit * days;
+  var monthly = dailyBenefit * 30;
+
+  document.getElementById('unemp-daily').textContent = dailyBenefit.toLocaleString()+'원 / 일';
+  document.getElementById('unemp-days').textContent  = days+'일';
+  document.getElementById('unemp-total').textContent = total.toLocaleString()+'원 (월 약 '+monthly.toLocaleString()+'원)';
+  document.getElementById('unemp-note').textContent  =
+    '· 수급기간: 퇴직일 다음날부터 12개월 이내\n'
+   +'· 신청방법: 퇴직 후 거주지 관할 고용센터 방문\n'
+   +'· 대기기간: 신청 후 7일 (그 기간은 미지급)\n'
+   +'· 구직활동 의무: 4주마다 고용센터 실업인정 필요\n'
+   +'· 정년퇴직·권고사직·계약만료 등 비자발적 퇴직만 해당';
+  document.getElementById('unemp-result').classList.add('show');
+}
+
+function resetUnempCalc(){
+  var s=document.getElementById('unemp-salary'); if(s) s.value='';
+  var a=document.getElementById('unemp-age'); if(a) a.value='';
+  var p=document.getElementById('unemp-period'); if(p) p.value='';
+  var r=document.getElementById('unemp-result'); if(r) r.classList.remove('show');
+}
+function resetCalc3(){
+  var el=document.getElementById('job-type3'); if(el) el.value='';
+  var el2=document.getElementById('job-hours3'); if(el2) el2.value='';
+  var rb=document.getElementById('job-result3'); if(rb) rb.classList.remove('show');
+}
+
+/* ── 채용공고 전환 페이지용 API ── */
+var jobCache2=null; var jobCacheTime2=0;
+async function loadJobApi2(){
+  var listEl=document.getElementById('job-api-list2');
+  if(!listEl)return;
+  listEl.innerHTML=getJobSkeletonHTML();
+  var now=Date.now();
+  if(jobCache2&&(now-jobCacheTime2)<JOB_CACHE_TTL){listEl.innerHTML=renderJobItems(jobCache2);return;}
+  try{
+    var res=await fetch('/api/jobs?numOfRows=10&pageNo=1');
+    var data=await res.json();
+    if(!data.ok||!data.items||data.items.length===0){listEl.innerHTML='<div class="job-api-error">⚠️ 지금은 공고를 불러올 수 없어요.<br>'+(data.message||'잠시 후 새로고침을 눌러주세요.')+'</div>';return;}
+    jobCache2=data.items; jobCacheTime2=Date.now();
+    listEl.innerHTML=renderJobItems(data.items);
+  }catch(err){
+    listEl.innerHTML='<div class="job-api-error">⚠️ 인터넷 연결을 확인해 주세요.<br>('+err.message+')</div>';
+  }
+}
+
+var jobCache=null;
+var jobCacheTime=0;
+var JOB_CACHE_TTL=5*60*1000;
+
+function getJobSkeletonHTML(){
+  var card='<div class="skel-job-item"><div class="skel skel-job-title"></div><div class="skel skel-job-line"></div><div class="skel skel-job-line2"></div><div class="skel skel-job-line3"></div></div>';
+  var html='';
+  for(var i=0;i<10;i++) html+=card;
   return html;
 }
 
-// 공고 데이터를 카드 모양 HTML로 변환
-function renderJobItems(items) {
-  var html  = '';
-  var today = new Date();
-  items.forEach(function(item) {
-    var deadlineText  = item.endDate || '마감일 미정';
-    var deadlineClass = '';
-    if (item.endDate && item.endDate.length === 8) {
-      var y  = item.endDate.substring(0, 4);
-      var m  = item.endDate.substring(4, 6);
-      var d  = item.endDate.substring(6, 8);
-      var dt = new Date(y + '-' + m + '-' + d);
-      var diff = Math.ceil((dt - today) / (1000 * 60 * 60 * 24));
-      deadlineText = y + '.' + m + '.' + d + ' 마감';
-      if (diff >= 0 && diff <= 7) {
-        deadlineClass = 'job-api-deadline-urgent';
-        deadlineText += ' (D-' + diff + ')';
-      }
+function renderJobItems(items){
+  var html='';
+  var today=new Date();
+  items.forEach(function(item){
+    var deadlineText=item.endDate||'마감일 미정';
+    var deadlineClass='';
+    if(item.endDate&&item.endDate.length===8){
+      var y=item.endDate.substring(0,4);
+      var m=item.endDate.substring(4,6);
+      var d=item.endDate.substring(6,8);
+      var dt=new Date(y+'-'+m+'-'+d);
+      var diff=Math.ceil((dt-today)/(1000*60*60*24));
+      deadlineText=y+'.'+m+'.'+d+' 마감';
+      if(diff>=0&&diff<=7){deadlineClass='job-api-deadline-urgent';deadlineText+=' (D-'+diff+')';}
     }
-    html +=
-      '<div class="job-api-item" onclick="openJobPopup(\'' + item.id + '\')" style="cursor:pointer;">' +
-        '<div class="job-api-title">' + (item.title || '제목 없음') + '</div>' +
-        '<div class="job-api-meta">' +
-          '<span>🏢 ' + (item.company  || '-') + '</span>' +
-          '<span>📍 ' + (item.location || '-') + '</span><br>' +
-          '<span>💼 ' + (item.workType || '-') + '</span>' +
-          '<span class="' + deadlineClass + '">⏰ ' + deadlineText + '</span><br>' +
-          '<span style="color:#4A90D9;font-weight:700;">👆 눌러서 자세히 보기</span>' +
-        '</div>' +
-      '</div>';
+    html+='<div class="job-api-item" onclick="openJobPopup(\''+item.id+'\')" style="cursor:pointer;"><div class="job-api-title">'+(item.title||'제목 없음')+'</div><div class="job-api-meta"><span>🏢 '+(item.company||'-')+'</span><span>📍 '+(item.location||'-')+'</span><br><span>💼 '+(item.workType||'-')+'</span><span class="'+deadlineClass+'">⏰ '+deadlineText+'</span><br><span style="color:#4A90D9;font-weight:700;">👆 눌러서 자세히 보기</span></div></div>';
   });
   return html;
 }
 
-async function loadJobApi() {
-  var listEl = document.getElementById('job-api-list');
-
-  // ① 스켈레톤 카드 즉시 표시
-  listEl.innerHTML = getJobSkeletonHTML();
-
-  // ② 캐시 확인 — 5분 안에 받아놓은 데이터면 즉시 표시
-  var now = Date.now();
-  if (jobCache && (now - jobCacheTime) < JOB_CACHE_TTL) {
-    listEl.innerHTML = renderJobItems(jobCache);
-    return;
-  }
-
-  try {
-    // ③ API 호출
-    var res  = await fetch('/api/jobs?numOfRows=10&pageNo=1');
-    var data = await res.json();
-
-    if (!data.ok || !data.items || data.items.length === 0) {
-      listEl.innerHTML =
-        '<div class="job-api-error">⚠️ 지금은 공고를 불러올 수 없어요.<br>' +
-        (data.message || '잠시 후 새로고침을 눌러주세요.') + '</div>';
-      return;
-    }
-
-    // ④ 캐시 저장
-    jobCache     = data.items;
-    jobCacheTime = Date.now();
-
-    // ⑤ 화면에 표시
-    listEl.innerHTML = renderJobItems(data.items);
-
-  } catch (err) {
-    listEl.innerHTML =
-      '<div class="job-api-error">⚠️ 인터넷 연결을 확인해 주세요.<br>(' + err.message + ')</div>';
+async function loadJobApi(){
+  var listEl=document.getElementById('job-api-list');
+  listEl.innerHTML=getJobSkeletonHTML();
+  var now=Date.now();
+  if(jobCache&&(now-jobCacheTime)<JOB_CACHE_TTL){listEl.innerHTML=renderJobItems(jobCache);return;}
+  try{
+    var res=await fetch('/api/jobs?numOfRows=10&pageNo=1');
+    var data=await res.json();
+    if(!data.ok||!data.items||data.items.length===0){listEl.innerHTML='<div class="job-api-error">⚠️ 지금은 공고를 불러올 수 없어요.<br>'+(data.message||'잠시 후 새로고침을 눌러주세요.')+'</div>';return;}
+    jobCache=data.items;jobCacheTime=Date.now();
+    listEl.innerHTML=renderJobItems(data.items);
+  }catch(err){
+    listEl.innerHTML='<div class="job-api-error">⚠️ 인터넷 연결을 확인해 주세요.<br>('+err.message+')</div>';
   }
 }
-
-// 탭이 열릴 때 자동으로 공고 불러오기
 loadJobApi();
 
-/* ───── 공고 상세 팝업 ───── */
+var jobDetailCache={};
 
-// 팝업 캐시 — 공고ID별로 5분간 저장
-var jobDetailCache = {};
-
-// 팝업 로딩 중 보여줄 스켈레톤
-function getJobPopupSkeletonHTML() {
-  return (
-    '<div class="job-popup-box">' +
-      '<div class="skel skel-popup-title"></div>' +
-      '<div class="skel skel-popup-row"></div>' +
-      '<div class="skel skel-popup-row"></div>' +
-      '<div class="skel skel-popup-row"></div>' +
-      '<div class="skel skel-popup-row" style="width:70%;"></div>' +
-      '<div class="skel skel-popup-btn"></div>' +
-    '</div>'
-  );
+function getJobPopupSkeletonHTML(){
+  return '<div class="job-popup-box"><div class="skel skel-popup-title"></div><div class="skel skel-popup-row"></div><div class="skel skel-popup-row"></div><div class="skel skel-popup-row"></div><div class="skel skel-popup-row" style="width:70%;"></div><div class="skel skel-popup-btn"></div></div>';
 }
 
-async function openJobPopup(jobId) {
-  var overlay = document.createElement('div');
-  overlay.className = 'job-popup-overlay';
-  overlay.id = 'job-popup-overlay';
-
-  // 팝업 열리자마자 스켈레톤 즉시 표시
-  overlay.innerHTML = getJobPopupSkeletonHTML();
-
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) closeJobPopup();
-  });
+async function openJobPopup(jobId){
+  var overlay=document.createElement('div');
+  overlay.className='job-popup-overlay';
+  overlay.id='job-popup-overlay';
+  overlay.innerHTML=getJobPopupSkeletonHTML();
+  overlay.addEventListener('click',function(e){if(e.target===overlay)closeJobPopup();});
   document.body.appendChild(overlay);
-
-  // 캐시 확인
-  var cached = jobDetailCache[jobId];
-  if (cached && (Date.now() - cached.time) < JOB_CACHE_TTL) {
-    renderJobPopup(overlay, cached.detail);
-    return;
-  }
-
-  try {
-    var res  = await fetch('/api/jobs-detail?jobId=' + jobId);
-    var data = await res.json();
-
-    if (!data.ok || !data.detail) {
-      overlay.querySelector('.job-popup-box').innerHTML =
-        '<div style="padding:20px;text-align:center;color:#c00;">⚠️ 상세정보를 불러올 수 없어요.</div>' +
-        '<button class="job-popup-close" onclick="closeJobPopup()">닫기</button>';
-      return;
-    }
-
-    // 캐시 저장
-    jobDetailCache[jobId] = { detail: data.detail, time: Date.now() };
-    renderJobPopup(overlay, data.detail);
-
-  } catch (err) {
-    overlay.querySelector('.job-popup-box').innerHTML =
-      '<div style="padding:20px;text-align:center;color:#c00;">⚠️ 인터넷 연결을 확인해 주세요.</div>' +
-      '<button class="job-popup-close" onclick="closeJobPopup()">닫기</button>';
+  var cached=jobDetailCache[jobId];
+  if(cached&&(Date.now()-cached.time)<JOB_CACHE_TTL){renderJobPopup(overlay,cached.detail);return;}
+  try{
+    var res=await fetch('/api/jobs-detail?jobId='+jobId);
+    var data=await res.json();
+    if(!data.ok||!data.detail){overlay.querySelector('.job-popup-box').innerHTML='<div style="padding:20px;text-align:center;color:#c00;">⚠️ 상세정보를 불러올 수 없어요.</div><button class="job-popup-close" onclick="closeJobPopup()">닫기</button>';return;}
+    jobDetailCache[jobId]={detail:data.detail,time:Date.now()};
+    renderJobPopup(overlay,data.detail);
+  }catch(err){
+    overlay.querySelector('.job-popup-box').innerHTML='<div style="padding:20px;text-align:center;color:#c00;">⚠️ 인터넷 연결을 확인해 주세요.</div><button class="job-popup-close" onclick="closeJobPopup()">닫기</button>';
   }
 }
 
-// 팝업 내용 그려주는 함수
-function renderJobPopup(overlay, d) {
-  function fmtDate(s) {
-    if (!s || s.length !== 8) return s || '-';
-    return s.substring(0,4) + '.' + s.substring(4,6) + '.' + s.substring(6,8);
-  }
-
-  var phoneBtn = d.phone
-    ? '<a class="job-popup-phone" href="tel:' + d.phone + '">📞 ' + d.phone + ' 전화하기</a>'
-    : '<div style="text-align:center;color:#aaa;font-size:14px;margin-top:12px;">전화번호 정보가 없어요</div>';
-
-  var contents = d.contents
-    ? '<div class="job-popup-row"><span class="job-popup-label">📋 내용</span></div>' +
-      '<div class="job-popup-contents">' + d.contents.substring(0, 300) + (d.contents.length > 300 ? '…' : '') + '</div>'
-    : '';
-
-  var extraHtml = d.extra
-    ? '<div class="job-popup-row"><span class="job-popup-label">📌 기타</span><span class="job-popup-value">' + d.extra + '</span></div>'
-    : '';
-
-  overlay.querySelector('.job-popup-box').innerHTML =
-    '<div class="job-popup-title">' + (d.title || '제목 없음') + '</div>' +
-    '<div class="job-popup-row"><span class="job-popup-label">🏢 기관</span><span class="job-popup-value">' + (d.company || '-') + '</span></div>' +
-    '<div class="job-popup-row"><span class="job-popup-label">📍 주소</span><span class="job-popup-value">' + (d.address || '-') + '</span></div>' +
-    '<div class="job-popup-row"><span class="job-popup-label">👥 모집</span><span class="job-popup-value">' + (d.headcount || '-') + '명</span></div>' +
-    '<div class="job-popup-row"><span class="job-popup-label">🎂 연령</span><span class="job-popup-value">' + (d.age ? d.age + '세 이상' : '-') + (d.ageLim ? ' (' + d.ageLim + ')' : '') + '</span></div>' +
-    '<div class="job-popup-row"><span class="job-popup-label">⏰ 마감</span><span class="job-popup-value">' + fmtDate(d.endDate) + '</span></div>' +
-    '<div class="job-popup-row"><span class="job-popup-label">📮 접수</span><span class="job-popup-value">' + (d.applyMethod || '-') + '</span></div>' +
-    extraHtml +
-    contents +
-    phoneBtn +
-    '<button class="job-popup-close" onclick="closeJobPopup()">✕ 닫기</button>';
+function renderJobPopup(overlay,d){
+  function fmtDate(s){if(!s||s.length!==8)return s||'-';return s.substring(0,4)+'.'+s.substring(4,6)+'.'+s.substring(6,8);}
+  var phoneBtn=d.phone?'<a class="job-popup-phone" href="tel:'+d.phone+'">📞 '+d.phone+' 전화하기</a>':'<div style="text-align:center;color:#aaa;font-size:14px;margin-top:12px;">전화번호 정보가 없어요</div>';
+  var contents=d.contents?'<div class="job-popup-row"><span class="job-popup-label">📋 내용</span></div><div class="job-popup-contents">'+d.contents.substring(0,300)+(d.contents.length>300?'…':'')+'</div>':'';
+  var extraHtml=d.extra?'<div class="job-popup-row"><span class="job-popup-label">📌 기타</span><span class="job-popup-value">'+d.extra+'</span></div>':'';
+  overlay.querySelector('.job-popup-box').innerHTML='<div class="job-popup-title">'+(d.title||'제목 없음')+'</div><div class="job-popup-row"><span class="job-popup-label">🏢 기관</span><span class="job-popup-value">'+(d.company||'-')+'</span></div><div class="job-popup-row"><span class="job-popup-label">📍 주소</span><span class="job-popup-value">'+(d.address||'-')+'</span></div><div class="job-popup-row"><span class="job-popup-label">👥 모집</span><span class="job-popup-value">'+(d.headcount||'-')+'명</span></div><div class="job-popup-row"><span class="job-popup-label">🎂 연령</span><span class="job-popup-value">'+(d.age?d.age+'세 이상':'-')+(d.ageLim?' ('+d.ageLim+')':'')+'</span></div><div class="job-popup-row"><span class="job-popup-label">⏰ 마감</span><span class="job-popup-value">'+fmtDate(d.endDate)+'</span></div><div class="job-popup-row"><span class="job-popup-label">📮 접수</span><span class="job-popup-value">'+(d.applyMethod||'-')+'</span></div>'+extraHtml+contents+phoneBtn+'<button class="job-popup-close" onclick="closeJobPopup()">✕ 닫기</button>';
 }
 
-function closeJobPopup() {
-  var el = document.getElementById('job-popup-overlay');
-  if (el) el.remove();
+function closeJobPopup(){
+  var el=document.getElementById('job-popup-overlay');
+  if(el)el.remove();
+}
+
+function confirmExternalLink(url) {
+  if (confirm('외부 사이트로 이동합니다.\n봄날마당으로 돌아오려면 휴대폰 뒤로가기를 누르세요.')) {
+    window.open(url, '_blank');
+  }
 }
 </script>
 </body>

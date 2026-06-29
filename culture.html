@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>문화강좌 - 시니어 봄날마당</title>
+</head>
+<body>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
+
+/* ── 전체 래퍼 ── */
+.wrap { background: #f7f8fa; max-width: 480px; margin: 0 auto; padding-bottom: 40px; }
+
+/* ── 헤더 ── */
+.app-header { background: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
+.header-left { display: flex; align-items: center; gap: 8px; }
+.logo-senior { color: #eb840f; font-weight: 900; font-size: 18px; }
+.logo-bomnal { color: #4A90D9; font-weight: 900; font-size: 18px; }
+.header-date-box { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.header-date-solar { font-size: 15px; font-weight: 700; color: #111; }
+.header-date-lunar { font-size: 12px; font-weight: 700; color: #1a5fa0; }
+
+/* ── 홈바 ── */
+.home-bar { background: #fff; border-bottom: 1px solid #eee; padding: 8px 14px; }
+.home-bar button { background: #4A90D9; color: #fff; border: none; border-radius: 20px; padding: 10px 22px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+/* ════════════════════════════════════════
+   메인 화면 — 아이콘 그리드
+════════════════════════════════════════ */
+.sec-wrap { margin: 18px 14px 0; }
+.sec-title { font-size: 22px; font-weight: 700; color: #222; margin-bottom: 12px; }
+.sec-title em { font-style: normal; color: #c62828; }
+
+/* 3열 그리드 — 아이콘 늘어나도 자동 줄바꿈 */
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cat-item { display: flex; flex-direction: column; align-items: center; border: none; border-radius: 14px; padding: 11px 4px 10px; gap: 7px; cursor: pointer; transition: transform 0.13s; -webkit-tap-highlight-color: transparent; }
+.cat-item:active { transform: scale(0.95); }
+.cat-icon-box { width: 100%; height: 64px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 34px; line-height: 1; }
+.cat-name { font-size: 13px; font-weight: 600; text-align: center; line-height: 1.3; word-break: keep-all; }
+
+/* ── 어르신 긴급전화 ── */
+.tel-sec { margin: 24px 14px 0; }
+.tel-card { background: #fff; border-radius: 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); padding: 18px 16px 8px; }
+.tel-card-title { font-size: 22px; font-weight: 700; color: #222; margin-bottom: 16px; }
+.tel-card-item { display: flex; align-items: center; gap: 10px; background: #f7f8fa; border-radius: 12px; padding: 13px; margin-bottom: 8px; text-decoration: none; color: inherit; -webkit-tap-highlight-color: transparent; }
+.tel-card-item:active { background: #eef2f8; }
+.tel-card-icon { font-size: 28px; width: 48px; height: 48px; background: #f0f4f8; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.tel-text { flex: 1; }
+.tel-name { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 2px; }
+.tel-desc { font-size: 13px; color: #666; }
+.tel-num { font-size: 20px; font-weight: 800; color: #4A90D9; margin-left: auto; white-space: nowrap; }
+.tel-divider { height: 1px; background: #f0f0f0; margin: 0; }
+
+/* ── 하단 버튼 ── */
+.btn-kakao-main { display: block; width: calc(100% - 28px); margin: 24px 14px 0; padding: 14px; background: #FEE500; color: #1a1a1a; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
+.btn-pwa-main { display: block; width: calc(100% - 28px); margin: 8px 14px 0; padding: 13px; background: #7db8e8; color: #111; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
+.affiliate-notice-box { margin: 16px 14px 0; background: #fffbe6; border: 1px solid #ffe082; border-radius: 12px; padding: 12px 14px; font-size: 11px; color: #7a6000; line-height: 1.7; text-align: center; }
+.site-footer { margin: 16px 14px 0; text-align: center; padding-bottom: 8px; }
+.footer-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
+.footer-link { font-size: 11px; color: #999; text-decoration: none; }
+.footer-dot { font-size: 11px; color: #ccc; }
+
+/* ════════════════════════════════════════
+   서브 페이지 공통
+════════════════════════════════════════ */
+.page { display: none; }
+.page.active { display: block; }
+
+/* 뒤로가기 버튼 */
+.back-btn { display: block; width: calc(100% - 28px); margin: 12px 14px 0; padding: 11px 16px; background: #fce4ec; color: #c62828; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; text-align: left; }
+.back-btn:active { background: #f8bbd0; }
+
+/* 페이지 공통 섹션박스 */
+.page-box { background: #fff; border-radius: 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); margin: 14px 14px 0; overflow: hidden; }
+.page-box-header { padding: 14px 16px 13px; border-bottom: 1px solid #f0f0f0; }
+.page-box-title { font-size: 20px; font-weight: 800; color: #1a1a1a; }
+.page-box-body { padding: 14px; }
+
+/* 로딩 */
+.cult-loading { display: none; text-align: center; padding: 32px 20px; }
+.cult-loading.show { display: block; }
+.cult-loading-icon { font-size: 36px; display: block; margin-bottom: 10px; animation: spin-cult 1s linear infinite; }
+@keyframes spin-cult { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+.cult-loading-txt { font-size: 16px; font-weight: 700; color: #c62828; }
+.cult-loading-sub { font-size: 13px; color: #888; margin-top: 4px; }
+
+/* 에러 */
+.cult-error { display: none; text-align: center; padding: 28px 20px; }
+.cult-error.show { display: block; }
+.cult-error-icon { font-size: 40px; margin-bottom: 10px; }
+.cult-error-txt { font-size: 15px; color: #888; line-height: 1.7; }
+.cult-retry-btn { margin-top: 12px; padding: 10px 24px; background: #c62828; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
+/* 출처 */
+.data-source { font-size: 11px; color: #aaa; text-align: right; margin-top: 10px; padding-top: 8px; border-top: 1px solid #f0f0f0; }
+
+/* 쿠팡 */
+.cult-coupon-wrap { margin-top: 14px; }
+.cult-coupon-label { font-size: 11px; color: #c62828; font-weight: 700; margin-bottom: 6px; }
+.cult-coupon-item { display: flex; align-items: center; gap: 10px; background: #fff9fa; border: 1.5px solid #f8bbd0; border-radius: 12px; padding: 12px; text-decoration: none; color: inherit; -webkit-tap-highlight-color: transparent; }
+.cult-coupon-item:active { background: #fce4ec; }
+.cult-coupon-icon { font-size: 28px; width: 48px; height: 48px; background: #fce4ec; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.cult-coupon-txt { flex: 1; }
+.cult-coupon-txt strong { display: block; font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 2px; }
+.cult-coupon-txt span { font-size: 12px; color: #888; }
+.cult-coupon-arrow { font-size: 18px; color: #c62828; font-weight: 700; }
+
+/* ════════════════════════════════════════
+   페이지1 — 이달의 문화유산 행사
+════════════════════════════════════════ */
+.event-month-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.event-month-label { font-size: 16px; font-weight: 700; color: #c62828; }
+.event-month-btns { display: flex; gap: 6px; }
+.event-month-btn { padding: 6px 12px; border: 2px solid #f8bbd0; border-radius: 20px; background: #fff; font-size: 13px; font-weight: 600; color: #c62828; cursor: pointer; font-family: inherit; }
+.event-month-btn.active { background: #c62828; color: #fff; border-color: #c62828; }
+.event-card { background: #fff9fa; border: 1.5px solid #f8bbd0; border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+.event-card-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+.event-card-img { width: 72px; height: 72px; border-radius: 10px; background: #fce4ec; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 32px; overflow: hidden; }
+.event-card-img img { width: 72px; height: 72px; object-fit: cover; }
+.event-card-info { flex: 1; }
+.event-card-title { font-size: 16px; font-weight: 800; color: #1a1a1a; line-height: 1.4; margin-bottom: 4px; word-break: keep-all; }
+.event-card-place { font-size: 13px; color: #c62828; font-weight: 600; margin-bottom: 3px; }
+.event-card-date { font-size: 12px; color: #888; }
+.event-card-link { display: block; text-align: center; padding: 9px; background: #fce4ec; border-radius: 10px; color: #c62828; font-size: 14px; font-weight: 700; text-decoration: none; }
+.event-empty { text-align: center; padding: 32px 20px; color: #aaa; font-size: 15px; }
+
+/* ════════════════════════════════════════
+   페이지2 — 오늘의 문화재
+════════════════════════════════════════ */
+.heritage-type-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 14px; }
+.heritage-type-btn { padding: 8px 2px; border: 2px solid #f8bbd0; border-radius: 10px; background: #fff; font-size: 12px; font-weight: 600; color: #c62828; cursor: pointer; font-family: inherit; text-align: center; }
+.heritage-type-btn.active { background: #c62828; color: #fff; border-color: #c62828; }
+.heritage-card { background: #fff9fa; border: 1.5px solid #f8bbd0; border-radius: 14px; overflow: hidden; margin-bottom: 10px; }
+.heritage-card-img { width: 100%; height: 180px; background: #fce4ec; display: flex; align-items: center; justify-content: center; font-size: 48px; overflow: hidden; }
+.heritage-card-img img { width: 100%; height: 180px; object-fit: cover; }
+.heritage-card-body { padding: 14px; }
+.heritage-card-badge { display: inline-block; background: #fce4ec; color: #c62828; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 8px; margin-bottom: 8px; }
+.heritage-card-name { font-size: 18px; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; line-height: 1.4; }
+.heritage-card-meta span { display: block; font-size: 13px; color: #888; line-height: 1.8; }
+.heritage-nav { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+.heritage-nav-btn { padding: 8px 18px; background: #fce4ec; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; color: #c62828; cursor: pointer; font-family: inherit; }
+.heritage-nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.heritage-nav-count { font-size: 14px; color: #aaa; font-weight: 600; }
+
+/* ════════════════════════════════════════
+   페이지3 — 문화유산 상식 퀴즈
+════════════════════════════════════════ */
+.quiz-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.quiz-count { font-size: 14px; color: #888; font-weight: 600; }
+.quiz-score-badge { font-size: 14px; font-weight: 700; color: #c62828; background: #fce4ec; padding: 4px 12px; border-radius: 10px; }
+.quiz-card { background: #fff9fa; border: 2px solid #f8bbd0; border-radius: 14px; padding: 18px 14px; }
+.quiz-num { font-size: 13px; color: #c62828; font-weight: 700; margin-bottom: 8px; }
+.quiz-question { font-size: 17px; font-weight: 800; color: #1a1a1a; line-height: 1.6; margin-bottom: 16px; word-break: keep-all; }
+.quiz-options { display: flex; flex-direction: column; gap: 8px; }
+.quiz-option { padding: 13px 14px; background: #fff; border: 2px solid #f8bbd0; border-radius: 12px; font-size: 15px; font-weight: 600; color: #333; cursor: pointer; font-family: inherit; text-align: left; transition: all 0.15s; }
+.quiz-option.correct { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; }
+.quiz-option.wrong   { background: #fce4ec; border-color: #e57373; color: #c62828; }
+.quiz-option.disabled { cursor: not-allowed; }
+.quiz-result-box { display: none; margin-top: 14px; padding: 14px; background: #fce4ec; border-radius: 12px; }
+.quiz-result-box.show { display: block; }
+.quiz-result-icon { font-size: 28px; margin-bottom: 6px; }
+.quiz-result-txt  { font-size: 15px; font-weight: 700; color: #c62828; margin-bottom: 4px; }
+.quiz-result-desc { font-size: 13px; color: #555; line-height: 1.7; }
+.quiz-btn-wrap { display: flex; gap: 8px; margin-top: 14px; }
+.quiz-next-btn    { flex:1; padding:13px; background:#c62828; color:#fff; border:none; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; display:none; }
+.quiz-restart-btn { flex:1; padding:13px; background:#fce4ec; color:#c62828; border:none; border-radius:12px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; }
+.quiz-final { display: none; text-align: center; padding: 24px 14px; }
+.quiz-final.show { display: block; }
+.quiz-final-icon    { font-size: 56px; display: block; margin-bottom: 12px; }
+.quiz-final-score   { font-size: 36px; font-weight: 900; color: #c62828; margin-bottom: 4px; }
+.quiz-final-msg     { font-size: 16px; color: #555; line-height: 1.7; margin-bottom: 16px; }
+.quiz-final-restart { width:100%; padding:14px; background:#c62828; color:#fff; border:none; border-radius:12px; font-size:17px; font-weight:700; cursor:pointer; font-family:inherit; }
+
+/* ════════════════════════════════════════
+   페이지4 — 문화시설 안내
+════════════════════════════════════════ */
+.facility-tab-wrap { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
+.facility-tab { padding: 7px 14px; border: 2px solid #f8bbd0; border-radius: 20px; background: #fff; font-size: 14px; font-weight: 600; color: #c62828; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
+.facility-tab.active { background: #c62828; color: #fff; border-color: #c62828; }
+.facility-card { background: #fff9fa; border: 1.5px solid #f8bbd0; border-radius: 12px; padding: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; -webkit-tap-highlight-color: transparent; }
+.facility-card:active { background: #fce4ec; }
+.facility-icon { font-size: 28px; width: 52px; height: 52px; background: #fce4ec; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.facility-info { flex: 1; }
+.facility-name { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
+.facility-addr { font-size: 12px; color: #888; margin-bottom: 2px; }
+.facility-num  { font-size: 17px; font-weight: 800; color: #c62828; }
+</style>
+
+<div class="wrap">
+
+  <!-- ① 헤더 -->
+  <div class="app-header">
+    <div class="header-left">
+      <span style="font-size:22px;">🌸</span>
+      <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
+    </div>
+    <div class="header-date-box">
+      <span class="header-date-solar" id="date-solar">날짜 로딩중</span>
+      <span class="header-date-lunar" id="date-lunar"></span>
+    </div>
+  </div>
+
+  <!-- ② 홈바 -->
+  <div class="home-bar">
+    <button onclick="history.back()">🏠 홈으로</button>
+  </div>
+
+  <!-- ════════════════════════
+       메인 화면
+  ════════════════════════ -->
+  <div id="main-grid-wrap">
+    <div class="sec-wrap">
+      <div class="sec-title"><em>🎨 문화강좌</em></div>
+      <!-- 3열 그리드 — 아이콘 추가 시 자동 줄바꿈 -->
+      <div class="cat-grid">
+        <button class="cat-item" style="background:#fce4ec;" onclick="goPage('event')">
+          <div class="cat-icon-box" style="background:#fce4ec;">🎪</div>
+          <span class="cat-name" style="color:#c62828;">이달의<br>문화행사</span>
+        </button>
+        <button class="cat-item" style="background:#e3f2fd;" onclick="goPage('heritage')">
+          <div class="cat-icon-box" style="background:#e3f2fd;">🏛️</div>
+          <span class="cat-name" style="color:#1565c0;">오늘의<br>문화재</span>
+        </button>
+        <button class="cat-item" style="background:#fff8e1;" onclick="goPage('quiz')">
+          <div class="cat-icon-box" style="background:#fff8e1;">🧠</div>
+          <span class="cat-name" style="color:#f57f17;">문화유산<br>상식퀴즈</span>
+        </button>
+        <button class="cat-item" style="background:#e8f5e9;" onclick="goPage('facility')">
+          <div class="cat-icon-box" style="background:#e8f5e9;">📍</div>
+          <span class="cat-name" style="color:#2e7d32;">문화시설<br>안내</span>
+        </button>
+        <button class="cat-item" style="background:#fff0e6;" onclick="goPage('festival')">
+          <div class="cat-icon-box" style="background:#fff0e6;">🎉</div>
+          <span class="cat-name" style="color:#e65100;">전국<br>지역축제</span>
+        </button>
+        <button class="cat-item" style="background:#e8f5fe;" onclick="goPage('perf2')">
+          <div class="cat-icon-box" style="background:#e8f5fe;">🎪</div>
+          <span class="cat-name" style="color:#0277bd;">통합<br>공연정보</span>
+        </button>
+        <button class="cat-item" style="background:#f9fbe7;" onclick="goPage('exhi')">
+          <div class="cat-icon-box" style="background:#f9fbe7;">🖼️</div>
+          <span class="cat-name" style="color:#558b2f;">통합<br>전시정보</span>
+        </button>
+        <button class="cat-item" style="background:#fff3e0;" onclick="goPage('museum')">
+          <div class="cat-icon-box" style="background:#fff3e0;">🏺</div>
+          <span class="cat-name" style="color:#e65100;">박물관<br>문화행사</span>
+        </button>
+        <button class="cat-item" style="background:#fce4ec;" onclick="goPage('edu')">
+          <div class="cat-icon-box" style="background:#fce4ec;">📚</div>
+          <span class="cat-name" style="color:#c62828;">문화기관<br>교육정보</span>
+        </button>
+        <!-- 아이콘 추가 시 여기에 계속 넣으면 됨 -->
+      </div>
+    </div>
+
+    <!-- ── 미리보기 섹션1: 이달의 문화행사 ── -->
+    <div style="background:#fff;border-radius:16px;box-shadow:0 1px 5px rgba(0,0,0,0.07);margin:18px 14px 0;overflow:hidden;">
+      <div style="background:#fce4ec;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:18px;font-weight:800;color:#c62828;">🎪 이달의 문화행사</span>
+        <button onclick="goPage('event')" style="background:#c62828;color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">전체보기 →</button>
+      </div>
+      <div style="padding:12px;">
+        <!-- 스켈레톤 로딩 -->
+        <div id="preview-event-loading">
+          <div style="background:#f0f0f0;border-radius:10px;height:54px;margin-bottom:8px;animation:skeleton-ani 1.2s infinite;"></div>
+          <div style="background:#f0f0f0;border-radius:10px;height:54px;margin-bottom:8px;animation:skeleton-ani 1.2s infinite;"></div>
+          <div style="background:#f0f0f0;border-radius:10px;height:54px;animation:skeleton-ani 1.2s infinite;"></div>
+        </div>
+        <!-- 결과 -->
+        <div id="preview-event-list" style="display:none;"></div>
+        <!-- 에러 -->
+        <div id="preview-event-error" style="display:none;text-align:center;padding:16px;color:#aaa;font-size:14px;">😥 정보를 불러오지 못했어요.</div>
+      </div>
+    </div>
+
+    <!-- ── 미리보기 섹션2: 이달의 지역축제 ── -->
+    <div style="background:#fff;border-radius:16px;box-shadow:0 1px 5px rgba(0,0,0,0.07);margin:14px 14px 0;overflow:hidden;">
+      <div style="background:#fff0e6;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:18px;font-weight:800;color:#e65100;">🎉 이달의 지역축제</span>
+        <button onclick="goPage('festival')" style="background:#e65100;color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">전체보기 →</button>
+      </div>
+      <div style="padding:12px;">
+        <!-- 스켈레톤 로딩 -->
+        <div id="preview-festival-loading">
+          <div style="background:#f0f0f0;border-radius:10px;height:54px;margin-bottom:8px;animation:skeleton-ani 1.2s infinite;"></div>
+          <div style="background:#f0f0f0;border-radius:10px;height:54px;margin-bottom:8px;animation:skeleton-ani 1.2s infinite;"></div>
+          <div style="background:#f0f0f0;border-radius:10px;height:54px;animation:skeleton-ani 1.2s infinite;"></div>
+        </div>
+        <!-- 결과 -->
+        <div id="preview-festival-list" style="display:none;"></div>
+        <!-- 에러 -->
+        <div id="preview-festival-error" style="display:none;text-align:center;padding:16px;color:#aaa;font-size:14px;">😥 정보를 불러오지 못했어요.</div>
+      </div>
+    </div>
+
+    <!-- 긴급전화 -->
+    <div class="tel-sec">
+      <div class="tel-card">
+        <div class="tel-card-title">📞 어르신 긴급 전화</div>
+        <a class="tel-card-item" href="tel:1355">
+          <span class="tel-card-icon">🏛</span>
+          <div class="tel-text"><div class="tel-name">국민연금공단</div><div class="tel-desc">연금 상담·신청</div></div>
+          <span class="tel-num">1355</span>
+        </a>
+        <div class="tel-divider"></div>
+        <a class="tel-card-item" href="tel:129">
+          <span class="tel-card-icon">🏥</span>
+          <div class="tel-text"><div class="tel-name">보건복지상담센터</div><div class="tel-desc">복지·의료 상담</div></div>
+          <span class="tel-num">129</span>
+        </a>
+        <div class="tel-divider"></div>
+        <a class="tel-card-item" href="tel:1577-1389">
+          <span class="tel-card-icon">🛡️</span>
+          <div class="tel-text"><div class="tel-name">노인학대 신고센터</div><div class="tel-desc">24시간 신고·상담</div></div>
+          <span class="tel-num">1577-1389</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="affiliate-notice-box">
+      ※ 이 웹앱은 쿠팡파트너스의 제휴마케팅 프로그램에 참여하고 있습니다.<br>
+      이 링크를 통해 구매 시 봄날마당이 일정액의 수수료를 받을 수 있으며, 구매자분께 추가 비용은 없습니다.
+    </div>
+    <button class="btn-kakao-main">💛 카카오톡 친구에게 공유하기</button>
+    <button class="btn-pwa-main">📲 봄날마당 홈화면에 저장하기</button>
+    <footer class="site-footer">
+      <div class="footer-row">
+        <a class="footer-link" href="privacy.html">개인정보처리방침</a><span class="footer-dot">·</span>
+        <a class="footer-link" href="terms.html">이용약관</a><span class="footer-dot">·</span>
+        <a class="footer-link" href="affiliate.html">제휴 공개</a>
+      </div>
+      <div class="footer-row">
+        <a class="footer-link" href="contact.html">문의하기</a><span class="footer-dot">·</span>
+        <a class="footer-link" href="about.html">봄날마당 소개</a>
+      </div>
+    </footer>
+  </div><!-- /main-grid-wrap -->
+
+
+  <!-- ════════════════════════════════════
+       페이지1 — 이달의 문화유산 행사
+  ════════════════════════════════════ -->
+  <div class="page" id="page-event">
+    <button class="back-btn" onclick="goBack()">◀ 문화강좌로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#fce4ec;">
+        <div class="page-box-title" style="color:#c62828;">🎪 이달의 문화유산 행사</div>
+      </div>
+      <div class="page-box-body">
+        <div class="event-month-bar">
+          <span class="event-month-label" id="event-month-label"></span>
+          <div class="event-month-btns">
+            <button class="event-month-btn" onclick="changeMonth(-1)">◀ 이전</button>
+            <button class="event-month-btn active" onclick="changeMonth(0)">이번달</button>
+            <button class="event-month-btn" onclick="changeMonth(1)">다음 ▶</button>
+          </div>
+        </div>
+        <div class="cult-loading" id="event-loading">
+          <span class="cult-loading-icon">🎪</span>
+          <div class="cult-loading-txt">행사 정보를 불러오는 중...</div>
+          <div class="cult-loading-sub">국가유산청 데이터를 확인하고 있어요</div>
+        </div>
+        <div class="cult-error" id="event-error">
+          <div class="cult-error-icon">😥</div>
+          <div class="cult-error-txt">행사 정보를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>
+          <button class="cult-retry-btn" onclick="loadEvents()">다시 시도</button>
+        </div>
+        <div id="event-list"></div>
+        <div class="cult-coupon-wrap">
+          <div class="cult-coupon-label">🛍️ 문화생활 준비물 추천</div>
+          <a onclick="confirmExternalLink('https://link.coupang.com/a/epr05XTGAS');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
+            <span class="cult-coupon-icon">🎒</span>
+            <div class="cult-coupon-txt"><strong>나들이 가방</strong><span>문화행사 나들이에 딱 맞는 가방</span></div>
+            <span class="cult-coupon-arrow">→</span>
+          </a>
+        </div>
+        <div class="data-source">※ 출처: 국가유산청 문화유산 행사정보 (khs.go.kr)</div>
+      </div>
+    </div>
+  </div><!-- /page-event -->
+
+
+  <!-- ════════════════════════════════════
+       페이지2 — 오늘의 문화재
+  ════════════════════════════════════ -->
+  <div class="page" id="page-heritage">
+    <button class="back-btn" onclick="goBack()">◀ 문화강좌로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#e3f2fd;">
+        <div class="page-box-title" style="color:#1565c0;">🏛️ 오늘의 문화재</div>
+      </div>
+      <div class="page-box-body">
+        <div class="heritage-type-grid">
+          <button class="heritage-type-btn active" onclick="loadHeritage('11',this)">🏆 국보</button>
+          <button class="heritage-type-btn" onclick="loadHeritage('12',this)">💎 보물</button>
+          <button class="heritage-type-btn" onclick="loadHeritage('13',this)">🗺️ 사적</button>
+          <button class="heritage-type-btn" onclick="loadHeritage('15',this)">🌿 천연기념물</button>
+        </div>
+        <div class="cult-loading" id="heritage-loading">
+          <span class="cult-loading-icon">🏛️</span>
+          <div class="cult-loading-txt">문화재 정보를 불러오는 중...</div>
+          <div class="cult-loading-sub">국가유산청 데이터를 확인하고 있어요</div>
+        </div>
+        <div class="cult-error" id="heritage-error">
+          <div class="cult-error-icon">😥</div>
+          <div class="cult-error-txt">문화재 정보를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>
+          <button class="cult-retry-btn" onclick="loadHeritage(currentHeritageType,null)">다시 시도</button>
+        </div>
+        <div id="heritage-card-wrap"></div>
+        <div class="cult-coupon-wrap" style="margin-top:16px;">
+          <div class="cult-coupon-label">🛍️ 역사 공부 추천</div>
+          <a onclick="confirmExternalLink('https://link.coupang.com/a/eprrnP9xhQ');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
+            <span class="cult-coupon-icon">📖</span>
+            <div class="cult-coupon-txt"><strong>한국사 베스트셀러</strong><span>우리 역사를 더 깊게 알아보세요</span></div>
+            <span class="cult-coupon-arrow">→</span>
+          </a>
+        </div>
+        <div class="data-source">※ 출처: 국가유산청 국가유산정보 공개 API (khs.go.kr)</div>
+      </div>
+    </div>
+  </div><!-- /page-heritage -->
+
+
+  <!-- ════════════════════════════════════
+       페이지3 — 문화유산 상식 퀴즈
+  ════════════════════════════════════ -->
+  <div class="page" id="page-quiz">
+    <button class="back-btn" onclick="goBack()">◀ 문화강좌로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#fff8e1;">
+        <div class="page-box-title" style="color:#f57f17;">🧠 문화유산 상식 퀴즈</div>
+      </div>
+      <div class="page-box-body">
+        <div id="quiz-main">
+          <div class="quiz-header">
+            <span class="quiz-count" id="quiz-count-txt">1 / 30</span>
+            <span class="quiz-score-badge" id="quiz-score-txt">점수: 0점</span>
+          </div>
+          <div class="quiz-card">
+            <div class="quiz-num" id="quiz-num">문제 1</div>
+            <div class="quiz-question" id="quiz-question"></div>
+            <div class="quiz-options" id="quiz-options"></div>
+            <div class="quiz-result-box" id="quiz-result-box">
+              <div class="quiz-result-icon" id="quiz-result-icon"></div>
+              <div class="quiz-result-txt"  id="quiz-result-txt"></div>
+              <div class="quiz-result-desc" id="quiz-result-desc"></div>
+            </div>
+          </div>
+          <div class="quiz-btn-wrap">
+            <button class="quiz-restart-btn" onclick="restartQuiz()">🔄 처음부터</button>
+            <button class="quiz-next-btn" id="quiz-next-btn" onclick="nextQuiz()">다음 문제 →</button>
+          </div>
+        </div>
+        <div class="quiz-final" id="quiz-final">
+          <span class="quiz-final-icon"  id="quiz-final-icon"></span>
+          <div class="quiz-final-score" id="quiz-final-score"></div>
+          <div class="quiz-final-msg"   id="quiz-final-msg"></div>
+          <button class="quiz-final-restart" onclick="restartQuiz()">🔄 다시 풀기</button>
+        </div>
+        <div class="cult-coupon-wrap" style="margin-top:16px;">
+          <div class="cult-coupon-label">🛍️ 두뇌 활성화 추천</div>
+          <a onclick="confirmExternalLink('https://link.coupang.com/a/eprIwyvJAq');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
+            <span class="cult-coupon-icon">📱</span>
+            <div class="cult-coupon-txt"><strong>스마트폰 활용 도서</strong><span>퀴즈로 두뇌를 깨워보세요</span></div>
+            <span class="cult-coupon-arrow">→</span>
+          </a>
+        </div>
+        <div class="data-source">※ 문화유산 정보 출처: 국가유산청 (khs.go.kr)</div>
+      </div>
+    </div>
+  </div><!-- /page-quiz -->
+
+
+  <!-- ════════════════════════════════════
+       페이지4 — 문화시설 안내
+  ════════════════════════════════════ -->
+  <div class="page" id="page-facility">
+    <button class="back-btn" onclick="goBack()">◀ 문화강좌로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#e8f5e9;">
+        <div class="page-box-title" style="color:#2e7d32;">📍 문화시설 안내</div>
+      </div>
+      <div class="page-box-body">
+        <div class="facility-tab-wrap">
+          <button class="facility-tab active" onclick="showFacility('museum',this)">🏛️ 국립박물관</button>
+          <button class="facility-tab" onclick="showFacility('palace',this)">🏯 궁궐·유적</button>
+          <button class="facility-tab" onclick="showFacility('center',this)">🎭 문화원</button>
+          <button class="facility-tab" onclick="showFacility('library',this)">📚 도서관</button>
+        </div>
+        <div id="facility-list"></div>
+        <div class="cult-coupon-wrap" style="margin-top:14px;">
+          <div class="cult-coupon-label">🛍️ 나들이 준비 추천</div>
+          <a onclick="confirmExternalLink('https://link.coupang.com/a/eprPjdkp2W');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
+            <span class="cult-coupon-icon">🍵</span>
+            <div class="cult-coupon-txt"><strong>보온 텀블러</strong><span>박물관 나들이 필수품</span></div>
+            <span class="cult-coupon-arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div><!-- /page-facility -->
+
+
+  <!-- ════════════════════════════════════
+       페이지5 — 공연·전시 정보 (문화포털)
+  ════════════════════════════════════ -->
+  <div class="page" id="page-festival">
+    <button class="back-btn" onclick="goBack()">◀ 문화강좌로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#fff0e6;">
+        <div class="page-box-title" style="color:#e65100;">🎉 전국 지역축제</div>
+      </div>
+      <div class="page-box-body">
+        <div class="facility-tab-wrap">
+          <button class="festival-tab facility-tab active" onclick="loadFestival('',this)">🎯 전체</button>
+          <button class="festival-tab facility-tab" onclick="loadFestival('서울',this)">🏙️ 서울</button>
+          <button class="festival-tab facility-tab" onclick="loadFestival('경기',this)">🌆 경기</button>
+          <button class="festival-tab facility-tab" onclick="loadFestival('강원',this)">⛰️ 강원</button>
+          <button class="festival-tab facility-tab" onclick="loadFestival('충청',this)">🌾 충청</button>
+          <button class="festival-tab facility-tab" onclick="loadFestival('전라',this)">🌊 전라</button>
+          <button class="festival-tab facility-tab" onclick="loadFestival('경상',this)">🌸 경상</button>
+          <button class="festival-tab facility-tab" onclick="loadFestival('제주',this)">🏝️ 제주</button>
+        </div>
+        <div class="cult-loading" id="festival-loading">
+          <span class="cult-loading-icon">🎉</span>
+          <div class="cult-loading-txt">축제 정보를 불러오는 중...</div>
+          <div class="cult-loading-sub">문화체육관광부 데이터를 확인하고 있어요</div>
+        </div>
+        <div class="cult-error" id="festival-error">
+          <div class="cult-error-icon">😥</div>
+          <div class="cult-error-txt">축제 정보를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>
+          <button class="cult-retry-btn" onclick="loadFestival('',null)">다시 시도</button>
+        </div>
+        <div id="festival-list"></div>
+        <div id="festival-more-wrap" style="display:none;margin-top:10px;">
+          <button onclick="loadMoreFestival()" style="width:100%;padding:12px;background:#fff0e6;color:#e65100;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+        </div>
+        <div class="cult-coupon-wrap" style="margin-top:16px;">
+          <div class="cult-coupon-label">🛍️ 축제 나들이 준비 추천</div>
+          <a onclick="confirmExternalLink('https://link.coupang.com/a/epr05XTGAS');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
+            <span class="cult-coupon-icon">🎒</span>
+            <div class="cult-coupon-txt"><strong>나들이 가방</strong><span>축제 나들이에 딱 맞는 가방</span></div>
+            <span class="cult-coupon-arrow">→</span>
+          </a>
+        </div>
+        <div class="data-source">※ 출처: 문화체육관광부 지역축제정보 (api.kcisa.kr)</div>
+      </div>
+    </div>
+  </div><!-- /page-festival -->
+
+  <!-- ════════════════════════════════════
+       페이지6 — 통합 공연정보 (API_CCA_144)
+  ════════════════════════════════════ -->
+  <div class="page" id="page-perf2">
+    <button class="back-btn" onclick="goBack()">◀ 문화강좌로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#e8f5fe;">
+        <div class="page-box-title" style="color:#0277bd;">🎪 통합 공연정보</div>
+      </div>
+      <div class="page-box-body">
+        <div class="facility-tab-wrap">
+          <button class="perf2-tab facility-tab active" onclick="loadKcisa('perf2',this,'')">🎯 전체</button>
+          <button class="perf2-tab facility-tab" onclick="loadKcisa('perf2',this,'연극')">🎭 연극</button>
+          <button class="perf2-tab facility-tab" onclick="loadKcisa('perf2',this,'뮤지컬')">🎬 뮤지컬</button>
+          <button class="perf2-tab facility-tab" onclick="loadKcisa('perf2',this,'국악')">🥁 국악</button>
+          <button class="perf2-tab facility-tab" onclick="loadKcisa('perf2',this,'무용')">💃 무용</button>
+          <button class="perf2-tab facility-tab" onclick="loadKcisa('perf2',this,'콘서트')">🎵 콘서트</button>
+        </div>
+        <div class="cult-loading" id="perf2-loading">
+          <span class="cult-loading-icon">🎪</span>
+          <div class="cult-loading-txt">공연 정보를 불러오는 중...</div>
+          <div class="cult-loading-sub">문화체육관광부 통합 데이터 확인 중</div>
+        </div>
+        <div class="cult-error" id="perf2-error">
+          <div class="cult-error-icon">😥</div>
+          <div class="cult-error-txt">공연 정보를 불러오지 못했어요.</div>
+          <button class="cult-retry-btn" onclick="loadKcisa('perf2',null,'')">다시 시도</button>
+        </div>
+        <div id="perf2-list"></div>
+        <div id="perf2-more-wrap" style="display:none;margin-top:10px;">
+          <button onclick="loadMoreKcisa('perf2')" style="width:100%;padding:12px;background:#e8f5fe;color:#0277bd;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+        </div>
+        <div class="cult-coupon-wrap" style="margin-top:14px;">
+          <div class="cult-coupon-label">🛍️ 공연 관람 준비 추천</div>
+          <a onclick="confirmExternalLink('https://link.coupang.com/a/eprPjdkp2W');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
+            <span class="cult-coupon-icon">🧣</span>
+            <div class="cult-coupon-txt"><strong>공연장 필수 아이템</strong><span>쾌적한 공연 관람을 위해</span></div>
+            <span class="cult-coupon-arrow">→</span>
+          </a>
+        </div>
+        <div class="data-source">※ 출처: 문화체육관광부 공연정보 통합 API (api.kcisa.kr)</div>
+      </div>
+    </div>
+  </div><!-- /page-perf2 -->
+
+  <!-- ════════════════════════════════════
+       페이지7 — 통합 전시정보 (API_CCA_145)
+  ════════════════════════════════════ -->
+  <div class="page" id="page-exhi">
+    <button class="back-btn" onclick="goBack()">◀ 문화강좌로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#f9fbe7;">
+        <div class="page-box-title" style="color:#558b2f;">🖼️ 통합 전시정보</div>
+      </div>
+      <div class="page-box-body">
+        <div class="facility-tab-wrap">
+          <button class="exhi-tab facility-tab active" onclick="loadKcisa('exhi',this,'')">🎯 전체</button>
+          <button class="exhi-tab facility-tab" onclick="loadKcisa('exhi',this,'미술')">🎨 미술</button>
+          <button class="exhi-tab facility-tab" onclick="loadKcisa('exhi',this,'사진')">📷 사진</button>
+          <button class="exhi-tab facility-tab" onclick="loadKcisa('exhi',this,'역사')">📜 역사</button>
+          <button class="exhi-tab facility-tab" onclick="loadKcisa('exhi',this,'과학')">🔬 과학</button>
+        </div>
+        <div class="cult-loading" id="exhi-loading">
+          <span class="cult-loading-icon">🖼️</span>
+          <div class="cult-loading-txt">전시 정보를 불러오는 중...</div>
+          <div class="cult-loading-sub">문화체육관광부 통합 데이터 확인 중</div>
+        </div>
+        <div class="cult-error" id="exhi-error">
+          <div class="cult-error-icon">😥</div>
+          <div class="cult-error-txt">전시 정보를 불러오지 못했어요.</div>
+          <button class="cult-retry-btn" onclick="loadKcisa('exhi',null,'')">다시 시도</button>
+        </div>
+        <div id="exhi-list"></div>
+        <div id="exhi-more-wrap" style="display:none;margin-top:10px;">
+          <button onclick="loadMoreKcisa('exhi')" style="width:100%;padding:12px;background:#f9fbe7;color:#558b2f;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+        </div>
+        <div class="cult-coupon-wrap" style="margin-top:14px;">
+          <div class="cult-coupon-label">🛍️ 전시 관람 준비 추천</div>
+          <a onclick="confirmExternalLink('https://link.coupang.com/a/eprPjdkp2W');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
+            <span class="cult-coupon-icon">👜</span>
+            <div class="cult-coupon-txt"><strong>나들이 가방</strong><span>전시 관람에 딱 맞는 가방</span></div>
+            <span class="cult-coupon-arrow">→</span>
+          </a>
+        </div>
+        <div class="data-source">※ 출처: 문화체육관광부 전시정보 통합 API (api.kcisa.kr)</div>
+      </div>
+    </div>
+  </div><!-- /page-exhi -->
+
+  <!-- ════════════════════════════════════
+       페이지8 — 국립박물관 문화행사 (API_CNV_043)
+  ════════════════════════════════════ -->
+  <div class="page" id="page-museum">
+    <button class="back-btn" onclick="goBack()">◀ 문화강좌로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#fff3e0;">
+        <div class="page-box-title" style="color:#e65100;">🏺 박물관 문화행사</div>
+      </div>
+      <div class="page-box-body">
+        <div class="cult-loading" id="museum-loading">
+          <span class="cult-loading-icon">🏺</span>
+          <div class="cult-loading-txt">박물관 행사 정보를 불러오는 중...</div>
+          <div class="cult-loading-sub">국립중앙박물관 데이터 확인 중</div>
+        </div>
+        <div class="cult-error" id="museum-error">
+          <div class="cult-error-icon">😥</div>
+          <div class="cult-error-txt">박물관 행사 정보를 불러오지 못했어요.</div>
+          <button class="cult-retry-btn" onclick="loadKcisa('museum',null,'')">다시 시도</button>
+        </div>
+        <div id="museum-list"></div>
+        <div id="museum-more-wrap" style="display:none;margin-top:10px;">
+          <button onclick="loadMoreKcisa('museum')" style="width:100%;padding:12px;background:#fff3e0;color:#e65100;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+        </div>
+        <div class="cult-coupon-wrap" style="margin-top:14px;">
+          <div class="cult-coupon-label">🛍️ 박물관 나들이 추천</div>
+          <a onclick="confirmExternalLink('https://link.coupang.com/a/eprPjdkp2W');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
+            <span class="cult-coupon-icon">🍵</span>
+            <div class="cult-coupon-txt"><strong>보온 텀블러</strong><span>박물관 나들이 필수품</span></div>
+            <span class="cult-coupon-arrow">→</span>
+          </a>
+        </div>
+        <div class="data-source">※ 출처: 국립중앙박물관 외 국립지방박물관 문화행사 통합 API (api.kcisa.kr)</div>
+      </div>
+    </div>
+  </div><!-- /page-museum -->
+
+  <!-- ════════════════════════════════════
+       페이지9 — 문화기관 교육정보 (conver3)
+  ════════════════════════════════════ -->
+  <div class="page" id="page-edu">
+    <button class="back-btn" onclick="goBack()">◀ 문화강좌로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#fce4ec;">
+        <div class="page-box-title" style="color:#c62828;">📚 문화기관 교육정보</div>
+      </div>
+      <div class="page-box-body">
+        <div class="cult-loading" id="edu-loading">
+          <span class="cult-loading-icon">📚</span>
+          <div class="cult-loading-txt">교육 프로그램을 불러오는 중...</div>
+          <div class="cult-loading-sub">국립극장·국립현대미술관 등 확인 중</div>
+        </div>
+        <div class="cult-error" id="edu-error">
+          <div class="cult-error-icon">😥</div>
+          <div class="cult-error-txt">교육 정보를 불러오지 못했어요.</div>
+          <button class="cult-retry-btn" onclick="loadKcisa('edu',null,'')">다시 시도</button>
+        </div>
+        <div id="edu-list"></div>
+        <div id="edu-more-wrap" style="display:none;margin-top:10px;">
+          <button onclick="loadMoreKcisa('edu')" style="width:100%;padding:12px;background:#fce4ec;color:#c62828;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+        </div>
+        <div class="cult-coupon-wrap" style="margin-top:14px;">
+          <div class="cult-coupon-label">🛍️ 문화 교육 준비 추천</div>
+          <a onclick="confirmExternalLink('https://link.coupang.com/a/eprIwyvJAq');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
+            <span class="cult-coupon-icon">📝</span>
+            <div class="cult-coupon-txt"><strong>노트·필기구 세트</strong><span>문화 강좌 필기 준비</span></div>
+            <span class="cult-coupon-arrow">→</span>
+          </a>
+        </div>
+        <div class="data-source">※ 출처: 인천문화재단 외 소속·산하기관 교육정보 API (api.kcisa.kr)</div>
+      </div>
+    </div>
+  </div><!-- /page-edu -->
+
+</div><!-- /wrap -->
+
+<script>
+/* ════════════════════════════════════════════
+   날짜 표시
+════════════════════════════════════════════ */
+(function(){
+  var d = new Date();
+  var days = ['일','월','화','수','목','금','토'];
+  document.getElementById('date-solar').textContent =
+    (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
+  fetch('/api/lunar?year='+d.getFullYear())
+    .then(function(r){ return r.json(); }).catch(function(){ return null; })
+    .then(function(data){
+      if(!data||!data.ok) return;
+      var mm = String(d.getMonth()+1).padStart(2,'0');
+      var dd = String(d.getDate()).padStart(2,'0');
+      var key = d.getFullYear()+'-'+mm+'-'+dd;
+      if(data.holidays&&data.holidays[key]){
+        document.getElementById('date-lunar').textContent='🎉 '+data.holidays[key];
+      }
+    });
+})();
+
+/* ════════════════════════════════════════════
+   메인 미리보기 — 이달의 문화행사 (5개)
+════════════════════════════════════════════ */
+(function(){
+  var now   = new Date();
+  var year  = now.getFullYear();
+  var month = String(now.getMonth()+1).padStart(2,'0');
+
+  fetch('/api/culture?type=event&year='+year+'&month='+month)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      document.getElementById('preview-event-loading').style.display='none';
+      if(!data.ok||!data.items||data.items.length===0){
+        document.getElementById('preview-event-error').style.display='block';
+        return;
+      }
+      var items = data.items.slice(0,5); // 최대 5개
+      var html  = '';
+      items.forEach(function(item){
+        var dateStr = (item.startDate&&item.endDate)
+          ? item.startDate+' ~ '+item.endDate
+          : (item.startDate||'');
+        html += '<div style="background:#fff9fa;border:1.5px solid #f8bbd0;border-radius:10px;padding:11px 13px;margin-bottom:7px;">'
+          +'<div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px;word-break:keep-all;">'+item.title+'</div>'
+          +(item.place?'<div style="font-size:12px;color:#c62828;font-weight:600;">📍 '+item.place+'</div>':'')
+          +(dateStr?'<div style="font-size:12px;color:#888;">📅 '+dateStr+'</div>':'')
+          +'</div>';
+      });
+      document.getElementById('preview-event-list').innerHTML = html;
+      document.getElementById('preview-event-list').style.display='block';
+    })
+    .catch(function(){
+      document.getElementById('preview-event-loading').style.display='none';
+      document.getElementById('preview-event-error').style.display='block';
+    });
+})();
+
+/* ════════════════════════════════════════════
+   메인 미리보기 — 이달의 지역축제 (5개)
+════════════════════════════════════════════ */
+(function(){
+  fetch('/api/culture?type=festival&rows=5&cPage=1')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      document.getElementById('preview-festival-loading').style.display='none';
+      if(!data.ok||!data.items||data.items.length===0){
+        document.getElementById('preview-festival-error').style.display='block';
+        return;
+      }
+      var items = data.items.slice(0,5); // 최대 5개
+      var html  = '';
+      items.forEach(function(item){
+        html += '<div style="background:#fffaf7;border:1.5px solid #ffccbc;border-radius:10px;padding:11px 13px;margin-bottom:7px;">'
+          +'<div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px;word-break:keep-all;">'+item.title+'</div>'
+          +(item.region?'<div style="font-size:12px;color:#e65100;font-weight:600;">📍 '+item.region+'</div>':'')
+          +(item.period?'<div style="font-size:12px;color:#888;">📅 '+item.period+'</div>':'')
+          +'</div>';
+      });
+      document.getElementById('preview-festival-list').innerHTML = html;
+      document.getElementById('preview-festival-list').style.display='block';
+    })
+    .catch(function(){
+      document.getElementById('preview-festival-loading').style.display='none';
+      document.getElementById('preview-festival-error').style.display='block';
+    });
+})();
+
+/* ════════════════════════════════════════════
+   화면 전환 — goPage / goBack (운세와 동일 구조)
+════════════════════════════════════════════ */
+var PAGES = ['event','heritage','quiz','facility','festival','perf2','exhi','museum','edu'];
+
+function goPage(name) {
+  /* 메인 숨김 */
+  document.getElementById('main-grid-wrap').style.display = 'none';
+  /* 모든 페이지 숨김 */
+  PAGES.forEach(function(p){
+    document.getElementById('page-'+p).classList.remove('active');
+  });
+  /* 해당 페이지 표시 */
+  document.getElementById('page-'+name).classList.add('active');
+  window.scrollTo(0,0);
+
+  /* 첫 진입 시 데이터 로드 */
+  if(name==='event'   && !eventLoaded)    loadEvents();
+  if(name==='heritage'&& !heritageLoaded) loadHeritage('11', document.querySelector('.heritage-type-btn'));
+  if(name==='quiz'    && !quizStarted)    startQuiz();
+  if(name==='facility'&& !facilityLoaded) showFacility('museum', document.querySelector('.facility-tab'));
+  if(name==='festival'   && !festivalLoaded)    loadFestival('', document.querySelector('.festival-tab'));
+  if(name==='perf2'      && !perf2Loaded)       loadKcisa('perf2',   document.querySelector('.perf2-tab'));
+  if(name==='exhi'       && !exhiLoaded)        loadKcisa('exhi',    document.querySelector('.exhi-tab'));
+  if(name==='museum'     && !museumLoaded)      loadKcisa('museum',  null);
+  if(name==='edu'        && !eduLoaded)         loadKcisa('edu',     null);
+}
+
+function goBack() {
+  PAGES.forEach(function(p){
+    document.getElementById('page-'+p).classList.remove('active');
+  });
+  document.getElementById('main-grid-wrap').style.display = 'block';
+  window.scrollTo(0,0);
+}
+
+/* ════════════════════════════════════════════
+   페이지1 — 이달의 문화유산 행사
+════════════════════════════════════════════ */
+var eventLoaded = false;
+var eventYear, eventMonth;
+
+(function(){
+  var now = new Date();
+  eventYear  = now.getFullYear();
+  eventMonth = now.getMonth() + 1;
+})();
+
+function changeMonth(offset) {
+  var now = new Date();
+  if(offset===0){ eventYear=now.getFullYear(); eventMonth=now.getMonth()+1; }
+  else {
+    eventMonth += offset;
+    if(eventMonth<1){ eventMonth=12; eventYear--; }
+    if(eventMonth>12){ eventMonth=1; eventYear++; }
+  }
+  document.querySelectorAll('.event-month-btn').forEach(function(b){ b.classList.remove('active'); });
+  if(offset===0) document.querySelectorAll('.event-month-btn')[1].classList.add('active');
+  eventLoaded = false;
+  loadEvents();
+}
+
+function loadEvents() {
+  eventLoaded = true;
+  document.getElementById('event-month-label').textContent = eventYear+'년 '+eventMonth+'월';
+  document.getElementById('event-loading').classList.add('show');
+  document.getElementById('event-error').classList.remove('show');
+  document.getElementById('event-list').innerHTML = '';
+
+  var month = String(eventMonth).padStart(2,'0');
+  fetch('/api/culture?type=event&year='+eventYear+'&month='+month)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      document.getElementById('event-loading').classList.remove('show');
+      if(!data.ok||!data.items||data.items.length===0){
+        document.getElementById('event-list').innerHTML =
+          '<div class="event-empty">😊 이번 달 등록된 행사가 없어요.<br>다음 달을 확인해 보세요!</div>';
+        return;
+      }
+      renderEvents(data.items);
+    })
+    .catch(function(){
+      document.getElementById('event-loading').classList.remove('show');
+      document.getElementById('event-error').classList.add('show');
+    });
+}
+
+function renderEvents(items) {
+  var html = '';
+  items.forEach(function(item){
+    var imgHtml = item.imgUrl
+      ? '<img src="'+item.imgUrl+'" onerror="this.style.display=\'none\'">'
+      : '<span style="font-size:32px;">🎪</span>';
+    var dateStr = (item.startDate&&item.endDate) ? item.startDate+' ~ '+item.endDate : (item.startDate||'');
+    var linkHtml = item.linkUrl
+      ? '<a class="event-card-link" href="#" onclick="confirmExternalLink(\''+item.linkUrl+'\');return false;">📋 행사 상세보기</a>' : '';
+    html += '<div class="event-card">'
+      +'<div class="event-card-top"><div class="event-card-img">'+imgHtml+'</div>'
+      +'<div class="event-card-info">'
+      +'<div class="event-card-title">'+item.title+'</div>'
+      +(item.place?'<div class="event-card-place">📍 '+item.place+'</div>':'')
+      +(dateStr?'<div class="event-card-date">📅 '+dateStr+'</div>':'')
+      +'</div></div>'
+      +(item.subTitle?'<div style="font-size:13px;color:#555;margin-bottom:8px;line-height:1.6;">'+item.subTitle+'</div>':'')
+      +linkHtml+'</div>';
+  });
+  document.getElementById('event-list').innerHTML = html;
+}
+
+/* ════════════════════════════════════════════
+   페이지2 — 오늘의 문화재
+════════════════════════════════════════════ */
+var heritageLoaded = false;
+var currentHeritageType = '11';
+var heritageItems = [];
+var heritageIndex = 0;
+var heritageImgCache = {};
+
+function loadHeritage(kdcd, btnEl) {
+  currentHeritageType = kdcd;
+  heritageLoaded = true;
+  heritageIndex = 0;
+  heritageItems = [];
+  document.querySelectorAll('.heritage-type-btn').forEach(function(b){ b.classList.remove('active'); });
+  if(btnEl) btnEl.classList.add('active');
+  document.getElementById('heritage-loading').classList.add('show');
+  document.getElementById('heritage-error').classList.remove('show');
+  document.getElementById('heritage-card-wrap').innerHTML = '';
+
+  fetch('/api/culture?type=list&ccbaKdcd='+kdcd+'&pageUnit=10&pageIndex=1')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      document.getElementById('heritage-loading').classList.remove('show');
+      if(!data.ok||!data.items||data.items.length===0){
+        document.getElementById('heritage-error').classList.add('show'); return;
+      }
+      heritageItems = data.items;
+      renderHeritageCard(0);
+    })
+    .catch(function(){
+      document.getElementById('heritage-loading').classList.remove('show');
+      document.getElementById('heritage-error').classList.add('show');
+    });
+}
+
+function renderHeritageCard(idx) {
+  var item = heritageItems[idx];
+  if(!item) return;
+  var typeNames = {'11':'국보','12':'보물','13':'사적','14':'명승','15':'천연기념물'};
+  var typeName = typeNames[currentHeritageType]||'문화재';
+  var html = '<div class="heritage-card">'
+    +'<div class="heritage-card-img" id="h-img-'+idx+'"><span style="font-size:48px;">🏛️</span></div>'
+    +'<div class="heritage-card-body">'
+    +'<span class="heritage-card-badge">'+typeName+' '+item.ccbaCpno+'</span>'
+    +'<div class="heritage-card-name">'+item.ccmaName+'</div>'
+    +'<div class="heritage-card-meta">'
+    +(item.ccdeSijo?'<span>📅 시대: '+item.ccdeSijo+'</span>':'')
+    +(item.ccbaAdmin?'<span>📍 소재지: '+item.ccbaAdmin+'</span>':'')
+    +'</div>'
+    +'<div class="heritage-nav">'
+    +'<button class="heritage-nav-btn" onclick="changeHeritage(-1)" '+(idx===0?'disabled':'')+'">◀ 이전</button>'
+    +'<span class="heritage-nav-count">'+(idx+1)+' / '+heritageItems.length+'</span>'
+    +'<button class="heritage-nav-btn" onclick="changeHeritage(1)" '+(idx===heritageItems.length-1?'disabled':'')+'">다음 ▶</button>'
+    +'</div></div></div>';
+  document.getElementById('heritage-card-wrap').innerHTML = html;
+
+  /* 이미지 로드 */
+  if(item.ccbaAsno&&item.ccbaCtcd){
+    var cKey = currentHeritageType+'_'+item.ccbaAsno;
+    if(heritageImgCache[cKey]){
+      setHImg(idx, heritageImgCache[cKey]);
+    } else {
+      fetch('/api/culture?type=image&ccbaKdcd='+currentHeritageType+'&ccbaAsno='+item.ccbaAsno+'&ccbaCtcd='+item.ccbaCtcd)
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          if(d.ok&&d.images&&d.images.length>0){
+            heritageImgCache[cKey]=d.images[0];
+            setHImg(idx,d.images[0]);
+          }
+        }).catch(function(){});
+    }
+  }
+}
+
+function setHImg(idx, url){
+  var el = document.getElementById('h-img-'+idx);
+  if(el) el.innerHTML='<img src="'+url+'" style="width:100%;height:180px;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<span style=font-size:48px>🏛️</span>\'">';
+}
+
+function changeHeritage(offset){
+  var n = heritageIndex + offset;
+  if(n<0||n>=heritageItems.length) return;
+  heritageIndex = n;
+  renderHeritageCard(heritageIndex);
+}
+
+/* ════════════════════════════════════════════
+   페이지3 — 문화유산 상식 퀴즈 (30문제)
+════════════════════════════════════════════ */
+var QUIZ_DATA = [
+  {q:'우리나라 국보 1호는 무엇인가요?',opts:['숭례문(남대문)','경복궁','첨성대','석굴암'],ans:0,desc:'숭례문은 조선 태조 때 세워진 서울의 남쪽 대문으로, 국보 제1호입니다.'},
+  {q:'경주에 있는 신라 시대 천문대는 무엇인가요?',opts:['석굴암','첨성대','불국사','안압지'],ans:1,desc:'첨성대는 선덕여왕 때 만들어진 동아시아에서 가장 오래된 천문대입니다.'},
+  {q:'석굴암과 불국사는 어느 시대에 만들어졌나요?',opts:['고구려','백제','신라','고려'],ans:2,desc:'석굴암과 불국사는 통일신라 시대(751년)에 만들어졌으며 유네스코 세계유산입니다.'},
+  {q:'조선시대 왕궁 중 가장 큰 궁궐은 무엇인가요?',opts:['창덕궁','경복궁','덕수궁','창경궁'],ans:1,desc:'경복궁은 조선 태조 이성계가 세운 조선의 정궁(으뜸 궁궐)입니다.'},
+  {q:'판소리는 어느 나라의 전통 예술인가요?',opts:['중국','일본','한국','몽골'],ans:2,desc:'판소리는 한국의 전통 성악 예술로 2003년 유네스코 인류무형유산에 등재되었습니다.'},
+  {q:'훈민정음(한글)을 만든 조선의 왕은 누구인가요?',opts:['태조','세종대왕','태종','성종'],ans:1,desc:'세종대왕은 1443년 훈민정음을 창제했습니다. 훈민정음 해례본은 유네스코 세계기록유산입니다.'},
+  {q:'강강술래는 주로 어느 명절에 행해지는 놀이인가요?',opts:['설날','추석','단오','대보름'],ans:1,desc:'강강술래는 추석 보름달 아래 여성들이 원을 그리며 춤추는 전통 놀이로 유네스코 무형유산입니다.'},
+  {q:'세계에서 가장 오래된 금속활자본은 무엇인가요?',opts:['팔만대장경','직지심체요절','무구정광대다라니경','훈민정음'],ans:1,desc:'직지심체요절은 1377년 고려시대에 만들어진 세계 최초의 금속활자 인쇄본입니다.'},
+  {q:'팔만대장경은 어디에 보관되어 있나요?',opts:['경복궁','해인사','불국사','통도사'],ans:1,desc:'팔만대장경은 경남 합천 해인사 장경판전에 보관되어 있으며 유네스코 세계유산입니다.'},
+  {q:'조선왕조실록은 총 몇 년의 역사를 기록했나요?',opts:['약 200년','약 300년','약 400년','약 500년'],ans:3,desc:'조선왕조실록은 태조부터 철종까지 472년간의 역사를 기록한 세계 최대 규모의 역사서입니다.'},
+  {q:'경주 불국사 석가탑의 다른 이름은 무엇인가요?',opts:['다보탑','무영탑','동탑','서탑'],ans:1,desc:'석가탑은 무영탑(그림자 없는 탑)이라고도 불립니다.'},
+  {q:'조선시대 과거시험 1등을 무엇이라 했나요?',opts:['장원','수석','갑제','일등'],ans:0,desc:'장원(壯元)은 과거시험에서 1등을 한 사람을 말합니다. 율곡 이이는 9번 장원을 했습니다.'},
+  {q:'탈춤에서 사용하는 탈은 무슨 재료로 주로 만들었나요?',opts:['쇠','나무','돌','흙'],ans:1,desc:'전통 탈은 주로 나무, 종이, 바가지 등으로 만들었습니다. 하회탈은 나무로 만든 대표적 탈입니다.'},
+  {q:'씨름이 유네스코 인류무형유산에 등재된 해는?',opts:['2001년','2010년','2018년','2020년'],ans:2,desc:'씨름은 2018년 남북한 공동으로 유네스코 인류무형유산에 등재된 전통 스포츠입니다.'},
+  {q:'고려청자의 특징적인 색깔은 무엇인가요?',opts:['붉은색','파란빛 녹색(비색)','흰색','검은색'],ans:1,desc:'고려청자는 비색(翡色)이라 불리는 맑은 파란빛 녹색으로 유명합니다.'},
+  {q:'그네뛰기는 주로 어느 명절에 즐겼나요?',opts:['설날','추석','단오','대보름'],ans:2,desc:'단오(음력 5월 5일)에는 여성들이 그네를 타고 남성들은 씨름을 하는 전통이 있습니다.'},
+  {q:'서울의 5대 궁궐이 아닌 것은?',opts:['경복궁','창덕궁','수원화성','경희궁'],ans:2,desc:'수원화성은 궁궐이 아니라 성(城)입니다. 서울 5대 궁궐은 경복궁·창덕궁·창경궁·덕수궁·경희궁입니다.'},
+  {q:'종묘제례악은 어떤 행사에서 연주되나요?',opts:['왕의 즉위식','조상 제사(종묘제례)','전쟁 출정식','과거시험'],ans:1,desc:'종묘제례악은 조선 왕실 조상에게 제사를 지낼 때 연주하는 음악으로 유네스코 세계유산입니다.'},
+  {q:'신라의 수도는 어디였나요?',opts:['평양','개성','한양','서라벌(경주)'],ans:3,desc:'신라의 수도는 서라벌로 현재의 경주입니다. 경주에는 신라 천년의 유적이 남아 있습니다.'},
+  {q:'거북선을 만든 조선시대 장군은 누구인가요?',opts:['강감찬','을지문덕','이순신','권율'],ans:2,desc:'이순신 장군이 임진왜란(1592년) 때 거북선을 만들어 왜군과 싸웠습니다.'},
+  {q:'조선시대 의녀 제도를 만든 왕은?',opts:['태조','세종대왕','태종','성종'],ans:1,desc:'세종대왕은 여성 환자를 위해 의녀 제도를 만들었습니다. 대표적인 의녀로 장금이(대장금)가 있습니다.'},
+  {q:'한국의 전통 음식 중 유네스코 무형유산에 등재된 것은?',opts:['김장 문화','비빔밥','삼계탕','떡볶이'],ans:0,desc:'2013년 "김장, 김치를 담그고 나누는 문화"가 유네스코 인류무형유산에 등재되었습니다.'},
+  {q:'경복궁 근정전은 무슨 용도였나요?',opts:['왕의 침소','왕의 공식 조회','왕비의 처소','왕세자 교육'],ans:1,desc:'근정전은 조선시대 왕이 신하들과 공식 조회를 하고 국가 행사를 진행하던 곳입니다.'},
+  {q:'남사당놀이에 포함되지 않는 것은?',opts:['풍물(농악)','버나(대접돌리기)','판소리','살판(땅재주)'],ans:2,desc:'판소리는 남사당놀이가 아닙니다. 남사당놀이는 풍물·버나·살판·어름·덧뵈기·덜미 6가지입니다.'},
+  {q:'창덕궁 후원(비원)은 무슨 공간인가요?',opts:['군사 훈련장','왕실 정원','왕의 집무실','신하들의 숙소'],ans:1,desc:'창덕궁 후원은 왕실 가족이 휴식을 취하던 정원으로 아름다운 자연경관을 자랑합니다.'},
+  {q:'한국의 전통 악기 해금은 어느 계열인가요?',opts:['현악기(줄)','관악기(바람)','타악기(두드림)','건반악기'],ans:0,desc:'해금은 두 줄의 현을 활로 켜는 현악기입니다. 동양의 바이올린이라고도 불립니다.'},
+  {q:'조선시대 억울한 백성이 왕에게 호소하던 제도는?',opts:['과거제','신문고','의금부','사헌부'],ans:1,desc:'신문고(申聞鼓)는 태종이 설치한 북으로, 억울한 백성이 직접 쳐서 왕에게 호소하던 제도입니다.'},
+  {q:'유네스코 세계기록유산에 등재된 조선의 기록물이 아닌 것은?',opts:['조선왕조실록','훈민정음 해례본','동의보감','삼국사기'],ans:3,desc:'삼국사기는 유네스코 세계기록유산이 아닙니다. 조선왕조실록·훈민정음·동의보감 등이 등재되어 있습니다.'},
+  {q:'한국 전통 건축에서 지붕 끝이 하늘로 휘어 올라간 것을 뭐라 하나요?',opts:['처마','용마루','기단','추녀'],ans:3,desc:'추녀는 지붕 네 귀퉁이에서 위로 솟아 오른 부분으로 한국 전통 건축의 아름다운 특징입니다.'},
+  {q:'조선 왕의 일대기를 기록한 책을 무엇이라 하나요?',opts:['실록','의궤','등록','일기'],ans:0,desc:'실록은 왕이 승하한 후 다음 왕 때 편찬하는 역사 기록서로 조선왕조실록이 대표적입니다.'}
+];
+
+var quizStarted  = false;
+var quizOrder    = [];
+var quizCurrent  = 0;
+var quizScore    = 0;
+var quizAnswered = false;
+
+function startQuiz() {
+  quizStarted = true;
+  quizOrder = QUIZ_DATA.map(function(_,i){ return i; });
+  for(var i=quizOrder.length-1;i>0;i--){
+    var j=Math.floor(Math.random()*(i+1));
+    var t=quizOrder[i]; quizOrder[i]=quizOrder[j]; quizOrder[j]=t;
+  }
+  quizCurrent=0; quizScore=0;
+  document.getElementById('quiz-main').style.display='block';
+  document.getElementById('quiz-final').classList.remove('show');
+  renderQuiz();
+}
+function restartQuiz(){ startQuiz(); }
+
+function renderQuiz(){
+  quizAnswered=false;
+  var qd=QUIZ_DATA[quizOrder[quizCurrent]];
+  document.getElementById('quiz-count-txt').textContent=(quizCurrent+1)+' / '+QUIZ_DATA.length;
+  document.getElementById('quiz-score-txt').textContent='점수: '+quizScore+'점';
+  document.getElementById('quiz-num').textContent='문제 '+(quizCurrent+1);
+  document.getElementById('quiz-question').textContent=qd.q;
+  document.getElementById('quiz-result-box').classList.remove('show');
+  document.getElementById('quiz-next-btn').style.display='none';
+  var html='';
+  qd.opts.forEach(function(o,i){
+    html+='<button class="quiz-option" onclick="selectQuizOpt('+i+')" id="qopt-'+i+'">'+['①','②','③','④'][i]+' '+o+'</button>';
+  });
+  document.getElementById('quiz-options').innerHTML=html;
+}
+
+function selectQuizOpt(idx){
+  if(quizAnswered) return;
+  quizAnswered=true;
+  var qd=QUIZ_DATA[quizOrder[quizCurrent]];
+  var ok=(idx===qd.ans);
+  if(ok) quizScore+=10;
+  document.querySelectorAll('.quiz-option').forEach(function(b){ b.classList.add('disabled'); });
+  document.getElementById('qopt-'+idx).classList.add(ok?'correct':'wrong');
+  if(!ok) document.getElementById('qopt-'+qd.ans).classList.add('correct');
+  document.getElementById('quiz-result-icon').textContent=ok?'🎉':'😅';
+  document.getElementById('quiz-result-txt').textContent=ok?'정답이에요!':'아쉬워요! 정답은 '+qd.opts[qd.ans]+'입니다.';
+  document.getElementById('quiz-result-desc').textContent=qd.desc;
+  document.getElementById('quiz-result-box').classList.add('show');
+  document.getElementById('quiz-score-txt').textContent='점수: '+quizScore+'점';
+  var isLast=(quizCurrent===QUIZ_DATA.length-1);
+  var nb=document.getElementById('quiz-next-btn');
+  nb.style.display='block';
+  nb.textContent=isLast?'🏆 결과 보기':'다음 문제 →';
+}
+
+function nextQuiz(){
+  quizCurrent++;
+  if(quizCurrent>=QUIZ_DATA.length){ showQuizFinal(); return; }
+  renderQuiz();
+}
+
+function showQuizFinal(){
+  document.getElementById('quiz-main').style.display='none';
+  document.getElementById('quiz-final').classList.add('show');
+  var total=QUIZ_DATA.length*10;
+  var pct=Math.round(quizScore/total*100);
+  var icon,msg;
+  if(pct>=90){icon='🏆';msg='대단해요! 문화유산 전문가 수준이에요!';}
+  else if(pct>=70){icon='🌟';msg='훌륭해요! 우리 역사를 잘 알고 계시네요!';}
+  else if(pct>=50){icon='👍';msg='잘 하셨어요! 조금 더 공부하면 완벽해요!';}
+  else{icon='😊';msg='괜찮아요! 다시 풀어보면 분명 더 좋은 점수가 나올 거예요!';}
+  document.getElementById('quiz-final-icon').textContent=icon;
+  document.getElementById('quiz-final-score').textContent=quizScore+'점 / '+total+'점 ('+pct+'%)';
+  document.getElementById('quiz-final-msg').textContent=msg;
+}
+
+/* ════════════════════════════════════════════
+   페이지4 — 문화시설 안내
+════════════════════════════════════════════ */
+var facilityLoaded = false;
+var FACILITY_DATA = {
+  museum:[
+    {icon:'🏛️',name:'국립중앙박물관',addr:'서울 용산구 서빙고로 137',tel:'02-2077-9000'},
+    {icon:'🏺',name:'국립민속박물관',addr:'서울 종로구 삼청로 37',tel:'02-3704-3114'},
+    {icon:'🎨',name:'국립현대미술관(서울)',addr:'서울 종로구 삼청로 30',tel:'02-3701-9500'},
+    {icon:'🏺',name:'국립경주박물관',addr:'경북 경주시 일정로 186',tel:'054-740-7500'},
+    {icon:'🏛️',name:'국립전주박물관',addr:'전북 전주시 완산구 쑥고개로 249',tel:'063-223-5651'},
+    {icon:'🏺',name:'국립광주박물관',addr:'광주 북구 하서로 110',tel:'062-570-7000'},
+    {icon:'🏛️',name:'국립부여박물관',addr:'충남 부여군 부여읍 금성로 5',tel:'041-833-8562'},
+    {icon:'🎭',name:'국립무형유산원',addr:'전북 전주시 완산구 서학로 95',tel:'063-280-1400'},
+  ],
+  palace:[
+    {icon:'🏯',name:'경복궁 관리소',addr:'서울 종로구 사직로 161',tel:'02-3700-3900'},
+    {icon:'🏯',name:'창덕궁 관리소',addr:'서울 종로구 율곡로 99',tel:'02-3668-2300'},
+    {icon:'🏯',name:'덕수궁 관리소',addr:'서울 중구 세종대로 99',tel:'02-771-9951'},
+    {icon:'🏯',name:'창경궁 관리소',addr:'서울 종로구 창경궁로 185',tel:'02-762-4868'},
+    {icon:'🏯',name:'경희궁 관리소',addr:'서울 종로구 새문안로 45',tel:'02-724-0274'},
+    {icon:'⛩️',name:'종묘 관리소',addr:'서울 종로구 종로 157',tel:'02-765-0195'},
+    {icon:'🌿',name:'수원화성 관리소',addr:'경기 수원시 팔달구 행궁로 11',tel:'031-290-3600'},
+    {icon:'🗺️',name:'불국사·석굴암',addr:'경북 경주시 불국로 385',tel:'054-746-9913'},
+  ],
+  center:[
+    {icon:'🎭',name:'한국문화예술회관연합회',addr:'서울 중구 퇴계로 36길',tel:'02-708-2100'},
+    {icon:'🎨',name:'서울문화재단',addr:'서울 중구 세종대로 135',tel:'02-3290-7000'},
+    {icon:'🎭',name:'경기문화재단',addr:'경기 수원시 팔달구 인계로 178',tel:'031-231-7200'},
+    {icon:'🎨',name:'부산문화재단',addr:'부산 연제구 중앙대로 1001',tel:'051-745-7200'},
+    {icon:'🎭',name:'대구문화예술진흥원',addr:'대구 중구 공평로 88',tel:'053-430-1300'},
+    {icon:'🎨',name:'인천문화재단',addr:'인천 남동구 정각로 9',tel:'032-455-7300'},
+    {icon:'🎭',name:'광주문화재단',addr:'광주 동구 예술길 35',tel:'062-670-7300'},
+    {icon:'🎨',name:'전북문화관광재단',addr:'전북 전주시 완산구 홍산로 111',tel:'063-230-5900'},
+  ],
+  library:[
+    {icon:'📚',name:'국립중앙도서관',addr:'서울 서초구 반포대로 201',tel:'02-535-4142'},
+    {icon:'📖',name:'국립어린이청소년도서관',addr:'서울 강남구 테헤란로 133',tel:'02-3413-4800'},
+    {icon:'📚',name:'국립세종도서관',addr:'세종 다솜로 477',tel:'044-900-9100'},
+    {icon:'📖',name:'국립장애인도서관',addr:'서울 서초구 반포대로 201',tel:'02-590-0900'},
+    {icon:'📚',name:'서울도서관',addr:'서울 중구 세종대로 110',tel:'02-2133-0300'},
+    {icon:'📖',name:'경기도사이버도서관',addr:'경기 수원시 영통구 도청로 30',tel:'031-888-5095'},
+    {icon:'📚',name:'국립공주도서관',addr:'충남 공주시 웅진로 103',tel:'041-850-9700'},
+    {icon:'📖',name:'부산시립시민도서관',addr:'부산 부산진구 시민공원로 73',tel:'051-810-8300'},
+  ]
+};
+
+function showFacility(type,btnEl){
+  facilityLoaded=true;
+  document.querySelectorAll('.facility-tab').forEach(function(b){ b.classList.remove('active'); });
+  if(btnEl) btnEl.classList.add('active');
+  var items=FACILITY_DATA[type]||[];
+  var html='';
+  items.forEach(function(item){
+    html+='<a class="facility-card" href="tel:'+item.tel+'">'
+      +'<div class="facility-icon">'+item.icon+'</div>'
+      +'<div class="facility-info">'
+      +'<div class="facility-name">'+item.name+'</div>'
+      +'<div class="facility-addr">'+item.addr+'</div>'
+      +'<div class="facility-num">📞 '+item.tel+'</div>'
+      +'</div></a>';
+  });
+  document.getElementById('facility-list').innerHTML=html;
+}
+
+/* ════════════════════════════════════════════
+   전국 지역축제
+════════════════════════════════════════════ */
+var festivalLoaded = false;
+var festivalPage   = 1;
+var festivalTotal  = 0;
+var festivalItems  = [];
+var festivalRegion = '';
+
+function loadFestival(region, btnEl) {
+  festivalLoaded = true;
+  festivalPage   = 1;
+  festivalItems  = [];
+  festivalRegion = region;
+
+  document.querySelectorAll('.festival-tab').forEach(function(b){ b.classList.remove('active'); });
+  if(btnEl) btnEl.classList.add('active');
+
+  document.getElementById('festival-loading').classList.add('show');
+  document.getElementById('festival-error').classList.remove('show');
+  document.getElementById('festival-list').innerHTML = '';
+  document.getElementById('festival-more-wrap').style.display = 'none';
+
+  var url = '/api/culture?type=festival&rows=10&cPage=1';
+  if(region) url += '&region=' + encodeURIComponent(region);
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      document.getElementById('festival-loading').classList.remove('show');
+      if(!data.ok || !data.items || data.items.length === 0){
+        document.getElementById('festival-list').innerHTML = '<div class="event-empty">😊 현재 등록된 축제 정보가 없어요.</div>';
+        return;
+      }
+      festivalItems = data.items;
+      festivalTotal = parseInt(data.totalCount) || 0;
+      renderFestival(festivalItems);
+      if(festivalTotal > 10){
+        document.getElementById('festival-more-wrap').style.display = 'block';
+      }
+    })
+    .catch(function(){
+      document.getElementById('festival-loading').classList.remove('show');
+      document.getElementById('festival-error').classList.add('show');
+    });
+}
+
+function loadMoreFestival() {
+  festivalPage++;
+  var url = '/api/culture?type=festival&rows=10&cPage=' + festivalPage;
+  if(festivalRegion) url += '&region=' + encodeURIComponent(festivalRegion);
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(!data.ok || !data.items || data.items.length === 0){
+        document.getElementById('festival-more-wrap').style.display = 'none';
+        return;
+      }
+      festivalItems = festivalItems.concat(data.items);
+      renderFestival(festivalItems);
+      if(festivalItems.length >= festivalTotal){
+        document.getElementById('festival-more-wrap').style.display = 'none';
+      }
+    })
+    .catch(function(){});
+}
+
+function renderFestival(items) {
+  var html = '';
+  items.forEach(function(item){
+    html += '<div style="background:#fffaf7;border:1.5px solid #ffccbc;border-radius:14px;padding:14px;margin-bottom:10px;">'
+      + '<div style="font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.4;margin-bottom:6px;word-break:keep-all;">'+item.title+'</div>'
+      + (item.region ? '<div style="font-size:12px;color:#e65100;font-weight:600;margin-bottom:3px;">📍 '+item.region+'</div>' : '')
+      + (item.period ? '<div style="font-size:12px;color:#888;margin-bottom:3px;">📅 '+item.period+'</div>' : '')
+      + (item.place  ? '<div style="font-size:12px;color:#888;margin-bottom:3px;">🏟️ '+item.place+'</div>'  : '')
+      + '</div>';
+  });
+  document.getElementById('festival-list').innerHTML = html;
+}
+
+function confirmExternalLink(url) {
+  if (confirm('외부 사이트로 이동합니다.\n봄날마당으로 돌아오려면 휴대폰 뒤로가기를 누르세요.')) {
+    window.open(url, '_blank');
+  }
+}
+</script>
+</body>
+</html>
+<script>
+/* ════════════════════════════════════════════
+   페이지5 — 공연·전시 정보 (문화포털)
+════════════════════════════════════════════ */
+var performanceLoaded = false;
+var currentRealmCode  = '';
+var perfPage          = 1;
+var perfTotalCount    = 0;
+var perfItems         = [];
+
+function loadPerformance(realmCode, btnEl) {
+  currentRealmCode  = realmCode;
+  performanceLoaded = true;
+  perfPage = 1;
+  perfItems = [];
+
+  /* 탭 버튼 active 처리 */
+  document.querySelectorAll('.perf-tab').forEach(function(b){ b.classList.remove('active'); });
+  if(btnEl) btnEl.classList.add('active');
+
+  /* 로딩 표시 */
+  document.getElementById('perf-loading').classList.add('show');
+  document.getElementById('perf-error').classList.remove('show');
+  document.getElementById('perf-list').innerHTML = '';
+  document.getElementById('perf-more-wrap').style.display = 'none';
+
+  var url = '/api/culture?type=performance&rows=10&cPage=1';
+  if(realmCode) url += '&realmCode=' + realmCode;
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      document.getElementById('perf-loading').classList.remove('show');
+      if(!data.ok || !data.items || data.items.length === 0){
+        document.getElementById('perf-list').innerHTML =
+          '<div class="event-empty">😊 현재 등록된 공연·전시 정보가 없어요.</div>';
+        return;
+      }
+      perfItems = data.items;
+      perfTotalCount = parseInt(data.totalCount) || 0;
+      renderPerformance(perfItems);
+
+      /* 더보기 버튼 표시 여부 */
+      if(perfTotalCount > 10){
+        document.getElementById('perf-more-wrap').style.display = 'block';
+      }
+    })
+    .catch(function(){
+      document.getElementById('perf-loading').classList.remove('show');
+      document.getElementById('perf-error').classList.add('show');
+    });
+}
+
+function loadMorePerformance() {
+  perfPage++;
+  var url = '/api/culture?type=performance&rows=10&cPage=' + perfPage;
+  if(currentRealmCode) url += '&realmCode=' + currentRealmCode;
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(!data.ok || !data.items || data.items.length === 0){
+        document.getElementById('perf-more-wrap').style.display = 'none';
+        return;
+      }
+      perfItems = perfItems.concat(data.items);
+      renderPerformance(perfItems);
+
+      /* 더 불러올 데이터 없으면 더보기 숨김 */
+      if(perfItems.length >= perfTotalCount){
+        document.getElementById('perf-more-wrap').style.display = 'none';
+      }
+    })
+    .catch(function(){});
+}
+
+function renderPerformance(items) {
+  var html = '';
+  items.forEach(function(item){
+
+    /* 포스터 이미지 */
+    var imgHtml = item.thumbnail
+      ? '<img src="'+item.thumbnail+'" style="width:80px;height:110px;object-fit:cover;border-radius:8px;" onerror="this.style.display=\'none\'">'
+      : '<div style="width:80px;height:110px;background:#f3e5f5;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;">🎭</div>';
+
+    /* 날짜 */
+    var dateStr = '';
+    if(item.startDate && item.endDate) dateStr = item.startDate + ' ~ ' + item.endDate;
+    else if(item.startDate) dateStr = item.startDate;
+
+    /* 가격 */
+    var priceStr = item.price ? item.price : '정보 없음';
+
+    /* 상세 링크 */
+    var linkHtml = item.url
+      ? '<a href="#" onclick="confirmExternalLink(\''+item.url+'\');return false;" style="display:block;text-align:center;padding:8px;background:#f3e5f5;border-radius:8px;color:#6a1b9a;font-size:13px;font-weight:700;text-decoration:none;margin-top:8px;">📋 상세보기</a>'
+      : '';
+
+    html += '<div style="background:#fdf6ff;border:1.5px solid #e1bee7;border-radius:14px;padding:14px;margin-bottom:10px;">'
+      + '<div style="display:flex;gap:12px;align-items:flex-start;">'
+      + imgHtml
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="display:inline-block;background:#f3e5f5;color:#6a1b9a;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;margin-bottom:6px;">'+(item.realmName||'공연')+'</div>'
+      + '<div style="font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.4;margin-bottom:5px;word-break:keep-all;">'+item.title+'</div>'
+      + (item.place ? '<div style="font-size:12px;color:#6a1b9a;font-weight:600;margin-bottom:3px;">📍 '+item.place+'</div>' : '')
+      + (dateStr  ? '<div style="font-size:12px;color:#888;margin-bottom:3px;">📅 '+dateStr+'</div>' : '')
+      + '<div style="font-size:12px;color:#888;">💰 '+priceStr+'</div>'
+      + '</div></div>'
+      + linkHtml
+      + '</div>';
+  });
+  document.getElementById('perf-list').innerHTML = html;
+}
+</script>
+<script>
+/* ════════════════════════════════════════════
+   페이지6~9 — kcisa.kr 통합 API 공통 처리
+   (perf2=통합공연 / exhi=통합전시 / museum=박물관행사 / edu=교육정보)
+════════════════════════════════════════════ */
+
+/* 각 타입별 상태 관리 */
+var kcisaState = {
+  perf2 : { loaded:false, page:1, total:0, items:[], keyword:'' },
+  exhi  : { loaded:false, page:1, total:0, items:[], keyword:'' },
+  museum: { loaded:false, page:1, total:0, items:[], keyword:'' },
+  edu   : { loaded:false, page:1, total:0, items:[], keyword:'' },
+};
+var perf2Loaded  = false;
+var exhiLoaded   = false;
+var museumLoaded = false;
+var eduLoaded    = false;
+
+/* 테마 색상 (타입별) */
+var kcisaTheme = {
+  perf2 : { bg:'#e8f5fe', color:'#0277bd' },
+  exhi  : { bg:'#f9fbe7', color:'#558b2f' },
+  museum: { bg:'#fff3e0', color:'#e65100' },
+  edu   : { bg:'#fce4ec', color:'#c62828' },
+};
+
+function loadKcisa(type, btnEl, keyword) {
+  var s = kcisaState[type];
+  s.loaded  = true;
+  s.page    = 1;
+  s.items   = [];
+  s.keyword = (keyword !== undefined) ? keyword : s.keyword;
+
+  /* 로드 완료 플래그 */
+  if(type==='perf2')  perf2Loaded  = true;
+  if(type==='exhi')   exhiLoaded   = true;
+  if(type==='museum') museumLoaded = true;
+  if(type==='edu')    eduLoaded    = true;
+
+  /* 탭 active */
+  var tabClass = '.'+type+'-tab';
+  document.querySelectorAll(tabClass).forEach(function(b){ b.classList.remove('active'); });
+  if(btnEl) btnEl.classList.add('active');
+
+  /* UI 초기화 */
+  document.getElementById(type+'-loading').classList.add('show');
+  document.getElementById(type+'-error').classList.remove('show');
+  document.getElementById(type+'-list').innerHTML = '';
+  document.getElementById(type+'-more-wrap').style.display = 'none';
+
+  var url = '/api/culture?type='+type+'&rows=10&cPage=1';
+  if(s.keyword) url += '&keyword=' + encodeURIComponent(s.keyword);
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      document.getElementById(type+'-loading').classList.remove('show');
+      if(!data.ok || !data.items || data.items.length === 0){
+        document.getElementById(type+'-list').innerHTML =
+          '<div class="event-empty">😊 현재 등록된 정보가 없어요.</div>';
+        return;
+      }
+      s.items = data.items;
+      s.total = parseInt(data.totalCount) || 0;
+      renderKcisa(type, s.items);
+      if(s.total > 10){
+        document.getElementById(type+'-more-wrap').style.display = 'block';
+      }
+    })
+    .catch(function(){
+      document.getElementById(type+'-loading').classList.remove('show');
+      document.getElementById(type+'-error').classList.add('show');
+    });
+}
+
+function loadMoreKcisa(type) {
+  var s = kcisaState[type];
+  s.page++;
+  var url = '/api/culture?type='+type+'&rows=10&cPage='+s.page;
+  if(s.keyword) url += '&keyword=' + encodeURIComponent(s.keyword);
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(!data.ok || !data.items || data.items.length === 0){
+        document.getElementById(type+'-more-wrap').style.display = 'none';
+        return;
+      }
+      s.items = s.items.concat(data.items);
+      renderKcisa(type, s.items);
+      if(s.items.length >= s.total){
+        document.getElementById(type+'-more-wrap').style.display = 'none';
+      }
+    })
+    .catch(function(){});
+}
+
+function renderKcisa(type, items) {
+  var theme = kcisaTheme[type] || { bg:'#f5f5f5', color:'#333' };
+  var html  = '';
+
+  items.forEach(function(item){
+    /* 포스터/썸네일 */
+    var imgHtml = item.thumbnail
+      ? '<img src="'+item.thumbnail+'" style="width:80px;height:110px;object-fit:cover;border-radius:8px;" onerror="this.style.display=\'none\'">'
+      : '<div style="width:80px;height:110px;background:'+theme.bg+';border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;">🎨</div>';
+
+    /* 요금 */
+    var chargeStr = (item.charge && item.charge !== '정보없음') ? item.charge : '정보 없음';
+    /* 주관기관 */
+    var orgStr = item.organizer ? '<div style="font-size:11px;color:#aaa;margin-top:2px;">🏛️ '+item.organizer+'</div>' : '';
+    /* 상세링크 */
+    var linkHtml = item.url
+      ? '<a href="#" onclick="confirmExternalLink(\''+item.url+'\');return false;" style="display:block;text-align:center;padding:8px;background:'+theme.bg+';border-radius:8px;color:'+theme.color+';font-size:13px;font-weight:700;text-decoration:none;margin-top:8px;">📋 상세보기</a>'
+      : '';
+
+    html += '<div style="background:#fafafa;border:1.5px solid #eee;border-radius:14px;padding:14px;margin-bottom:10px;">'
+      + '<div style="display:flex;gap:12px;align-items:flex-start;">'
+      + imgHtml
+      + '<div style="flex:1;min-width:0;">'
+      + '<div style="font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.4;margin-bottom:5px;word-break:keep-all;">'+item.title+'</div>'
+      + (item.place  ? '<div style="font-size:12px;color:'+theme.color+';font-weight:600;margin-bottom:3px;">📍 '+item.place+'</div>'  : '')
+      + (item.period ? '<div style="font-size:12px;color:#888;margin-bottom:3px;">📅 '+item.period+'</div>' : '')
+      + '<div style="font-size:12px;color:#888;">💰 '+chargeStr+'</div>'
+      + orgStr
+      + '</div></div>'
+      + linkHtml
+      + '</div>';
+  });
+
+  document.getElementById(type+'-list').innerHTML = html;
+}
+</script>

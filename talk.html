@@ -3,116 +3,1000 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>소통마당 — 시니어 봄날마당</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<title>소통마당 - 시니어 봄날마당</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 </head>
 <body>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
+.wrap { background: #f7f8fa; max-width: 480px; margin: 0 auto; padding-bottom: 32px; }
 
-<!-- =============================================
-  talk.html — 소통마당 탭
-  index.html에서 fetch()로 로드되는 독립 파일
-  의존: style.css (공유), showToast() (index.html에서 공급)
-  작성: 2026-06-09 / 3세션
-============================================= -->
+/* ── 헤더 ── */
+.app-header { background: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+.header-left { display: flex; align-items: center; gap: 8px; }
+.logo-senior { color: #eb840f; font-weight: 900; font-size: 18px; }
+.logo-bomnal { color: #4A90D9; font-weight: 900; font-size: 18px; }
+.header-date-box { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.header-date-solar { font-size: 15px; font-weight: 700; color: #111; }
+.header-date-lunar { font-size: 12px; font-weight: 700; color: #1a5fa0; }
+.home-bar { background: #fff; border-bottom: 1px solid #eee; padding: 8px 14px; }
+.home-bar button { background: #4A90D9; color: #fff; border: none; border-radius: 20px; padding: 10px 22px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; }
 
-<div class="card">
-  <div class="card-title">💌 소통마당 게시판</div>
-  <p style="font-size:14px;color:var(--text-sub);margin-bottom:16px;line-height:1.7;">혼자서도 할 말이 많잖아요?<br>편한 마음으로 글 한줄 남겨봐요 😊</p>
-  <div class="board-write">
-    <div class="board-nickname-row">
-      <input class="board-nickname" type="text" id="board-nick" placeholder="닉네임 (예: 봄날의 나비 할머니)">
-    </div>
-    <textarea class="board-textarea" id="board-text" placeholder="요즘 어떻게 지내세요? 편한 마음으로 글 한줄 남겨봐요..."></textarea>
-    <button class="board-post" onclick="addPost()">✏️ 글 올리기</button>
-  </div>
-</div>
-
-<div class="post-list" id="post-list">
-  <div class="post-item">
-    <div class="post-header">
-      <span class="post-nick">🌸 봄날마당 할머니님</span>
-      <span class="post-date">06월 09일</span>
-    </div>
-    <div class="post-body">요즘 아침마다 만보기 들고 동네 한바퀴 돌고 있어요. 처음엔 힘들더니 이제 재미가 붙었나봐요. 오늘도 3,000걸음 채웠어요! 다들 건강하게 지내요 🌷</div>
-    <button class="post-like" onclick="likePost(this)">❤️ 좋아요 <span>12</span></button>
-  </div>
-  <div class="post-item">
-    <div class="post-header">
-      <span class="post-nick">🌻 청춘할배여행자</span>
-      <span class="post-date">06월 09일</span>
-    </div>
-    <div class="post-body">봄날마당 덕분에 매일 운세도 보고 게임도 즐기고 있어요. "할아버지 요즘 스마트폰 잘 쓰네?" 하며 손주들이 칭찬해줘요! 70대도 잘만 배우면 됩니다 🔥</div>
-    <button class="post-like" onclick="likePost(this)">❤️ 좋아요 <span>8</span></button>
-  </div>
-</div>
-
-<div style="text-align:center;margin-top:16px;">
-  <button class="btn-kakao" onclick="shareKakao()">💌 봄날마당 친구에게 소통마당 공유하기</button>
-</div>
-
-<script>
-// =============================================
-// talk.html 전용 JavaScript
-// =============================================
-
-function _toast(msg) {
-  if (typeof window.showToast === 'function') {
-    window.showToast(msg);
-  } else {
-    console.log('[토스트]', msg);
-  }
+/* ── 소통마당 색상 변수 ── */
+:root {
+  --talk-main: #e8839a;
+  --talk-dark: #c4607a;
+  --talk-light: #fce8ee;
+  --talk-border: #f2c4cf;
+  --talk-soft: #fff5f7;
 }
 
-function addPost() {
-  var nick = document.getElementById('board-nick').value.trim() || '봄날 이웃사람';
-  var text = document.getElementById('board-text').value.trim();
-  if (!text) {
-    _toast('글 내용을 입력해 주세요!');
+/* ── 첫 방문 팝업 ── */
+.welcome-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
+.welcome-overlay.active { display: flex; }
+.welcome-popup { background: #fff; border-radius: 24px; padding: 32px 24px 24px; max-width: 380px; width: 100%; box-shadow: 0 8px 40px rgba(232,131,154,0.25); text-align: center; }
+.welcome-popup .pop-icon { font-size: 52px; margin-bottom: 12px; }
+.welcome-popup h2 { font-size: 22px; font-weight: 700; color: var(--talk-main); margin-bottom: 18px; }
+.welcome-rules { background: var(--talk-soft); border-radius: 14px; padding: 16px 18px; text-align: left; margin-bottom: 16px; }
+.welcome-rules li { font-size: 16px; color: #444; line-height: 2; list-style: none; }
+.welcome-disclaimer { font-size: 13px; color: #999; margin-bottom: 20px; line-height: 1.6; }
+.welcome-btn { width: 100%; background: var(--talk-main); color: #fff; border: none; border-radius: 14px; padding: 16px; font-size: 18px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.welcome-btn:active { background: var(--talk-dark); }
+
+/* ── 상단 공지 배너 ── */
+.notice-banner { background: #fff0f0; border-bottom: 3px solid #e8839a; border-top: 3px solid #e8839a; padding: 14px 14px; display: flex; align-items: flex-start; gap: 10px; }
+.notice-banner .nb-icon { font-size: 26px; flex-shrink: 0; margin-top: 1px; }
+.notice-banner .nb-body { display: flex; flex-direction: column; gap: 4px; }
+.notice-banner .nb-title { font-size: 17px; font-weight: 900; color: #c0392b; line-height: 1.4; }
+.notice-banner .nb-text { font-size: 14px; color: #666; line-height: 1.6; font-weight: 500; }
+.notice-banner .nb-text strong { color: #c0392b; font-weight: 900; }
+
+/* ── 아이콘 그리드 ── */
+.sec-wrap { margin: 18px 14px 0; }
+.sec-title { font-size: 22px; font-weight: 700; color: #222; margin-bottom: 12px; }
+.sec-title em { font-style: normal; color: var(--talk-main); }
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cat-item { display: flex; flex-direction: column; align-items: center; border: none; border-radius: 14px; padding: 11px 4px 10px; gap: 7px; cursor: pointer; background: none; }
+.cat-icon-box { width: 64px; height: 64px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 34px; line-height: 1; }
+.cat-name { font-size: 16px; font-weight: 700; text-align: center; line-height: 1.3; word-break: keep-all; }
+
+/* ── 미리보기 섹션 ── */
+.preview-sec { margin: 20px 14px 0; }
+.preview-card { background: #fff; border-radius: 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); overflow: hidden; }
+.preview-card-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 10px; border-bottom: 1px solid #f5f5f5; }
+.preview-card-title { font-size: 18px; font-weight: 700; color: #222; display: flex; align-items: center; gap: 6px; }
+.preview-more-btn { font-size: 13px; color: var(--talk-main); background: var(--talk-light); border: none; border-radius: 10px; padding: 5px 12px; font-family: inherit; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.preview-item { display: flex; align-items: center; padding: 11px 16px; gap: 10px; cursor: pointer; border-bottom: 1px solid #f9f9f9; }
+.preview-item:last-child { border-bottom: none; }
+.preview-item:active { background: #fafafa; }
+.preview-badge { font-size: 12px; border-radius: 8px; padding: 3px 8px; font-weight: 700; flex-shrink: 0; white-space: nowrap; }
+.badge-worry { background: #e8f5e9; color: #2e7d32; }
+.badge-anon { background: #f3e5f5; color: #7b1fa2; }
+.badge-good { background: var(--talk-light); color: var(--talk-dark); }
+.preview-text { flex: 1; font-size: 15px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.preview-time { font-size: 12px; color: #aaa; flex-shrink: 0; }
+.preview-empty { padding: 22px 16px; text-align: center; color: #bbb; font-size: 15px; }
+
+/* ── 전환 페이지 공통 ── */
+.talk-page { display: none; }
+.talk-page.active { display: block; }
+.talk-back-btn { display: block; width: 100%; margin: 0; padding: 15px 16px; border: none; border-radius: 0; font-size: 17px; font-weight: 700; cursor: pointer; text-align: left; font-family: inherit; background: #e0f5f1; color: #1a7a6a; }
+.talk-page-header { margin: 10px 14px 0; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
+.talk-page-title { font-size: 22px; font-weight: 900; }
+.talk-page-badge { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 8px; }
+.talk-page-inner { margin: 12px 14px 0; display: flex; flex-direction: column; gap: 12px; }
+
+/* ── 게시판 설명 박스 ── */
+.board-desc-box { border-radius: 12px; padding: 12px 14px; font-size: 15px; line-height: 1.7; border-left: 3px solid; }
+
+/* ── 준비중 안내 ── */
+.coming-card { background: #fff; border-radius: 14px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); padding: 40px 20px; text-align: center; }
+.coming-icon { font-size: 56px; margin-bottom: 14px; }
+.coming-title { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+.coming-desc { font-size: 15px; color: #888; line-height: 1.7; }
+
+/* ── 봄날톡톡 입장버튼 ── */
+.talktalk-enter-btn { display: block; width: 100%; margin-top: 20px; padding: 16px; background: var(--talk-main); color: #fff; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.talktalk-enter-btn:active { background: var(--talk-dark); }
+
+/* ── 공통 UI ── */
+.tel-sec { margin: 24px 14px 0; }
+.tel-card { background: #fff; border-radius: 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); padding: 18px 16px 8px; }
+.tel-card-title { font-size: 22px; font-weight: 700; color: #222; margin-bottom: 16px; }
+.tel-card-item { display: flex; align-items: center; gap: 10px; background: #f7f8fa; border-radius: 12px; padding: 13px; margin-bottom: 8px; text-decoration: none; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tel-card-item:active { background: #eef2f8; }
+.tel-card-icon { font-size: 28px; width: 48px; height: 48px; background: #f0f4f8; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.tel-text { flex: 1; }
+.tel-name { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 2px; }
+.tel-desc { font-size: 13px; color: #666; }
+.tel-num { font-size: 20px; font-weight: 800; color: #4A90D9; margin-left: auto; white-space: nowrap; }
+.tel-divider { height: 1px; background: #f0f0f0; margin: 0; }
+.btn-kakao-main { display: block; width: calc(100% - 28px); margin: 24px 14px 0; padding: 14px; background: #FEE500; color: #1a1a1a; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
+.btn-pwa-main { display: block; width: calc(100% - 28px); margin: 8px 14px 0; padding: 13px; background: #7db8e8; color: #111; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
+.affiliate-notice-box { margin: 16px 14px 0; background: #fffbe6; border: 1px solid #ffe082; border-radius: 12px; padding: 12px 14px; font-size: 11px; color: #7a6000; line-height: 1.7; text-align: center; }
+.site-footer { margin: 16px 14px 0; text-align: center; padding-bottom: 8px; }
+.footer-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
+.footer-link { font-size: 11px; color: #999; text-decoration: none; }
+.footer-dot { font-size: 11px; color: #ccc; }
+</style>
+
+<!-- ══════════════════════════════
+     첫 방문 팝업
+══════════════════════════════ -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-popup">
+    <div class="pop-icon">🌸</div>
+    <h2>소통마당에 오신 걸 환영해요!</h2>
+    <ul class="welcome-rules">
+      <li>✅ 서로 존중하며 따뜻하게 써주세요</li>
+      <li>🚫 전화번호·주소 등 개인정보 금지</li>
+      <li>🚫 욕설·비방·광고 글은 자동 차단돼요</li>
+      <li>🚨 신고 3회 시 글이 자동 비공개 처리돼요</li>
+    </ul>
+    <p class="welcome-disclaimer">봄날마당은 게시글 내용에 대한<br>법적 책임을 지지 않습니다</p>
+    <button class="welcome-btn" onclick="closeWelcome()">확인했어요, 들어가볼게요! 🌸</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- 헤더 -->
+  <div class="app-header">
+    <div class="header-left">
+      <span style="font-size:22px;">🌸</span>
+      <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
+    </div>
+    <div class="header-date-box">
+      <span class="header-date-solar" id="date-solar">날짜 로딩중</span>
+      <span class="header-date-lunar" id="date-lunar">음력 로딩중</span>
+    </div>
+  </div>
+
+  <div class="home-bar" style="display:flex;align-items:center;justify-content:space-between;">
+    <button onclick="goHome()">🏠 홈으로</button>
+    <button onclick="adminLogin()" id="admin-btn">🔑 관리자</button>
+  </div>
+
+  <!-- ══════════════════════════════
+       메인 화면
+  ══════════════════════════════ -->
+  <div id="main-view">
+
+    <!-- 상단 공지 배너 -->
+    <div class="notice-banner">
+      <span class="nb-icon">🚨</span>
+      <div class="nb-body">
+        <div class="nb-title">개인정보(전화번호·주소 등) 절대 올리지 마세요!</div>
+        <div class="nb-text">욕설·비방·광고 글은 자동 차단 &nbsp;·&nbsp; 신고 3회 시 자동 비공개 &nbsp;·&nbsp; 봄날마당은 게시글 내용에 대한 책임을 지지 않습니다</div>
+      </div>
+    </div>
+
+    <!-- 닉네임 설정 -->
+    <div style="margin:10px 14px 0;background:var(--talk-soft);border:2px solid var(--talk-border);border-radius:14px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <span style="font-size:13px;font-weight:600;color:#aaa;">내 닉네임</span>
+        <span id="nickname-display" style="font-size:22px;font-weight:900;color:var(--talk-dark);">봄날이웃</span>
+      </div>
+      <button onclick="setNickname()" style="background:var(--talk-main);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">✏️ 변경</button>
+    </div>
+
+    <!-- 아이콘 그리드 -->
+    <div class="sec-wrap">
+      <div class="sec-title"><em>💬 소통마당</em></div>
+      <div class="cat-grid">
+
+        <button class="cat-item" onclick="goPage('page-talktalk')" style="background:#fce8ee;">
+          <div class="cat-icon-box" style="background:#fce8ee;">💬</div>
+          <span class="cat-name" style="color:#c4607a;">봄날톡톡</span>
+        </button>
+
+        <button class="cat-item" onclick="goPage('page-sudabox')" style="background:#fff3e8;">
+          <div class="cat-icon-box" style="background:#fff3e8;">📣</div>
+          <span class="cat-name" style="color:#c47a30;">수다방</span>
+        </button>
+
+        <button class="cat-item" onclick="goPage('page-worry')" style="background:#e8f5e9;">
+          <div class="cat-icon-box" style="background:#e8f5e9;">🤗</div>
+          <span class="cat-name" style="color:#2e7d32;">고민<br>나눠요</span>
+        </button>
+
+        <button class="cat-item" onclick="goPage('page-friend')" style="background:#e8f0fe;">
+          <div class="cat-icon-box" style="background:#e8f0fe;">🤝</div>
+          <span class="cat-name" style="color:#3a5bbf;">친구<br>찾아요</span>
+        </button>
+
+        <button class="cat-item" onclick="goPage('page-goodpost')" style="background:#f3e8f5;">
+          <div class="cat-icon-box" style="background:#f3e8f5;">📝</div>
+          <span class="cat-name" style="color:#7b3fa0;">좋은<br>글귀</span>
+        </button>
+
+        <button class="cat-item" onclick="goPage('page-notice')" style="background:#fffde7;">
+          <div class="cat-icon-box" style="background:#fffde7;">📢</div>
+          <span class="cat-name" style="color:#c47d00;">공지사항</span>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- 섹션1: 고민 나눠요 최신글 -->
+    <div class="preview-sec">
+      <div class="preview-card">
+        <div class="preview-card-header">
+          <span class="preview-card-title">🤗 고민 나눠요</span>
+          <button class="preview-more-btn" onclick="goPage('page-worry')">더보기</button>
+        </div>
+        <div id="preview-worry">
+          <div class="preview-empty">Firebase 연동 후 최신 글이 표시돼요 🌸</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 섹션2: 좋은 글·사진 최신글 -->
+    <div class="preview-sec">
+      <div class="preview-card">
+        <div class="preview-card-header">
+          <span class="preview-card-title">📝 좋은 글귀</span>
+          <button class="preview-more-btn" onclick="goPage('page-goodpost')">더보기</button>
+        </div>
+        <div id="preview-goodpost">
+          <div class="preview-empty">Firebase 연동 후 최신 글이 표시돼요 🌸</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 어르신 긴급전화 -->
+    <div class="tel-sec">
+      <div class="tel-card">
+        <div class="tel-card-title">📞 어르신 긴급 전화</div>
+        <a class="tel-card-item" href="tel:1393">
+          <span class="tel-card-icon">🧠</span>
+          <div class="tel-text"><div class="tel-name">자살예방상담전화</div><div class="tel-desc">24시간 마음 상담</div></div>
+          <span class="tel-num">1393</span>
+        </a>
+        <div class="tel-divider"></div>
+        <a class="tel-card-item" href="tel:1577-1389">
+          <span class="tel-card-icon">🛡️</span>
+          <div class="tel-text"><div class="tel-name">노인학대 신고센터</div><div class="tel-desc">24시간 신고·상담</div></div>
+          <span class="tel-num">1577-1389</span>
+        </a>
+        <div class="tel-divider"></div>
+        <a class="tel-card-item" href="tel:129">
+          <span class="tel-card-icon">🏥</span>
+          <div class="tel-text"><div class="tel-name">보건복지상담센터</div><div class="tel-desc">복지·의료 상담</div></div>
+          <span class="tel-num">129</span>
+        </a>
+        <div class="tel-divider"></div>
+        <a class="tel-card-item" href="tel:110">
+          <span class="tel-card-icon">🏛️</span>
+          <div class="tel-text"><div class="tel-name">정부민원안내</div><div class="tel-desc">생활 불편 민원 상담</div></div>
+          <span class="tel-num">110</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="affiliate-notice-box">
+      ※ 이 웹앱은 쿠팡파트너스의 제휴마케팅 프로그램에 참여하고 있습니다.<br>
+      이 링크를 통해 구매 시 봄날마당이 일정액의 수수료를 받을 수 있으며, 구매자분께 추가 비용은 없습니다.
+    </div>
+    <button class="btn-kakao-main">💛 카카오톡 친구에게 공유하기</button>
+    <button class="btn-pwa-main">📲 봄날마당 홈화면에 저장하기</button>
+    <footer class="site-footer">
+      <div class="footer-row">
+        <a class="footer-link" href="privacy.html">개인정보처리방침</a><span class="footer-dot">·</span>
+        <a class="footer-link" href="terms.html">이용약관</a><span class="footer-dot">·</span>
+        <a class="footer-link" href="affiliate.html">제휴 공개</a>
+      </div>
+      <div class="footer-row">
+        <a class="footer-link" href="contact.html">문의하기</a><span class="footer-dot">·</span>
+        <a class="footer-link" href="about.html">봄날마당 소개</a>
+      </div>
+    </footer>
+  </div><!-- /main-view -->
+
+
+  <!-- ══════════════════════════════
+       전환페이지 1 — 봄날톡톡
+  ══════════════════════════════ -->
+  <div id="page-talktalk" class="talk-page">
+    <button class="talk-back-btn" onclick="goBack()">◀ 소통마당으로 돌아가기</button>
+    <div class="talk-page-header" style="background:#fce8ee; border: 1.5px solid #f2c4cf;">
+      <span class="talk-page-title" style="color:#c4607a;">💬 봄날톡톡</span>
+      <span class="talk-page-badge" style="background:#f2c4cf; color:#c4607a;">실시간 채팅</span>
+    </div>
+    <div class="talk-page-inner">
+      <div class="board-desc-box" style="background:#fce8ee; border-color:#e8839a; color:#7a3048;">
+        💬 이웃들과 실시간으로 대화해보세요! 채팅방을 만들거나 들어가서 자유롭게 이야기 나눠요 😊
+      </div>
+      <div class="coming-card">
+        <div class="coming-icon">💬</div>
+        <div class="coming-title" style="color:#c4607a;">봄날톡톡 채팅방</div>
+        <div class="coming-desc">실시간으로 이웃들과 대화할 수 있어요.<br>아래 버튼을 눌러 채팅방에 입장해보세요!</div>
+        <button class="talktalk-enter-btn" onclick="location.href='talk-chat.html'">채팅방 들어가기 →</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════
+       전환페이지 2 — 수다방
+  ══════════════════════════════ -->
+  <div id="page-sudabox" class="talk-page">
+    <button class="talk-back-btn" onclick="goBack()">◀ 소통마당으로 돌아가기</button>
+    <div class="talk-page-header" style="background:#fff3e8; border: 1.5px solid #ffd5a8;">
+      <span class="talk-page-title" style="color:#c47a30;">📣 수다방</span>
+      <span class="talk-page-badge" style="background:#ffd5a8; color:#c47a30;">글·댓글</span>
+    </div>
+    <div class="talk-page-inner">
+      <div class="board-desc-box" style="background:#fff3e8; border-color:#c47a30; color:#7a4a20;">
+        📣 오늘 있었던 일, 뭐든 편하게 나눠요! 😊<br>
+        <span style="font-size:13px;color:#aaa;">📸 사진 올리기 기능은 추후 업데이트 예정이에요</span>
+      </div>
+      <button onclick="openWriteModal('sudabox')"
+        style="width:100%;padding:15px;background:#c47a30;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;">
+        ✏️ 글쓰기
+      </button>
+      <div id="board-list-sudabox"></div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════
+       전환페이지 3 — 고민 나눠요
+  ══════════════════════════════ -->
+  <div id="page-worry" class="talk-page">
+    <button class="talk-back-btn" onclick="goBack()">◀ 소통마당으로 돌아가기</button>
+    <div class="talk-page-header" style="background:#e8f5e9; border: 1.5px solid #c8e6c9;">
+      <span class="talk-page-title" style="color:#2e7d32;">🤗 고민 나눠요</span>
+      <span class="talk-page-badge" style="background:#c8e6c9; color:#2e7d32;">익명 가능</span>
+    </div>
+    <div class="talk-page-inner">
+      <div class="board-desc-box" style="background:#e8f5e9; border-color:#2e7d32; color:#1b5e20;">
+        🤗 혼자 끙끙 말고 함께 나눠요. <strong>익명으로 써도 돼요 🤫</strong> 따뜻한 댓글로 서로 위로해드려요
+      </div>
+      <button onclick="openWriteModal('worry')"
+        style="width:100%;padding:15px;background:#2e7d32;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;">
+        ✏️ 고민 올리기
+      </button>
+      <div id="board-list-worry"></div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════
+       전환페이지 4 — 친구 찾아요
+  ══════════════════════════════ -->
+  <div id="page-friend" class="talk-page">
+    <button class="talk-back-btn" onclick="goBack()">◀ 소통마당으로 돌아가기</button>
+    <div class="talk-page-header" style="background:#e8f0fe; border: 1.5px solid #c5d3f5;">
+      <span class="talk-page-title" style="color:#3a5bbf;">🤝 친구 찾아요</span>
+      <span class="talk-page-badge" style="background:#c5d3f5; color:#3a5bbf;">소모임·채팅 연결</span>
+    </div>
+    <div class="talk-page-inner">
+      <div class="board-desc-box" style="background:#e8f0fe; border-color:#3a5bbf; color:#1a3a8f;">
+        🤝 관심사가 비슷한 이웃을 찾아보세요! 소모임 글을 올리면 <strong>봄날톡톡 채팅방</strong>으로 함께 모일 수 있어요 🌸
+      </div>
+      <button onclick="openWriteModal('friend')"
+        style="width:100%;padding:15px;background:#3a5bbf;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;">
+        ✏️ 소모임 글쓰기
+      </button>
+      <div id="board-list-friend"></div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════
+       전환페이지 5 — 좋은 글·사진
+  ══════════════════════════════ -->
+  <div id="page-goodpost" class="talk-page">
+    <button class="talk-back-btn" onclick="goBack()">◀ 소통마당으로 돌아가기</button>
+    <div class="talk-page-header" style="background:#f3e8f5; border: 1.5px solid #ddb8ee;">
+      <span class="talk-page-title" style="color:#7b3fa0;">📝 좋은 글귀</span>
+      <span class="talk-page-badge" style="background:#ddb8ee; color:#7b3fa0;">글귀·좋아요</span>
+    </div>
+    <div class="talk-page-inner">
+      <div class="board-desc-box" style="background:#f3e8f5; border-color:#7b3fa0; color:#4a1870;">
+        📝 마음에 드는 글귀를 올려보세요 🌸 좋아요로 서로 응원해드려요<br>
+        <span style="font-size:13px;color:#aaa;">📸 사진 올리기 기능은 추후 업데이트 예정이에요</span>
+      </div>
+      <button onclick="openWriteModal('goodpost')"
+        style="width:100%;padding:15px;background:#7b3fa0;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;">
+        ✏️ 좋은 글귀 올리기
+      </button>
+      <div id="board-list-goodpost"></div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════
+       전환페이지 6 — 공지사항
+  ══════════════════════════════ -->
+  <div id="page-notice" class="talk-page">
+    <button class="talk-back-btn" onclick="goBack()">◀ 소통마당으로 돌아가기</button>
+    <div class="talk-page-header" style="background:#fffde7; border: 1.5px solid #fff176;">
+      <span class="talk-page-title" style="color:#c47d00;">📢 공지사항</span>
+      <span class="talk-page-badge" style="background:#fff176; color:#c47d00;">운영자 공지</span>
+    </div>
+    <div class="talk-page-inner">
+      <div class="board-desc-box" style="background:#fffde7; border-color:#c47d00; color:#7a4f00;">
+        📢 봄날마당 새 소식을 전해드려요. 중요한 공지는 꼭 확인해주세요! 😊
+      </div>
+      <div id="notice-write-area"></div>
+      <div id="board-list-notice">
+        <div style="text-align:center;padding:40px 20px;color:#bbb;font-size:16px;">아직 공지사항이 없어요 🌸</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- ══════════════════════════════
+     글쓰기 모달
+══════════════════════════════ -->
+<div id="write-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:9998;justify-content:center;">
+  <div id="write-modal-inner" style="background:#fff;border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:480px;"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, updateDoc, doc, increment, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+/* ════════════════════════════════
+   Firebase 초기화
+════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyD8aLOcWJaFvINu7GVgdhxgSL0F8PTGHvc",
+  authDomain: "bomnal-madang.firebaseapp.com",
+  projectId: "bomnal-madang",
+  storageBucket: "bomnal-madang.firebasestorage.app",
+  messagingSenderId: "782349608995",
+  appId: "1:782349608995:web:57a5f14b8bfed61d80e996"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* ════════════════════════════════
+   욕설·광고 자동 필터링 키워드
+════════════════════════════════ */
+const BAD_WORDS = [
+  '시발','씨발','씨팔','ㅅㅂ','개새끼','개새','새끼','ㄱㅅㄲ','병신','ㅂㅅ','지랄','미친놈','미친년',
+  '존나','ㅈㄴ','꺼져','닥쳐','죽어','바보','멍청','돌아이','또라이','패드립','보지','자지','씹',
+  '텔레그램','telegram','카카오톡오픈','오픈채팅','bit.ly','tinyurl','goo.gl','링크클릭',
+  '대출','무이자','급전','투자','수익보장','홍보','광고','모집','판매합니다','팝니다'
+];
+const PHONE_PATTERN = /01[0-9][-\s]?\d{3,4}[-\s]?\d{4}/;
+const URL_PATTERN = /(https?:\/\/|www\.)/i;
+
+function filterCheck(text) {
+  for (var i = 0; i < BAD_WORDS.length; i++) {
+    if (text.includes(BAD_WORDS[i])) return '부적절한 단어가 포함되어 있어요 🚫';
+  }
+  if (PHONE_PATTERN.test(text)) return '전화번호는 올리실 수 없어요 🚫\n개인정보 보호를 위해 자동 차단됩니다';
+  if (URL_PATTERN.test(text)) return '외부 링크(인터넷 주소)는 올리실 수 없어요 🚫';
+  return null;
+}
+
+/* ════════════════════════════════
+   날짜/시간 포맷
+════════════════════════════════ */
+function getTimeStr(ts) {
+  if (!ts) return '';
+  var d = ts.toDate ? ts.toDate() : new Date(ts);
+  var h = d.getHours(), m = d.getMinutes();
+  var ampm = h < 12 ? '오전' : '오후';
+  return ampm + ' ' + (h % 12 || 12) + ':' + String(m).padStart(2,'0');
+}
+function getDateStr(ts) {
+  if (!ts) return '';
+  var d = ts.toDate ? ts.toDate() : new Date(ts);
+  return (d.getMonth()+1) + '.' + d.getDate() + ' ' + getTimeStr(ts);
+}
+
+/* ════════════════════════════════
+   화면 전환
+════════════════════════════════ */
+window.goPage = function(pageId) {
+  document.getElementById('main-view').style.display = 'none';
+  document.querySelectorAll('.talk-page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById(pageId).classList.add('active');
+  window.scrollTo(0, 0);
+  if (pageId === 'page-sudabox') loadBoard('sudabox');
+  if (pageId === 'page-worry') loadBoard('worry');
+  if (pageId === 'page-friend') loadBoard('friend');
+  if (pageId === 'page-goodpost') loadBoard('goodpost');
+  if (pageId === 'page-notice') { refreshNoticeWriteArea(); loadBoard('notice'); }
+};
+
+window.goBack = function() {
+  document.querySelectorAll('.talk-page').forEach(function(p) { p.classList.remove('active'); });
+  document.getElementById('main-view').style.display = 'block';
+  window.scrollTo(0, 0);
+  loadPreview();
+};
+
+window.goHome = function() { window.location.href = 'index.html'; };
+
+/* ════════════════════════════════
+   첫 방문 팝업
+════════════════════════════════ */
+window.closeWelcome = function() {
+  document.getElementById('welcome-overlay').classList.remove('active');
+  localStorage.setItem('bomnal_talk_welcome_done', '1');
+};
+
+/* ════════════════════════════════
+   날짜 표시
+════════════════════════════════ */
+function setDate() {
+  var now = new Date();
+  var days = ['일','월','화','수','목','금','토'];
+  var solar = (now.getMonth()+1) + '월 ' + now.getDate() + '일 (' + days[now.getDay()] + ')';
+  var el = document.getElementById('date-solar');
+  if (el) el.textContent = solar;
+}
+
+/* ════════════════════════════════
+   닉네임 가져오기 / 설정
+════════════════════════════════ */
+function getNickname() {
+  return localStorage.getItem('bomnal_nickname') || '봄날이웃';
+}
+
+function refreshNicknameDisplay() {
+  var el = document.getElementById('nickname-display');
+  if (el) el.textContent = getNickname();
+}
+
+window.setNickname = function() {
+  var current = getNickname();
+  var input = prompt('닉네임을 입력하세요 (2~10자)\n현재 닉네임: ' + current);
+  if (input === null) return; // 취소
+  input = input.trim();
+  if (input.length < 2 || input.length > 10) {
+    alert('닉네임은 2자 이상 10자 이하로 입력해주세요!');
     return;
   }
-  var d = new Date();
-  var dateStr = (d.getMonth() + 1) + '월 ' + d.getDate() + '일';
-  var item = document.createElement('div');
-  item.className = 'post-item';
-  item.innerHTML =
-    '<div class="post-header">' +
-      '<span class="post-nick">🌸 ' + nick + '</span>' +
-      '<span class="post-date">' + dateStr + '</span>' +
-    '</div>' +
-    '<div class="post-body">' + text.replace(/\n/g, '<br>') + '</div>' +
-    '<button class="post-like" onclick="likePost(this)">❤️ 좋아요 <span>0</span></button>';
-  var list = document.getElementById('post-list');
-  list.insertBefore(item, list.firstChild);
-  document.getElementById('board-text').value = '';
-  _toast('✅ 글이 올라갔어요!');
-}
+  var err = filterCheck(input);
+  if (err) { alert('닉네임에 사용할 수 없는 단어가 포함되어 있어요 🚫'); return; }
+  localStorage.setItem('bomnal_nickname', input);
+  refreshNicknameDisplay();
+  alert('닉네임이 [' + input + ']로 설정됐어요! 🌸');
+};
 
-function likePost(btn) {
-  var span = btn.querySelector('span');
-  span.textContent = parseInt(span.textContent) + 1;
-  btn.style.background = '#fce4ec';
-  btn.style.color = '#e53935';
-  btn.disabled = true;
-}
+/* ════════════════════════════════
+   글쓰기 모달 열기
+════════════════════════════════ */
+window.openWriteModal = function(boardId) {
+  var isWorry = boardId === 'worry';
+  var isNotice = boardId === 'notice';
+  var isNoticeAdmin = boardId === 'notice_admin';
+  if (isNotice) { alert('공지사항은 운영자만 작성할 수 있어요 😊'); return; }
 
-function shareKakao() {
-  if (typeof window.shareKakao === 'function') {
-    window.shareKakao();
-  } else {
-    var text = '[시니어 봄날마당] 🌸\n\n50~70대 시니어를 위한 봄날마당\n\n💌 소통마당에서 이웃들과 이야기 나눠요!\n\n🔗 https://bomnal-madang.com';
-    if (navigator.share) {
-      navigator.share({ title: '시니어 봄날마당', text: text });
-    } else {
-      navigator.clipboard.writeText(text).then(function() {
-        _toast('✅ 링크가 복사됐어요! 카카오톡에 붙여넣기 해보세요 😊');
-      });
+  // 공지 관리자 글쓰기는 실제 boardId를 'notice'로 처리
+  var realBoardId = isNoticeAdmin ? 'notice' : boardId;
+
+  var anonCheck = isWorry
+    ? '<label style="display:flex;align-items:center;gap:8px;font-size:15px;color:#555;margin-top:8px;"><input type="checkbox" id="anon-check" style="width:18px;height:18px;"> 익명으로 올리기 (닉네임 대신 "봄날이웃"으로 표시)</label>'
+    : '';
+
+  var titleLabel = isNoticeAdmin ? '📢 공지 글쓰기' : '✏️ 글쓰기';
+
+  document.getElementById('write-modal-inner').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <h3 style="font-size:20px;font-weight:700;">${titleLabel}</h3>
+      <button onclick="closeWriteModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">✕</button>
+    </div>
+    <input id="write-title" type="text" placeholder="제목을 입력하세요" maxlength="30"
+      style="width:100%;padding:13px 14px;border:1.5px solid #e0e0e0;border-radius:12px;font-size:16px;font-family:inherit;margin-bottom:10px;box-sizing:border-box;">
+    <textarea id="write-content" placeholder="내용을 입력하세요 (최대 500자)" maxlength="500" rows="5"
+      style="width:100%;padding:13px 14px;border:1.5px solid #e0e0e0;border-radius:12px;font-size:16px;font-family:inherit;resize:none;box-sizing:border-box;"></textarea>
+    ${anonCheck}
+    <div style="font-size:13px;color:#aaa;margin-top:6px;margin-bottom:14px;">📸 사진 올리기 기능은 추후 업데이트 예정이에요</div>
+    <button onclick="submitPost('${realBoardId}')"
+      style="width:100%;padding:15px;background:#e8839a;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;">
+      올리기 🌸
+    </button>`;
+  var modal = document.getElementById('write-modal');
+  modal.style.display = 'flex';
+  modal.style.alignItems = 'flex-end';
+};
+
+window.closeWriteModal = function() {
+  document.getElementById('write-modal').style.display = 'none';
+};
+
+/* ════════════════════════════════
+   글 올리기
+════════════════════════════════ */
+window.submitPost = async function(boardId) {
+  var title = document.getElementById('write-title').value.trim();
+  var content = document.getElementById('write-content').value.trim();
+  var anonEl = document.getElementById('anon-check');
+  var isAnon = anonEl ? anonEl.checked : false;
+
+  if (!title) { alert('제목을 입력해주세요!'); return; }
+  if (!content) { alert('내용을 입력해주세요!'); return; }
+
+  // 필터링
+  var err = filterCheck(title) || filterCheck(content);
+  if (err) { alert(err); return; }
+
+  var nickname = isAnon ? '봄날이웃' : getNickname();
+
+  try {
+    await addDoc(collection(db, boardId), {
+      title: title,
+      content: content,
+      nickname: nickname,
+      isAnon: isAnon,
+      likes: 0,
+      reports: 0,
+      hidden: false,
+      createdAt: serverTimestamp()
+    });
+    alert('글이 올라갔어요! 🌸');
+    closeWriteModal();
+    loadBoard(boardId);
+    loadPreview();
+  } catch(e) {
+    alert('글 올리기에 실패했어요. 다시 시도해주세요.');
+  }
+};
+
+/* ════════════════════════════════
+   좋아요
+════════════════════════════════ */
+window.likePost = async function(boardId, postId, btn) {
+  var key = 'liked_' + boardId + '_' + postId;
+  if (localStorage.getItem(key)) { alert('이미 좋아요를 눌렀어요 😊'); return; }
+  try {
+    await updateDoc(doc(db, boardId, postId), { likes: increment(1) });
+    localStorage.setItem(key, '1');
+    btn.textContent = '❤️ ' + (parseInt(btn.textContent.replace(/[^0-9]/g,'')) + 1);
+  } catch(e) {}
+};
+
+/* ════════════════════════════════
+   신고
+════════════════════════════════ */
+window.reportPost = async function(boardId, postId) {
+  var key = 'reported_' + boardId + '_' + postId;
+  if (localStorage.getItem(key)) { alert('이미 신고한 글이에요 😊'); return; }
+  if (!confirm('이 글을 신고할까요?\n신고 3회 시 자동으로 숨겨져요.')) return;
+  try {
+    var ref = doc(db, boardId, postId);
+    var snap = await getDoc(ref);
+    if (!snap.exists()) return;
+    var newReports = (snap.data().reports || 0) + 1;
+    var updateData = { reports: newReports };
+    if (newReports >= 3) updateData.hidden = true;
+    await updateDoc(ref, updateData);
+    localStorage.setItem(key, '1');
+    alert(newReports >= 3 ? '신고가 접수되어 글이 숨겨졌어요.' : '신고가 접수됐어요. 감사해요 🌸');
+    loadBoard(boardId);
+  } catch(e) {}
+};
+
+/* ════════════════════════════════
+   관리자 기능
+════════════════════════════════ */
+const ADMIN_PW = 'bomnal9410126';
+var isAdmin = false;
+
+window.adminLogin = function() {
+  if (isAdmin) {
+    if (confirm('관리자 모드를 종료할까요?')) {
+      isAdmin = false;
+      document.getElementById('admin-btn').textContent = '🔑 관리자';
+      document.getElementById('admin-btn').style.background = '#4A90D9';
+      refreshNoticeWriteArea();
+      alert('관리자 모드가 종료됐어요.');
     }
+    return;
+  }
+  var pw = prompt('관리자 비밀번호를 입력하세요:');
+  if (pw === ADMIN_PW) {
+    isAdmin = true;
+    document.getElementById('admin-btn').textContent = '👑 관리자 ON';
+    document.getElementById('admin-btn').style.background = '#c0392b';
+    refreshNoticeWriteArea();
+    alert('관리자 모드가 활성화됐어요! 👑');
+  } else if (pw !== null) {
+    alert('비밀번호가 틀렸어요 🚫');
+  }
+};
+
+window.adminHide = async function(boardId, postId) {
+  if (!isAdmin) return;
+  if (!confirm('이 글을 숨길까요?')) return;
+  try {
+    await updateDoc(doc(db, boardId, postId), { hidden: true });
+    alert('글이 숨겨졌어요 ✅');
+    loadBoard(boardId);
+  } catch(e) { alert('처리 실패 😢'); }
+};
+
+window.adminRestore = async function(boardId, postId) {
+  if (!isAdmin) return;
+  if (!confirm('이 글을 다시 보이게 할까요?')) return;
+  try {
+    await updateDoc(doc(db, boardId, postId), { hidden: false });
+    alert('글이 복구됐어요 ✅');
+    loadBoard(boardId);
+  } catch(e) { alert('처리 실패 😢'); }
+};
+
+/* 공지사항 관리자 글쓰기 영역 갱신 */
+function refreshNoticeWriteArea() {
+  var area = document.getElementById('notice-write-area');
+  if (!area) return;
+  if (isAdmin) {
+    area.innerHTML = `<button onclick="openWriteModal('notice_admin')"
+      style="width:100%;padding:15px;background:#c47d00;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:4px;">
+      📢 공지 글쓰기 (관리자)
+    </button>`;
+  } else {
+    area.innerHTML = '';
   }
 }
-</script>
 
+window.adminDelete = async function(boardId, postId) {
+  if (!isAdmin) return;
+  if (!confirm('이 글을 완전히 삭제할까요?\n⚠️ 삭제 후 복구가 안돼요!')) return;
+  try {
+    var { deleteDoc } = await import("https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js");
+    await deleteDoc(doc(db, boardId, postId));
+    alert('글이 삭제됐어요 ✅');
+    loadBoard(boardId);
+  } catch(e) { alert('삭제 실패 😢'); }
+};
+
+
+async function loadComments(boardId, postId) {
+  var el = document.getElementById('comments-' + postId);
+  if (!el) return;
+  el.innerHTML = '<div style="color:#aaa;font-size:14px;padding:8px 0;">댓글 불러오는 중...</div>';
+  try {
+    var q = query(collection(db, boardId, postId, 'comments'), orderBy('createdAt','asc'), limit(30));
+    var snap = await getDocs(q);
+    if (snap.empty) {
+      el.innerHTML = '<div style="color:#bbb;font-size:14px;padding:6px 0;">아직 댓글이 없어요. 첫 댓글을 달아보세요 🌸</div>';
+      return;
+    }
+    var html = '';
+    snap.forEach(function(c) {
+      var d = c.data();
+      html += `<div style="background:#f7f8fa;border-radius:10px;padding:10px 12px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+          <span style="font-size:13px;font-weight:700;color:#888;">🌸 ${escapeHtml(d.nickname)}${d.isAnon ? ' (익명)' : ''}</span>
+          <span style="font-size:11px;color:#bbb;">${getDateStr(d.createdAt)}</span>
+        </div>
+        <div style="font-size:15px;color:#333;line-height:1.6;">${escapeHtml(d.content)}</div>
+      </div>`;
+    });
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<div style="color:#e57373;font-size:14px;padding:6px 0;">댓글을 불러오지 못했어요 😢</div>';
+  }
+}
+
+/* ════════════════════════════════
+   댓글 토글 (열기/닫기)
+════════════════════════════════ */
+window.toggleComments = function(boardId, postId) {
+  var wrap = document.getElementById('comment-wrap-' + postId);
+  if (!wrap) return;
+  var isOpen = wrap.style.display !== 'none';
+  wrap.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) loadComments(boardId, postId);
+};
+
+/* ════════════════════════════════
+   댓글 올리기
+════════════════════════════════ */
+window.submitComment = async function(boardId, postId, isWorry) {
+  var input = document.getElementById('comment-input-' + postId);
+  var anonEl = document.getElementById('comment-anon-' + postId);
+  var content = input ? input.value.trim() : '';
+  if (!content) { alert('댓글 내용을 입력해주세요!'); return; }
+
+  var err = filterCheck(content);
+  if (err) { alert(err); return; }
+
+  var isAnon = anonEl ? anonEl.checked : false;
+  var nickname = isAnon ? '봄날이웃' : getNickname();
+
+  try {
+    await addDoc(collection(db, boardId, postId, 'comments'), {
+      content: content,
+      nickname: nickname,
+      isAnon: isAnon,
+      createdAt: serverTimestamp()
+    });
+    input.value = '';
+    loadComments(boardId, postId);
+  } catch(e) {
+    alert('댓글 올리기에 실패했어요. 다시 시도해주세요.');
+  }
+};
+
+/* ════════════════════════════════
+   게시판 글 목록 불러오기
+════════════════════════════════ */
+async function loadBoard(boardId) {
+  var listEl = document.getElementById('board-list-' + boardId);
+  if (!listEl) return;
+  listEl.innerHTML = '<div style="text-align:center;padding:30px;color:#aaa;font-size:15px;">글을 불러오는 중이에요...</div>';
+
+  // 댓글 기능 여부 (수다방·고민나눠요·친구찾아요만)
+  var hasComment = ['sudabox','worry','friend'].includes(boardId);
+  var isNotice = boardId === 'notice';
+  var isWorry = boardId === 'worry';
+
+  try {
+    var q = query(collection(db, boardId), orderBy('createdAt','desc'), limit(20));
+    var snap = await getDocs(q);
+    if (snap.empty) {
+      listEl.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#bbb;font-size:16px;">아직 글이 없어요 🌸<br>첫 번째 글을 올려보세요!</div>';
+      return;
+    }
+    var html = '';
+    snap.forEach(function(d) {
+      var data = d.data();
+      if (data.hidden) {
+        // 관리자에게는 숨긴 글도 표시 (복구 버튼 포함)
+        if (isAdmin) {
+          html += `
+            <div style="background:#fff3f3;border-radius:14px;box-shadow:0 1px 5px rgba(0,0,0,0.07);padding:16px;margin-bottom:10px;border:1.5px dashed #e57373;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:13px;font-weight:700;color:#e57373;">🙈 숨겨진 글 (관리자만 보임)</span>
+                <span style="font-size:12px;color:#bbb;">${getDateStr(data.createdAt)}</span>
+              </div>
+              <div style="font-size:17px;font-weight:700;color:#aaa;margin-bottom:6px;">${escapeHtml(data.title)}</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button onclick="adminRestore('${boardId}','${d.id}')"
+                  style="background:#e8f5e9;border:none;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:#2e7d32;cursor:pointer;font-family:inherit;">
+                  🔓 복구
+                </button>
+                <button onclick="adminDelete('${boardId}','${d.id}')"
+                  style="background:#fce8e8;border:none;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:#c0392b;cursor:pointer;font-family:inherit;">
+                  🗑️ 삭제
+                </button>
+              </div>
+            </div>`;
+        }
+        return;
+      }
+
+      /* 댓글 영역 */
+      var commentArea = hasComment ? `
+        <div id="comment-wrap-${d.id}" style="display:none;margin-top:12px;border-top:1px solid #f0f0f0;padding-top:12px;">
+          <div id="comments-${d.id}" style="margin-bottom:10px;"></div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            ${isWorry ? `<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#888;">
+              <input type="checkbox" id="comment-anon-${d.id}" style="width:16px;height:16px;"> 익명으로 달기
+            </label>` : ''}
+            <div style="display:flex;gap:6px;">
+              <input id="comment-input-${d.id}" type="text" placeholder="따뜻한 댓글을 달아주세요 🌸" maxlength="100"
+                style="flex:1;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;font-family:inherit;">
+              <button onclick="submitComment('${boardId}','${d.id}',${isWorry})"
+                style="padding:10px 14px;background:#e8839a;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">
+                등록
+              </button>
+            </div>
+          </div>
+        </div>` : '';
+
+      html += `
+        <div style="background:#fff;border-radius:14px;box-shadow:0 1px 5px rgba(0,0,0,0.07);padding:16px;margin-bottom:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:14px;font-weight:700;color:#888;">🌸 ${escapeHtml(data.nickname)}${data.isAnon ? ' (익명)' : ''}</span>
+            <span style="font-size:12px;color:#bbb;">${getDateStr(data.createdAt)}</span>
+          </div>
+          <div style="font-size:17px;font-weight:700;color:#222;margin-bottom:6px;">${escapeHtml(data.title)}</div>
+          <div style="font-size:15px;color:#555;line-height:1.7;margin-bottom:12px;white-space:pre-wrap;">${escapeHtml(data.content)}</div>
+          ${!isNotice ? `
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button onclick="likePost('${boardId}','${d.id}',this)"
+              style="background:#fce8ee;border:none;border-radius:10px;padding:7px 14px;font-size:14px;font-weight:700;color:#c4607a;cursor:pointer;font-family:inherit;">
+              ❤️ ${data.likes || 0}
+            </button>
+            ${hasComment ? `
+            <button onclick="toggleComments('${boardId}','${d.id}')"
+              style="background:#e8f4ff;border:none;border-radius:10px;padding:7px 14px;font-size:14px;font-weight:700;color:#3a5bbf;cursor:pointer;font-family:inherit;">
+              💬 댓글
+            </button>` : ''}
+            <button onclick="reportPost('${boardId}','${d.id}')"
+              style="background:#f5f5f5;border:none;border-radius:10px;padding:7px 14px;font-size:13px;color:#aaa;cursor:pointer;font-family:inherit;">
+              🚨 신고
+            </button>
+            ${isAdmin ? `
+            <button onclick="adminHide('${boardId}','${d.id}')"
+              style="background:#fff3e0;border:none;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:#e65100;cursor:pointer;font-family:inherit;">
+              🙈 숨기기
+            </button>
+            <button onclick="adminDelete('${boardId}','${d.id}')"
+              style="background:#fce8e8;border:none;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:#c0392b;cursor:pointer;font-family:inherit;">
+              🗑️ 삭제
+            </button>` : ''}
+          </div>
+          ${commentArea}` : ''}
+        </div>`;
+    });
+    listEl.innerHTML = html || '<div style="text-align:center;padding:40px 20px;color:#bbb;font-size:16px;">아직 글이 없어요 🌸</div>';
+  } catch(e) {
+    listEl.innerHTML = '<div style="text-align:center;padding:30px;color:#e57373;font-size:15px;">글을 불러오지 못했어요 😢<br>잠시 후 다시 시도해주세요.</div>';
+  }
+}
+
+/* ════════════════════════════════
+   메인 미리보기 (고민나눠요 + 좋은글귀)
+════════════════════════════════ */
+async function loadPreview() {
+  // 고민나눠요 미리보기
+  var worryEl = document.getElementById('preview-worry');
+  try {
+    var q1 = query(collection(db,'worry'), orderBy('createdAt','desc'), limit(3));
+    var s1 = await getDocs(q1);
+    if (s1.empty) {
+      worryEl.innerHTML = '<div class="preview-empty">아직 글이 없어요. 첫 번째 고민을 올려보세요 🌸</div>';
+    } else {
+      var html1 = '';
+      s1.forEach(function(d) {
+        var data = d.data();
+        if (data.hidden) return;
+        html1 += `<div class="preview-item" onclick="goPage('page-worry')">
+          <span class="preview-badge ${data.isAnon ? 'badge-anon' : 'badge-worry'}">${data.isAnon ? '익명' : '고민'}</span>
+          <span class="preview-text">${escapeHtml(data.title)}</span>
+          <span class="preview-time">${getDateStr(data.createdAt)}</span>
+        </div>`;
+      });
+      worryEl.innerHTML = html1 || '<div class="preview-empty">아직 글이 없어요 🌸</div>';
+    }
+  } catch(e) {
+    worryEl.innerHTML = '<div class="preview-empty">불러오기 실패 😢</div>';
+  }
+
+  // 좋은글귀 미리보기
+  var goodEl = document.getElementById('preview-goodpost');
+  try {
+    var q2 = query(collection(db,'goodpost'), orderBy('createdAt','desc'), limit(3));
+    var s2 = await getDocs(q2);
+    if (s2.empty) {
+      goodEl.innerHTML = '<div class="preview-empty">아직 글이 없어요. 좋은 글귀를 올려보세요 🌸</div>';
+    } else {
+      var html2 = '';
+      s2.forEach(function(d) {
+        var data = d.data();
+        if (data.hidden) return;
+        html2 += `<div class="preview-item" onclick="goPage('page-goodpost')">
+          <span class="preview-badge badge-good">글귀</span>
+          <span class="preview-text">${escapeHtml(data.title)}</span>
+          <span class="preview-time">${getDateStr(data.createdAt)}</span>
+        </div>`;
+      });
+      goodEl.innerHTML = html2 || '<div class="preview-empty">아직 글이 없어요 🌸</div>';
+    }
+  } catch(e) {
+    goodEl.innerHTML = '<div class="preview-empty">불러오기 실패 😢</div>';
+  }
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ════════════════════════════════
+   초기화
+════════════════════════════════ */
+window.onload = function() {
+  setDate();
+  refreshNicknameDisplay();
+  if (!localStorage.getItem('bomnal_talk_welcome_done')) {
+    document.getElementById('welcome-overlay').classList.add('active');
+  }
+  loadPreview();
+};
+</script>
 </body>
 </html>
