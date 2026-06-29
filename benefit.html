@@ -1,9 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>복지·혜택 - 시니어 봄날마당</title>
+</head>
+<body>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
 
 /* ── 전체 래퍼 ── */
 .wrap { background: #f7f8fa; max-width: 480px; margin: 0 auto; padding-bottom: 40px; }
 
+/* ── 헤더 ── */
+.app-header { background: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 100; }
+.header-left { display: flex; align-items: center; gap: 8px; }
+.logo-senior { color: #eb840f; font-weight: 900; font-size: 18px; }
+.logo-bomnal { color: #4A90D9; font-weight: 900; font-size: 18px; }
+.header-date-box { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.header-date-solar { font-size: 15px; font-weight: 700; color: #111; }
+.header-date-lunar { font-size: 12px; font-weight: 700; color: #1a5fa0; }
+
+/* ── 홈바 ── */
+.home-bar { background: #fff; border-bottom: 1px solid #eee; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
+.home-bar button { background: #4A90D9; color: #fff; border: none; border-radius: 20px; padding: 10px 22px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; }
 
 /* ── 아이콘 그리드 ── */
 .sec-wrap { margin: 18px 14px 0; }
@@ -221,6 +241,25 @@
 </style>
 
 <div class="wrap">
+
+  <!-- ① 앱 헤더 -->
+  <div class="app-header">
+    <div class="header-left">
+      <span style="font-size:22px;">🌸</span>
+      <div>
+        <span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span>
+      </div>
+    </div>
+    <div class="header-date-box">
+      <span class="header-date-solar" id="date-solar">날짜 로딩중</span>
+      <span class="header-date-lunar" id="date-lunar">음력 로딩중</span>
+    </div>
+  </div>
+
+  <!-- ② 홈바 -->
+  <div class="home-bar">
+    <button onclick="location.href='index.html'">🏠 홈으로</button>
+  </div>
 
   <!-- ③ 메인 화면 -->
   <div id="main-view">
@@ -1487,7 +1526,15 @@
 </div><!-- /wrap -->
 
 <script>
-
+/* ══════════════════════════════════════
+   날짜 표시
+══════════════════════════════════════ */
+(function(){
+  var d = new Date();
+  var days = ['일','월','화','수','목','금','토'];
+  document.getElementById('date-solar').textContent =
+    (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
+})();
 
 /* ══════════════════════════════════════
    전환 페이지 — 복지시설 GPS 검색
@@ -2305,3 +2352,5 @@ function confirmExternalLink(url) {
   }
 }
 </script>
+</body>
+</html>
