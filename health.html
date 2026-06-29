@@ -3,330 +3,1404 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>건강탭 — 시니어 봄날마당</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<title>건강·약국 - 시니어 봄날마당</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 </head>
 <body>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif; }
+.wrap { background: #f7f8fa; max-width: 480px; margin: 0 auto; padding-bottom: 32px; }
+.app-header { background: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #eee; }
+.header-left { display: flex; align-items: center; gap: 8px; }
+.logo-senior { color: #eb840f; font-weight: 900; font-size: 18px; }
+.logo-bomnal { color: #4A90D9; font-weight: 900; font-size: 18px; }
+.header-date-box { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.header-date-solar { font-size: 15px; font-weight: 700; color: #111; }
+.header-date-lunar { font-size: 12px; font-weight: 700; color: #1a5fa0; }
+.home-bar { background: #fff; border-bottom: 1px solid #eee; padding: 8px 14px; }
+.home-bar button { background: #4A90D9; color: #fff; border: none; border-radius: 20px; padding: 10px 22px; font-size: 17px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.sec-wrap { margin: 18px 14px 0; }
+.sec-title { font-size: 22px; font-weight: 700; color: #222; margin-bottom: 12px; }
+.sec-title em { font-style: normal; color: #1a6fc4; }
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.cat-item { display: flex; flex-direction: column; align-items: center; border: none; border-radius: 14px; padding: 11px 4px 10px; gap: 7px; cursor: pointer; transition: transform 0.13s; -webkit-tap-highlight-color: transparent; }
+.cat-item:active { transform: scale(0.95); }
+.cat-icon-box { width: 100%; height: 64px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 34px; line-height: 1; }
+.cat-name { font-size: 13px; font-weight: 600; text-align: center; line-height: 1.3; word-break: keep-all; }
+.info-sec { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 5px rgba(0,0,0,0.07); margin: 24px 14px 0; }
+.info-sec-header { display: flex; align-items: center; justify-content: space-between; padding: 13px 14px 12px; border-bottom: 1px solid #f0f0f0; }
+.info-sec-title { font-size: 20px; font-weight: 700; }
+.info-sec-badge { font-size: 13px; font-weight: 600; color: #111; padding: 3px 10px; border-radius: 8px; }
+.info-sec-body { padding: 12px; }
+.info-item { display: flex; align-items: center; gap: 8px; border-radius: 10px; padding: 11px 13px; margin-bottom: 7px; cursor: pointer; }
+.info-tag { font-size: 13px; font-weight: 500; padding: 2px 9px; border-radius: 7px; white-space: nowrap; flex-shrink: 0; }
+.info-text { font-size: 15px; font-weight: 600; color: #1a1a1a; line-height: 1.5; word-break: keep-all; }
+.info-all-btn { display: block; width: 100%; margin-top: 10px; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 600; text-align: center; cursor: pointer; background: transparent; font-family: inherit; }
+.tel-sec { margin: 24px 14px 0; }
+.tel-card { background: #fff; border-radius: 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); padding: 18px 16px 8px; }
+.tel-card-title { font-size: 22px; font-weight: 700; color: #222; margin-bottom: 16px; }
+.tel-card-item { display: flex; align-items: center; gap: 10px; background: #f7f8fa; border-radius: 12px; padding: 13px; margin-bottom: 8px; text-decoration: none; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.tel-card-item:active { background: #eef2f8; }
+.tel-card-icon { font-size: 28px; width: 48px; height: 48px; background: #f0f4f8; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.tel-text { flex: 1; }
+.tel-name { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 2px; }
+.tel-desc { font-size: 13px; color: #666; }
+.tel-num { font-size: 20px; font-weight: 800; color: #4A90D9; margin-left: auto; white-space: nowrap; }
+.tel-divider { height: 1px; background: #f0f0f0; margin: 0; }
+.btn-kakao-main { display: block; width: calc(100% - 28px); margin: 24px 14px 0; padding: 14px; background: #FEE500; color: #1a1a1a; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
+.btn-pwa-main { display: block; width: calc(100% - 28px); margin: 8px 14px 0; padding: 13px; background: #7db8e8; color: #111; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
+.affiliate-notice-box { margin: 16px 14px 0; background: #fffbe6; border: 1px solid #ffe082; border-radius: 12px; padding: 12px 14px; font-size: 11px; color: #7a6000; line-height: 1.7; text-align: center; }
+.site-footer { margin: 16px 14px 0; text-align: center; padding-bottom: 8px; }
+.footer-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
+.footer-link { font-size: 11px; color: #999; text-decoration: none; }
+.footer-dot { font-size: 11px; color: #ccc; }
 
-<!-- ============================================
-     건강 탭 (health.html)
-     index.html이 fetch()로 이 파일을 불러와서
-     #tab-health 안에 innerHTML로 삽입합니다
-     ============================================ -->
+/* ── 서브 페이지 공통 ── */
+.page { display: none; }
+.page.active { display: block; }
+.back-btn { display: block; width: calc(100% - 28px); margin: 12px 14px 0; padding: 11px 16px; background: #e3f2fd; color: #1565c0; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit; text-align: left; }
+.back-btn:active { background: #bbdefb; }
+.page-box { background: #fff; border-radius: 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.07); margin: 14px 14px 0; overflow: hidden; }
+.page-box-header { padding: 14px 16px 13px; border-bottom: 1px solid #f0f0f0; }
+.page-box-title { font-size: 20px; font-weight: 800; color: #1a1a1a; }
+.page-box-body { padding: 14px; }
 
-<!-- 만보기 스탬프 카드 -->
-<div class="card" style="text-align:center;">
-  <div class="card-title" style="justify-content:center;">🌺 오늘의 만보기</div>
-  <div class="step-circle" id="step-circle" onclick="doStamp()"><span id="step-icon">🌿</span></div>
-  <div class="step-label" id="step-label">오늘도 걷기 목표를 달성해 봐요!</div>
-  <div class="step-sub" id="step-sub">걷기 목표 달성 후 아래에서 걸음수를 입력해 주세요! (100걸음 이상)</div>
-</div>
+/* ── 검색 UI ── */
+.search-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.search-row select { flex: 1; padding: 10px 8px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 15px; font-family: inherit; background: #fff; color: #222; }
+.search-row input { flex: 1; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 15px; font-family: inherit; }
+.search-row input:focus, .search-row select:focus { outline: none; border-color: #4A90D9; }
+.search-btn { padding: 10px 18px; background: #4A90D9; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.search-btn:active { background: #2f6fb0; }
 
-<!-- 걸음수 입력 카드 -->
-<div class="card">
-  <div class="card-title">👟 오늘의 걸음수</div>
-  <div class="step-input-row">
-    <input class="step-input" type="number" id="step-input" placeholder="오늘 걸음수" min="0" max="99999">
-    <button class="step-apply" onclick="applySteps()">달성!</button>
-  </div>
-  <div class="quick-steps">
-    <button class="quick-step-btn" onclick="addQuick(100)">+100</button>
-    <button class="quick-step-btn" onclick="addQuick(1000)">+1,000</button>
-    <button class="quick-step-btn" onclick="addQuick(3000)">+3,000</button>
-    <button class="quick-step-btn" onclick="addQuick(5000)">+5,000</button>
-  </div>
-</div>
+/* ── 주소 자동완성 ── */
+.addr-wrap { position: relative; margin-bottom: 10px; }
+.addr-input { width: 100%; padding: 11px 14px; border: 1.5px solid #ddd; border-radius: 10px; font-size: 15px; font-family: inherit; box-sizing: border-box; }
+.addr-input:focus { outline: none; border-color: #4A90D9; }
+.addr-hint { font-size: 12px; color: #999; margin-top: 4px; margin-bottom: 6px; }
+.addr-dropdown { position: absolute; top: 46px; left: 0; right: 0; background: #fff; border: 1.5px solid #4A90D9; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.12); z-index: 100; max-height: 220px; overflow-y: auto; }
+.addr-dropdown-item { padding: 11px 14px; font-size: 14px; color: #222; cursor: pointer; border-bottom: 1px solid #f0f0f0; line-height: 1.4; }
+.addr-dropdown-item:last-child { border-bottom: none; }
+.addr-dropdown-item:active { background: #e8f0fb; }
+.addr-dropdown-item b { color: #4A90D9; font-weight: 700; }
+.addr-selected { display: flex; align-items: center; gap: 8px; background: #e8f5e9; border-radius: 10px; padding: 10px 13px; margin-bottom: 10px; }
+.addr-selected-txt { font-size: 14px; font-weight: 700; color: #2e7d32; flex: 1; }
+.addr-selected-clear { font-size: 13px; color: #999; cursor: pointer; flex-shrink: 0; }
+/* GPS 버튼 */
+.gps-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 11px; background: #e3f2fd; color: #1565c0; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; margin-bottom: 8px; }
+.gps-btn:active { background: #bbdefb; }
+.gps-btn.loading { background: #f0f0f0; color: #999; pointer-events: none; }
 
-<!-- 연속 달성 스트릭 카드 -->
-<div class="streak-card">
-  <div class="streak-flame" id="streak-flame">💪</div>
-  <div>
-    <div class="streak-count"><span id="streak-count">0</span><span>일 째 걷기</span></div>
-    <div class="streak-label">오늘도 걷기 달성하면 기록이!</div>
-    <div class="streak-best" id="streak-best">최고 기록: 0일</div>
-  </div>
-</div>
+/* ── 결과 카드 ── */
+.result-list { margin-top: 4px; }
+.result-card { background: #f7f8fa; border-radius: 12px; padding: 13px 14px; margin-bottom: 10px; }
+.result-card-name { font-size: 16px; font-weight: 800; color: #1a1a1a; margin-bottom: 5px; word-break: keep-all; }
+.result-card-addr { font-size: 13px; color: #555; margin-bottom: 4px; line-height: 1.5; }
+.result-card-tel { font-size: 14px; font-weight: 700; color: #4A90D9; }
+.result-card-tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 6px; margin-bottom: 6px; }
+.result-card-desc { font-size: 13px; color: #444; line-height: 1.6; margin-top: 5px; word-break: keep-all; }
+.result-card-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 
-<!-- 달력 카드 -->
-<div class="cal-card">
-  <div class="cal-header">
-    <span class="cal-title-text" id="cal-title">📅 이번 달 달성 기록</span>
-    <span class="cal-summary" id="cal-summary">0일 달성</span>
-  </div>
-  <div class="cal-grid" id="cal-grid"></div>
-</div>
+/* ── 스켈레톤 로딩 (데이터 오는 동안 보여주는 회색 깜빡이) ── */
+.skeleton-wrap { padding: 4px 0; }
+.skeleton-card { background: #f0f0f0; border-radius: 12px; padding: 16px; margin-bottom: 10px; }
+.skeleton-line { background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite; border-radius: 6px; height: 14px; margin-bottom: 8px; }
+.skeleton-line.w80 { width: 80%; }
+.skeleton-line.w60 { width: 60%; }
+.skeleton-line.w40 { width: 40%; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-<!-- 리워드 트랙 카드 -->
-<div class="card">
-  <div class="card-title">🎁 달성 보상 로드맵</div>
-  <div class="reward-track" id="reward-track"></div>
-  <div class="health-reward-desc" id="reward-desc">달성하면 기록이 쌓입니다!</div>
-</div>
+/* ── 빈결과 / 에러 ── */
+.result-empty { text-align: center; padding: 32px 16px; color: #aaa; }
+.result-empty-icon { font-size: 40px; display: block; margin-bottom: 10px; }
+.result-empty-txt { font-size: 15px; font-weight: 700; color: #999; margin-bottom: 4px; }
+.result-empty-sub { font-size: 13px; color: #bbb; }
 
-<!-- 미션 목록 카드 -->
-<div class="card" style="background:#FFF8F0;">
-  <div class="card-title">✅ 오늘의 건강 미션</div>
-  <div class="mission-list" id="mission-list"></div>
-</div>
+/* ── 더보기 버튼 ── */
+.more-btn { display: block; width: 100%; margin-top: 8px; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 600; text-align: center; cursor: pointer; background: #e8f0fb; color: #1a5fa0; border: none; font-family: inherit; }
+.more-btn:active { background: #ccddf5; }
 
-<!-- 포인트 카드 -->
-<div class="point-card">
-  <div class="health-point-icon">🌱</div>
-  <div>
-    <div class="health-point-label">이번 달 모은 포인트</div>
-    <div class="point-value"><span id="total-point">0</span><span>P</span></div>
-    <div class="point-sub">달성 10P + 미션 달성 5P씩 획득</div>
-  </div>
-</div>
+/* ── 쿠팡 배너 ── */
+.coupang-box { margin: 16px 14px 0; background: #fff8f0; border: 1px solid #ffe0b2; border-radius: 12px; padding: 13px 14px; }
+.coupang-box-title { font-size: 13px; font-weight: 700; color: #e65100; margin-bottom: 8px; }
+.coupang-link { display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 7px; text-decoration: none; color: inherit; border: 1px solid #f0e0d0; }
+.coupang-link:last-child { margin-bottom: 0; }
+.coupang-link-icon { font-size: 22px; flex-shrink: 0; }
+.coupang-link-text { font-size: 14px; font-weight: 600; color: #222; }
+.coupang-link-arrow { margin-left: auto; font-size: 14px; color: #e65100; }
 
-<!-- 약 알람 설정 카드 -->
-<div class="card">
-  <div class="card-title">⏰ 내 복약 시간 설정</div>
-  <p class="health-alarm-desc">내 복약 시간을 설정하면 알림을 보내드려요<br>(브라우저 알림 허용 후 더 편리하게 사용 가능)</p>
-  <div class="alarm-grid">
-    <div class="alarm-item" id="alarm-morning">
-      <div class="alarm-icon">🌅</div>
-      <div class="alarm-name">아침 복약</div>
-      <input class="alarm-time-input" type="time" id="alarm-morning-time" value="08:00">
-      <input class="alarm-name-input" type="text" id="alarm-morning-name" placeholder="약 이름 (예: 혈압약)">
-      <button class="alarm-save-btn" onclick="saveAlarm('morning')">저장</button>
+/* ── 출처표시 (병원찾기 전용) ── */
+.source-notice { font-size: 11px; color: #999; text-align: right; margin-top: 8px; }
+
+/* ── 메인 섹션 (약국·약효능 미리보기) ── */
+.hlth-sec { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 5px rgba(0,0,0,0.07); margin: 20px 14px 0; }
+.hlth-sec-header { background: #e8f5e9; display: flex; align-items: center; justify-content: space-between; padding: 13px 14px 12px; border-bottom: 1px solid #c8e6c9; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.hlth-sec-header:active { opacity: 0.85; }
+.hlth-sec-title { font-size: 19px; font-weight: 700; color: #2e7d32; }
+.hlth-sec-badge { font-size: 13px; font-weight: 600; color: #2e7d32; background: #c8e6c9; padding: 3px 10px; border-radius: 8px; }
+.hlth-sec-body { padding: 14px; }
+/* 섹션 결과카드 — 메인용 (약간 작게) */
+.sec-result-card { background: #f7f8fa; border-radius: 11px; padding: 11px 13px; margin-bottom: 8px; }
+.sec-result-card:last-child { margin-bottom: 0; }
+.sec-result-name { font-size: 15px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; word-break: keep-all; }
+.sec-result-addr { font-size: 12px; color: #666; margin-bottom: 3px; line-height: 1.5; }
+.sec-result-tel { font-size: 13px; font-weight: 700; }
+.sec-result-desc { font-size: 12px; color: #444; line-height: 1.6; margin-top: 4px; word-break: keep-all; }
+/* 전체보기 버튼 */
+.sec-more-btn { display: block; width: 100%; margin-top: 12px; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 700; text-align: center; cursor: pointer; background: #e8f5e9; color: #2e7d32; border: none; font-family: inherit; }
+.sec-more-btn:active { opacity: 0.8; }
+</style>
+
+<div class="wrap">
+  <div class="app-header">
+    <div class="header-left">
+      <span style="font-size:22px;">🌸</span>
+      <div>
+        <span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span>
+      </div>
     </div>
-    <div class="alarm-item" id="alarm-noon">
-      <div class="alarm-icon">☀️</div>
-      <div class="alarm-name">점심 복약</div>
-      <input class="alarm-time-input" type="time" id="alarm-noon-time" value="12:00">
-      <input class="alarm-name-input" type="text" id="alarm-noon-name" placeholder="약 이름 (예: 당뇨약)">
-      <button class="alarm-save-btn" onclick="saveAlarm('noon')">저장</button>
-    </div>
-    <div class="alarm-item" id="alarm-evening">
-      <div class="alarm-icon">🌆</div>
-      <div class="alarm-name">저녁 복약</div>
-      <input class="alarm-time-input" type="time" id="alarm-evening-time" value="18:00">
-      <input class="alarm-name-input" type="text" id="alarm-evening-name" placeholder="약 이름 (예: 혈당약)">
-      <button class="alarm-save-btn" onclick="saveAlarm('evening')">저장</button>
-    </div>
-    <div class="alarm-item" id="alarm-night">
-      <div class="alarm-icon">🌙</div>
-      <div class="alarm-name">취침 복약</div>
-      <input class="alarm-time-input" type="time" id="alarm-night-time" value="21:00">
-      <input class="alarm-name-input" type="text" id="alarm-night-name" placeholder="약 이름 (예: 수면약)">
-      <button class="alarm-save-btn" onclick="saveAlarm('night')">저장</button>
+    <div class="header-date-box">
+      <span class="header-date-solar" id="date-solar">날짜 로딩중</span>
+      <span class="header-date-lunar" id="date-lunar" style="font-size:12px;font-weight:700;color:#1a5fa0;"></span>
     </div>
   </div>
-</div>
 
-<button class="btn-kakao" onclick="shareKakao()">📲 카카오로 봄날마당 오늘 걸음수 인증하기</button>
+  <div class="home-bar">
+    <button onclick="history.back()">🏠 홈으로</button>
+  </div>
+
+  <!-- ═══ 메인 그리드 ═══ -->
+  <div id="main-grid-wrap">
+    <div class="sec-wrap">
+      <div class="sec-title"><em>🏥 건강·약국</em></div>
+      <div class="cat-grid">
+        <!-- 1행: 긴급·필수 -->
+        <button class="cat-item" style="background:#ffebee;" onclick="goPage('emergency')">
+          <div class="cat-icon-box" style="background:#ffebee;">🚑</div>
+          <span class="cat-name" style="color:#c62828;">응급실<br>찾기</span>
+        </button>
+        <button class="cat-item" style="background:#e8f5e9;" onclick="goPage('pharmacy')">
+          <div class="cat-icon-box" style="background:#e8f5e9;">💊</div>
+          <span class="cat-name" style="color:#2e7d32;">약국<br>찾기</span>
+        </button>
+        <button class="cat-item" style="background:#e8eaf6;" onclick="goPage('hospital')">
+          <div class="cat-icon-box" style="background:#e8eaf6;">🏨</div>
+          <span class="cat-name" style="color:#3949ab;">병원<br>찾기</span>
+        </button>
+        <!-- 2행: 시설·매장 -->
+        <button class="cat-item" style="background:#f3e5f5;" onclick="goPage('care')">
+          <div class="cat-icon-box" style="background:#f3e5f5;">🏥</div>
+          <span class="cat-name" style="color:#6a1b9a;">요양시설<br>찾기</span>
+        </button>
+        <button class="cat-item" style="background:#fff3e0;" onclick="goPage('store')">
+          <div class="cat-icon-box" style="background:#fff3e0;">🏪</div>
+          <span class="cat-name" style="color:#e65100;">건강매장<br>찾기</span>
+        </button>
+        <button class="cat-item" style="background:#e3f2fd;" onclick="goPage('medicine')">
+          <div class="cat-icon-box" style="background:#e3f2fd;">📖</div>
+          <span class="cat-name" style="color:#1565c0;">약효능<br>복용법</span>
+        </button>
+        <!-- 3행: 정보 검색 -->
+        <button class="cat-item" style="background:#fff8e1;" onclick="goPage('nutrition')">
+          <div class="cat-icon-box" style="background:#fff8e1;">🥗</div>
+          <span class="cat-name" style="color:#f57f17;">식품영양<br>정보</span>
+        </button>
+        <button class="cat-item" style="background:#fce4ec;" onclick="goPage('supplement')">
+          <div class="cat-icon-box" style="background:#fce4ec;">💪</div>
+          <span class="cat-name" style="color:#c62828;">건강기능<br>식품정보</span>
+        </button>
+        <button class="cat-item" style="background:#f1f8e9;" onclick="goPage('herbal')">
+          <div class="cat-icon-box" style="background:#f1f8e9;">🌿</div>
+          <span class="cat-name" style="color:#558b2f;">한방약재<br>사전</span>
+        </button>
+      </div>
+    </div>
+
+  <!-- ═══════════════════════════════════════════
+       섹션1 — 💊 약국 찾기 (미리보기, 결과 5개 고정)
+  ═══════════════════════════════════════════ -->
+  <div class="hlth-sec" id="sec-pharmacy">
+    <div class="hlth-sec-header" onclick="toggleSec('pharmacy')">
+      <span class="hlth-sec-title">💊 약국 찾기</span>
+      <span class="hlth-sec-badge" id="sec-pharmacy-badge">열기 ▼</span>
+    </div>
+    <div class="hlth-sec-body" id="sec-pharmacy-body" style="display:none;">
+      <div class="addr-wrap">
+        <button class="gps-btn" id="sec-ph-gps-btn" onclick="gpsLocate('sec-ph')">📍 현재 위치로 자동입력</button>
+        <input class="addr-input" id="sec-ph-addr-input" type="text" placeholder="동네 입력 (예: 부산 기장 정관읍)" oninput="addrSearch('sec-ph')" autocomplete="off" />
+        <div class="addr-hint">시·군·구·읍·면·동 단위까지 입력하면 더 정확해요</div>
+        <div class="addr-dropdown" id="sec-ph-addr-dropdown" style="display:none;"></div>
+      </div>
+      <div class="addr-selected" id="sec-ph-addr-selected" style="display:none;">
+        <span class="addr-selected-txt" id="sec-ph-addr-selected-txt"></span>
+        <span class="addr-selected-clear" onclick="addrClear('sec-ph')">✕ 다시선택</span>
+      </div>
+      <div class="search-row" style="margin-bottom:10px;">
+        <button class="search-btn" onclick="secSearchPharmacy()" style="width:100%;background:#2e7d32;">💊 약국 찾기</button>
+      </div>
+      <div id="sec-ph-result"></div>
+      <button class="sec-more-btn" onclick="goPage('pharmacy')">💊 약국찾기 전체보기 ▶</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       섹션2 — 📖 약효능·복용법 (미리보기, 결과 5개 고정)
+  ═══════════════════════════════════════════ -->
+  <div class="hlth-sec" id="sec-medicine">
+    <div class="hlth-sec-header" onclick="toggleSec('medicine')" style="background:#e3f2fd;border-bottom-color:#bbdefb;">
+      <span class="hlth-sec-title" style="color:#1565c0;">📖 약효능·복용법</span>
+      <span class="hlth-sec-badge" id="sec-medicine-badge" style="background:#bbdefb;color:#1565c0;">열기 ▼</span>
+    </div>
+    <div class="hlth-sec-body" id="sec-medicine-body" style="display:none;">
+      <div class="search-row" style="margin-bottom:10px;">
+        <input type="text" id="sec-med-input" placeholder="약품명 입력 (예: 타이레놀)" style="flex:1;padding:10px 12px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;font-family:inherit;" />
+        <button class="search-btn" onclick="secSearchMedicine()" style="background:#1565c0;">검색</button>
+      </div>
+      <div id="sec-med-result"></div>
+      <button class="sec-more-btn" onclick="goPage('medicine')" style="background:#e3f2fd;color:#1565c0;">📖 약효능 전체보기 ▶</button>
+    </div>
+  </div>
+
+</div><!-- /main-grid-wrap -->
+
+  <!-- ═══════════════════════════════════════════
+       페이지1 — 💊 약국찾기
+  ═══════════════════════════════════════════ -->
+  <div class="page" id="page-pharmacy">
+    <button class="back-btn" onclick="goBack()">◀ 건강·약국으로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#e8f5e9;">
+        <div class="page-box-title" style="color:#2e7d32;">💊 약국 찾기</div>
+      </div>
+      <div class="page-box-body">
+        <div class="addr-wrap">
+          <button class="gps-btn" id="ph-gps-btn" onclick="gpsLocate('ph')">📍 현재 위치로 자동입력</button>
+          <input class="addr-input" id="ph-addr-input" type="text" placeholder="동네 입력 (예: 부산 기장 정관읍)" oninput="addrSearch('ph')" autocomplete="off" />
+          <div class="addr-hint">시·군·구·읍·면·동 단위까지 입력하면 더 정확해요</div>
+          <div class="addr-dropdown" id="ph-addr-dropdown" style="display:none;"></div>
+        </div>
+        <div class="addr-selected" id="ph-addr-selected" style="display:none;">
+          <span class="addr-selected-txt" id="ph-addr-selected-txt"></span>
+          <span class="addr-selected-clear" onclick="addrClear('ph')">✕ 다시선택</span>
+        </div>
+        <div class="search-row">
+          <button class="search-btn" style="width:100%;" onclick="searchPharmacy(1)">💊 약국 찾기</button>
+        </div>
+        <div id="ph-result" class="result-list"></div>
+      </div>
+    </div>
+    <div class="coupang-box">
+      <div class="coupang-box-title">🛒 건강 관련 추천 상품</div>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/건강측정기');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🩺</span>
+        <span class="coupang-link-text">혈압계·혈당계 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/약통');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">💊</span>
+        <span class="coupang-link-text">약통·약케이스 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       페이지2 — 🚑 응급실찾기
+  ═══════════════════════════════════════════ -->
+  <div class="page" id="page-emergency">
+    <button class="back-btn" onclick="goBack()">◀ 건강·약국으로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#ffebee;">
+        <div class="page-box-title" style="color:#c62828;">🚑 응급실 찾기</div>
+      </div>
+      <div class="page-box-body">
+        <div class="addr-wrap">
+          <button class="gps-btn" id="em-gps-btn" onclick="gpsLocate('em')">📍 현재 위치로 자동입력</button>
+          <input class="addr-input" id="em-addr-input" type="text" placeholder="동네 입력 (예: 서울 강남구 역삼동)" oninput="addrSearch('em')" autocomplete="off" />
+          <div class="addr-hint">시·군·구·읍·면·동 단위까지 입력하면 더 정확해요</div>
+          <div class="addr-dropdown" id="em-addr-dropdown" style="display:none;"></div>
+        </div>
+        <div class="addr-selected" id="em-addr-selected" style="display:none;">
+          <span class="addr-selected-txt" id="em-addr-selected-txt"></span>
+          <span class="addr-selected-clear" onclick="addrClear('em')">✕ 다시선택</span>
+        </div>
+        <div class="search-row">
+          <button class="search-btn" style="width:100%;background:#c62828;" onclick="searchEmergency(1)">🚑 응급실 찾기</button>
+        </div>
+        <div id="em-result" class="result-list"></div>
+      </div>
+    </div>
+    <div class="coupang-box">
+      <div class="coupang-box-title">🛒 응급·안전 관련 추천 상품</div>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/구급함');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🧰</span>
+        <span class="coupang-link-text">가정용 구급함·응급키트</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/낙상방지');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🦺</span>
+        <span class="coupang-link-text">낙상방지 안전용품</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       페이지3 — 📖 약효능·복용법
+  ═══════════════════════════════════════════ -->
+  <div class="page" id="page-medicine">
+    <button class="back-btn" onclick="goBack()">◀ 건강·약국으로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#e3f2fd;">
+        <div class="page-box-title" style="color:#1565c0;">📖 약효능·복용법</div>
+      </div>
+      <div class="page-box-body">
+        <div class="search-row">
+          <input type="text" id="med-input" placeholder="약품명을 입력하세요 (예: 타이레놀)" oninput="clearIfEmpty('med')" />
+          <button class="search-btn" style="background:#1565c0;" onclick="searchMedicine(1)">검색</button>
+        </div>
+        <div id="med-result" class="result-list"></div>
+      </div>
+    </div>
+    <div class="coupang-box">
+      <div class="coupang-box-title">🛒 의약품·건강용품 추천</div>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/소화제');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🍶</span>
+        <span class="coupang-link-text">소화제·위장약 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/진통제');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">💊</span>
+        <span class="coupang-link-text">진통제·해열제 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       페이지4 — 🏪 건강매장찾기
+  ═══════════════════════════════════════════ -->
+  <div class="page" id="page-store">
+    <button class="back-btn" onclick="goBack()">◀ 건강·약국으로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#fff3e0;">
+        <div class="page-box-title" style="color:#e65100;">🏪 건강매장 찾기</div>
+      </div>
+      <div class="page-box-body">
+        <div class="addr-wrap">
+          <button class="gps-btn" id="st-gps-btn" onclick="gpsLocate('st')">📍 현재 위치로 자동입력</button>
+          <input class="addr-input" id="st-addr-input" type="text" placeholder="동네 입력 (예: 경기 수원 영통동)" oninput="addrSearch('st')" autocomplete="off" />
+          <div class="addr-hint">시·군·구·읍·면·동 단위까지 입력하면 더 정확해요</div>
+          <div class="addr-dropdown" id="st-addr-dropdown" style="display:none;"></div>
+        </div>
+        <div class="addr-selected" id="st-addr-selected" style="display:none;">
+          <span class="addr-selected-txt" id="st-addr-selected-txt"></span>
+          <span class="addr-selected-clear" onclick="addrClear('st')">✕ 다시선택</span>
+        </div>
+        <div class="search-row">
+          <button class="search-btn" style="width:100%;background:#e65100;" onclick="searchStore(1)">🏪 건강매장 찾기</button>
+        </div>
+        <div id="st-result" class="result-list"></div>
+      </div>
+    </div>
+    <div class="coupang-box">
+      <div class="coupang-box-title">🛒 건강식품·영양제 추천</div>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/영양제');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🌟</span>
+        <span class="coupang-link-text">종합영양제·비타민 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/홍삼');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🌿</span>
+        <span class="coupang-link-text">홍삼·인삼 건강식품</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       페이지5 — 🌿 한방약재사전
+  ═══════════════════════════════════════════ -->
+  <div class="page" id="page-herbal">
+    <button class="back-btn" onclick="goBack()">◀ 건강·약국으로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#f1f8e9;">
+        <div class="page-box-title" style="color:#558b2f;">🌿 한방약재 사전</div>
+      </div>
+      <div class="page-box-body">
+        <div class="search-row">
+          <input type="text" id="herb-input" placeholder="약재명을 입력하세요 (예: 인삼, 당귀)" />
+          <button class="search-btn" style="background:#558b2f;" onclick="searchHerbal(1)">검색</button>
+        </div>
+        <div id="herb-result" class="result-list"></div>
+      </div>
+    </div>
+    <div class="coupang-box">
+      <div class="coupang-box-title">🛒 한방·전통 건강식품 추천</div>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/한방차');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🍵</span>
+        <span class="coupang-link-text">한방차·건강차 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/한약재');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🌿</span>
+        <span class="coupang-link-text">한약재·약초 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       페이지6 — 🏥 요양시설찾기
+  ═══════════════════════════════════════════ -->
+  <div class="page" id="page-care">
+    <button class="back-btn" onclick="goBack()">◀ 건강·약국으로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#f3e5f5;">
+        <div class="page-box-title" style="color:#6a1b9a;">🏥 요양시설 찾기</div>
+      </div>
+      <div class="page-box-body">
+        <div class="addr-wrap">
+          <button class="gps-btn" id="care-gps-btn" onclick="gpsLocate('care')">📍 현재 위치로 자동입력</button>
+          <input class="addr-input" id="care-addr-input" type="text" placeholder="동네 입력 (예: 인천 남동구 구월동)" oninput="addrSearch('care')" autocomplete="off" />
+          <div class="addr-hint">시·군·구·읍·면·동 단위까지 입력하면 더 정확해요</div>
+          <div class="addr-dropdown" id="care-addr-dropdown" style="display:none;"></div>
+        </div>
+        <div class="addr-selected" id="care-addr-selected" style="display:none;">
+          <span class="addr-selected-txt" id="care-addr-selected-txt"></span>
+          <span class="addr-selected-clear" onclick="addrClear('care')">✕ 다시선택</span>
+        </div>
+        <div class="search-row">
+          <button class="search-btn" style="width:100%;background:#6a1b9a;" onclick="searchCare(1)">🏥 요양시설 찾기</button>
+        </div>
+        <div id="care-result" class="result-list"></div>
+      </div>
+    </div>
+    <div class="coupang-box">
+      <div class="coupang-box-title">🛒 요양·돌봄 관련 추천 상품</div>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/보행기');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🦽</span>
+        <span class="coupang-link-text">보행기·휠체어 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/욕창방지');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🛏️</span>
+        <span class="coupang-link-text">욕창방지 매트리스</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       페이지7 — 🥗 식품영양정보
+  ═══════════════════════════════════════════ -->
+  <div class="page" id="page-nutrition">
+    <button class="back-btn" onclick="goBack()">◀ 건강·약국으로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#fff8e1;">
+        <div class="page-box-title" style="color:#f57f17;">🥗 식품영양 정보</div>
+      </div>
+      <div class="page-box-body">
+        <div class="search-row">
+          <input type="text" id="nut-input" placeholder="식품명을 입력하세요 (예: 사과, 된장찌개)" />
+          <button class="search-btn" style="background:#f57f17;" onclick="searchNutrition(1)">검색</button>
+        </div>
+        <div id="nut-result" class="result-list"></div>
+      </div>
+    </div>
+    <div class="coupang-box">
+      <div class="coupang-box-title">🛒 건강식·다이어트 추천 상품</div>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/건강식품');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🥗</span>
+        <span class="coupang-link-text">저칼로리 건강식품 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/단백질보충제');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">💪</span>
+        <span class="coupang-link-text">단백질 보충제 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       페이지8 — 🏨 병원찾기
+  ═══════════════════════════════════════════ -->
+  <div class="page" id="page-hospital">
+    <button class="back-btn" onclick="goBack()">◀ 건강·약국으로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#e8eaf6;">
+        <div class="page-box-title" style="color:#3949ab;">🏨 병원 찾기</div>
+      </div>
+      <div class="page-box-body">
+        <div class="addr-wrap">
+          <button class="gps-btn" id="hosp-gps-btn" onclick="gpsLocate('hosp')">📍 현재 위치로 자동입력</button>
+          <input class="addr-input" id="hosp-addr-input" type="text" placeholder="동네 입력 (예: 서울 종로구 혜화동)" oninput="addrSearch('hosp')" autocomplete="off" />
+          <div class="addr-hint">시·군·구·읍·면·동 단위까지 입력하면 더 정확해요</div>
+          <div class="addr-dropdown" id="hosp-addr-dropdown" style="display:none;"></div>
+        </div>
+        <div class="addr-selected" id="hosp-addr-selected" style="display:none;">
+          <span class="addr-selected-txt" id="hosp-addr-selected-txt"></span>
+          <span class="addr-selected-clear" onclick="addrClear('hosp')">✕ 다시선택</span>
+        </div>
+        <div class="search-row">
+          <button class="search-btn" style="width:100%;background:#3949ab;" onclick="searchHospital(1)">🏨 병원 찾기</button>
+        </div>
+        <div id="hosp-result" class="result-list"></div>
+        <div class="source-notice">출처: 건강보험심사평가원</div>
+      </div>
+    </div>
+    <div class="coupang-box">
+      <div class="coupang-box-title">🛒 병원 방문 준비 추천 상품</div>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/마스크');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">😷</span>
+        <span class="coupang-link-text">KF94 마스크 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/손소독제');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🧴</span>
+        <span class="coupang-link-text">손소독제 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════
+       페이지9 — 💪 건강기능식품정보
+  ═══════════════════════════════════════════ -->
+  <div class="page" id="page-supplement">
+    <button class="back-btn" onclick="goBack()">◀ 건강·약국으로 돌아가기</button>
+    <div class="page-box">
+      <div class="page-box-header" style="background:#fce4ec;">
+        <div class="page-box-title" style="color:#c62828;">💪 건강기능식품 정보</div>
+      </div>
+      <div class="page-box-body">
+        <div class="search-row">
+          <input type="text" id="sup-input" placeholder="제품명을 입력하세요 (예: 오메가3, 루테인)" />
+          <button class="search-btn" style="background:#c62828;" onclick="searchSupplement(1)">검색</button>
+        </div>
+        <div id="sup-result" class="result-list"></div>
+      </div>
+    </div>
+    <div class="coupang-box">
+      <div class="coupang-box-title">🛒 인기 건강기능식품 추천</div>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/오메가3');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">🐟</span>
+        <span class="coupang-link-text">오메가3·EPA·DHA 모아보기</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+      <a onclick="confirmExternalLink('https://link.coupang.com/a/루테인');return false;" class="coupang-link" href="#"  rel="noopener noreferrer nofollow">
+        <span class="coupang-link-icon">👁️</span>
+        <span class="coupang-link-text">루테인·눈건강 영양제</span>
+        <span class="coupang-link-arrow">▶</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- ─── 공통 하단 영역 ─── -->
+  <div class="tel-sec">
+    <div class="tel-card">
+      <div class="tel-card-title">📞 어르신 긴급 전화</div>
+      <a class="tel-card-item" href="tel:1355">
+        <span class="tel-card-icon">🏛</span>
+        <div class="tel-text">
+          <div class="tel-name">국민연금공단</div>
+          <div class="tel-desc">연금 상담·신청</div>
+        </div>
+        <span class="tel-num">1355</span>
+      </a>
+      <div class="tel-divider"></div>
+      <a class="tel-card-item" href="tel:129">
+        <span class="tel-card-icon">🏥</span>
+        <div class="tel-text">
+          <div class="tel-name">보건복지상담센터</div>
+          <div class="tel-desc">복지·의료 상담</div>
+        </div>
+        <span class="tel-num">129</span>
+      </a>
+      <div class="tel-divider"></div>
+      <a class="tel-card-item" href="tel:1577-1389">
+        <span class="tel-card-icon">🛡️</span>
+        <div class="tel-text">
+          <div class="tel-name">노인학대 신고센터</div>
+          <div class="tel-desc">24시간 신고·상담</div>
+        </div>
+        <span class="tel-num">1577-1389</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="affiliate-notice-box">
+    ※ 이 웹앱은 쿠팡파트너스의 제휴마케팅 프로그램에 참여하고 있습니다.<br>
+    이 링크를 통해 구매 시 봄날마당이 일정액의 수수료를 받을 수 있으며, 구매자분께 추가 비용은 없습니다.
+  </div>
+
+  <button class="btn-kakao-main">💛 카카오톡 친구에게 공유하기</button>
+  <button class="btn-pwa-main">📲 봄날마당 홈화면에 저장하기</button>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a class="footer-link">개인정보처리방침</a>
+      <span class="footer-dot">·</span>
+      <a class="footer-link">이용약관</a>
+      <span class="footer-dot">·</span>
+      <a class="footer-link">제휴 공개</a>
+    </div>
+    <div class="footer-row">
+      <a class="footer-link">문의하기</a>
+      <span class="footer-dot">·</span>
+      <a class="footer-link">봄날마당 소개</a>
+    </div>
+  </footer>
+</div><!-- /wrap -->
 
 <script>
-function getTodayKey(){var d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
-function getYesterKey(){var d=new Date();d.setDate(d.getDate()-1);return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();}
-var TODAY=getTodayKey(), YESTER=getYesterKey();
-var REC_KEY='bomnal-attend', STREAK_KEY='bomnal-streak', BEST_KEY='bomnal-best';
-var MISS_KEY='bomnal-missions-'+TODAY;
-var POINT_KEY='bomnal-point-'+new Date().getFullYear()+'-'+(new Date().getMonth()+1);
-var record={}, streak=0, bestStreak=0;
-var todaySteps=0, todayStamped=false;
-var missionDone={}, monthPoint=0;
-var MISSIONS=[
-  {id:'m1',title:'오늘 100걷기 달성하기',desc:'걷기 목표 달성하면 도장을 찍어요!',point:5},
-  {id:'m2',title:'오늘 6시간 이상 충분히 취침',desc:'충분한 숙면 후에 달성 체크해 주세요',point:5},
-  {id:'m3',title:'물 8컵 이상 마시기',desc:'건강의 기본! 수분 보충을 챙기세요',point:5},
-  {id:'m4',title:'긍정적인 말 1가지 이상하기',desc:'커뮤니티에 따뜻한 한 마디를 나눠 주세요!',point:5}
-];
-var REWARDS=[
-  {day:3,emoji:'🌱',label:'새싹'},
-  {day:7,emoji:'⭐',label:'별'},
-  {day:14,emoji:'🌟',label:'빛나는별'},
-  {day:21,emoji:'🌿',label:'나무'},
-  {day:30,emoji:'🏆',label:'챔피언'}
-];
-function loadHealth(){
-  var r=localStorage.getItem(REC_KEY);record=r?JSON.parse(r):{};
-  streak=parseInt(localStorage.getItem(STREAK_KEY))||0;
-  bestStreak=parseInt(localStorage.getItem(BEST_KEY))||0;
-  todaySteps=record[TODAY]||0;todayStamped=todaySteps>=100;
-  var ms=localStorage.getItem(MISS_KEY);missionDone=ms?JSON.parse(ms):{};
-  monthPoint=parseInt(localStorage.getItem(POINT_KEY))||0;
+/* ═══════════════════════════════════════════
+   날짜 표시
+═══════════════════════════════════════════ */
+(function(){
+  var d = new Date();
+  var days = ['일','월','화','수','목','금','토'];
+  document.getElementById('date-solar').textContent = (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
+  document.getElementById('date-lunar').textContent = '';
+})();
+
+/* ═══════════════════════════════════════════
+   화면전환 — goPage / goBack
+═══════════════════════════════════════════ */
+var PAGES = ['pharmacy','emergency','medicine','store','herbal','care','nutrition','hospital','supplement'];
+
+function goPage(name) {
+  document.getElementById('main-grid-wrap').style.display = 'none';
+  PAGES.forEach(function(p){
+    var el = document.getElementById('page-'+p);
+    if(el) el.classList.remove('active');
+  });
+  var page = document.getElementById('page-'+name);
+  if(page) page.classList.add('active');
+  window.scrollTo(0,0);
 }
-function saveHealth(){
-  record[TODAY]=todaySteps;
-  localStorage.setItem(REC_KEY,JSON.stringify(record));
-  localStorage.setItem(STREAK_KEY,streak);
-  localStorage.setItem(BEST_KEY,bestStreak);
-  localStorage.setItem(MISS_KEY,JSON.stringify(missionDone));
-  localStorage.setItem(POINT_KEY,monthPoint);
+
+function goBack() {
+  PAGES.forEach(function(p){
+    var el = document.getElementById('page-'+p);
+    if(el) el.classList.remove('active');
+  });
+  document.getElementById('main-grid-wrap').style.display = 'block';
+  window.scrollTo(0,0);
 }
-function renderHealth(){renderStampUI();renderStreak();renderCal();renderRewards();renderMissions();renderPoint();}
-function applySteps(){
-  var val=parseInt(document.getElementById('step-input').value)||0;
-  todaySteps=Math.max(0,Math.min(99999,val));
-  document.getElementById('step-input').value='';
-  afterStepUpdate();
-}
-function addQuick(n){todaySteps=Math.min(99999,todaySteps+n);afterStepUpdate();}
-function afterStepUpdate(){if(todaySteps>=100&&!todayStamped){doStamp();}else{saveHealth();renderHealth();}}
-function doStamp(){
-  if(todayStamped){showToast('오늘은 이미 달성했어요! 내일도 기대할게요 😊');return;}
-  if(todaySteps<100){showToast('걷기 100걸음 이상 달성 후 눌러 주세요!');return;}
-  todayStamped=true;
-  if(record[YESTER]&&record[YESTER]>=100){streak++;}else{streak=1;}
-  if(streak>bestStreak)bestStreak=streak;
-  monthPoint+=10;saveHealth();renderHealth();
-  showPopup('🎉',streak+'일 째 걷기 달성!','오늘도 잘 하셨어요! +10P 획득\n'+streak+'일 연속 걷기 달성 중!');
-  launchConfetti();
-}
-function renderStampUI(){
-  var circle=document.getElementById('step-circle');
-  var icon=document.getElementById('step-icon');
-  var label=document.getElementById('step-label');
-  var sub=document.getElementById('step-sub');
-  if(todayStamped){
-    circle.classList.add('stamped');icon.textContent='✅';
-    label.textContent='오늘 달성! '+todaySteps.toLocaleString()+'걸음';
-    label.classList.add('done');sub.textContent='오늘도 건강하게 잘 하셨어요 🌟';
-  }else{
-    circle.classList.remove('stamped');icon.textContent='🌿';
-    label.textContent='오늘도 걷기 목표를 달성해 봐요!';
-    label.classList.remove('done');sub.textContent='걷기 목표 달성 후 아래에서 걸음수를 입력해 주세요! (100걸음 이상)';
+
+/* ═══════════════════════════════════════════
+   주소 자동완성 공통 함수
+   카카오 주소검색 API → /api/kakao 프록시 경유
+   prefix: 'ph','em','st','care','hosp','sec-ph'
+═══════════════════════════════════════════ */
+
+// 각 prefix 별 선택된 주소 저장 (시도명, 시군구명, 읍면동명)
+var addrSelected = {};
+// 디바운스 타이머
+var addrTimer = {};
+
+
+/* ═══════════════════════════════════════════
+   GPS 현재위치 자동입력
+   브라우저 GPS → 카카오 역지오코딩 → 읍면동 자동선택
+═══════════════════════════════════════════ */
+async function gpsLocate(prefix) {
+  var btn = document.getElementById(prefix + '-gps-btn');
+  if (!navigator.geolocation) {
+    alert('이 브라우저는 위치 서비스를 지원하지 않아요.');
+    return;
   }
+
+  // 버튼 로딩 상태
+  btn.classList.add('loading');
+  btn.textContent = '⏳ 위치 확인 중...';
+
+  navigator.geolocation.getCurrentPosition(
+    async function(pos) {
+      var lat = pos.coords.latitude;
+      var lng = pos.coords.longitude;
+      try {
+        // 카카오 역지오코딩: 좌표 → 주소
+        var res = await fetch('/api/kakao?type=coord&lat=' + lat + '&lng=' + lng);
+        var data = await res.json();
+        var doc = data.documents && data.documents[0];
+        if (!doc) throw new Error('주소 변환 실패');
+
+        var sido = doc.region_1depth_name || '';
+        var sigungu = doc.region_2depth_name || '';
+        var eupmyeondong = doc.region_3depth_name || '';
+
+        // addrSelected에 저장
+        addrSelected[prefix] = { sido: sido, sigungu: sigungu, eupmyeondong: eupmyeondong };
+
+        // UI 업데이트
+        var input = document.getElementById(prefix + '-addr-input');
+        var selectedBox = document.getElementById(prefix + '-addr-selected');
+        var selectedTxt = document.getElementById(prefix + '-addr-selected-txt');
+        input.style.display = 'none';
+        selectedBox.style.display = 'flex';
+        selectedTxt.textContent = '📍 ' + sido + ' ' + sigungu + ' ' + eupmyeondong;
+
+        btn.classList.remove('loading');
+        btn.textContent = '📍 현재 위치로 자동입력';
+      } catch(e) {
+        btn.classList.remove('loading');
+        btn.textContent = '📍 현재 위치로 자동입력';
+        alert('위치 변환에 실패했어요. 직접 입력해주세요.');
+      }
+    },
+    function(err) {
+      btn.classList.remove('loading');
+      btn.textContent = '📍 현재 위치로 자동입력';
+      var msg = '위치 정보를 가져올 수 없어요.';
+      if (err.code === 1) msg = '위치 권한이 거부됐어요. 브라우저 설정에서 허용해주세요.';
+      alert(msg);
+    },
+    { timeout: 10000, maximumAge: 60000 }
+  );
 }
-function renderStreak(){
-  document.getElementById('streak-count').textContent=streak;
-  document.getElementById('streak-best').textContent='최고 기록: '+bestStreak+'일';
-  var f=document.getElementById('streak-flame');
-  f.textContent=streak>=30?'🏆':streak>=14?'🌟':streak>=7?'⭐':streak>=3?'🔥':'💪';
+async function addrSearch(prefix) {
+  var input = document.getElementById(prefix + '-addr-input');
+  var dropdown = document.getElementById(prefix + '-addr-dropdown');
+  var kw = input.value.trim();
+
+  // 2글자 미만이면 드롭다운 닫기
+  if (kw.length < 2) { dropdown.style.display = 'none'; return; }
+
+  // 디바운스: 300ms 후 실행 (타이핑 멈추면 검색)
+  clearTimeout(addrTimer[prefix]);
+  addrTimer[prefix] = setTimeout(async function() {
+    try {
+      var res = await fetch('/api/kakao?query=' + encodeURIComponent(kw));
+      var data = await res.json();
+      var docs = (data.documents || []).slice(0, 8);
+
+      dropdown.innerHTML = '';
+      if (docs.length === 0) {
+        dropdown.innerHTML = '<div class="addr-dropdown-item" style="color:#aaa;">검색 결과가 없어요</div>';
+        dropdown.style.display = 'block';
+        return;
+      }
+
+      docs.forEach(function(doc) {
+        var addr = doc.road_address
+          ? doc.road_address.address_name
+          : doc.address.address_name;
+        var item = document.createElement('div');
+        item.className = 'addr-dropdown-item';
+        // 입력어 강조 표시
+        var safeKw = kw.split('').map(function(c){ return c.replace(/[.*+?^${}()|\[\]\\]/,'\\$&'); }).join('');
+        var highlighted = addr.replace(new RegExp('(' + safeKw + ')', 'gi'), '<b>$1</b>');
+        item.innerHTML = highlighted;
+        item.onclick = function() { addrSelect(prefix, doc); };
+        dropdown.appendChild(item);
+      });
+      dropdown.style.display = 'block';
+    } catch(e) {
+      dropdown.style.display = 'none';
+    }
+  }, 300);
 }
-function renderCal(){
-  var d=new Date(),year=d.getFullYear(),month=d.getMonth(),today=d.getDate();
-  var firstDay=new Date(year,month,1).getDay();
-  var lastDate=new Date(year,month+1,0).getDate();
-  document.getElementById('cal-title').textContent=(month+1)+'월 이번 달 달성 기록';
-  var attended=0,grid=document.getElementById('cal-grid');
-  grid.innerHTML='';
-  ['일','월','화','수','목','금','토'].forEach(function(n,i){
-    var h=document.createElement('div');
-    h.className='cal-head'+(i===0?' sun':i===6?' sat':'');
-    h.textContent=n;grid.appendChild(h);
+
+// 주소 선택 완료
+function addrSelect(prefix, doc) {
+  var dropdown = document.getElementById(prefix + '-addr-dropdown');
+  var input = document.getElementById(prefix + '-addr-input');
+  var selectedBox = document.getElementById(prefix + '-addr-selected');
+  var selectedTxt = document.getElementById(prefix + '-addr-selected-txt');
+
+  // 카카오 응답에서 시도·시군구·읍면동 추출
+  var addrObj = doc.road_address || doc.address;
+  var sido = addrObj.region_1depth_name || '';
+  var sigungu = addrObj.region_2depth_name || '';
+  var eupmyeondong = addrObj.region_3depth_name || '';
+
+  addrSelected[prefix] = { sido: sido, sigungu: sigungu, eupmyeondong: eupmyeondong };
+
+  // UI 업데이트
+  dropdown.style.display = 'none';
+  input.style.display = 'none';
+  selectedBox.style.display = 'flex';
+  selectedTxt.textContent = '📍 ' + sido + ' ' + sigungu + ' ' + eupmyeondong;
+}
+
+// 주소 다시선택
+function addrClear(prefix) {
+  var input = document.getElementById(prefix + '-addr-input');
+  var selectedBox = document.getElementById(prefix + '-addr-selected');
+  input.value = '';
+  input.style.display = 'block';
+  selectedBox.style.display = 'none';
+  addrSelected[prefix] = null;
+}
+
+// prefix에서 시도·시군구 값 꺼내기
+function getAddrVal(prefix) {
+  return addrSelected[prefix] || null;
+}
+
+// 드롭다운 외부 클릭 시 닫기
+document.addEventListener('click', function(e) {
+  ['ph','em','st','care','hosp','sec-ph'].forEach(function(p) {
+    var dd = document.getElementById(p + '-addr-dropdown');
+    var inp = document.getElementById(p + '-addr-input');
+    if (dd && inp && !inp.contains(e.target) && !dd.contains(e.target)) {
+      dd.style.display = 'none';
+    }
   });
-  for(var e=0;e<firstDay;e++){var em=document.createElement('div');em.className='cal-cell';grid.appendChild(em);}
-  for(var date=1;date<=lastDate;date++){
-    var key=year+'-'+(month+1)+'-'+date;
-    var dow=(firstDay+date-1)%7;
-    var att=record[key]&&record[key]>=100;
-    if(att)attended++;
-    var cell=document.createElement('div');
-    var cls='cal-cell';
-    if(att)cls+=' attended';if(date===today)cls+=' today';
-    if(dow===0)cls+=' sun-c';if(dow===6)cls+=' sat-c';
-    cell.className=cls;cell.textContent=date;grid.appendChild(cell);
+});
+
+/* ═══════════════════════════════════════════
+   스켈레톤 HTML 생성 헬퍼
+   (데이터 로딩 중에 보여줄 회색 깜빡이 카드)
+═══════════════════════════════════════════ */
+function skeletonHTML(count) {
+  var html = '<div class="skeleton-wrap">';
+  for(var i=0;i<count;i++){
+    html += '<div class="skeleton-card"><div class="skeleton-line w80"></div><div class="skeleton-line w60"></div><div class="skeleton-line w40"></div></div>';
   }
-  document.getElementById('cal-summary').textContent=attended+'일 달성';
+  html += '</div>';
+  return html;
 }
-function renderRewards(){
-  var track=document.getElementById('reward-track');track.innerHTML='';
-  var totalAtt=Object.keys(record).filter(function(k){return record[k]>=100;}).length;
-  REWARDS.forEach(function(r,i){
-    var reached=totalAtt>=r.day;
-    var isCur=!reached&&(i===0||totalAtt>=REWARDS[i-1].day);
-    var node=document.createElement('div');
-    node.className='reward-node'+(reached?' reached':'')+(isCur?' current':'');
-    node.innerHTML='<div class="reward-dot">'+r.emoji+'</div><div class="reward-day">'+r.day+'일</div>';
-    track.appendChild(node);
-  });
-  var next=REWARDS.find(function(r){return totalAtt<r.day;});
-  document.getElementById('reward-desc').textContent=
-    next?'다음 목표 '+next.emoji+' '+next.label+' 까지 '+(next.day-totalAtt)+'일 남았어요!':'🏆 모든 보상 달성! 대단하세요!';
+
+/* ═══════════════════════════════════════════
+   빈 결과 HTML 생성 헬퍼
+═══════════════════════════════════════════ */
+function emptyHTML(icon, msg, sub) {
+  return '<div class="result-empty"><span class="result-empty-icon">'+icon+'</span><div class="result-empty-txt">'+msg+'</div><div class="result-empty-sub">'+sub+'</div></div>';
 }
-function renderMissions(){
-  var list=document.getElementById('mission-list');list.innerHTML='';
-  MISSIONS.forEach(function(m){
-    var done=missionDone[m.id];
-    var item=document.createElement('div');
-    item.className='mission-item'+(done?' done':'');
-    item.onclick=function(){toggleMission(m.id,m.point);};
-    item.innerHTML='<div class="mission-check">'+(done?'✅':'')+'</div>'+
-      '<div class="mission-body"><h4>'+m.title+'</h4><p>'+m.desc+'</p></div>'+
-      '<div class="mission-point">'+(done?'✅':'+'+m.point+'P')+'</div>';
-    list.appendChild(item);
-  });
+
+/* ═══════════════════════════════════════════
+   공통 API 호출 함수
+   /api/health?type=xxx&파라미터 로 호출
+═══════════════════════════════════════════ */
+async function callHealthAPI(params) {
+  var qs = Object.keys(params).map(function(k){ return encodeURIComponent(k)+'='+encodeURIComponent(params[k]); }).join('&');
+  var res = await fetch('/api/health?' + qs);
+  if(!res.ok) throw new Error('API 오류 ' + res.status);
+  var ct = res.headers.get('content-type') || '';
+  if(ct.includes('json')) return await res.json();
+  // XML 응답인 경우 텍스트로 반환
+  return await res.text();
 }
-function renderPoint(){document.getElementById('total-point').textContent=monthPoint.toLocaleString();}
-function toggleMission(id,point){
-  if(missionDone[id]){missionDone[id]=false;monthPoint=Math.max(0,monthPoint-point);}
-  else{missionDone[id]=true;monthPoint+=point;}
-  saveHealth();renderMissions();renderPoint();
+
+/* ─── JSON/XML 에서 items 배열 추출 헬퍼 ─── */
+function extractItems(data) {
+  // JSON 구조: response.body.items.item 또는 items (배열이거나 단일 객체)
+  if(typeof data === 'string') return []; // XML은 빈배열 (별도처리)
+  try {
+    var body = data.response && data.response.body;
+    if(!body) return [];
+    var items = body.items;
+    if(!items) return [];
+    var item = items.item;
+    if(!item) return [];
+    return Array.isArray(item) ? item : [item];
+  } catch(e) { return []; }
 }
-function saveAlarm(type){
-  var t=document.getElementById('alarm-'+type+'-time').value;
-  var n=document.getElementById('alarm-'+type+'-name').value||'복약';
-  localStorage.setItem('alarm-'+type,JSON.stringify({time:t,name:n}));
-  document.getElementById('alarm-'+type).classList.add('set');
-  if(Notification.permission==='default'){
-    Notification.requestPermission().then(function(p){
-      if(p==='granted')showToast('✅ '+n+' 알람 저장! '+t+'에 알림을 받으세요 👍');
-      else showToast('알림 권한 없이도 저장됩니다');
+
+/* ═══════════════════════════════════════════
+   1. 💊 약국찾기
+═══════════════════════════════════════════ */
+var phPage = 1;
+var phSido = '', phSigungu = '';
+
+async function searchPharmacy(page) {
+  var addr = getAddrVal('ph');
+  if(!addr) { alert('동네를 입력하고 선택해주세요.'); return; }
+  phSido = addr.sido; phSigungu = addr.sigungu;
+  phPage = page;
+  var el = document.getElementById('ph-result');
+  if(page===1) el.innerHTML = skeletonHTML(3);
+  try {
+    var data = await callHealthAPI({ type:'pharmacy', Q0:phSido, Q1:phSigungu, QN:addr ? addr.eupmyeondong : '', pageNo:page, numOfRows:10 });
+    var items = extractItems(data);
+    if(page===1) el.innerHTML = '';
+    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('💊','검색 결과가 없어요','다른 지역을 선택해 보세요'); return; }
+    items.forEach(function(it){
+      var card = document.createElement('div');
+      card.className = 'result-card';
+      card.innerHTML =
+        '<div class="result-card-tag" style="background:#e8f5e9;color:#2e7d32;">💊 약국</div>' +
+        '<div class="result-card-name">'+(it.dutyName||'약국명 없음')+'</div>' +
+        '<div class="result-card-addr">📍 '+(it.dutyAddr||'주소 정보 없음')+'</div>' +
+        (it.dutyTel1 ? '<div class="result-card-tel">📞 <a href="tel:'+it.dutyTel1+'" style="color:#2e7d32;text-decoration:none;">'+it.dutyTel1+'</a></div>' : '') +
+        (it.dutyTime1s ? '<div class="result-card-desc">⏰ 평일 '+it.dutyTime1s+'~'+it.dutyTime1c+'</div>' : '');
+      el.appendChild(card);
     });
-  }else{showToast('✅ '+n+' 알람 저장! '+t+'에 복약 알림을 드릴게요 💊');}
-  scheduleAlarm(type,t,n);
-}
-function scheduleAlarm(type,timeStr,name){
-  var parts=timeStr.split(':');
-  var now=new Date();
-  var target=new Date(now.getFullYear(),now.getMonth(),now.getDate(),parseInt(parts[0]),parseInt(parts[1]),0);
-  if(target<=now)target.setDate(target.getDate()+1);
-  var delay=target-now;
-  setTimeout(function(){
-    if(Notification.permission==='granted'){
-      new Notification('⏰ '+name+' 복약 시간!',{body:'봄날마당에서 알려드려요. '+name+' 드실 시간입니다! 💊',icon:'🌸'});
+    // 더보기 버튼
+    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
+    if(items.length===10){
+      var btn = document.createElement('button');
+      btn.className = 'more-btn';
+      btn.textContent = '더보기 ▼';
+      btn.onclick = function(){ searchPharmacy(phPage+1); };
+      el.appendChild(btn);
     }
-  },delay);
-}
-function loadAlarms(){
-  ['morning','noon','evening','night'].forEach(function(type){
-    var saved=localStorage.getItem('alarm-'+type);
-    if(saved){
-      var data=JSON.parse(saved);
-      document.getElementById('alarm-'+type+'-time').value=data.time;
-      document.getElementById('alarm-'+type+'-name').value=data.name;
-      document.getElementById('alarm-'+type).classList.add('set');
-      scheduleAlarm(type,data.time,data.name);
-    }
-  });
-}
-function showToast(msg){
-  var t=document.getElementById('toast-msg');
-  if(!t){t=document.createElement('div');t.id='toast-msg';t.style.cssText='position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:700;z-index:9999;text-align:center;max-width:85%;line-height:1.6;word-break:keep-all;';document.body.appendChild(t);}
-  t.textContent=msg;t.style.display='block';
-  clearTimeout(t._timer);t._timer=setTimeout(function(){t.style.display='none';},3000);
-}
-function showPopup(emoji,title,msg){
-  var ov=document.getElementById('popup-overlay');
-  if(ov){document.getElementById('popup-emoji').textContent=emoji;document.getElementById('popup-title').textContent=title;document.getElementById('popup-msg').textContent=msg;ov.classList.add('show');}
-}
-function launchConfetti(){
-  var wrap=document.getElementById('confetti-wrap');if(!wrap)return;
-  wrap.innerHTML='';
-  var colors=['#FF6F00','#FDD835','#2E7D32','#1565C0','#AD1457','#00838F'];
-  for(var i=0;i<40;i++){
-    var p=document.createElement('div');p.className='confetti-piece';
-    p.style.left=Math.random()*100+'vw';
-    p.style.background=colors[Math.floor(Math.random()*colors.length)];
-    p.style.animationDuration=(1.5+Math.random()*2)+'s';
-    p.style.animationDelay=Math.random()*0.6+'s';
-    var sz=(8+Math.random()*8)+'px';p.style.width=sz;p.style.height=sz;
-    wrap.appendChild(p);
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
   }
-  setTimeout(function(){wrap.innerHTML='';},4000);
 }
-function shareKakao(){
-  var text='[시니어 봄날마당] 🌸\n오늘 걷기 '+todaySteps.toLocaleString()+'걸음 달성!\n'+streak+'일 연속 기록 중 💪\nhttps://bomnal-madang.com';
-  if(navigator.share){navigator.share({title:'시니어 봄날마당',text:text});}
-  else{navigator.clipboard.writeText(text).then(function(){showToast('✅ 클립보드에 복사! 카카오톡에 붙여넣기 하세요 📲');});}
+
+/* ═══════════════════════════════════════════
+   2. 🚑 응급실찾기
+═══════════════════════════════════════════ */
+var emPage = 1;
+
+async function searchEmergency(page) {
+  var addr = getAddrVal('em');
+  if(!addr) { alert('동네를 입력하고 선택해주세요.'); return; }
+  var sido = addr.sido; var sigungu = addr.sigungu;
+  emPage = page;
+  var el = document.getElementById('em-result');
+  if(page===1) el.innerHTML = skeletonHTML(3);
+  try {
+    var data = await callHealthAPI({ type:'emergency', Q0:sido, Q1:sigungu, pageNo:page, numOfRows:10 });
+    var items = extractItems(data);
+    if(page===1) el.innerHTML = '';
+    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🚑','검색 결과가 없어요','다른 지역을 선택해 보세요'); return; }
+    items.forEach(function(it){
+      var card = document.createElement('div');
+      card.className = 'result-card';
+      card.innerHTML =
+        '<div class="result-card-tag" style="background:#ffebee;color:#c62828;">🚑 응급실</div>' +
+        '<div class="result-card-name">'+(it.dutyName||'기관명 없음')+'</div>' +
+        '<div class="result-card-addr">📍 '+(it.dutyAddr||'주소 정보 없음')+'</div>' +
+        (it.dutyTel1 ? '<div class="result-card-tel">📞 <a href="tel:'+it.dutyTel1+'" style="color:#c62828;text-decoration:none;">'+it.dutyTel1+'</a></div>' : '') +
+        (it.dutyEryn==='Y' ? '<div class="result-card-desc" style="color:#c62828;font-weight:700;">✅ 응급실 운영중</div>' : '');
+      el.appendChild(card);
+    });
+    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
+    if(items.length===10){
+      var btn = document.createElement('button');
+      btn.className = 'more-btn';
+      btn.style.background = '#ffebee'; btn.style.color = '#c62828';
+      btn.textContent = '더보기 ▼';
+      btn.onclick = function(){ searchEmergency(emPage+1); };
+      el.appendChild(btn);
+    }
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+  }
 }
-(function initHealth(){loadHealth();renderHealth();loadAlarms();})();
+
+/* ═══════════════════════════════════════════
+   3. 📖 약효능·복용법
+═══════════════════════════════════════════ */
+var medPage = 1;
+var medKeyword = '';
+
+async function searchMedicine(page) {
+  var kw = document.getElementById('med-input').value.trim();
+  if(!kw) { alert('약품명을 입력해주세요.'); return; }
+  medKeyword = kw;
+  medPage = page;
+  var el = document.getElementById('med-result');
+  if(page===1) el.innerHTML = skeletonHTML(3);
+  try {
+    var data = await callHealthAPI({ type:'medicine', itemName:kw, pageNo:page, numOfRows:10 });
+    var items = extractItems(data);
+    if(page===1) el.innerHTML = '';
+    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('📖','검색 결과가 없어요','다른 약품명으로 검색해 보세요'); return; }
+    items.forEach(function(it){
+      var card = document.createElement('div');
+      card.className = 'result-card';
+      card.innerHTML =
+        '<div class="result-card-tag" style="background:#e3f2fd;color:#1565c0;">📖 의약품</div>' +
+        '<div class="result-card-name">'+(it.itemName||'약품명 없음')+'</div>' +
+        '<div class="result-card-addr" style="color:#777;">제조사: '+(it.entpName||'-')+'</div>' +
+        (it.efcyQesitm ? '<div class="result-card-desc"><b>효능:</b> '+it.efcyQesitm+'</div>' : '') +
+        (it.useMethodQesitm ? '<div class="result-card-desc" style="margin-top:4px;"><b>복용법:</b> '+it.useMethodQesitm+'</div>' : '') +
+        (it.atpnWarnQesitm ? '<div class="result-card-desc" style="margin-top:4px;color:#c62828;"><b>⚠️ 주의:</b> '+it.atpnWarnQesitm+'</div>' : '');
+      el.appendChild(card);
+    });
+    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
+    if(items.length===10){
+      var btn = document.createElement('button');
+      btn.className = 'more-btn';
+      btn.textContent = '더보기 ▼';
+      btn.onclick = function(){ searchMedicine(medPage+1); };
+      el.appendChild(btn);
+    }
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+  }
+}
+
+// 검색창 비워지면 결과도 초기화
+function clearIfEmpty(prefix) {
+  var input = document.getElementById(prefix+'-input');
+  if(input && input.value.trim()==='') {
+    var el = document.getElementById(prefix+'-result');
+    if(el) el.innerHTML = '';
+  }
+}
+
+/* ═══════════════════════════════════════════
+   4. 🏪 건강매장찾기
+═══════════════════════════════════════════ */
+var stPage = 1;
+
+async function searchStore(page) {
+  var addr = getAddrVal('st');
+  if(!addr) { alert('동네를 입력하고 선택해주세요.'); return; }
+  var sido = addr.sido;
+  stPage = page;
+  var el = document.getElementById('st-result');
+  if(page===1) el.innerHTML = skeletonHTML(3);
+
+  // 소상공인 API는 시도코드 필요 (2자리)
+  var SIDO_CODE2 = {
+    '서울특별시':'11','부산광역시':'21','대구광역시':'22','인천광역시':'23','광주광역시':'24',
+    '대전광역시':'25','울산광역시':'26','세종특별자치시':'29','경기도':'41','강원특별자치도':'42',
+    '충청북도':'43','충청남도':'44','전라북도':'45','전라남도':'46','경상북도':'47','경상남도':'48','제주특별자치도':'50'
+  };
+  var ctprvnCd = SIDO_CODE2[sido] || '11';
+  var sigungu = document.getElementById('st-sigungu').value;
+
+  try {
+    var data = await callHealthAPI({ type:'store', ctprvnCd:ctprvnCd, pageNo:page, numOfRows:10 });
+    var items = extractItems(data);
+    if(page===1) el.innerHTML = '';
+    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🏪','검색 결과가 없어요','다른 지역을 선택해 보세요'); return; }
+    items.forEach(function(it){
+      var card = document.createElement('div');
+      card.className = 'result-card';
+      card.innerHTML =
+        '<div class="result-card-tag" style="background:#fff3e0;color:#e65100;">🏪 건강매장</div>' +
+        '<div class="result-card-name">'+(it.bizesNm||it.상호명||'상호명 없음')+'</div>' +
+        '<div class="result-card-addr">📍 '+(it.rdnWhlAddr||it.도로명주소||it.lnoAdr||it.지번주소||'주소 정보 없음')+'</div>' +
+        (it.indsSclsCdNm||it.상권업종소분류명 ? '<div class="result-card-desc">업종: '+(it.indsSclsCdNm||it.상권업종소분류명||'-')+'</div>' : '');
+      el.appendChild(card);
+    });
+    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
+    if(items.length===10){
+      var btn = document.createElement('button');
+      btn.className = 'more-btn';
+      btn.style.background='#fff3e0'; btn.style.color='#e65100';
+      btn.textContent = '더보기 ▼';
+      btn.onclick = function(){ searchStore(stPage+1); };
+      el.appendChild(btn);
+    }
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   5. 🌿 한방약재사전
+═══════════════════════════════════════════ */
+var herbPage = 1;
+var herbKeyword = '';
+
+async function searchHerbal(page) {
+  var kw = document.getElementById('herb-input').value.trim();
+  if(!kw) { alert('약재명을 입력해주세요.'); return; }
+  herbKeyword = kw;
+  herbPage = page;
+  var el = document.getElementById('herb-result');
+  if(page===1) el.innerHTML = skeletonHTML(3);
+  try {
+    var data = await callHealthAPI({ type:'herbal', itemName:kw, pageNo:page, numOfRows:10 });
+    var items = extractItems(data);
+    if(page===1) el.innerHTML = '';
+    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🌿','검색 결과가 없어요','다른 약재명으로 검색해 보세요'); return; }
+    items.forEach(function(it){
+      var card = document.createElement('div');
+      card.className = 'result-card';
+      card.innerHTML =
+        '<div class="result-card-tag" style="background:#f1f8e9;color:#558b2f;">🌿 한방약재</div>' +
+        '<div class="result-card-name">'+(it.itemName||it.한약재명||'약재명 없음')+'</div>' +
+        (it.itemEngName ? '<div class="result-card-addr" style="color:#777;">영문명: '+it.itemEngName+'</div>' : '') +
+        (it.medicinalPart ? '<div class="result-card-desc"><b>약용부위:</b> '+it.medicinalPart+'</div>' : '') +
+        (it.efficacy ? '<div class="result-card-desc" style="margin-top:4px;"><b>효능:</b> '+it.efficacy+'</div>' : '');
+      el.appendChild(card);
+    });
+    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
+    if(items.length===10){
+      var btn = document.createElement('button');
+      btn.className = 'more-btn';
+      btn.style.background='#f1f8e9'; btn.style.color='#558b2f';
+      btn.textContent = '더보기 ▼';
+      btn.onclick = function(){ searchHerbal(herbPage+1); };
+      el.appendChild(btn);
+    }
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   6. 🏥 요양시설찾기
+═══════════════════════════════════════════ */
+var carePage = 1;
+
+async function searchCare(page) {
+  var addr = getAddrVal('care');
+  if(!addr) { alert('동네를 입력하고 선택해주세요.'); return; }
+  var sido = addr.sido; var sigungu = addr.sigungu;
+  carePage = page;
+  var el = document.getElementById('care-result');
+  if(page===1) el.innerHTML = skeletonHTML(3);
+  try {
+    var data = await callHealthAPI({ type:'care', siDoNm:sido, siGunGuNm:sigungu, emdongNm:addr ? addr.eupmyeondong : '', pageNo:page, numOfRows:10 });
+    var items = extractItems(data);
+    if(page===1) el.innerHTML = '';
+    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🏥','검색 결과가 없어요','다른 지역을 선택해 보세요'); return; }
+    items.forEach(function(it){
+      var card = document.createElement('div');
+      card.className = 'result-card';
+      card.innerHTML =
+        '<div class="result-card-tag" style="background:#f3e5f5;color:#6a1b9a;">🏥 요양시설</div>' +
+        '<div class="result-card-name">'+(it.longTermCareNm||it.기관명||'기관명 없음')+'</div>' +
+        '<div class="result-card-addr">📍 '+(it.addr||it.주소||'주소 정보 없음')+'</div>' +
+        (it.telNo ? '<div class="result-card-tel">📞 <a href="tel:'+it.telNo+'" style="color:#6a1b9a;text-decoration:none;">'+it.telNo+'</a></div>' : '') +
+        (it.longTermCareTypeCdNm ? '<div class="result-card-desc">유형: '+it.longTermCareTypeCdNm+'</div>' : '');
+      el.appendChild(card);
+    });
+    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
+    if(items.length===10){
+      var btn = document.createElement('button');
+      btn.className = 'more-btn';
+      btn.style.background='#f3e5f5'; btn.style.color='#6a1b9a';
+      btn.textContent = '더보기 ▼';
+      btn.onclick = function(){ searchCare(carePage+1); };
+      el.appendChild(btn);
+    }
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   7. 🥗 식품영양정보
+═══════════════════════════════════════════ */
+var nutPage = 1;
+var nutKeyword = '';
+
+async function searchNutrition(page) {
+  var kw = document.getElementById('nut-input').value.trim();
+  if(!kw) { alert('식품명을 입력해주세요.'); return; }
+  nutKeyword = kw;
+  nutPage = page;
+  var el = document.getElementById('nut-result');
+  if(page===1) el.innerHTML = skeletonHTML(3);
+  try {
+    var data = await callHealthAPI({ type:'nutrition', desc_kor:kw, pageNo:page, numOfRows:10 });
+    var items = extractItems(data);
+    if(page===1) el.innerHTML = '';
+    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🥗','검색 결과가 없어요','다른 식품명으로 검색해 보세요'); return; }
+    items.forEach(function(it){
+      var card = document.createElement('div');
+      card.className = 'result-card';
+      // 칼로리·영양소 표시
+      var kcal = it.AMT_NUM1 || it.enerc || '-';
+      var carb = it.AMT_NUM7 || it.chocdf || '-';
+      var prot = it.AMT_NUM3 || it.prot || '-';
+      var fat  = it.AMT_NUM4 || it.fatce || '-';
+      card.innerHTML =
+        '<div class="result-card-tag" style="background:#fff8e1;color:#f57f17;">🥗 식품</div>' +
+        '<div class="result-card-name">'+(it.DESC_KOR||it.FOOD_NM_KR||it.desc_kor||'식품명 없음')+'</div>' +
+        '<div class="result-card-addr" style="color:#777;">분류: '+(it.GROUP_NM||it.FOOD_OR_CD||'-')+'</div>' +
+        '<div class="result-card-row">' +
+          '<span style="background:#fff3e0;color:#e65100;padding:3px 8px;border-radius:6px;font-size:13px;font-weight:700;">🔥 '+kcal+' kcal</span>' +
+          '<span style="background:#e8f5e9;color:#2e7d32;padding:3px 8px;border-radius:6px;font-size:13px;">탄수화물 '+carb+'g</span>' +
+          '<span style="background:#e3f2fd;color:#1565c0;padding:3px 8px;border-radius:6px;font-size:13px;">단백질 '+prot+'g</span>' +
+          '<span style="background:#fce4ec;color:#c62828;padding:3px 8px;border-radius:6px;font-size:13px;">지방 '+fat+'g</span>' +
+        '</div>';
+      el.appendChild(card);
+    });
+    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
+    if(items.length===10){
+      var btn = document.createElement('button');
+      btn.className = 'more-btn';
+      btn.style.background='#fff8e1'; btn.style.color='#f57f17';
+      btn.textContent = '더보기 ▼';
+      btn.onclick = function(){ searchNutrition(nutPage+1); };
+      el.appendChild(btn);
+    }
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   8. 🏨 병원찾기
+   출처표시 필수: 건강보험심사평가원 (공공저작물 제1유형)
+═══════════════════════════════════════════ */
+var hospPage = 1;
+
+async function searchHospital(page) {
+  var addr = getAddrVal('hosp');
+  if(!addr) { alert('동네를 입력하고 선택해주세요.'); return; }
+  var sido = addr.sido;
+  hospPage = page;
+  var el = document.getElementById('hosp-result');
+  if(page===1) el.innerHTML = skeletonHTML(3);
+
+  // 심평원 API는 시도코드(앞 2자리), 시군구코드(뒤 3자리) 형식
+  var sidoCd = (SIDO_CODE_MAP[sido]||'').substring(0,3);
+
+  try {
+    var data = await callHealthAPI({ type:'hospital', sidoCd:sidoCd, pageNo:page, numOfRows:10 });
+    var items = extractItems(data);
+    if(page===1) el.innerHTML = '';
+    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🏨','검색 결과가 없어요','다른 지역을 선택해 보세요'); return; }
+    items.forEach(function(it){
+      var card = document.createElement('div');
+      card.className = 'result-card';
+      card.innerHTML =
+        '<div class="result-card-tag" style="background:#e8eaf6;color:#3949ab;">🏨 병원</div>' +
+        '<div class="result-card-name">'+(it.yadmNm||'병원명 없음')+'</div>' +
+        '<div class="result-card-addr">📍 '+(it.addr||'주소 정보 없음')+'</div>' +
+        (it.telno ? '<div class="result-card-tel">📞 <a href="tel:'+it.telno+'" style="color:#3949ab;text-decoration:none;">'+it.telno+'</a></div>' : '') +
+        (it.dgsbjtCdNm ? '<div class="result-card-desc">진료과목: '+it.dgsbjtCdNm+'</div>' : '');
+      el.appendChild(card);
+    });
+    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
+    if(items.length===10){
+      var btn = document.createElement('button');
+      btn.className = 'more-btn';
+      btn.style.background='#e8eaf6'; btn.style.color='#3949ab';
+      btn.textContent = '더보기 ▼';
+      btn.onclick = function(){ searchHospital(hospPage+1); };
+      el.appendChild(btn);
+    }
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+  }
+}
+
+
+/* ═══════════════════════════════════════════
+   메인 섹션 — 아코디언 토글
+═══════════════════════════════════════════ */
+function toggleSec(name) {
+  var body = document.getElementById('sec-' + name + '-body');
+  var badge = document.getElementById('sec-' + name + '-badge');
+  if (body.style.display === 'none') {
+    body.style.display = 'block';
+    badge.textContent = '닫기 ▲';
+
+  } else {
+    body.style.display = 'none';
+    badge.textContent = '열기 ▼';
+  }
+}
+
+/* 섹션 시/도 초기화 함수는 자동완성 방식으로 대체되어 불필요 */
+
+/* ═══════════════════════════════════════════
+   섹션1 — 💊 약국찾기 (결과 5개 고정)
+═══════════════════════════════════════════ */
+async function secSearchPharmacy() {
+  var addr = getAddrVal('sec-ph');
+  if (!addr) { alert('동네를 입력하고 선택해주세요.'); return; }
+  var el = document.getElementById('sec-ph-result');
+  el.innerHTML = skeletonHTML(3);
+  try {
+    var data = await callHealthAPI({ type: 'pharmacy', Q0: addr.sido, Q1: addr.sigungu, QN: addr.eupmyeondong, pageNo: 1, numOfRows: 5 });
+    var items = extractItems(data);
+    el.innerHTML = '';
+    if (items.length === 0) {
+      el.innerHTML = emptyHTML('💊', '검색 결과가 없어요', '다른 지역을 선택해 보세요');
+      return;
+    }
+    items.slice(0, 5).forEach(function(it) {
+      var card = document.createElement('div');
+      card.className = 'sec-result-card';
+      card.innerHTML =
+        '<div class="sec-result-name">💊 ' + (it.dutyName || '약국명 없음') + '</div>' +
+        '<div class="sec-result-addr">📍 ' + (it.dutyAddr || '주소 정보 없음') + '</div>' +
+        (it.dutyTel1 ? '<div class="sec-result-tel"><a href="tel:' + it.dutyTel1 + '" style="color:#2e7d32;text-decoration:none;">📞 ' + it.dutyTel1 + '</a></div>' : '');
+      el.appendChild(card);
+    });
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️', '불러오기 실패', '잠시 후 다시 시도해 주세요');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   섹션2 — 📖 약효능·복용법 (결과 5개 고정)
+═══════════════════════════════════════════ */
+async function secSearchMedicine() {
+  var kw = document.getElementById('sec-med-input').value.trim();
+  if (!kw) { alert('약품명을 입력해주세요.'); return; }
+  var el = document.getElementById('sec-med-result');
+  el.innerHTML = skeletonHTML(3);
+  try {
+    var data = await callHealthAPI({ type: 'medicine', itemName: kw, pageNo: 1, numOfRows: 5 });
+    var items = extractItems(data);
+    el.innerHTML = '';
+    if (items.length === 0) {
+      el.innerHTML = emptyHTML('📖', '검색 결과가 없어요', '다른 약품명으로 검색해 보세요');
+      return;
+    }
+    items.slice(0, 5).forEach(function(it) {
+      var card = document.createElement('div');
+      card.className = 'sec-result-card';
+      card.innerHTML =
+        '<div class="sec-result-name">📖 ' + (it.itemName || '약품명 없음') + '</div>' +
+        '<div class="sec-result-addr" style="color:#777;">제조사: ' + (it.entpName || '-') + '</div>' +
+        (it.efcyQesitm ? '<div class="sec-result-desc"><b>효능:</b> ' + it.efcyQesitm + '</div>' : '') +
+        (it.useMethodQesitm ? '<div class="sec-result-desc"><b>복용법:</b> ' + it.useMethodQesitm + '</div>' : '');
+      el.appendChild(card);
+    });
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️', '불러오기 실패', '잠시 후 다시 시도해 주세요');
+  }
+}
+
+/* ═══════════════════════════════════════════
+   9. 💪 건강기능식품정보
+═══════════════════════════════════════════ */
+var supPage = 1;
+var supKeyword = '';
+
+async function searchSupplement(page) {
+  var kw = document.getElementById('sup-input').value.trim();
+  if(!kw) { alert('제품명을 입력해주세요.'); return; }
+  supKeyword = kw;
+  supPage = page;
+  var el = document.getElementById('sup-result');
+  if(page===1) el.innerHTML = skeletonHTML(3);
+  try {
+    var data = await callHealthAPI({ type:'supplement', prdlstNm:kw, pageNo:page, numOfRows:10 });
+    var items = extractItems(data);
+    if(page===1) el.innerHTML = '';
+    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('💪','검색 결과가 없어요','다른 제품명으로 검색해 보세요'); return; }
+    items.forEach(function(it){
+      var card = document.createElement('div');
+      card.className = 'result-card';
+      card.innerHTML =
+        '<div class="result-card-tag" style="background:#fce4ec;color:#c62828;">💪 건강기능식품</div>' +
+        '<div class="result-card-name">'+(it.prdlstNm||'제품명 없음')+'</div>' +
+        '<div class="result-card-addr" style="color:#777;">제조사: '+(it.bsshNm||'-')+'</div>' +
+        (it.prduct ? '<div class="result-card-desc"><b>기능성:</b> '+it.prduct+'</div>' : '') +
+        (it.intakeMthd ? '<div class="result-card-desc" style="margin-top:4px;"><b>섭취방법:</b> '+it.intakeMthd+'</div>' : '');
+      el.appendChild(card);
+    });
+    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
+    if(items.length===10){
+      var btn = document.createElement('button');
+      btn.className = 'more-btn';
+      btn.style.background='#fce4ec'; btn.style.color='#c62828';
+      btn.textContent = '더보기 ▼';
+      btn.onclick = function(){ searchSupplement(supPage+1); };
+      el.appendChild(btn);
+    }
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+  }
+}
+
+function confirmExternalLink(url) {
+  if (confirm('외부 사이트로 이동합니다.\n봄날마당으로 돌아오려면 휴대폰 뒤로가기를 누르세요.')) {
+    window.open(url, '_blank');
+  }
+}
 </script>
 </body>
 </html>
