@@ -33,7 +33,6 @@ body.big-font { font-size: 1.4em; }
 body.big-font .tab-label { font-size: 10px !important; }
 /* 큰글씨 모드: 헤더·홈으로바 높이 증가 반영 */
 body.big-font { padding-top: 86px !important; }
-body.big-font .home-bar { top: 86px !important; }
 body.big-font #tab-benefit.active,
 body.big-font #tab-health.active,
 body.big-font #tab-job.active,
@@ -124,7 +123,6 @@ body.big-font #tab-market.active { padding-top: 52px !important; }
 
 /* 큰글씨 모드: 헤더 77px + 홈으로바 top 77px + 탭 padding 52px */
 body.big-font { padding-top: 86px !important; }
-body.big-font .home-bar { top: 86px !important; }
 body.big-font #tab-benefit.active,
 body.big-font #tab-health.active,
 body.big-font #tab-job.active,
@@ -417,13 +415,6 @@ body.big-font #tab-market.active { padding-top: 52px !important; }
   background: #ffffff;
   border-bottom: 1px solid #eee;
   padding: 6px 14px;
-  position: fixed;
-  top: 90px;
-  left: 0;
-  right: 0;
-  max-width: 480px;
-  margin: 0 auto;
-  z-index: 99;
 }
 .home-bar button {
   background: var(--point);
