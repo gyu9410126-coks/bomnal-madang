@@ -3483,6 +3483,14 @@ function showDreamResult(keyword) {
   resultBox.classList.add('show');
   scrollToSection('dream-sec');
 }
+
+/* 홈 화면 달력바에서 들어왔으면 (?open=cal) 자동으로 달력 화면 열기 */
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('open') === 'cal') {
+    goPage('cal');
+  }
+})();
 </script>
 </body>
 </html>
