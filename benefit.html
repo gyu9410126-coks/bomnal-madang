@@ -1816,10 +1816,17 @@ function goPage(id) {
   currentPage = id;
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
+  history.pushState({ page: id }, '', '');
 
   /* ── 페이지별 리셋 ── */
   resetPage(id);
 }
+
+window.addEventListener('popstate', function(e) {
+  if (currentPage) {
+    goBack();
+  }
+});
 
 function resetPage(id) {
   /* 공통 헬퍼 — 값 초기화 */
