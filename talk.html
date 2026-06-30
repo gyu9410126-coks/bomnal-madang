@@ -500,6 +500,7 @@ window.goPage = function(pageId) {
   document.querySelectorAll('.talk-page').forEach(function(p) { p.classList.remove('active'); });
   document.getElementById(pageId).classList.add('active');
   window.scrollTo(0, 0);
+  history.pushState({ page: pageId }, '', '');
   if (pageId === 'page-sudabox') loadBoard('sudabox');
   if (pageId === 'page-worry') loadBoard('worry');
   if (pageId === 'page-friend') loadBoard('friend');
@@ -513,6 +514,11 @@ window.goBack = function() {
   window.scrollTo(0, 0);
   loadPreview();
 };
+
+window.addEventListener('popstate', function(e) {
+  var isPageActive = document.querySelectorAll('.talk-page.active').length > 0;
+  if (isPageActive) { window.goBack(); }
+});
 
 window.goHome = function() { window.location.href = 'index.html'; };
 
