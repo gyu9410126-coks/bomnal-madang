@@ -846,6 +846,8 @@ function goBack() {
   });
   document.getElementById('main-grid-wrap').style.display = 'block';
   window.scrollTo(0,0);
+  /* 퀴즈는 다시 들어올 때 처음부터 새로 시작하도록 리셋 */
+  quizStarted = false;
 }
 
 window.addEventListener('popstate', function(e) {
