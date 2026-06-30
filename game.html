@@ -1974,6 +1974,15 @@ window.addEventListener('popstate', function(e) {
   if (isPageActive) { goPage('main'); }
 });
 
+// 퀴즈 내부 화면전환 전용 — quiz-home 진입 시 1번만 history가 쌓이고,
+// quiz-play/quiz-result 사이 전환은 history를 추가로 쌓지 않음 (뒤로가기 중첩 방지)
+function goQuizSub(name) {
+  document.querySelectorAll('.page-view').forEach(function(p){ p.classList.remove('active'); });
+  var t = document.getElementById('page-' + name);
+  if (t) t.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
 // ══════════════════════════════════════════════
 // 퀴즈 문제 데이터 — 역사·건강·속담 통합 300문제
 // ══════════════════════════════════════════════
@@ -2227,7 +2236,7 @@ function startQuiz(level) {
   tag.textContent = ts.text;
   tag.style.background = ts.bg;
   tag.style.color = ts.color;
-  goPage('quiz-play');
+  goQuizSub('quiz-play');
   showQuestion();
 }
 
@@ -2267,7 +2276,7 @@ function answerQuiz(idx) {
 }
 
 function showQuizResult() {
-  goPage('quiz-result');
+  goQuizSub('quiz-result');
   var emoji, msg, sub, stars;
   if (curScore === 5) {
     emoji='🏆'; stars='⭐⭐⭐⭐⭐'; msg='완벽해요! 두뇌가 팔팔하세요!'; sub='내일도 어려운 문제에 도전해보세요!';
@@ -2304,7 +2313,7 @@ function quiz_saveScore(score, level) {
 
 function retryQuiz() {
   curQ = 0; curScore = 0; quizAnswered = false;
-  goPage('quiz-play');
+  goQuizSub('quiz-play');
   showQuestion();
 }
 // ══════════════════════════════════════════════
