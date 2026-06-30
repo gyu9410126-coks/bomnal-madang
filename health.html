@@ -678,6 +678,7 @@ function goPage(name) {
   var page = document.getElementById('page-'+name);
   if(page) page.classList.add('active');
   window.scrollTo(0,0);
+  history.pushState({ page: name }, '', '');
 }
 
 function goBack() {
@@ -688,6 +689,14 @@ function goBack() {
   document.getElementById('main-grid-wrap').style.display = 'block';
   window.scrollTo(0,0);
 }
+
+window.addEventListener('popstate', function(e) {
+  var isPageActive = PAGES.some(function(p){
+    var el = document.getElementById('page-'+p);
+    return el && el.classList.contains('active');
+  });
+  if (isPageActive) { goBack(); }
+});
 
 /* ═══════════════════════════════════════════
    주소 자동완성 공통 함수
