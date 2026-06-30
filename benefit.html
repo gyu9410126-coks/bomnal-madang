@@ -281,8 +281,8 @@
           <span class="cat-name" style="color:#6a1b9a;">복지시설찾기</span>
         </button>
         <button class="cat-item" style="background:#ede7f6;" onclick="goPage('page-lawyer')">
-          <div class="cat-icon-box" style="background:#ede7f6;">👨‍⚖️</div>
-          <span class="cat-name" style="color:#4527a0;">마을변호사</span>
+          <div class="cat-icon-box" style="background:#ede7f6;">⚖️</div>
+          <span class="cat-name" style="color:#4527a0;">무료법률상담</span>
         </button>
         <button class="cat-item" style="background:#fce4ec;" onclick="goPage('page-longterm')">
           <div class="cat-icon-box" style="background:#fce4ec;">🏥</div>
@@ -869,51 +869,27 @@
   <div id="page-lawyer" class="page-view">
     <button class="back-btn" onclick="goBack()">◀ 복지혜택쇼핑으로 돌아가기</button>
     <div class="page-sec-header" style="background:#ede7f6; border-color:#d1c4e9;">
-      <span class="page-sec-title" style="color:#4527a0;">👨‍⚖️ 마을변호사</span>
+      <span class="page-sec-title" style="color:#4527a0;">⚖️ 무료법률상담</span>
       <span class="page-sec-badge" style="background:#d1c4e9; color:#4527a0;">무료 법률상담</span>
     </div>
     <div class="page-inner">
 
-      <div class="notice-box" style="margin-bottom:14px;">💡 마을변호사는 법무부에서 운영하는 <strong>무료 법률상담 서비스</strong>입니다. 가까운 마을변호사를 찾아 상담하세요!</div>
+      <div class="notice-box" style="margin-bottom:14px; font-size:17px; line-height:2; color:#222;">💡 마을변호사는 법무부에서 운영하는 <strong>무료 법률상담 제도</strong>예요.<br>가까운 <strong>읍·면·동 주민센터</strong>에 문의하시면 우리 동네 담당 변호사님의 연락처를 안내받으실 수 있어요.</div>
 
-      <span class="page-label">📍 지역 선택</span>
-      <select class="page-select" id="pl-sido" style="border-color:#d1c4e9;" onchange="updatePLSigungu()">
-        <option value="">시·도 선택</option>
-        <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
-        <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
-        <option>울산광역시</option><option>세종특별자치시</option><option>경기도</option>
-        <option>강원도</option><option>충청북도</option><option>충청남도</option>
-        <option>전라북도</option><option>전라남도</option><option>경상북도</option>
-        <option>경상남도</option><option>제주특별자치도</option>
-      </select>
-      <select class="page-select" id="pl-sigungu" style="border-color:#d1c4e9;">
-        <option value="">시·군·구 선택</option>
-      </select>
-
-      <button class="page-btn" style="background:#4527a0; color:#fff;" onclick="searchLawyer()">🔍 마을변호사 찾기</button>
-
-      <div class="page-loading" id="pl-loading">
-        <span class="page-loading-icon">👨‍⚖️</span>
-        <div class="page-loading-txt" style="color:#4527a0;">마을변호사를 찾고 있어요...</div>
-      </div>
-      <div class="page-result" id="pl-result">
-        <div id="pl-cards" style="margin-top:12px;"></div>
+      <!-- 무료 법률상담 전화카드 (대한법률구조공단 132) -->
+      <div class="tel-card" style="margin-bottom:16px;">
+        <div class="tel-card-title">📞 지금 바로 전화 상담</div>
+        <a class="tel-card-item" href="tel:132">
+          <div class="tel-card-icon">⚖️</div>
+          <div class="tel-text">
+            <div class="tel-name">대한법률구조공단</div>
+            <div class="tel-desc">무료 법률상담 (평일 9시~17시50분)</div>
+          </div>
+          <span class="tel-num">132</span>
+        </a>
       </div>
 
-      <!-- 자주 묻는 법률 상담 주제 -->
-      <div style="margin-top:16px;">
-        <div style="font-size:16px;font-weight:700;color:#4527a0;margin-bottom:10px;">📋 자주 묻는 법률 상담 주제</div>
-        <div class="badge-row">
-          <span class="badge-blue">상속·유언</span>
-          <span class="badge-blue">임대차 분쟁</span>
-          <span class="badge-blue">사기 피해</span>
-          <span class="badge-blue">금전 거래</span>
-          <span class="badge-blue">이혼·가족</span>
-          <span class="badge-blue">노인학대</span>
-          <span class="badge-blue">소비자 분쟁</span>
-          <span class="badge-blue">교통사고</span>
-        </div>
-      </div>
+      <div class="notice-box" style="font-size:17px; line-height:2; color:#222;">📍 <strong>마을변호사 연락처 확인 방법</strong><br>① 가까운 읍·면·동 주민센터에 문의<br>② 또는 지방변호사회에 문의<br>전화·팩스·이메일로 상담하거나, 필요한 경우 변호사님이 직접 마을을 방문하기도 해요.</div>
 
       <!-- 생활법률상식 Q&A -->
       <div style="font-size:16px;font-weight:700;color:#4527a0;margin:20px 0 10px;">⚖️ 꼭 알아두는 생활법률상식</div>
@@ -960,13 +936,64 @@
       </div>
 
       <div class="info-card">
-        <div class="info-card-q">📞 무료 법률 지원 기관</div>
-        <div class="badge-row">
-          <span class="badge-blue">대한법률구조공단 132</span>
-          <span class="badge-blue">마을변호사 (무료)</span>
-          <span class="badge-orange">법무부 법사랑 1301</span>
-          <span class="badge-green">금융감독원 1332</span>
+        <div class="info-card-q">💍 이혼·가족 — 협의이혼·양육비, 어떻게 하나요?</div>
+        <div class="info-card-a">
+          ① <strong>협의이혼</strong>: 부부가 합의 후 가정법원에 방문해 확인을 받아야 합니다 (자녀 양육사항도 반드시 함께 정해야 해요)<br>
+          ② <strong>양육비를 못 받을 때</strong>: 가정법원에 이행명령을 신청할 수 있고, 따르지 않으면 과태료가 부과됩니다<br>
+          ③ <strong>양육비이행관리원</strong>에서 상담·법률지원을 무료로 받을 수 있습니다
         </div>
+        <div class="info-card-point" style="background:#ede7f6; color:#4527a0;">✅ 합의가 어렵거나 복잡한 사정이 있다면 가까운 가정법원이나 법률구조공단(132)에 먼저 상담해 보세요.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-q">🛒 소비자 분쟁 — 물건·서비스 피해는 어디에 알리나요?</div>
+        <div class="info-card-a">
+          물건을 잘못 샀거나, 환불을 거부당하거나, 서비스 피해를 입었을 때는 <strong>1372 소비자상담센터</strong>(평일 9시~18시)로 전화하시면 됩니다.<br>
+          상담으로 해결이 안 되면 한국소비자원의 <strong>피해구제</strong> 절차로 넘어가, 비용 없이 사업자와의 합의를 도와줍니다.
+        </div>
+        <div class="info-card-point" style="background:#ede7f6; color:#4527a0;">✅ 영수증, 계약서, 대화 내용 등 증빙자료를 미리 챙겨두시면 상담이 훨씬 수월합니다.</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-q">🚗 교통사고 — 사고가 나면 무엇부터 해야 하나요?</div>
+        <div class="info-card-a">
+          ① 다친 사람이 있으면 <strong>즉시 구호조치</strong>(119 신고) — 하지 않으면 처벌 대상입니다<br>
+          ② <strong>112</strong> 신고와 보험사 접수를 함께 진행하세요<br>
+          ③ 사고 현장 사진, 블랙박스 영상으로 증거를 남겨두세요<br>
+          ④ 보험금 청구는 사고일로부터 <strong>3년 이내</strong>에 해야 합니다
+        </div>
+        <div class="info-card-point" style="background:#ede7f6; color:#4527a0;">⚠️ 보험사가 빨리 합의하자고 해도, 충분히 치료를 받은 뒤 합의하시는 것이 안전합니다. 조기 합의 시 나중에 생기는 후유증 치료비를 못 받을 수 있어요.</div>
+      </div>
+
+      <!-- 무료 법률 지원기관 전화카드 (시인성 강화 + 클릭 시 바로 전화연결) -->
+      <div class="tel-card" style="margin-top:10px;">
+        <div class="tel-card-title">📞 무료 법률 지원 기관</div>
+        <a class="tel-card-item" href="tel:132">
+          <div class="tel-card-icon">⚖️</div>
+          <div class="tel-text">
+            <div class="tel-name">대한법률구조공단</div>
+            <div class="tel-desc">무료 법률상담 (평일 9시~17시50분)</div>
+          </div>
+          <span class="tel-num">132</span>
+        </a>
+        <div class="tel-divider"></div>
+        <a class="tel-card-item" href="tel:1372">
+          <div class="tel-card-icon">🛒</div>
+          <div class="tel-text">
+            <div class="tel-name">소비자상담센터</div>
+            <div class="tel-desc">소비자 피해·분쟁 상담 (평일 9시~18시)</div>
+          </div>
+          <span class="tel-num">1372</span>
+        </a>
+        <div class="tel-divider"></div>
+        <a class="tel-card-item" href="tel:1332">
+          <div class="tel-card-icon">🏦</div>
+          <div class="tel-text">
+            <div class="tel-name">금융감독원</div>
+            <div class="tel-desc">금융사기·피해 신고</div>
+          </div>
+          <span class="tel-num">1332</span>
+        </a>
       </div>
 
     </div>
@@ -1570,7 +1597,7 @@ function searchWelfareGPSPage() {
       .then(function(data){
         loading.classList.remove('show');
         var items = [];
-        try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+        try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
         if (items.length === 0) {
           document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 주변 복지시설이 없습니다.<br>지역 선택으로 검색해 보세요.</div>';
         } else {
@@ -1879,14 +1906,6 @@ function resetPage(id) {
     document.getElementById('pw-cards').innerHTML = '';
   }
 
-  else if (id === 'page-lawyer') {
-    /* 마을변호사 */
-    resetVal('pl-sido'); resetVal('pl-sigungu');
-    document.getElementById('pl-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
-    removeShow('pl-loading'); removeShow('pl-result');
-    document.getElementById('pl-cards').innerHTML = '';
-  }
-
   else if (id === 'page-longterm') {
     /* 장기요양 자가체크 */
     document.querySelectorAll('#lt-physical input[type=checkbox],#lt-cognitive input[type=checkbox],#lt-behavior input[type=checkbox]')
@@ -2124,12 +2143,6 @@ function updatePWSigungu() {
   sel.innerHTML = '<option value="">시·군·구 선택</option>';
   if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
 }
-function updatePLSigungu() {
-  var sido = document.getElementById('pl-sido').value;
-  var sel  = document.getElementById('pl-sigungu');
-  sel.innerHTML = '<option value="">시·군·구 선택</option>';
-  if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
-}
 function updatePSSigungu() {
   var sido = document.getElementById('ps-sido').value;
   var sel  = document.getElementById('ps-sigungu');
@@ -2176,7 +2189,7 @@ function renderWelfareCards(data, areaName) {
   var cards = document.getElementById('welfare-cards');
   var header = document.getElementById('welfare-result-header');
   var items = [];
-  try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+  try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
   header.textContent = '📍 ' + areaName + ' 복지시설 ' + items.length + '개';
   if (items.length === 0) { showWelfareEmpty(); return; }
   cards.innerHTML = items.map(function(item){
@@ -2210,7 +2223,7 @@ function searchWelfarePage() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 검색 결과가 없습니다.<br>다른 조건으로 검색해 보세요.</div>';
       } else {
@@ -2229,40 +2242,6 @@ function searchWelfarePage() {
 }
 
 /* ══════════════════════════════════════
-   마을변호사 검색
-══════════════════════════════════════ */
-function searchLawyer() {
-  var sido    = document.getElementById('pl-sido').value;
-  var sigungu = document.getElementById('pl-sigungu').value;
-  if (!sido) { alert('시·도를 선택해 주세요'); return; }
-  var loading = document.getElementById('pl-loading');
-  var result  = document.getElementById('pl-result');
-  loading.classList.add('show'); result.classList.remove('show');
-  fetch('/api/benefit?type=lawyer&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu))
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      loading.classList.remove('show');
-      var items = [];
-      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
-      if (items.length === 0) {
-        document.getElementById('pl-cards').innerHTML = '<div class="empty-msg">😔 해당 지역 마을변호사 정보가 없습니다.<br>법률구조공단(☎ 132)에 문의해 보세요.</div>';
-      } else {
-        document.getElementById('pl-cards').innerHTML = items.map(function(item){
-          var fields = [item.cnslField1, item.cnslField2, item.cnslField3].filter(Boolean);
-          return '<div class="lawyer-card">'
-            +'<div class="lawyer-card-name">⚖️ '+(item.lawyerNm||'변호사')+'</div>'
-            +'<div class="lawyer-card-area">📍 '+(item.ctpvNm||'')+(item.signguNm?' '+item.signguNm:'')+(item.actAreaNm?' · '+item.actAreaNm:'')+'</div>'
-            +(fields.length ? '<div class="lawyer-card-field">'+fields.map(function(f){ return '<span class="lawyer-field-tag">'+f+'</span>'; }).join('')+'</div>' : '')
-            +(item.phoneNo ? '<a class="lawyer-card-tel" href="tel:'+item.phoneNo+'">📞 '+item.phoneNo+'</a>' : '<span style="font-size:13px;color:#999;">전화번호 문의: 법무부 1301</span>')
-            +'</div>';
-        }).join('');
-      }
-      result.classList.add('show');
-    })
-    .catch(function(){ loading.classList.remove('show'); document.getElementById('pl-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.</div>'; result.classList.add('show'); });
-}
-
-/* ══════════════════════════════════════
    서민금융교육 콘텐츠
 ══════════════════════════════════════ */
 function loadFinanceEdu() {
@@ -2274,7 +2253,7 @@ function loadFinanceEdu() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('pf-cards').innerHTML = '<div class="empty-msg">😔 콘텐츠를 불러오지 못했습니다.</div>';
       } else {
@@ -2310,7 +2289,7 @@ function searchBenefit() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('pb-cards').innerHTML = '<div class="empty-msg">😔 "'+keyword+'" 관련 복지서비스가 없습니다.<br>다른 키워드로 검색해 보세요.</div>';
       } else {
