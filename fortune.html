@@ -1299,6 +1299,24 @@
   document.getElementById('date-solar').textContent =
     (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
   document.getElementById('date-lunar').textContent = '음력 로딩중';
+
+  /* 한국천문연구원 API로 오늘 음력 정확하게 가져오기 */
+  var y = d.getFullYear();
+  var m = String(d.getMonth()+1).padStart(2,'0');
+  var day = String(d.getDate()).padStart(2,'0');
+  fetch('/api/lunar-convert?year='+y+'&month='+m+'&day='+day)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var el = document.getElementById('date-lunar');
+      if (data.ok && data.today) {
+        el.textContent = '음력 ' + data.today.lunLeap + data.today.lunMonth + '월 ' + data.today.lunDay + '일';
+      } else {
+        el.textContent = '음력 정보 없음';
+      }
+    })
+    .catch(function(){
+      document.getElementById('date-lunar').textContent = '음력 정보 없음';
+    });
 })();
 
 /* 섹션 스크롤 이동 (기존 유지) */
@@ -1429,6 +1447,7 @@ function pageRestartUnse(){
 ════════════════════════════════════ */
 var calYear, calMonth;
 (function(){ var now=new Date(); calYear=now.getFullYear(); calMonth=now.getMonth(); })();
+var lunarCache = {}; // 'YYYY-MM' 형태로 한달치 음력 데이터를 저장해두는 보관함
 var HOLIDAYS = {
   '2025-01-01':'신정','2025-01-28':'설날연휴','2025-01-29':'설날','2025-01-30':'설날연휴',
   '2025-03-01':'삼일절','2025-05-05':'어린이날','2025-06-06':'현충일','2025-08-15':'광복절',
@@ -1460,13 +1479,43 @@ function approxLunar(y,m,d){
   for(var i=0;i<12;i++){if(ld<=months[i]){lm=i+1;break;}ld-=months[i];}
   return lm+'/'+ld;
 }
+
+/* 정확한 음력 가져오기 (캐시에 있으면 정확한 값, 없으면 임시 근사값) */
+function getLunarText(y,m,d){
+  var key = y+'-'+padZ(m+1);
+  var cache = lunarCache[key];
+  if (cache && cache[d]) return cache[d]; // API로 받아온 정확한 값
+  return approxLunar(y,m,d); // 아직 안 받아왔으면 임시 근사값
+}
+
+/* 한달치 음력을 한국천문연구원 API로 가져와서 캐시에 저장 */
+function loadLunarMonth(y,m){
+  var key = y+'-'+padZ(m+1);
+  if (lunarCache[key]) { renderCal(); return; } // 이미 가져온 달이면 다시 호출 안 함
+
+  fetch('/api/lunar-convert?year='+y+'&month='+padZ(m+1))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data.ok) return; // 실패하면 그냥 근사값 유지
+      var monthData = {};
+      data.days.forEach(function(item){
+        monthData[item.solDay] = item.lunMonth+'/'+item.lunDay+item.lunLeap;
+      });
+      lunarCache[key] = monthData;
+      /* 지금 보고 있는 달이 방금 받아온 달이면 화면 새로 그리기 */
+      if (calYear === y && calMonth === m) renderCal();
+    })
+    .catch(function(){ /* 실패하면 조용히 근사값 유지 */ });
+}
+
 function padZ(n){return n<10?'0'+n:''+n;}
-function initCal(){ renderCal(); }
+function initCal(){ renderCal(); loadLunarMonth(calYear, calMonth); }
 function calMove(dir){
   calMonth+=dir;
   if(calMonth>11){calMonth=0;calYear++;} if(calMonth<0){calMonth=11;calYear--;}
   document.getElementById('cal-detail').style.display='none';
   renderCal();
+  loadLunarMonth(calYear, calMonth);
 }
 function renderCal(){
   var MNAMES=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
@@ -1482,7 +1531,7 @@ function renderCal(){
     var key=calYear+'-'+padZ(calMonth+1)+'-'+padZ(d);
     var isToday=(today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d);
     var holiday=HOLIDAYS[key]||null,jeolgi=JEOLGI[key]||null;
-    var sonNone=isSonNone(d),moving=isMovingDay(d,wd),lunar=approxLunar(calYear,calMonth,d);
+    var sonNone=isSonNone(d),moving=isMovingDay(d,wd),lunar=getLunarText(calYear,calMonth,d);
     var cell=document.createElement('div');
     cell.className='cal-cell'+(isToday?' today':'');
     cell.onclick=(function(dy,ky,hol,jeg,son,mov,lun,wday){return function(e){selectCalDay(dy,ky,hol,jeg,son,mov,lun,wday,e.currentTarget);};})(d,key,holiday,jeolgi,sonNone,moving,lunar,wd);
