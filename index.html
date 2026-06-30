@@ -1802,6 +1802,26 @@ function loadWeather() {
 
   /* 날씨 실제 API 호출 (GPS 위치 기반) */
   loadWeather();
+
+  /* 한국천문연구원 API로 정확한 음력 가져와서 화면 갱신 */
+  var yy = today.getFullYear();
+  var mm = String(mon).padStart(2,'0');
+  var dd = String(dat).padStart(2,'0');
+  fetch('/api/lunar-convert?year='+yy+'&month='+mm+'&day='+dd)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data.ok || !data.today) return; // 실패하면 근사값 그대로 유지
+      var exactLunarText = '음력 ' + data.today.lunLeap + data.today.lunMonth + '월 ' + data.today.lunDay + '일';
+      document.getElementById('date-lunar').textContent = exactLunarText;
+
+      /* 절기/손없는날 텍스트도 정확한 음력일로 다시 계산 */
+      var exactSeasonText = getTodaySeasonText(data.today.lunDay);
+      var calSeasonEl = document.getElementById('cal-season');
+      if (calSeasonEl) {
+        calSeasonEl.textContent = exactSeasonText ? '· ' + exactSeasonText : '· ' + exactLunarText;
+      }
+    })
+    .catch(function(){ /* 실패하면 조용히 근사값 유지 */ });
 })();
 
 /* ============================================================
