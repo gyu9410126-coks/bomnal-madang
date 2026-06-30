@@ -14,6 +14,8 @@
 .logo-senior{color:#eb840f;font-weight:900;font-size:18px}
 .logo-bomnal{color:#4A90D9;font-weight:900;font-size:18px}
 .header-date-solar{font-size:15px;font-weight:700;color:#111}
+.header-date-box{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.header-date-lunar{font-size:12px;font-weight:700;color:#1a5fa0}
 .home-bar{background:#fff;border-bottom:1px solid #eee;padding:8px 14px}
 .home-bar button{background:#4A90D9;color:#fff;border:none;border-radius:20px;padding:10px 22px;font-size:17px;font-weight:700;cursor:pointer;font-family:inherit}
 .sec-wrap{margin:18px 14px 0}
@@ -863,7 +865,7 @@
       <span style="font-size:22px;">🌸</span>
       <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
     </div>
-    <span class="header-date-solar" id="date-solar"></span>
+    <div class="header-date-box"><span class="header-date-solar" id="date-solar"></span><span class="header-date-lunar"></span></div>
   </div>
   <div class="home-bar" id="main-home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
 
@@ -993,7 +995,7 @@
         <span style="font-size:22px;">🌸</span>
         <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
       </div>
-      <span class="header-date-solar" id="quiz-header-date"></span>
+      <div class="header-date-box"><span class="header-date-solar" id="quiz-header-date"></span><span class="header-date-lunar"></span></div>
     </div>
     <div class="home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
     <button class="back-btn" onclick="goPage('main')">← 게임·오락으로 돌아가기</button>
@@ -1042,7 +1044,7 @@
         <span style="font-size:22px;">🌸</span>
         <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
       </div>
-      <span class="header-date-solar"></span>
+      <div class="header-date-box"><span class="header-date-solar"></span><span class="header-date-lunar"></span></div>
     </div>
     <div class="home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
     <button class="back-btn" onclick="quiz_resetAndGoHome()">← 난이도 선택으로</button>
@@ -1067,7 +1069,7 @@
         <span style="font-size:22px;">🌸</span>
         <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
       </div>
-      <span class="header-date-solar"></span>
+      <div class="header-date-box"><span class="header-date-solar"></span><span class="header-date-lunar"></span></div>
     </div>
     <div class="home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
     <button class="back-btn" onclick="quiz_resetAndGoHome()">← 난이도 선택으로</button>
@@ -1093,7 +1095,7 @@
           <span style="font-size:22px;">🌸</span>
           <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
         </div>
-        <span class="header-date-solar" id="st-date-solar"></span>
+        <div class="header-date-box"><span class="header-date-solar" id="st-date-solar"></span><span class="header-date-lunar"></span></div>
       </div>
       <div class="home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
       <button class="back-btn" id="st-back-btn" onclick="st_goMain()">← 게임·오락으로 돌아가기</button>
@@ -1197,7 +1199,7 @@
           <span style="font-size:22px;">🌸</span>
           <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
         </div>
-        <span class="header-date-solar" id="pz-date-solar"></span>
+        <div class="header-date-box"><span class="header-date-solar" id="pz-date-solar"></span><span class="header-date-lunar"></span></div>
       </div>
       <div class="home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
       <button class="back-btn" id="pz-back-btn" onclick="pz_goMain()">← 게임·오락으로 돌아가기</button>
@@ -1292,7 +1294,7 @@
           <span style="font-size:22px;">🌸</span>
           <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
         </div>
-        <span class="header-date-solar" id="wd-date-solar"></span>
+        <div class="header-date-box"><span class="header-date-solar" id="wd-date-solar"></span><span class="header-date-lunar"></span></div>
       </div>
       <div class="home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
       <button class="back-btn" id="wd-back-btn" onclick="wd_goMain()">← 게임·오락으로 돌아가기</button>
@@ -1388,7 +1390,7 @@
           <span style="font-size:22px;">🌸</span>
           <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
         </div>
-        <span class="header-date-solar" id="cd-date-solar"></span>
+        <div class="header-date-box"><span class="header-date-solar" id="cd-date-solar"></span><span class="header-date-lunar"></span></div>
       </div>
       <div class="home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
       <button class="back-btn" id="cd-back-btn" onclick="cd_goMain()">← 게임·오락으로 돌아가기</button>
@@ -1476,7 +1478,7 @@
           <span style="font-size:22px;">🌸</span>
           <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
         </div>
-        <span class="header-date-solar" id="sm-date-solar"></span>
+        <div class="header-date-box"><span class="header-date-solar" id="sm-date-solar"></span><span class="header-date-lunar"></span></div>
       </div>
       <div class="home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
       <button class="back-btn" id="sm-back-btn" onclick="sm_goMain()">← 게임·오락으로 돌아가기</button>
@@ -1571,7 +1573,7 @@
           <span style="font-size:22px;">🌸</span>
           <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
         </div>
-        <span class="header-date-solar" id="fg-date-solar"></span>
+        <div class="header-date-box"><span class="header-date-solar" id="fg-date-solar"></span><span class="header-date-lunar"></span></div>
       </div>
       <div class="home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
       <button class="back-btn" id="fg-back-btn" onclick="fg_goMain()">← 게임·오락으로 돌아가기</button>
@@ -1669,7 +1671,7 @@
           <span style="font-size:22px;">🌸</span>
           <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
         </div>
-        <span class="header-date-solar" id="mn-date-solar"></span>
+        <div class="header-date-box"><span class="header-date-solar" id="mn-date-solar"></span><span class="header-date-lunar"></span></div>
       </div>
       <div class="home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
       <button class="back-btn" id="mn-back-btn" onclick="mn_goMain()">← 게임·오락으로 돌아가기</button>
@@ -1784,7 +1786,7 @@
           <span style="font-size:22px;">🌸</span>
           <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
         </div>
-        <span class="header-date-solar" id="mth-date-solar"></span>
+        <div class="header-date-box"><span class="header-date-solar" id="mth-date-solar"></span><span class="header-date-lunar"></span></div>
       </div>
       <div class="home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
       <button class="back-btn" id="mth-back-btn" onclick="mth_goMain()">← 게임·오락으로 돌아가기</button>
@@ -1922,6 +1924,32 @@
   if(el) el.textContent = (d.getMonth()+1)+'월 '+d.getDate()+'일 오늘의 퀴즈';
   var qh = document.getElementById('quiz-header-date');
   if(qh) qh.textContent = dateStr;
+
+  /* 8개 게임 화면 양력 칸도 페이지 진입과 동시에 미리 채워두기 (게임 시작 전에도 보이도록) */
+  document.querySelectorAll('.header-date-solar').forEach(function(el){
+    if (!el.textContent) el.textContent = dateStr;
+  });
+
+  /* 한국천문연구원 API로 정확한 음력 가져와서 모든 헤더에 동시에 채우기 */
+  var y = d.getFullYear();
+  var m = String(d.getMonth()+1).padStart(2,'0');
+  var dd = String(d.getDate()).padStart(2,'0');
+  fetch('/api/lunar-convert?year='+y+'&month='+m+'&day='+dd)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var lunarText = '음력 정보 없음';
+      if (data.ok && data.today) {
+        lunarText = '음력 ' + data.today.lunLeap + data.today.lunMonth + '월 ' + data.today.lunDay + '일';
+      }
+      document.querySelectorAll('.header-date-lunar').forEach(function(el){
+        el.textContent = lunarText;
+      });
+    })
+    .catch(function(){
+      document.querySelectorAll('.header-date-lunar').forEach(function(el){
+        el.textContent = '음력 정보 없음';
+      });
+    });
 })();
 
 // ══════════════════════════════════════════════
