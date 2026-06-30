@@ -1936,9 +1936,15 @@ function goPage(name) {
   if (!isMain) {
     var t = document.getElementById('page-' + name);
     if (t) t.classList.add('active');
+    history.pushState({ page: name }, '', '');
   }
   window.scrollTo(0, 0);
 }
+
+window.addEventListener('popstate', function(e) {
+  var isPageActive = document.querySelectorAll('.page-view.active').length > 0;
+  if (isPageActive) { goPage('main'); }
+});
 
 // ══════════════════════════════════════════════
 // 퀴즈 문제 데이터 — 역사·건강·속담 통합 300문제
