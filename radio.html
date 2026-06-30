@@ -541,6 +541,25 @@ function setDate() {
   var days = ['일','월','화','수','목','금','토'];
   document.getElementById('date-solar').textContent =
     (now.getMonth()+1) + '월 ' + now.getDate() + '일 (' + days[now.getDay()] + ')';
+
+  /* 한국천문연구원 API로 정확한 음력 가져오기 */
+  var y = now.getFullYear();
+  var m = String(now.getMonth()+1).padStart(2,'0');
+  var d = String(now.getDate()).padStart(2,'0');
+  fetch('/api/lunar-convert?year='+y+'&month='+m+'&day='+d)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var lunarEl = document.getElementById('date-lunar');
+      if (lunarEl && data.ok && data.today) {
+        lunarEl.textContent = '음력 ' + data.today.lunLeap + data.today.lunMonth + '월 ' + data.today.lunDay + '일';
+      } else if (lunarEl) {
+        lunarEl.textContent = '음력 정보 없음';
+      }
+    })
+    .catch(function(){
+      var lunarEl = document.getElementById('date-lunar');
+      if (lunarEl) lunarEl.textContent = '음력 정보 없음';
+    });
 }
 
 /* ════════════════════════════════
