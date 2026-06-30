@@ -1323,6 +1323,7 @@ function goPage(name) {
   /* 해당 페이지 표시 */
   document.getElementById('page-'+name).classList.add('active');
   window.scrollTo(0,0);
+  history.pushState({ page: name }, '', '');
   /* 달력은 진입 시 초기화 */
   if (name === 'cal') initCal();
 }
@@ -1337,6 +1338,13 @@ function goBack() {
   document.getElementById('main-content').style.display = 'block';
   window.scrollTo(0,0);
 }
+
+window.addEventListener('popstate', function(e) {
+  var isPageActive = PAGES.some(function(p){
+    return document.getElementById('page-'+p).classList.contains('active');
+  });
+  if (isPageActive) { goBack(); }
+});
 
 /* ════════════════════════════════════
    🔮 운세 페이지 전용 JS
