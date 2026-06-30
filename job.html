@@ -1718,6 +1718,7 @@ function resetJobPage(id) {
     var el2 = document.getElementById('job-hours3'); if(el2) el2.value = '';
     var rb = document.getElementById('job-result3'); if(rb) rb.classList.remove('show');
   }
+  if (id === 'page-job-wage') { resetUnempCalc(); }
   if (id === 'page-job-search') { loadJobApi2(); }
 }
 
