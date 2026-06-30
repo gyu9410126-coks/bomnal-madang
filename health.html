@@ -697,6 +697,29 @@ function goPage(name) {
   if(page) page.classList.add('active');
   window.scrollTo(0,0);
   history.pushState({ page: name }, '', '');
+  resetHealthPage(name);
+}
+
+// 페이지 진입 시 이전 검색어·결과를 비움 (재방문 시 이전 검색 흔적 제거)
+function resetHealthPage(name) {
+  function resetVal(elId) { var el = document.getElementById(elId); if (el) el.value = ''; }
+  function clearHtml(elId) { var el = document.getElementById(elId); if (el) el.innerHTML = ''; }
+  function hideEl(elId) { var el = document.getElementById(elId); if (el) el.style.display = 'none'; }
+
+  var ADDR_PREFIX = { pharmacy:'ph', emergency:'em', store:'st', care:'care', hospital:'hosp' };
+  var TEXT_PREFIX = { medicine:'med', herbal:'herb', nutrition:'nut', supplement:'sup' };
+
+  if (ADDR_PREFIX[name]) {
+    var p = ADDR_PREFIX[name];
+    resetVal(p+'-addr-input');
+    clearHtml(p+'-result');
+    hideEl(p+'-addr-selected');
+  }
+  if (TEXT_PREFIX[name]) {
+    var t = TEXT_PREFIX[name];
+    resetVal(t+'-input');
+    clearHtml(t+'-result');
+  }
 }
 
 function goBack() {
