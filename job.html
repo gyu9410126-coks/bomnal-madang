@@ -1669,6 +1669,7 @@ function goPage(id) {
   currentJobPage = id;
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
+  history.pushState({ page: id }, '', '');
   resetJobPage(id);
 }
 function goBack() {
@@ -1677,6 +1678,9 @@ function goBack() {
   window.scrollTo(0, 0);
   resetMainCalc();
 }
+window.addEventListener('popstate', function(e) {
+  if (currentJobPage) { goBack(); }
+});
 function resetMainCalc() {
   var el = document.getElementById('job-type'); if(el) el.value = '';
   var el2 = document.getElementById('job-hours'); if(el2) el2.value = '';
