@@ -1344,6 +1344,39 @@ function goPage(name) {
   history.pushState({ page: name }, '', '');
   /* 달력은 진입 시 초기화 */
   if (name === 'cal') initCal();
+  resetFortunePage(name);
+}
+
+// 페이지 진입 시 이전 입력값·결과를 비움 (재방문 시 이전 검색 흔적 제거)
+function resetFortunePage(name) {
+  function resetVal(elId) { var el = document.getElementById(elId); if (el) el.value = ''; }
+  function hideEl(elId) { var el = document.getElementById(elId); if (el) el.style.display = 'none'; }
+  function showEl(elId) { var el = document.getElementById(elId); if (el) el.style.display = 'block'; }
+
+  if (name === 'tojung') {
+    resetVal('tj-year'); resetVal('tj-month'); resetVal('tj-day');
+    resetVal('tj-time'); resetVal('tj-gender');
+    hideEl('tj-result'); hideEl('tj-month-result');
+    showEl('tj-input-wrap');
+    var tjBtn = document.getElementById('tj-btn'); if (tjBtn) tjBtn.disabled = true;
+  }
+  if (name === 'saju') {
+    resetVal('sj-year'); resetVal('sj-month'); resetVal('sj-day');
+    resetVal('sj-time'); resetVal('sj-gender');
+    hideEl('sj-result');
+    showEl('saju-input-wrap');
+    var sjBtn = document.getElementById('sj-btn'); if (sjBtn) sjBtn.disabled = true;
+  }
+  if (name === 'aek') {
+    resetVal('aek-zodiac'); resetVal('aek-gender');
+    hideEl('aek-result');
+    showEl('aek-input-wrap');
+    var btn = document.getElementById('aek-btn'); if (btn) btn.disabled = true;
+  }
+  if (name === 'dream') {
+    resetVal('page-dream-input');
+    hideEl('page-dream-result');
+  }
 }
 
 function goBack() {
