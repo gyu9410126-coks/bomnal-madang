@@ -139,7 +139,7 @@
     </div>
     <div class="header-date-box">
       <span class="header-date-solar" id="date-solar">날짜 로딩중</span>
-      <span class="header-date-lunar" style="font-size:12px;font-weight:700;color:#1a5fa0;">음력 로딩중</span>
+      <span class="header-date-lunar" id="date-lunar" style="font-size:12px;font-weight:700;color:#1a5fa0;">음력 로딩중</span>
     </div>
   </div>
 
@@ -1660,6 +1660,27 @@
 var d = new Date();
 var days = ['일','월','화','수','목','금','토'];
 document.getElementById('date-solar').textContent = (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
+
+/* 한국천문연구원 API로 정확한 음력 가져오기 */
+(function(){
+  var y = d.getFullYear();
+  var m = String(d.getMonth()+1).padStart(2,'0');
+  var dd = String(d.getDate()).padStart(2,'0');
+  fetch('/api/lunar-convert?year='+y+'&month='+m+'&day='+dd)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var el = document.getElementById('date-lunar');
+      if (el && data.ok && data.today) {
+        el.textContent = '음력 ' + data.today.lunLeap + data.today.lunMonth + '월 ' + data.today.lunDay + '일';
+      } else if (el) {
+        el.textContent = '음력 정보 없음';
+      }
+    })
+    .catch(function(){
+      var el = document.getElementById('date-lunar');
+      if (el) el.textContent = '음력 정보 없음';
+    });
+})();
 
 /* ── 화면 전환 ── */
 var currentJobPage = null;
