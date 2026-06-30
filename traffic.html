@@ -1396,6 +1396,7 @@ function goPage(id) {
   currentPage = id;
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
+  history.pushState({ page: id }, '', '');
 }
 function goBack() {
   if (currentPage) { document.getElementById(currentPage).classList.remove('active'); currentPage = null; }
@@ -1403,6 +1404,9 @@ function goBack() {
   window.scrollTo(0, 0);
   resetAll();
 }
+window.addEventListener('popstate', function(e) {
+  if (currentPage) { goBack(); }
+});
 function goHome() { window.location.href = 'index.html'; }
 
 /* ── 리셋 ── */
