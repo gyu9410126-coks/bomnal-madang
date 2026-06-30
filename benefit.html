@@ -1116,7 +1116,7 @@
            style="display:block;padding:14px;background:#fff;color:#c62828;border:2px solid #c62828;border-radius:12px;font-size:16px;font-weight:700;text-align:center;text-decoration:none;">
           🏥 장기요양보험 온라인 신청하기 →
         </a>
-        <button onclick="goPage('page-welfare')"
+        <button onclick="goPageReplace('page-welfare')"
            style="display:block;padding:14px;background:#f3e5f5;color:#6a1b9a;border:none;border-radius:12px;font-size:16px;font-weight:700;text-align:center;cursor:pointer;font-family:inherit;width:100%;">
           🏢 가까운 요양시설 찾기 →
         </button>
@@ -1873,6 +1873,20 @@ window.addEventListener('popstate', function(e) {
     goBack();
   }
 });
+
+// 세부페이지 안에서 다른 세부페이지로 바로 이동할 때 쓰는 전용 함수
+// (history를 추가로 쌓지 않고 교체 — 뒤로가기 중첩 방지)
+function goPageReplace(id) {
+  if (currentPage) {
+    document.getElementById(currentPage).classList.remove('active');
+  }
+  currentPage = id;
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+  history.replaceState({ page: id }, '', '');
+  resetPage(id);
+}
+
 
 function resetPage(id) {
   /* 공통 헬퍼 — 값 초기화 */
