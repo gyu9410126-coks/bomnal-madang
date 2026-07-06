@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>봄날톡톡</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --pink-main: #e8839a;
+      --pink-light: #fce8ee;
+      --pink-border: #f2c4cf;
+      --pink-bubble: #f4a7b9;
+      --text-dark: #1a1a1a;
+      --text-mid: #444444;
+      --text-gray: #666666;
+      --font-size-bubble: 18px;
+      --font-size-name: 14px;
+      --font-size-time: 12px;
+    }
+
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: #ffffff;
+      color: var(--text-dark);
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .header {
+      background: var(--pink-main);
+      color: white;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(232,131,154,0.25);
+      gap: 8px;
+    }
+    .header h1 { font-size: 20px; font-weight: 700; flex: 1; }
+    .header-btn {
+      background: rgba(255,255,255,0.28);
+      border: none;
+      color: white;
+      font-size: 14px;
+      font-family: 'Pretendard', sans-serif;
+      padding: 7px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .back-btn {
+      background: white;
+      border: none;
+      color: var(--pink-main);
+      font-size: 16px;
+      font-weight: 700;
+      font-family: 'Pretendard', sans-serif;
+      cursor: pointer;
+      padding: 7px 14px;
+      border-radius: 20px;
+      white-space: nowrap;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    }
+
+    .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .screen.active { display: flex; }
+
+    #screen-nickname {
+      justify-content: center;
+      align-items: center;
+      padding: 40px 28px;
+      background: #ffffff;
+    }
+    .nickname-box {
+      background: white;
+      border-radius: 24px;
+      padding: 40px 28px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 20px rgba(232,131,154,0.15);
+      text-align: center;
+      border: 1px solid #f5e0e6;
+    }
+    .nickname-icon { font-size: 64px; margin-bottom: 16px; }
+    .nickname-box h2 { font-size: 26px; font-weight: 700; color: var(--pink-main); margin-bottom: 10px; }
+    .nickname-box p { font-size: 18px; color: var(--text-mid); margin-bottom: 28px; line-height: 1.6; }
+    .nickname-input {
+      width: 100%;
+      border: 2px solid var(--pink-border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      font-size: 20px;
+      font-family: 'Pretendard', sans-serif;
+      color: var(--text-dark);
+      outline: none;
+      margin-bottom: 18px;
+      transition: border-color 0.2s;
+      background: #fafafa;
+    }
+    .nickname-input:focus { border-color: var(--pink-main); background: white; }
+    .nickname-input::placeholder { color: #bbb; }
+    .btn-primary {
+      width: 100%;
+      background: var(--pink-main);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      padding: 18px;
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'Pretendard', sans-serif;
+      cursor: pointer;
+    }
+    .btn-primary:active { background: #d4728a; }
+
+    #screen-rooms { background: #f8f8f8; }
+    .rooms-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .make-room-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: var(--pink-main);
+      color: white;
+      border: none;
+      border-radius: 18px;
+      padding: 18px;
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'Pretendard', sans-serif;
+      cursor: pointer;
+      width: 100%;
+      box-shadow: 0 3px 10px rgba(232,131,154,0.3);
+    }
+    .make-room-btn:active { background: #d4728a; }
+    .section-label { font-size: 16px; color: var(--text-mid); padding: 4px 4px 0; font-weight: 700; }
+    .notice-card {
+      background: var(--pink-light);
+      border-radius: 14px;
+      padding: 14px 16px;
+      border-left: 4px solid var(--pink-main);
+      font-size: 16px;
+      color: var(--text-mid);
+      line-height: 1.7;
+    }
+    .notice-card strong { color: var(--pink-main); }
+    .room-card {
+      background: white;
+      border-radius: 18px;
+      padding: 18px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      cursor: pointer;
+      transition: transform 0.15s;
+      border: 1.5px solid #f0f0f0;
+      position: relative;
+    }
+    .room-card:active { transform: scale(0.98); border-color: var(--pink-border); }
+    .room-emoji { font-size: 38px; flex-shrink: 0; }
+    .room-info { flex: 1; min-width: 0; }
+    .room-name { font-size: 20px; font-weight: 700; color: var(--text-dark); margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .room-meta { font-size: 15px; color: var(--text-mid); }
+    .room-badge { background: var(--pink-light); color: var(--pink-main); font-size: 14px; font-weight: 700; padding: 6px 14px; border-radius: 12px; flex-shrink: 0; }
+    .delete-room-btn { position: absolute; top: 10px; right: 10px; background: #f5f5f5; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 14px; color: #999; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .delete-room-btn:active { background: #ffe0e0; color: #e00; }
+    .empty-msg { text-align: center; color: var(--text-mid); font-size: 18px; padding: 36px 0; line-height: 2; }
+    .empty-msg span { display: block; font-size: 48px; margin-bottom: 10px; }
+
+    #screen-chat { background: #f8f8f8; }
+    .chat-member-bar {
+      background: white;
+      padding: 8px 14px;
+      font-size: 15px;
+      color: var(--text-mid);
+      flex-shrink: 0;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .member-text { flex: 1; font-weight: 600; }
+    .font-btns { display: flex; gap: 6px; flex-shrink: 0; }
+    .font-btn { background: #f5f5f5; border: 1.5px solid #e0e0e0; border-radius: 8px; cursor: pointer; font-family: 'Pretendard', sans-serif; font-weight: 700; color: var(--text-mid); padding: 4px 10px; line-height: 1; }
+    .font-btn.small { font-size: 13px; }
+    .font-btn.big { font-size: 18px; }
+    .font-btn:active { background: var(--pink-light); border-color: var(--pink-main); color: var(--pink-main); }
+
+    .chat-messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+    .date-divider { text-align: center; font-size: 14px; color: var(--text-gray); display: flex; align-items: center; gap: 10px; margin: 2px 0; }
+    .date-divider::before, .date-divider::after { content: ''; flex: 1; height: 1px; background: #e0e0e0; }
+    .system-msg { text-align: center; font-size: 14px; color: var(--text-mid); background: #efefef; padding: 5px 14px; border-radius: 20px; align-self: center; }
+
+    .msg-row { display: flex; gap: 8px; align-items: flex-end; }
+    .msg-row.me { flex-direction: row-reverse; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--pink-light); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; align-self: flex-start; }
+    .msg-col { display: flex; flex-direction: column; gap: 3px; max-width: 72%; }
+    .msg-row.me .msg-col { align-items: flex-end; }
+    .msg-name { font-size: var(--font-size-name); color: var(--text-mid); padding: 0 4px; font-weight: 600; }
+    .bubble { padding: 12px 16px; border-radius: 18px; font-size: var(--font-size-bubble); line-height: 1.6; word-break: break-word; transition: font-size 0.15s; }
+    .bubble.other { background: white; border-top-left-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); color: var(--text-dark); }
+    .bubble.me { background: var(--pink-bubble); color: white; border-top-right-radius: 4px; }
+    .msg-time { font-size: var(--font-size-time); color: var(--text-gray); padding: 0 4px; }
+
+    .chat-input-bar { background: white; border-top: 1px solid #eee; padding: 10px 12px; display: flex; gap: 8px; align-items: flex-end; flex-shrink: 0; }
+    .chat-input { flex: 1; border: 1.5px solid #e0e0e0; border-radius: 22px; padding: 11px 16px; font-size: 18px; font-family: 'Pretendard', sans-serif; color: var(--text-dark); outline: none; resize: none; line-height: 1.5; max-height: 100px; overflow-y: auto; background: #f8f8f8; }
+    .chat-input:focus { border-color: var(--pink-main); background: white; }
+    .chat-input::placeholder { color: #bbb; }
+    .send-btn { width: 48px; height: 48px; border-radius: 50%; background: var(--pink-main); border: none; color: white; font-size: 20px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .send-btn:active { background: #d4728a; }
+    .photo-btn { width: 48px; height: 48px; border-radius: 50%; background: #f0f0f0; border: none; font-size: 22px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; justify-content: center; align-items: center; padding: 24px; }
+    .modal-overlay.active { display: flex; }
+    .modal-box { background: white; border-radius: 24px; padding: 30px 24px; width: 100%; max-width: 360px; text-align: center; }
+    .modal-box h3 { font-size: 22px; font-weight: 700; color: var(--text-dark); margin-bottom: 18px; }
+    .modal-input { width: 100%; border: 2px solid #e0e0e0; border-radius: 14px; padding: 15px 16px; font-size: 19px; font-family: 'Pretendard', sans-serif; color: var(--text-dark); outline: none; margin-bottom: 14px; background: #fafafa; }
+    .modal-input:focus { border-color: var(--pink-main); background: white; }
+    .modal-input::placeholder { color: #bbb; }
+    .modal-btns { display: flex; gap: 10px; }
+    .btn-cancel { flex: 1; background: #f0f0f0; color: var(--text-mid); border: none; border-radius: 12px; padding: 15px; font-size: 18px; font-weight: 600; font-family: 'Pretendard', sans-serif; cursor: pointer; }
+    .btn-confirm { flex: 1; background: var(--pink-main); color: white; border: none; border-radius: 12px; padding: 15px; font-size: 18px; font-weight: 600; font-family: 'Pretendard', sans-serif; cursor: pointer; }
+    .modal-emoji-row { display: flex; justify-content: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .emoji-btn { font-size: 30px; background: #f5f5f5; border: 2px solid transparent; border-radius: 12px; padding: 6px 10px; cursor: pointer; }
+    .emoji-btn.selected { border-color: var(--pink-main); background: var(--pink-light); }
+
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<div id="screen-nickname" class="screen active">
+  <div class="nickname-box">
+    <div class="nickname-icon">💬</div>
+    <h2>봄날톡톡</h2>
+    <p>이웃들과 이야기 나눠요!<br/>먼저 닉네임을 정해주세요 😊</p>
+    <input class="nickname-input" id="nickname-input" type="text" placeholder="예) 봄날할머니, 행복씨" maxlength="10" />
+    <button class="btn-primary" onclick="saveNickname()">시작하기 🌸</button>
+  </div>
+</div>
+
+<div id="screen-rooms" class="screen">
+  <div class="header">
+    <button class="back-btn" onclick="goToCategory()">‹ 뒤로</button>
+    <h1>💬 봄날톡톡</h1>
+    <button class="header-btn" onclick="openNicknameModal()">✏️ <span id="display-nickname">닉네임</span></button>
+  </div>
+  <div class="rooms-body">
+    <div class="notice-card">
+      <strong>✨ 봄날톡톡</strong>에 오신 걸 환영해요!<br/>
+      이야기하고 싶은 주제로 채팅방을 만들어보세요 🌸
+    </div>
+    <button class="make-room-btn" onclick="openMakeRoomModal()">＋ 채팅방 만들기</button>
+    <div class="section-label">💬 채팅방 목록</div>
+    <div id="room-list"></div>
+  </div>
+</div>
+
+<div id="screen-chat" class="screen">
+  <div class="header">
+    <button class="back-btn" onclick="goToRoomList()">‹ 채팅목록</button>
+    <h1 id="room-title" style="font-size:18px;">채팅방</h1>
+    <button class="header-btn" onclick="openNicknameModal()">✏️ 닉네임</button>
+  </div>
+  <div class="chat-member-bar">
+    <div class="member-text" id="chat-member-bar">👥 1명이 함께해요</div>
+    <div class="font-btns">
+      <button class="font-btn small" onclick="changeFontSize(-2)">가<br/>작게</button>
+      <button class="font-btn big" onclick="changeFontSize(+2)">가<br/>크게</button>
+    </div>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-input-bar">
+    <button class="photo-btn" onclick="alert('사진 전송은 Firebase 연동 후 사용 가능해요 😊')">📷</button>
+    <textarea class="chat-input" id="chat-input" placeholder="메시지를 입력하세요..." rows="1" oninput="autoResize(this)" onkeydown="handleEnter(event)"></textarea>
+    <button class="send-btn" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-nickname">
+  <div class="modal-box">
+    <h3>✏️ 닉네임 변경</h3>
+    <input class="modal-input" id="modal-nickname-input" type="text" placeholder="새 닉네임 입력" maxlength="10" />
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-nickname')">취소</button>
+      <button class="btn-confirm" onclick="changeNickname()">변경하기</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-makeroom">
+  <div class="modal-box">
+    <h3>💬 채팅방 만들기</h3>
+    <div class="modal-emoji-row">
+      <button class="emoji-btn selected" data-emoji="💬" onclick="selectEmoji(this)">💬</button>
+      <button class="emoji-btn" data-emoji="🍵" onclick="selectEmoji(this)">🍵</button>
+      <button class="emoji-btn" data-emoji="🌸" onclick="selectEmoji(this)">🌸</button>
+      <button class="emoji-btn" data-emoji="🎵" onclick="selectEmoji(this)">🎵</button>
+      <button class="emoji-btn" data-emoji="⛰️" onclick="selectEmoji(this)">⛰️</button>
+      <button class="emoji-btn" data-emoji="🍚" onclick="selectEmoji(this)">🍚</button>
+      <button class="emoji-btn" data-emoji="📖" onclick="selectEmoji(this)">📖</button>
+      <button class="emoji-btn" data-emoji="🤝" onclick="selectEmoji(this)">🤝</button>
+    </div>
+    <input class="modal-input" id="room-name-input" type="text" placeholder="채팅방 이름 (예: 사는이야기해요)" maxlength="15" />
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-makeroom')">취소</button>
+      <button class="btn-confirm" onclick="makeRoom()">만들기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let myNickname = '';
+  let currentRoom = null;
+  let selectedEmoji = '💬';
+  let rooms = [];
+  let bubbleFontSize = 18;
+
+  window.onload = function () {
+    const saved = localStorage.getItem('bomnal_nickname');
+    const savedFont = localStorage.getItem('bomnal_font_size');
+    if (savedFont) { bubbleFontSize = parseInt(savedFont); applyFontSize(); }
+    loadRooms();
+    if (saved) {
+      myNickname = saved;
+      updateNicknameDisplay();
+      renderRoomList();
+      showScreen('screen-rooms');
+    } else {
+      showScreen('screen-nickname');
+    }
+  };
+
+  function changeFontSize(delta) {
+    bubbleFontSize = Math.min(26, Math.max(14, bubbleFontSize + delta));
+    localStorage.setItem('bomnal_font_size', bubbleFontSize);
+    applyFontSize();
+  }
+  function applyFontSize() {
+    document.documentElement.style.setProperty('--font-size-bubble', bubbleFontSize + 'px');
+    document.documentElement.style.setProperty('--font-size-name', Math.max(12, bubbleFontSize - 4) + 'px');
+    document.documentElement.style.setProperty('--font-size-time', Math.max(11, bubbleFontSize - 6) + 'px');
+  }
+
+  function loadRooms() { const raw = localStorage.getItem('bomnal_rooms'); rooms = raw ? JSON.parse(raw) : []; }
+  function saveRooms() { localStorage.setItem('bomnal_rooms', JSON.stringify(rooms)); }
+
+  function saveNickname() {
+    const val = document.getElementById('nickname-input').value.trim();
+    if (!val) { alert('닉네임을 입력해주세요! 😊'); return; }
+    myNickname = val;
+    localStorage.setItem('bomnal_nickname', val);
+    updateNicknameDisplay();
+    renderRoomList();
+    showScreen('screen-rooms');
+  }
+  function openNicknameModal() { document.getElementById('modal-nickname-input').value = myNickname; openModal('modal-nickname'); }
+  function changeNickname() {
+    const val = document.getElementById('modal-nickname-input').value.trim();
+    if (!val) { alert('닉네임을 입력해주세요! 😊'); return; }
+    myNickname = val;
+    localStorage.setItem('bomnal_nickname', val);
+    updateNicknameDisplay();
+    closeModal('modal-nickname');
+    alert('닉네임이 변경되었어요! 🌸');
+  }
+  function updateNicknameDisplay() { document.querySelectorAll('#display-nickname').forEach(el => el.textContent = myNickname); }
+
+  function openMakeRoomModal() {
+    document.getElementById('room-name-input').value = '';
+    selectedEmoji = '💬';
+    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+    document.querySelector('.emoji-btn[data-emoji="💬"]').classList.add('selected');
+    openModal('modal-makeroom');
+  }
+  function selectEmoji(btn) { document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); selectedEmoji = btn.dataset.emoji; }
+  function makeRoom() {
+    const name = document.getElementById('room-name-input').value.trim();
+    if (!name) { alert('채팅방 이름을 입력해주세요! 😊'); return; }
+    rooms.unshift({ id: Date.now(), name, emoji: selectedEmoji, maker: myNickname });
+    saveRooms(); renderRoomList(); closeModal('modal-makeroom');
+    alert('채팅방이 만들어졌어요! 🎉');
+  }
+  function deleteRoom(id) {
+    if (!confirm('이 채팅방을 삭제할까요?')) return;
+    rooms = rooms.filter(r => r.id !== id);
+    saveRooms(); renderRoomList();
+  }
+
+  function renderRoomList() {
+    const container = document.getElementById('room-list');
+    if (rooms.length === 0) {
+      container.innerHTML = '<div class="empty-msg"><span>💬</span>아직 채팅방이 없어요<br/>위 버튼을 눌러<br/>첫 번째 채팅방을 만들어보세요!</div>';
+      return;
+    }
+    container.innerHTML = rooms.map(r => `
+      <div class="room-card" onclick="enterRoom(${r.id})">
+        ${r.maker === myNickname ? `<button class="delete-room-btn" onclick="event.stopPropagation(); deleteRoom(${r.id})">✕</button>` : ''}
+        <div class="room-emoji">${r.emoji}</div>
+        <div class="room-info">
+          <div class="room-name">${escapeHtml(r.name)}</div>
+          <div class="room-meta">개설자: ${escapeHtml(r.maker)}</div>
+        </div>
+        <div class="room-badge">입장</div>
+      </div>`).join('');
+  }
+
+  function enterRoom(id) {
+    currentRoom = rooms.find(r => r.id === id);
+    if (!currentRoom) return;
+    document.getElementById('room-title').textContent = currentRoom.emoji + ' ' + currentRoom.name;
+    document.getElementById('chat-member-bar').textContent = '👥 1명이 함께해요 (Firebase 연동 후 실시간)';
+    const container = document.getElementById('chat-messages');
+    container.innerHTML = '';
+    const divider = document.createElement('div');
+    divider.className = 'date-divider';
+    const t = new Date();
+    divider.textContent = t.getFullYear() + '년 ' + (t.getMonth()+1) + '월 ' + t.getDate() + '일';
+    container.appendChild(divider);
+    const sys = document.createElement('div');
+    sys.className = 'system-msg';
+    sys.textContent = myNickname + '님이 입장하셨어요 🌸';
+    container.appendChild(sys);
+    addBubble('봄날톡톡', '🌸', '"' + currentRoom.name + '" 채팅방에 오신 걸 환영해요! 자유롭게 이야기 나눠보세요 😊', getTimeStr(), false);
+    showScreen('screen-chat');
+    scrollToBottom();
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    addBubble(myNickname, '💗', text, getTimeStr(), true);
+    input.value = ''; input.style.height = 'auto';
+    scrollToBottom();
+  }
+
+  function addBubble(name, emoji, text, time, isMe) {
+    const container = document.getElementById('chat-messages');
+    const row = document.createElement('div');
+    row.className = 'msg-row' + (isMe ? ' me' : '');
+    if (isMe) {
+      row.innerHTML = `<div class="msg-col"><div class="bubble me">${escapeHtml(text)}</div><div class="msg-time">${time}</div></div><div class="avatar">${emoji}</div>`;
+    } else {
+      row.innerHTML = `<div class="avatar">${emoji}</div><div class="msg-col"><div class="msg-name">${escapeHtml(name)}</div><div class="bubble other">${escapeHtml(text)}</div><div class="msg-time">${time}</div></div>`;
+    }
+    container.appendChild(row);
+  }
+
+  function getTimeStr() {
+    const n = new Date(); const hh = n.getHours();
+    return (hh < 12 ? '오전' : '오후') + ' ' + (hh % 12 || 12) + ':' + String(n.getMinutes()).padStart(2,'0');
+  }
+  function escapeHtml(str) { return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function scrollToBottom() { const c = document.getElementById('chat-messages'); setTimeout(() => { c.scrollTop = c.scrollHeight; }, 50); }
+
+  function showScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+  function goToRoomList() { showScreen('screen-rooms'); }
+  function goToCategory() {
+    window.location.href = 'talk.html';
+  }
+
+  function openModal(id) { document.getElementById(id).classList.add('active'); }
+  function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', function(e) { if (e.target === this) closeModal(this.id); });
+  });
+
+  function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 100) + 'px'; }
+  function handleEnter(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+</script>
+</body>
+</html>
