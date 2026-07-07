@@ -185,6 +185,78 @@
 .facility-name { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
 .facility-addr { font-size: 12px; color: #888; margin-bottom: 2px; }
 .facility-num  { font-size: 17px; font-weight: 800; color: #c62828; }
+
+/* ── 돋보기 버튼 (우하단 고정) ── */
+.zoom-btn { position: fixed; right: 16px; bottom: 24px; width: 54px; height: 54px; border-radius: 50%; background: #fff; border: 2px solid #4A90D9; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.14); -webkit-tap-highlight-color: transparent; gap: 1px; }
+.zoom-btn-icon { font-size: 22px; line-height: 1; }
+.zoom-btn-label { font-size: 13px; font-weight: 700; color: #111; line-height: 1; }
+
+/* ── 큰글씨 모드 ── */
+body.big-font { font-size: 135% !important; }
+body.big-font .header-date-solar { font-size: 23px !important; }
+body.big-font .header-date-lunar { font-size: 18px !important; }
+body.big-font .home-bar button { font-size: 22px !important; }
+body.big-font .sec-title { font-size: 30px !important; }
+body.big-font .cat-icon-box { font-size: 42px !important; height: 96px !important; }
+body.big-font .cat-name { font-size: 20px !important; }
+body.big-font .tel-card-title { font-size: 30px !important; }
+body.big-font .tel-card-icon { font-size: 36px !important; }
+body.big-font .tel-name { font-size: 22px !important; }
+body.big-font .tel-desc { font-size: 17px !important; }
+body.big-font .tel-num { font-size: 26px !important; }
+body.big-font .btn-kakao-main { font-size: 22px !important; }
+body.big-font .btn-pwa-main { font-size: 22px !important; }
+body.big-font .affiliate-notice-box { font-size: 16px !important; }
+body.big-font .footer-link { font-size: 18px !important; }
+body.big-font .footer-dot { font-size: 18px !important; }
+body.big-font .back-btn { font-size: 21px !important; }
+body.big-font .page-box-title { font-size: 26px !important; }
+body.big-font .cult-loading-icon { font-size: 46px !important; }
+body.big-font .cult-loading-txt { font-size: 21px !important; }
+body.big-font .cult-loading-sub { font-size: 18px !important; }
+body.big-font .cult-error-icon { font-size: 52px !important; }
+body.big-font .cult-error-txt { font-size: 20px !important; }
+body.big-font .cult-retry-btn { font-size: 21px !important; }
+body.big-font .data-source { font-size: 16px !important; }
+body.big-font .cult-coupon-label { font-size: 16px !important; }
+body.big-font .cult-coupon-icon { font-size: 36px !important; }
+body.big-font .cult-coupon-txt strong { font-size: 20px !important; }
+body.big-font .cult-coupon-txt span { font-size: 16px !important; }
+body.big-font .cult-coupon-arrow { font-size: 24px !important; }
+body.big-font .event-month-label { font-size: 21px !important; }
+body.big-font .event-month-btn { font-size: 18px !important; }
+body.big-font .event-card-img { font-size: 42px !important; }
+body.big-font .event-card-title { font-size: 21px !important; }
+body.big-font .event-card-place { font-size: 18px !important; }
+body.big-font .event-card-date { font-size: 16px !important; }
+body.big-font .event-card-link { font-size: 19px !important; }
+body.big-font .event-empty { font-size: 20px !important; }
+body.big-font .heritage-type-btn { font-size: 16px !important; }
+body.big-font .heritage-card-img { font-size: 62px !important; }
+body.big-font .heritage-card-badge { font-size: 16px !important; }
+body.big-font .heritage-card-name { font-size: 24px !important; }
+body.big-font .heritage-card-meta span { font-size: 18px !important; }
+body.big-font .heritage-nav-btn { font-size: 21px !important; }
+body.big-font .heritage-nav-count { font-size: 19px !important; }
+body.big-font .quiz-count { font-size: 19px !important; }
+body.big-font .quiz-score-badge { font-size: 19px !important; }
+body.big-font .quiz-num { font-size: 18px !important; }
+body.big-font .quiz-question { font-size: 22px !important; }
+body.big-font .quiz-option { font-size: 20px !important; }
+body.big-font .quiz-result-icon { font-size: 36px !important; }
+body.big-font .quiz-result-txt { font-size: 20px !important; }
+body.big-font .quiz-result-desc { font-size: 18px !important; }
+body.big-font .quiz-next-btn { font-size: 21px !important; }
+body.big-font .quiz-restart-btn { font-size: 21px !important; }
+body.big-font .quiz-final-icon { font-size: 72px !important; }
+body.big-font .quiz-final-score { font-size: 46px !important; }
+body.big-font .quiz-final-msg { font-size: 21px !important; }
+body.big-font .quiz-final-restart { font-size: 22px !important; }
+body.big-font .facility-tab { font-size: 19px !important; }
+body.big-font .facility-icon { font-size: 36px !important; }
+body.big-font .facility-name { font-size: 21px !important; }
+body.big-font .facility-addr { font-size: 16px !important; }
+body.big-font .facility-num { font-size: 22px !important; }
 </style>
 
 <div class="wrap">
@@ -713,6 +785,12 @@
   </div><!-- /page-edu -->
 
 </div><!-- /wrap -->
+
+<!-- 돋보기 버튼 (우하단 고정) -->
+<button class="zoom-btn" onclick="toggleBigFont()" id="zoom-btn" title="글자 크기 크게/기본 전환">
+  <span class="zoom-btn-icon">🔍</span>
+  <span class="zoom-btn-label" id="zoom-label">기본</span>
+</button>
 
 <script>
 /* ════════════════════════════════════════════
@@ -1280,6 +1358,16 @@ function confirmExternalLink(url) {
   if (confirm('외부 사이트로 이동합니다.\n봄날마당으로 돌아오려면 휴대폰 뒤로가기를 누르세요.')) {
     window.open(url, '_blank');
   }
+}
+
+/* ════════════════════════════════
+   돋보기 (큰글씨 토글)
+════════════════════════════════ */
+var isBigFont = false;
+function toggleBigFont() {
+  isBigFont = !isBigFont;
+  document.body.classList.toggle('big-font', isBigFont);
+  document.getElementById('zoom-label').textContent = isBigFont ? '크게' : '기본';
 }
 </script>
 </body>
