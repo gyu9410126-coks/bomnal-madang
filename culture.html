@@ -257,6 +257,17 @@ body.big-font .facility-icon { font-size: 36px !important; }
 body.big-font .facility-name { font-size: 21px !important; }
 body.big-font .facility-addr { font-size: 16px !important; }
 body.big-font .facility-num { font-size: 22px !important; }
+
+/* ── API로 불러온 목록 글자 (메인 미리보기 + 상세페이지 공통) ── */
+body.big-font .dyn-section-title { font-size: 24px !important; }
+body.big-font .dyn-preview-btn { font-size: 18px !important; }
+body.big-font .dyn-error-msg { font-size: 19px !important; }
+body.big-font .dyn-more-btn { font-size: 21px !important; }
+body.big-font .dyn-title { font-size: 20px !important; }
+body.big-font .dyn-meta { font-size: 16px !important; }
+body.big-font .dyn-sub { font-size: 18px !important; }
+body.big-font .dyn-link { font-size: 18px !important; }
+body.big-font .dyn-organizer { font-size: 15px !important; }
 </style>
 
 <div class="wrap">
@@ -329,8 +340,8 @@ body.big-font .facility-num { font-size: 22px !important; }
     <!-- ── 미리보기 섹션1: 이달의 문화행사 ── -->
     <div style="background:#fff;border-radius:16px;box-shadow:0 1px 5px rgba(0,0,0,0.07);margin:18px 14px 0;overflow:hidden;">
       <div style="background:#fce4ec;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:18px;font-weight:800;color:#c62828;">🎪 이달의 문화행사</span>
-        <button onclick="goPage('event')" style="background:#c62828;color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">전체보기 →</button>
+        <span class="dyn-section-title" style="font-size:18px;font-weight:800;color:#c62828;">🎪 이달의 문화행사</span>
+        <button class="dyn-preview-btn" onclick="goPage('event')" style="background:#c62828;color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">전체보기 →</button>
       </div>
       <div style="padding:12px;">
         <!-- 스켈레톤 로딩 -->
@@ -342,15 +353,15 @@ body.big-font .facility-num { font-size: 22px !important; }
         <!-- 결과 -->
         <div id="preview-event-list" style="display:none;"></div>
         <!-- 에러 -->
-        <div id="preview-event-error" style="display:none;text-align:center;padding:16px;color:#aaa;font-size:14px;">😥 정보를 불러오지 못했어요.</div>
+        <div id="preview-event-error" class="dyn-error-msg" style="display:none;text-align:center;padding:16px;color:#aaa;font-size:14px;">😥 정보를 불러오지 못했어요.</div>
       </div>
     </div>
 
     <!-- ── 미리보기 섹션2: 이달의 지역축제 ── -->
     <div style="background:#fff;border-radius:16px;box-shadow:0 1px 5px rgba(0,0,0,0.07);margin:14px 14px 0;overflow:hidden;">
       <div style="background:#fff0e6;padding:13px 14px;display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:18px;font-weight:800;color:#e65100;">🎉 이달의 지역축제</span>
-        <button onclick="goPage('festival')" style="background:#e65100;color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">전체보기 →</button>
+        <span class="dyn-section-title" style="font-size:18px;font-weight:800;color:#e65100;">🎉 이달의 지역축제</span>
+        <button class="dyn-preview-btn" onclick="goPage('festival')" style="background:#e65100;color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">전체보기 →</button>
       </div>
       <div style="padding:12px;">
         <!-- 스켈레톤 로딩 -->
@@ -362,7 +373,7 @@ body.big-font .facility-num { font-size: 22px !important; }
         <!-- 결과 -->
         <div id="preview-festival-list" style="display:none;"></div>
         <!-- 에러 -->
-        <div id="preview-festival-error" style="display:none;text-align:center;padding:16px;color:#aaa;font-size:14px;">😥 정보를 불러오지 못했어요.</div>
+        <div id="preview-festival-error" class="dyn-error-msg" style="display:none;text-align:center;padding:16px;color:#aaa;font-size:14px;">😥 정보를 불러오지 못했어요.</div>
       </div>
     </div>
 
@@ -606,7 +617,7 @@ body.big-font .facility-num { font-size: 22px !important; }
         </div>
         <div id="festival-list"></div>
         <div id="festival-more-wrap" style="display:none;margin-top:10px;">
-          <button onclick="loadMoreFestival()" style="width:100%;padding:12px;background:#fff0e6;color:#e65100;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+          <button class="dyn-more-btn" onclick="loadMoreFestival()" style="width:100%;padding:12px;background:#fff0e6;color:#e65100;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
         </div>
         <div class="cult-coupon-wrap" style="margin-top:16px;">
           <div class="cult-coupon-label">🛍️ 축제 나들이 준비 추천</div>
@@ -651,7 +662,7 @@ body.big-font .facility-num { font-size: 22px !important; }
         </div>
         <div id="perf2-list"></div>
         <div id="perf2-more-wrap" style="display:none;margin-top:10px;">
-          <button onclick="loadMoreKcisa('perf2')" style="width:100%;padding:12px;background:#e8f5fe;color:#0277bd;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+          <button class="dyn-more-btn" onclick="loadMoreKcisa('perf2')" style="width:100%;padding:12px;background:#e8f5fe;color:#0277bd;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
         </div>
         <div class="cult-coupon-wrap" style="margin-top:14px;">
           <div class="cult-coupon-label">🛍️ 공연 관람 준비 추천</div>
@@ -695,7 +706,7 @@ body.big-font .facility-num { font-size: 22px !important; }
         </div>
         <div id="exhi-list"></div>
         <div id="exhi-more-wrap" style="display:none;margin-top:10px;">
-          <button onclick="loadMoreKcisa('exhi')" style="width:100%;padding:12px;background:#f9fbe7;color:#558b2f;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+          <button class="dyn-more-btn" onclick="loadMoreKcisa('exhi')" style="width:100%;padding:12px;background:#f9fbe7;color:#558b2f;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
         </div>
         <div class="cult-coupon-wrap" style="margin-top:14px;">
           <div class="cult-coupon-label">🛍️ 전시 관람 준비 추천</div>
@@ -732,7 +743,7 @@ body.big-font .facility-num { font-size: 22px !important; }
         </div>
         <div id="museum-list"></div>
         <div id="museum-more-wrap" style="display:none;margin-top:10px;">
-          <button onclick="loadMoreKcisa('museum')" style="width:100%;padding:12px;background:#fff3e0;color:#e65100;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+          <button class="dyn-more-btn" onclick="loadMoreKcisa('museum')" style="width:100%;padding:12px;background:#fff3e0;color:#e65100;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
         </div>
         <div class="cult-coupon-wrap" style="margin-top:14px;">
           <div class="cult-coupon-label">🛍️ 박물관 나들이 추천</div>
@@ -769,7 +780,7 @@ body.big-font .facility-num { font-size: 22px !important; }
         </div>
         <div id="edu-list"></div>
         <div id="edu-more-wrap" style="display:none;margin-top:10px;">
-          <button onclick="loadMoreKcisa('edu')" style="width:100%;padding:12px;background:#fce4ec;color:#c62828;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+          <button class="dyn-more-btn" onclick="loadMoreKcisa('edu')" style="width:100%;padding:12px;background:#fce4ec;color:#c62828;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
         </div>
         <div class="cult-coupon-wrap" style="margin-top:14px;">
           <div class="cult-coupon-label">🛍️ 문화 교육 준비 추천</div>
@@ -845,9 +856,9 @@ body.big-font .facility-num { font-size: 22px !important; }
           ? item.startDate+' ~ '+item.endDate
           : (item.startDate||'');
         html += '<div style="background:#fff9fa;border:1.5px solid #f8bbd0;border-radius:10px;padding:11px 13px;margin-bottom:7px;">'
-          +'<div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px;word-break:keep-all;">'+item.title+'</div>'
-          +(item.place?'<div style="font-size:12px;color:#c62828;font-weight:600;">📍 '+item.place+'</div>':'')
-          +(dateStr?'<div style="font-size:12px;color:#888;">📅 '+dateStr+'</div>':'')
+          +'<div class="dyn-title" style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px;word-break:keep-all;">'+item.title+'</div>'
+          +(item.place?'<div class="dyn-meta" style="font-size:12px;color:#c62828;font-weight:600;">📍 '+item.place+'</div>':'')
+          +(dateStr?'<div class="dyn-meta" style="font-size:12px;color:#888;">📅 '+dateStr+'</div>':'')
           +'</div>';
       });
       document.getElementById('preview-event-list').innerHTML = html;
@@ -875,9 +886,9 @@ body.big-font .facility-num { font-size: 22px !important; }
       var html  = '';
       items.forEach(function(item){
         html += '<div style="background:#fffaf7;border:1.5px solid #ffccbc;border-radius:10px;padding:11px 13px;margin-bottom:7px;">'
-          +'<div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px;word-break:keep-all;">'+item.title+'</div>'
-          +(item.region?'<div style="font-size:12px;color:#e65100;font-weight:600;">📍 '+item.region+'</div>':'')
-          +(item.period?'<div style="font-size:12px;color:#888;">📅 '+item.period+'</div>':'')
+          +'<div class="dyn-title" style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px;word-break:keep-all;">'+item.title+'</div>'
+          +(item.region?'<div class="dyn-meta" style="font-size:12px;color:#e65100;font-weight:600;">📍 '+item.region+'</div>':'')
+          +(item.period?'<div class="dyn-meta" style="font-size:12px;color:#888;">📅 '+item.period+'</div>':'')
           +'</div>';
       });
       document.getElementById('preview-festival-list').innerHTML = html;
@@ -1002,7 +1013,7 @@ function renderEvents(items) {
       +(item.place?'<div class="event-card-place">📍 '+item.place+'</div>':'')
       +(dateStr?'<div class="event-card-date">📅 '+dateStr+'</div>':'')
       +'</div></div>'
-      +(item.subTitle?'<div style="font-size:13px;color:#555;margin-bottom:8px;line-height:1.6;">'+item.subTitle+'</div>':'')
+      +(item.subTitle?'<div class="dyn-sub" style="font-size:13px;color:#555;margin-bottom:8px;line-height:1.6;">'+item.subTitle+'</div>':'')
       +linkHtml+'</div>';
   });
   document.getElementById('event-list').innerHTML = html;
@@ -1345,10 +1356,10 @@ function renderFestival(items) {
   var html = '';
   items.forEach(function(item){
     html += '<div style="background:#fffaf7;border:1.5px solid #ffccbc;border-radius:14px;padding:14px;margin-bottom:10px;">'
-      + '<div style="font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.4;margin-bottom:6px;word-break:keep-all;">'+item.title+'</div>'
-      + (item.region ? '<div style="font-size:12px;color:#e65100;font-weight:600;margin-bottom:3px;">📍 '+item.region+'</div>' : '')
-      + (item.period ? '<div style="font-size:12px;color:#888;margin-bottom:3px;">📅 '+item.period+'</div>' : '')
-      + (item.place  ? '<div style="font-size:12px;color:#888;margin-bottom:3px;">🏟️ '+item.place+'</div>'  : '')
+      + '<div class="dyn-title" style="font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.4;margin-bottom:6px;word-break:keep-all;">'+item.title+'</div>'
+      + (item.region ? '<div class="dyn-meta" style="font-size:12px;color:#e65100;font-weight:600;margin-bottom:3px;">📍 '+item.region+'</div>' : '')
+      + (item.period ? '<div class="dyn-meta" style="font-size:12px;color:#888;margin-bottom:3px;">📅 '+item.period+'</div>' : '')
+      + (item.place  ? '<div class="dyn-meta" style="font-size:12px;color:#888;margin-bottom:3px;">🏟️ '+item.place+'</div>'  : '')
       + '</div>';
   });
   document.getElementById('festival-list').innerHTML = html;
@@ -1596,20 +1607,20 @@ function renderKcisa(type, items) {
     /* 요금 */
     var chargeStr = (item.charge && item.charge !== '정보없음') ? item.charge : '정보 없음';
     /* 주관기관 */
-    var orgStr = item.organizer ? '<div style="font-size:11px;color:#aaa;margin-top:2px;">🏛️ '+item.organizer+'</div>' : '';
+    var orgStr = item.organizer ? '<div class="dyn-organizer" style="font-size:11px;color:#aaa;margin-top:2px;">🏛️ '+item.organizer+'</div>' : '';
     /* 상세링크 */
     var linkHtml = item.url
-      ? '<a href="#" onclick="confirmExternalLink(\''+item.url+'\');return false;" style="display:block;text-align:center;padding:8px;background:'+theme.bg+';border-radius:8px;color:'+theme.color+';font-size:13px;font-weight:700;text-decoration:none;margin-top:8px;">📋 상세보기</a>'
+      ? '<a class="dyn-link" href="#" onclick="confirmExternalLink(\''+item.url+'\');return false;" style="display:block;text-align:center;padding:8px;background:'+theme.bg+';border-radius:8px;color:'+theme.color+';font-size:13px;font-weight:700;text-decoration:none;margin-top:8px;">📋 상세보기</a>'
       : '';
 
     html += '<div style="background:#fafafa;border:1.5px solid #eee;border-radius:14px;padding:14px;margin-bottom:10px;">'
       + '<div style="display:flex;gap:12px;align-items:flex-start;">'
       + imgHtml
       + '<div style="flex:1;min-width:0;">'
-      + '<div style="font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.4;margin-bottom:5px;word-break:keep-all;">'+item.title+'</div>'
-      + (item.place  ? '<div style="font-size:12px;color:'+theme.color+';font-weight:600;margin-bottom:3px;">📍 '+item.place+'</div>'  : '')
-      + (item.period ? '<div style="font-size:12px;color:#888;margin-bottom:3px;">📅 '+item.period+'</div>' : '')
-      + '<div style="font-size:12px;color:#888;">💰 '+chargeStr+'</div>'
+      + '<div class="dyn-title" style="font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.4;margin-bottom:5px;word-break:keep-all;">'+item.title+'</div>'
+      + (item.place  ? '<div class="dyn-meta" style="font-size:12px;color:'+theme.color+';font-weight:600;margin-bottom:3px;">📍 '+item.place+'</div>'  : '')
+      + (item.period ? '<div class="dyn-meta" style="font-size:12px;color:#888;margin-bottom:3px;">📅 '+item.period+'</div>' : '')
+      + '<div class="dyn-meta" style="font-size:12px;color:#888;">💰 '+chargeStr+'</div>'
       + orgStr
       + '</div></div>'
       + linkHtml
