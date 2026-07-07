@@ -322,6 +322,7 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
         <button class="search-btn" onclick="secSearchMedicine()" style="background:#1565c0;">검색</button>
       </div>
       <div id="sec-med-result"></div>
+      <button class="search-btn" style="background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetSecMed()">🔄 검색 초기화</button>
       <button class="sec-more-btn" onclick="goPage('medicine')" style="background:#e3f2fd;color:#1565c0;">📖 약효능 전체보기 ▶</button>
     </div>
   </div>
@@ -425,6 +426,7 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
           <button class="search-btn" style="background:#1565c0;" onclick="searchMedicine(1)">검색</button>
         </div>
         <div id="med-result" class="result-list"></div>
+        <button class="search-btn" style="background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetHealthPage('medicine')">🔄 검색 초기화</button>
       </div>
     </div>
     <div class="coupang-box">
@@ -498,6 +500,7 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
           <button class="search-btn" style="background:#558b2f;" onclick="searchHerbal(1)">검색</button>
         </div>
         <div id="herb-result" class="result-list"></div>
+        <button class="search-btn" style="background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetHealthPage('herbal')">🔄 검색 초기화</button>
       </div>
     </div>
     <div class="coupang-box">
@@ -571,6 +574,7 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
           <button class="search-btn" style="background:#f57f17;" onclick="searchNutrition(1)">검색</button>
         </div>
         <div id="nut-result" class="result-list"></div>
+        <button class="search-btn" style="background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetHealthPage('nutrition')">🔄 검색 초기화</button>
       </div>
     </div>
     <div class="coupang-box">
@@ -645,6 +649,7 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
           <button class="search-btn" style="background:#c62828;" onclick="searchSupplement(1)">검색</button>
         </div>
         <div id="sup-result" class="result-list"></div>
+        <button class="search-btn" style="background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetHealthPage('supplement')">🔄 검색 초기화</button>
       </div>
     </div>
     <div class="coupang-box">
@@ -1476,6 +1481,12 @@ async function secSearchMedicine() {
   } catch(e) {
     el.innerHTML = emptyHTML('⚠️', '불러오기 실패', '잠시 후 다시 시도해 주세요');
   }
+}
+
+// 홈 접이식 약효능·복용법 검색 초기화 (입력값 지우고 결과 비우기)
+function resetSecMed() {
+  document.getElementById('sec-med-input').value = '';
+  document.getElementById('sec-med-result').innerHTML = '';
 }
 
 /* ═══════════════════════════════════════════
