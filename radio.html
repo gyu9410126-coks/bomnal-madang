@@ -530,8 +530,16 @@ var CHANNELS = {
 /* 페이지별 상태 */
 var STATE = {};
 ['trot','mister','docu','health','welfare','healing'].forEach(function(k){
-  STATE[k] = { allVideos:[], filtered:[], currentIdx:0, showing:5, paused:false, wakeLock:null };
+  STATE[k] = { allVideos:[], filtered:[], currentIdx:0, showing:5, paused:false, wakeLock:null, loaded:false };
 });
+
+/* 이미 열려있는 유튜브 화면에 "리모컨 신호"만 보내는 함수
+   (화면을 통째로 새로 여는 대신, 신호만 보내면 뒤로가기 책갈피가 안 쌓여요) */
+function ytCommand(pageId, func, args) {
+  var iframe = document.getElementById('player-' + pageId);
+  if (!iframe || !iframe.contentWindow) return;
+  iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: func, args: args || [] }), '*');
+}
 
 /* ════════════════════════════════
    날짜
@@ -577,7 +585,7 @@ function goPage(pageId) {
 }
 function goBack() {
   if (currentPage) {
-    document.getElementById('player-' + currentPage).src = '';
+    ytCommand(currentPage, 'stopVideo');
     STATE[currentPage].paused = true;
     document.getElementById('pause-' + currentPage).textContent = '▶ 재생';
     document.getElementById('page-' + currentPage).classList.remove('active');
@@ -591,7 +599,7 @@ window.addEventListener('popstate', function() {
     goBack();
   } else {
     ['trot','mister','docu','health','welfare','healing'].forEach(function(p) {
-      document.getElementById('player-' + p).src = '';
+      ytCommand(p, 'stopVideo');
     });
   }
 });
@@ -680,10 +688,14 @@ function playVideo(pageId, idx) {
   st.paused = false;
   var v = list[idx];
   var iframe = document.getElementById('player-' + pageId);
-  iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0&hl=ko&cc_lang_pref=ko&enablejsapi=1&origin=https://bomnal-madang.vercel.app';
-  iframe.onload = function() {
-    // iframe 로드 후 오류 감지를 위해 postMessage 리스너 활용
-  };
+  if (!st.loaded) {
+    /* 처음 영상을 열 때만 유튜브 화면을 새로 엶 (이때 딱 1번만 뒤로가기 책갈피 성격이 생김) */
+    iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0&hl=ko&cc_lang_pref=ko&enablejsapi=1&origin=https://bomnal-madang.vercel.app';
+    st.loaded = true;
+  } else {
+    /* 이미 열려있는 화면에 "이 영상으로 바꿔줘" 리모컨 신호만 보냄 (화면을 새로 안 열어서 책갈피 안 쌓임) */
+    ytCommand(pageId, 'loadVideoById', [v.videoId]);
+  }
   document.getElementById('now-' + pageId).textContent = v.title;
   document.getElementById('count-' + pageId).textContent = (idx+1) + '/' + list.length;
   document.getElementById('pause-' + pageId).textContent = '⏸ 일시정지';
@@ -719,15 +731,13 @@ function nextVideo(pageId) {
 
 function togglePause(pageId) {
   var st = STATE[pageId];
-  var iframe = document.getElementById('player-' + pageId);
   var btn = document.getElementById('pause-' + pageId);
   if (st.paused) {
-    var v = st.filtered[st.currentIdx];
-    iframe.src = 'https://www.youtube.com/embed/' + v.videoId + '?autoplay=1&rel=0&hl=ko&cc_lang_pref=ko&enablejsapi=1&origin=https://bomnal-madang.vercel.app';
+    ytCommand(pageId, 'playVideo');
     btn.textContent = '⏸ 일시정지';
     st.paused = false;
   } else {
-    iframe.src = '';
+    ytCommand(pageId, 'pauseVideo');
     btn.textContent = '▶ 재생';
     st.paused = true;
   }
