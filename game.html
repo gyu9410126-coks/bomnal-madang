@@ -854,6 +854,387 @@
 .brain-result-tip{background:#f3e5f5;border-radius:12px;padding:13px 14px;font-size:14px;color:#4a148c;font-weight:600;line-height:1.7;text-align:left;margin-bottom:14px}
 .brain-retry-btn{display:block;width:100%;padding:13px;background:#fff;color:#6a1b9a;border:2px solid #6a1b9a;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit}
 .brain-retry-btn:active{background:#f3e5f5}
+
+/* 스트룹 게임 - 다른 게임과 동일한 빈 기록 안내 스타일 (누락되어 있던 것 보완) */
+.st-rank-empty{text-align:center;color:#bbb;font-size:15px;padding:16px 0}
+
+/* ── 돋보기 버튼 (우하단 고정) ── */
+.zoom-btn { position: fixed; right: 16px; bottom: 24px; width: 54px; height: 54px; border-radius: 50%; background: #fff; border: 2px solid #4A90D9; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.14); -webkit-tap-highlight-color: transparent; gap: 1px; }
+.zoom-btn-icon { font-size: 22px; line-height: 1; }
+.zoom-btn-label { font-size: 13px; font-weight: 700; color: #111; line-height: 1; }
+
+/* ── 큰글씨 모드 ── */
+body.big-font { font-size: 135% !important; }
+body.big-font .header-date-solar { font-size: 23px !important; }
+body.big-font .header-date-lunar { font-size: 18px !important; }
+body.big-font .home-bar button { font-size: 22px !important; }
+body.big-font .sec-title { font-size: 30px !important; }
+body.big-font .cat-icon-box { font-size: 42px !important; height: 96px !important; }
+body.big-font .cat-name { font-size: 20px !important; }
+body.big-font .back-btn { font-size: 26px !important; }
+body.big-font .quiz-home-title { font-size: 34px !important; }
+body.big-font .quiz-home-date { font-size: 21px !important; }
+body.big-font .quiz-home-desc { font-size: 20px !important; }
+body.big-font .quiz-level-icon { font-size: 47px !important; }
+body.big-font .quiz-level-name { font-size: 29px !important; }
+body.big-font .quiz-level-desc { font-size: 18px !important; }
+body.big-font .quiz-level-arrow { font-size: 36px !important; }
+body.big-font .quiz-today-badge { font-size: 18px !important; }
+body.big-font .quiz-level-tag { font-size: 18px !important; }
+body.big-font .quiz-progress-txt { font-size: 23px !important; }
+body.big-font .quiz-score-txt { font-size: 21px !important; }
+body.big-font .quiz-question-txt { font-size: 29px !important; }
+body.big-font .quiz-opt-btn { font-size: 26px !important; }
+body.big-font .quiz-result-emoji { font-size: 83px !important; }
+body.big-font .quiz-result-score { font-size: 62px !important; }
+body.big-font .quiz-result-score span { font-size: 29px !important; }
+body.big-font .quiz-result-msg { font-size: 29px !important; }
+body.big-font .quiz-result-sub { font-size: 21px !important; }
+body.big-font .quiz-result-stars { font-size: 42px !important; }
+body.big-font .quiz-retry-btn { font-size: 26px !important; }
+body.big-font .quiz-home-btn { font-size: 26px !important; }
+body.big-font .pz-banner-icon { font-size: 62px !important; }
+body.big-font .pz-banner-title { font-size: 34px !important; }
+body.big-font .pz-banner-desc { font-size: 20px !important; }
+body.big-font .pz-sec-label { font-size: 23px !important; }
+body.big-font .pz-level-icon { font-size: 36px !important; }
+body.big-font .pz-level-name { font-size: 21px !important; }
+body.big-font .pz-level-desc { font-size: 16px !important; }
+body.big-font .pz-start-btn { font-size: 26px !important; }
+body.big-font .pz-pause-btn { font-size: 20px !important; }
+body.big-font .pz-info-label { font-size: 16px !important; }
+body.big-font .pz-info-value { font-size: 29px !important; }
+body.big-font .pz-q-num { font-size: 17px !important; }
+body.big-font .pz-q-text { font-size: 29px !important; }
+body.big-font .pz-opt-btn { font-size: 25px !important; }
+body.big-font .pz-feedback-msg { font-size: 23px !important; }
+body.big-font .pz-progress-txt { font-size: 17px !important; }
+body.big-font .pz-status-msg { font-size: 23px !important; }
+body.big-font .pz-pause-popup-icon { font-size: 68px !important; }
+body.big-font .pz-pause-popup-title { font-size: 31px !important; }
+body.big-font .pz-pause-popup-sub { font-size: 20px !important; }
+body.big-font .pz-popup-btn-resume { font-size: 25px !important; }
+body.big-font .pz-popup-btn-exit { font-size: 23px !important; }
+body.big-font .pz-result-trophy { font-size: 78px !important; }
+body.big-font .pz-result-grade { font-size: 31px !important; }
+body.big-font .pz-result-score-big { font-size: 73px !important; }
+body.big-font .pz-result-score-big span { font-size: 29px !important; }
+body.big-font .pz-result-sub { font-size: 21px !important; }
+body.big-font .pz-detail-icon { font-size: 29px !important; }
+body.big-font .pz-detail-val { font-size: 26px !important; }
+body.big-font .pz-detail-lbl { font-size: 16px !important; }
+body.big-font .pz-rank-title { font-size: 23px !important; }
+body.big-font .pz-rank-num { font-size: 23px !important; }
+body.big-font .pz-rank-score { font-size: 23px !important; }
+body.big-font .pz-rank-meta { font-size: 16px !important; }
+body.big-font .pz-rank-badge { font-size: 16px !important; }
+body.big-font .pz-rank-empty { font-size: 20px !important; }
+body.big-font .pz-retry-btn { font-size: 23px !important; }
+body.big-font .pz-back-game-btn { font-size: 23px !important; }
+body.big-font .wd-banner-icon { font-size: 62px !important; }
+body.big-font .wd-banner-title { font-size: 34px !important; }
+body.big-font .wd-banner-desc { font-size: 20px !important; }
+body.big-font .wd-sec-label { font-size: 23px !important; }
+body.big-font .wd-level-icon { font-size: 36px !important; }
+body.big-font .wd-level-name { font-size: 21px !important; }
+body.big-font .wd-level-desc { font-size: 16px !important; }
+body.big-font .wd-start-btn { font-size: 26px !important; }
+body.big-font .wd-pause-btn { font-size: 20px !important; }
+body.big-font .wd-info-label { font-size: 16px !important; }
+body.big-font .wd-info-value { font-size: 29px !important; }
+body.big-font .wd-progress-txt { font-size: 17px !important; }
+body.big-font .wd-q-meaning { font-size: 22px !important; }
+body.big-font .wd-q-label { font-size: 20px !important; }
+body.big-font .wd-char-tile { font-size: 36px !important; }
+body.big-font .wd-answer-slot { font-size: 36px !important; }
+body.big-font .wd-confirm-btn { font-size: 25px !important; }
+body.big-font .wd-reset-btn { font-size: 22px !important; }
+body.big-font .wd-feedback-msg { font-size: 26px !important; }
+body.big-font .wd-pause-popup-icon { font-size: 68px !important; }
+body.big-font .wd-pause-popup-title { font-size: 31px !important; }
+body.big-font .wd-pause-popup-sub { font-size: 20px !important; }
+body.big-font .wd-popup-btn-resume { font-size: 25px !important; }
+body.big-font .wd-popup-btn-exit { font-size: 23px !important; }
+body.big-font .wd-result-trophy { font-size: 78px !important; }
+body.big-font .wd-result-grade { font-size: 31px !important; }
+body.big-font .wd-result-score-big { font-size: 73px !important; }
+body.big-font .wd-result-score-big span { font-size: 29px !important; }
+body.big-font .wd-result-sub { font-size: 21px !important; }
+body.big-font .wd-detail-icon { font-size: 29px !important; }
+body.big-font .wd-detail-val { font-size: 26px !important; }
+body.big-font .wd-detail-lbl { font-size: 16px !important; }
+body.big-font .wd-rank-title { font-size: 23px !important; }
+body.big-font .wd-rank-num { font-size: 23px !important; }
+body.big-font .wd-rank-score { font-size: 23px !important; }
+body.big-font .wd-rank-meta { font-size: 16px !important; }
+body.big-font .wd-rank-badge { font-size: 16px !important; }
+body.big-font .wd-rank-empty { font-size: 20px !important; }
+body.big-font .wd-retry-btn { font-size: 23px !important; }
+body.big-font .wd-back-game-btn { font-size: 23px !important; }
+body.big-font .cd-banner-icon { font-size: 62px !important; }
+body.big-font .cd-banner-title { font-size: 34px !important; }
+body.big-font .cd-banner-desc { font-size: 20px !important; }
+body.big-font .cd-sec-label { font-size: 23px !important; }
+body.big-font .cd-level-icon { font-size: 36px !important; }
+body.big-font .cd-level-name { font-size: 21px !important; }
+body.big-font .cd-level-desc { font-size: 16px !important; }
+body.big-font .cd-start-btn { font-size: 26px !important; }
+body.big-font .cd-pause-btn { font-size: 20px !important; }
+body.big-font .cd-info-label { font-size: 16px !important; }
+body.big-font .cd-info-value { font-size: 29px !important; }
+body.big-font .cd-card-front { font-size: 36px !important; }
+body.big-font .cd-card-back { font-size: 47px !important; }
+body.big-font .cd-status-msg { font-size: 23px !important; }
+body.big-font .cd-pause-popup-icon { font-size: 68px !important; }
+body.big-font .cd-pause-popup-title { font-size: 31px !important; }
+body.big-font .cd-pause-popup-sub { font-size: 20px !important; }
+body.big-font .cd-popup-btn-resume { font-size: 25px !important; }
+body.big-font .cd-popup-btn-exit { font-size: 23px !important; }
+body.big-font .cd-result-trophy { font-size: 78px !important; }
+body.big-font .cd-result-grade { font-size: 31px !important; }
+body.big-font .cd-result-score-big { font-size: 73px !important; }
+body.big-font .cd-result-score-big span { font-size: 29px !important; }
+body.big-font .cd-result-sub { font-size: 21px !important; }
+body.big-font .cd-detail-icon { font-size: 29px !important; }
+body.big-font .cd-detail-val { font-size: 26px !important; }
+body.big-font .cd-detail-lbl { font-size: 16px !important; }
+body.big-font .cd-rank-title { font-size: 23px !important; }
+body.big-font .cd-rank-num { font-size: 23px !important; }
+body.big-font .cd-rank-score { font-size: 23px !important; }
+body.big-font .cd-rank-meta { font-size: 16px !important; }
+body.big-font .cd-rank-badge { font-size: 16px !important; }
+body.big-font .cd-rank-empty { font-size: 20px !important; }
+body.big-font .cd-retry-btn { font-size: 23px !important; }
+body.big-font .cd-back-game-btn { font-size: 23px !important; }
+body.big-font .sm-banner-icon { font-size: 62px !important; }
+body.big-font .sm-banner-title { font-size: 34px !important; }
+body.big-font .sm-banner-desc { font-size: 20px !important; }
+body.big-font .sm-sec-label { font-size: 23px !important; }
+body.big-font .sm-level-icon { font-size: 36px !important; }
+body.big-font .sm-level-name { font-size: 21px !important; }
+body.big-font .sm-level-desc { font-size: 16px !important; }
+body.big-font .sm-start-btn { font-size: 26px !important; }
+body.big-font .sm-pause-btn { font-size: 20px !important; }
+body.big-font .sm-info-label { font-size: 16px !important; }
+body.big-font .sm-info-value { font-size: 31px !important; }
+body.big-font .sm-simon-label { font-size: 21px !important; }
+body.big-font .sm-simon-btn { font-size: 47px !important; }
+body.big-font .sm-status-msg { font-size: 26px !important; }
+body.big-font .sm-pause-popup-icon { font-size: 68px !important; }
+body.big-font .sm-pause-popup-title { font-size: 31px !important; }
+body.big-font .sm-pause-popup-sub { font-size: 20px !important; }
+body.big-font .sm-popup-btn-resume { font-size: 25px !important; }
+body.big-font .sm-popup-btn-exit { font-size: 23px !important; }
+body.big-font .sm-result-trophy { font-size: 78px !important; }
+body.big-font .sm-result-grade { font-size: 31px !important; }
+body.big-font .sm-result-score-big { font-size: 73px !important; }
+body.big-font .sm-result-score-big span { font-size: 29px !important; }
+body.big-font .sm-result-sub { font-size: 21px !important; }
+body.big-font .sm-detail-icon { font-size: 29px !important; }
+body.big-font .sm-detail-val { font-size: 26px !important; }
+body.big-font .sm-detail-lbl { font-size: 16px !important; }
+body.big-font .sm-rank-title { font-size: 23px !important; }
+body.big-font .sm-rank-num { font-size: 23px !important; }
+body.big-font .sm-rank-score { font-size: 23px !important; }
+body.big-font .sm-rank-meta { font-size: 16px !important; }
+body.big-font .sm-rank-badge { font-size: 16px !important; }
+body.big-font .sm-rank-empty { font-size: 20px !important; }
+body.big-font .sm-retry-btn { font-size: 23px !important; }
+body.big-font .sm-back-game-btn { font-size: 23px !important; }
+body.big-font .fg-banner-icon { font-size: 62px !important; }
+body.big-font .fg-banner-title { font-size: 34px !important; }
+body.big-font .fg-banner-desc { font-size: 20px !important; }
+body.big-font .fg-sec-label { font-size: 23px !important; }
+body.big-font .fg-level-icon { font-size: 36px !important; }
+body.big-font .fg-level-name { font-size: 21px !important; }
+body.big-font .fg-level-desc { font-size: 16px !important; }
+body.big-font .fg-start-btn { font-size: 26px !important; }
+body.big-font .fg-pause-btn { font-size: 20px !important; }
+body.big-font .fg-info-label { font-size: 16px !important; }
+body.big-font .fg-info-value { font-size: 31px !important; }
+body.big-font .fg-progress-txt { font-size: 17px !important; }
+body.big-font .fg-tap-area-label { font-size: 20px !important; }
+body.big-font .fg-tap-target { font-size: 42px !important; }
+body.big-font .fg-countdown-num { font-size: 104px !important; }
+body.big-font .fg-countdown-text { font-size: 26px !important; }
+body.big-font .fg-feedback-msg { font-size: 26px !important; }
+body.big-font .fg-pause-popup-icon { font-size: 68px !important; }
+body.big-font .fg-pause-popup-title { font-size: 31px !important; }
+body.big-font .fg-pause-popup-sub { font-size: 20px !important; }
+body.big-font .fg-popup-btn-resume { font-size: 25px !important; }
+body.big-font .fg-popup-btn-exit { font-size: 23px !important; }
+body.big-font .fg-result-trophy { font-size: 78px !important; }
+body.big-font .fg-result-brain-age { font-size: 26px !important; }
+body.big-font .fg-result-age-num { font-size: 83px !important; }
+body.big-font .fg-result-age-unit { font-size: 29px !important; }
+body.big-font .fg-result-grade { font-size: 29px !important; }
+body.big-font .fg-detail-icon { font-size: 29px !important; }
+body.big-font .fg-detail-val { font-size: 26px !important; }
+body.big-font .fg-detail-lbl { font-size: 16px !important; }
+body.big-font .fg-rank-title { font-size: 23px !important; }
+body.big-font .fg-rank-num { font-size: 23px !important; }
+body.big-font .fg-rank-score { font-size: 21px !important; }
+body.big-font .fg-rank-meta { font-size: 16px !important; }
+body.big-font .fg-rank-badge { font-size: 16px !important; }
+body.big-font .fg-rank-empty { font-size: 20px !important; }
+body.big-font .fg-retry-btn { font-size: 23px !important; }
+body.big-font .fg-back-game-btn { font-size: 23px !important; }
+body.big-font .mn-banner-icon { font-size: 62px !important; }
+body.big-font .mn-banner-title { font-size: 34px !important; }
+body.big-font .mn-banner-desc { font-size: 20px !important; }
+body.big-font .mn-sec-label { font-size: 23px !important; }
+body.big-font .mn-level-icon { font-size: 36px !important; }
+body.big-font .mn-level-name { font-size: 21px !important; }
+body.big-font .mn-level-desc { font-size: 16px !important; }
+body.big-font .mn-start-btn { font-size: 26px !important; }
+body.big-font .mn-pause-btn { font-size: 20px !important; }
+body.big-font .mn-info-label { font-size: 17px !important; }
+body.big-font .mn-info-value { font-size: 29px !important; }
+body.big-font .mn-progress-txt { font-size: 17px !important; }
+body.big-font .mn-card-label { font-size: 21px !important; }
+body.big-font .mn-digit-box { font-size: 47px !important; }
+body.big-font .mn-countdown-txt { font-size: 68px !important; }
+body.big-font .mn-card-sub { font-size: 20px !important; }
+body.big-font .mn-input-label { font-size: 22px !important; }
+body.big-font .mn-input-digit-box { font-size: 47px !important; }
+body.big-font .mn-numpad-btn { font-size: 34px !important; }
+body.big-font .mn-numpad-btn.confirm-btn { font-size: 26px !important; }
+body.big-font .mn-feedback-msg { font-size: 29px !important; }
+body.big-font .mn-pause-popup-icon { font-size: 68px !important; }
+body.big-font .mn-pause-popup-title { font-size: 31px !important; }
+body.big-font .mn-pause-popup-sub { font-size: 20px !important; }
+body.big-font .mn-popup-btn-resume { font-size: 25px !important; }
+body.big-font .mn-popup-btn-exit { font-size: 23px !important; }
+body.big-font .mn-result-trophy { font-size: 78px !important; }
+body.big-font .mn-result-grade { font-size: 31px !important; }
+body.big-font .mn-result-score-big { font-size: 73px !important; }
+body.big-font .mn-result-score-big span { font-size: 29px !important; }
+body.big-font .mn-result-sub { font-size: 21px !important; }
+body.big-font .mn-detail-icon { font-size: 29px !important; }
+body.big-font .mn-detail-val { font-size: 26px !important; }
+body.big-font .mn-detail-lbl { font-size: 16px !important; }
+body.big-font .mn-rank-title { font-size: 23px !important; }
+body.big-font .mn-rank-num { font-size: 23px !important; }
+body.big-font .mn-rank-score { font-size: 23px !important; }
+body.big-font .mn-rank-meta { font-size: 16px !important; }
+body.big-font .mn-rank-badge { font-size: 16px !important; }
+body.big-font .mn-rank-empty { font-size: 20px !important; }
+body.big-font .mn-retry-btn { font-size: 23px !important; }
+body.big-font .mn-back-game-btn { font-size: 23px !important; }
+body.big-font .mth-banner-icon { font-size: 62px !important; }
+body.big-font .mth-banner-title { font-size: 34px !important; }
+body.big-font .mth-banner-desc { font-size: 20px !important; }
+body.big-font .mth-sec-label { font-size: 23px !important; }
+body.big-font .mth-level-icon { font-size: 36px !important; }
+body.big-font .mth-level-name { font-size: 21px !important; }
+body.big-font .mth-level-desc { font-size: 16px !important; }
+body.big-font .mth-start-btn { font-size: 26px !important; }
+body.big-font .mth-pause-btn { font-size: 20px !important; }
+body.big-font .mth-info-label { font-size: 17px !important; }
+body.big-font .mth-info-value { font-size: 31px !important; }
+body.big-font .mth-progress-txt { font-size: 17px !important; }
+body.big-font .mth-q-number { font-size: 18px !important; }
+body.big-font .mth-q-text { font-size: 57px !important; }
+body.big-font .mth-q-hint { font-size: 18px !important; }
+body.big-font .mth-choice-btn { font-size: 36px !important; }
+body.big-font .mth-feedback-msg { font-size: 29px !important; }
+body.big-font .mth-pause-popup-icon { font-size: 68px !important; }
+body.big-font .mth-pause-popup-title { font-size: 31px !important; }
+body.big-font .mth-pause-popup-sub { font-size: 20px !important; }
+body.big-font .mth-popup-btn-resume { font-size: 25px !important; }
+body.big-font .mth-popup-btn-exit { font-size: 23px !important; }
+body.big-font .mth-result-trophy { font-size: 78px !important; }
+body.big-font .mth-result-grade { font-size: 31px !important; }
+body.big-font .mth-result-score-big { font-size: 73px !important; }
+body.big-font .mth-result-score-big span { font-size: 29px !important; }
+body.big-font .mth-result-sub { font-size: 21px !important; }
+body.big-font .mth-detail-icon { font-size: 29px !important; }
+body.big-font .mth-detail-val { font-size: 26px !important; }
+body.big-font .mth-detail-lbl { font-size: 16px !important; }
+body.big-font .mth-rank-title { font-size: 23px !important; }
+body.big-font .mth-rank-num { font-size: 23px !important; }
+body.big-font .mth-rank-score { font-size: 23px !important; }
+body.big-font .mth-rank-meta { font-size: 16px !important; }
+body.big-font .mth-rank-badge { font-size: 16px !important; }
+body.big-font .mth-rank-empty { font-size: 20px !important; }
+body.big-font .mth-retry-btn { font-size: 23px !important; }
+body.big-font .mth-back-game-btn { font-size: 23px !important; }
+body.big-font .st-brain-icon { font-size: 83px !important; }
+body.big-font .st-intro-box h2 { font-size: 31px !important; }
+body.big-font .st-intro-box p { font-size: 21px !important; }
+body.big-font .st-how-box h3 { font-size: 23px !important; }
+body.big-font .st-how-box p { font-size: 20px !important; }
+body.big-font .st-example .st-ex-word { font-size: 52px !important; }
+body.big-font .st-example p { font-size: 18px !important; }
+body.big-font .st-level-title { font-size: 25px !important; }
+body.big-font .st-level-btn .st-lv-icon { font-size: 47px !important; }
+body.big-font .st-level-btn .st-lv-info h4 { font-size: 23px !important; }
+body.big-font .st-level-btn .st-lv-info p { font-size: 18px !important; }
+body.big-font .st-pause-btn { font-size: 21px !important; }
+body.big-font .st-iitem .st-label { font-size: 16px !important; }
+body.big-font .st-iitem .st-value { font-size: 29px !important; }
+body.big-font .st-progress-text { font-size: 17px !important; }
+body.big-font .st-question-label { font-size: 22px !important; }
+body.big-font .st-stroop-word { font-size: 88px !important; }
+body.big-font .st-question-ask { font-size: 22px !important; }
+body.big-font .st-feedback { font-size: 34px !important; }
+body.big-font .st-choice-btn { font-size: 31px !important; }
+body.big-font .st-pause-popup-icon { font-size: 68px !important; }
+body.big-font .st-pause-popup-title { font-size: 31px !important; }
+body.big-font .st-pause-popup-sub { font-size: 20px !important; }
+body.big-font .st-popup-btn-resume { font-size: 25px !important; }
+body.big-font .st-popup-btn-exit { font-size: 23px !important; }
+body.big-font .st-result-emoji { font-size: 94px !important; }
+body.big-font .st-result-grade { font-size: 36px !important; }
+body.big-font .st-result-score { font-size: 62px !important; }
+body.big-font .st-result-sub { font-size: 20px !important; }
+body.big-font .st-stat-item .st-s-label { font-size: 16px !important; }
+body.big-font .st-stat-item .st-s-val { font-size: 26px !important; }
+body.big-font .st-btn-primary { font-size: 26px !important; }
+body.big-font .st-btn-secondary { font-size: 23px !important; }
+body.big-font .st-rank-box h3 { font-size: 23px !important; }
+body.big-font .st-rank-medal { font-size: 29px !important; }
+body.big-font .st-rank-info .st-r-level { font-size: 16px !important; }
+body.big-font .st-rank-info .st-r-score { font-size: 21px !important; }
+body.big-font .st-rank-date { font-size: 16px !important; }
+body.big-font .st-level-badge { font-size: 17px !important; }
+body.big-font .info-sec-title { font-size: 26px !important; }
+body.big-font .info-sec-badge { font-size: 17px !important; }
+body.big-font .info-tag { font-size: 17px !important; }
+body.big-font .info-text { font-size: 20px !important; }
+body.big-font .tel-card-title { font-size: 30px !important; }
+body.big-font .tel-card-icon { font-size: 36px !important; }
+body.big-font .tel-name { font-size: 22px !important; }
+body.big-font .tel-desc { font-size: 17px !important; }
+body.big-font .tel-num { font-size: 26px !important; }
+body.big-font .btn-kakao-main { font-size: 22px !important; }
+body.big-font .btn-pwa-main { font-size: 22px !important; }
+body.big-font .affiliate-notice-box { font-size: 16px !important; }
+body.big-font .footer-link { font-size: 18px !important; }
+body.big-font .footer-dot { font-size: 18px !important; }
+body.big-font .game-sec-title { font-size: 26px !important; }
+body.big-font .game-sec-badge { font-size: 17px !important; }
+body.big-font .rec-icon { font-size: 29px !important; }
+body.big-font .rec-name { font-size: 20px !important; }
+body.big-font .rec-score { font-size: 18px !important; }
+body.big-font .rec-badge { font-size: 16px !important; }
+body.big-font .rec-reset-btn { font-size: 18px !important; }
+body.big-font .brain-sec-title { font-size: 26px !important; }
+body.big-font .brain-sec-badge { font-size: 17px !important; }
+body.big-font .brain-q-label { font-size: 21px !important; }
+body.big-font .brain-q-num { font-size: 17px !important; }
+body.big-font .brain-opt-btn { font-size: 21px !important; }
+body.big-font .brain-start-btn { font-size: 23px !important; }
+body.big-font .brain-result-emoji { font-size: 78px !important; }
+body.big-font .brain-result-age { font-size: 62px !important; }
+body.big-font .brain-result-age span { font-size: 26px !important; }
+body.big-font .brain-result-grade { font-size: 26px !important; }
+body.big-font .brain-result-msg { font-size: 20px !important; }
+body.big-font .brain-result-tip { font-size: 18px !important; }
+body.big-font .brain-retry-btn { font-size: 21px !important; }
+body.big-font .st-rank-empty { font-size: 20px !important; }
+body.big-font .zoom-btn-label { font-size: 16px !important; }
+body.big-font .zoom-btn-icon { font-size: 26px !important; }
 </style>
 </head>
 <body>
@@ -1910,6 +2291,12 @@
 
     </div>
   </div>
+
+<!-- 돋보기 버튼 (우하단 고정) -->
+<button class="zoom-btn" onclick="toggleBigFont()" id="zoom-btn" title="글자 크기 크게/기본 전환">
+  <span class="zoom-btn-icon">🔍</span>
+  <span class="zoom-btn-label" id="zoom-label">기본</span>
+</button>
 
 <script>
 // ══════════════════════════════════════════════
@@ -4134,7 +4521,7 @@ function st_renderRankList() {
   var listEl  = document.getElementById('st-rank-list');
   var medals  = ['🥇','🥈','🥉','4️⃣','5️⃣'];
   if (records.length === 0) {
-    listEl.innerHTML = '<p style="text-align:center;color:#aaa;font-size:15px;">아직 기록이 없어요</p>';
+    listEl.innerHTML = '<div class="st-rank-empty">아직 기록이 없어요</div>';
     return;
   }
   var html = '';
@@ -4483,6 +4870,16 @@ window.addEventListener('DOMContentLoaded', function() {
   recRenderList();
   brainInit();
 });
+
+/* ════════════════════════════════
+   돋보기 (큰글씨 토글)
+════════════════════════════════ */
+var isBigFont = false;
+function toggleBigFont() {
+  isBigFont = !isBigFont;
+  document.body.classList.toggle('big-font', isBigFont);
+  document.getElementById('zoom-label').textContent = isBigFont ? '크게' : '기본';
+}
 </script>
 </body>
 </html>
