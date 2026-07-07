@@ -209,6 +209,11 @@ body.big-font .sec-result-addr { font-size: 16px !important; }
 body.big-font .sec-result-tel { font-size: 17px !important; }
 body.big-font .sec-result-desc { font-size: 16px !important; }
 body.big-font .sec-more-btn { font-size: 18px !important; }
+
+/* ── 봄날채팅 바로가기 버튼 (돋보기 버튼 바로 위, 화면 고정) ── */
+.chat-fab { position: fixed; right: 16px; bottom: 86px; width: 58px; height: 58px; border-radius: 50%; background: #fff; border: 2px solid #c4607a; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.14); -webkit-tap-highlight-color: transparent; gap: 1px; }
+.chat-fab-icon { font-size: 22px; line-height: 1; }
+.chat-fab-label { font-size: 11px; font-weight: 700; color: #c4607a; line-height: 1; }
 </style>
 
 <div class="wrap">
@@ -713,6 +718,11 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
     </div>
   </footer>
 </div><!-- /wrap -->
+
+<button class="chat-fab" onclick="location.href='talk.html?open=talktalk'" id="chat-fab" title="봄날채팅 바로가기">
+  <span class="chat-fab-icon">💬</span>
+  <span class="chat-fab-label">봄날채팅</span>
+</button>
 
 <button class="zoom-btn" onclick="toggleBigFont()" id="zoom-btn" title="글자 크기 크게/기본 전환">
   <span class="zoom-btn-icon">🔍</span>
