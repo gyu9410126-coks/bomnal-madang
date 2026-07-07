@@ -109,6 +109,73 @@
 .footer-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
 .footer-link { font-size: 11px; color: #999; text-decoration: none; }
 .footer-dot { font-size: 11px; color: #ccc; }
+
+/* ── 돋보기 버튼 (우하단 고정) ── */
+.zoom-btn { position: fixed; right: 16px; bottom: 24px; width: 54px; height: 54px; border-radius: 50%; background: #fff; border: 2px solid #4A90D9; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.14); -webkit-tap-highlight-color: transparent; gap: 1px; }
+.zoom-btn-icon { font-size: 22px; line-height: 1; }
+.zoom-btn-label { font-size: 13px; font-weight: 700; color: #111; line-height: 1; }
+
+/* ── 큰글씨 모드 ── */
+body.big-font { font-size: 135% !important; }
+body.big-font .header-date-solar { font-size: 23px !important; }
+body.big-font .header-date-lunar { font-size: 18px !important; }
+body.big-font .home-bar button { font-size: 22px !important; }
+body.big-font .sec-title { font-size: 30px !important; }
+body.big-font .cat-icon-box { font-size: 42px !important; height: 96px !important; }
+body.big-font .cat-name { font-size: 17px !important; }
+body.big-font .traf-back-btn { font-size: 21px !important; }
+body.big-font .traf-page-title { font-size: 29px !important; }
+body.big-font .traf-page-badge { font-size: 17px !important; }
+body.big-font .traf-card-title { font-size: 26px !important; }
+body.big-font .traf-input { font-size: 22px !important; }
+body.big-font .traf-select { font-size: 22px !important; }
+body.big-font .traf-btn { font-size: 23px !important; }
+body.big-font .traf-result-route { font-size: 29px !important; }
+body.big-font .traf-result-time { font-size: 25px !important; }
+body.big-font .traf-result-desc { font-size: 20px !important; }
+body.big-font .traf-loading { font-size: 23px !important; }
+body.big-font .traf-error { font-size: 22px !important; }
+body.big-font .traf-empty { font-size: 22px !important; }
+body.big-font .qlb-icon { font-size: 42px !important; }
+body.big-font .qlb-title { font-size: 23px !important; }
+body.big-font .qlb-desc { font-size: 20px !important; }
+body.big-font .qlb-arrow { font-size: 29px !important; }
+body.big-font .benefit-title { font-size: 25px !important; }
+body.big-font .benefit-amount { font-size: 39px !important; }
+body.big-font .benefit-desc { font-size: 21px !important; }
+body.big-font .benefit-tip { font-size: 20px !important; }
+body.big-font .traf-tab { font-size: 23px !important; }
+body.big-font .notice-box { font-size: 21px !important; }
+body.big-font .tel-card-title { font-size: 30px !important; }
+body.big-font .tel-card-icon { font-size: 36px !important; }
+body.big-font .tel-name { font-size: 22px !important; }
+body.big-font .tel-desc { font-size: 17px !important; }
+body.big-font .tel-num { font-size: 26px !important; }
+body.big-font .btn-kakao-main { font-size: 22px !important; }
+body.big-font .btn-pwa-main { font-size: 22px !important; }
+body.big-font .affiliate-notice-box { font-size: 16px !important; }
+body.big-font .footer-link { font-size: 18px !important; }
+body.big-font .footer-dot { font-size: 18px !important; }
+
+/* ── 상세페이지 설명글 (크기별 공용 이름표) ── */
+body.big-font .tsz-12 { font-size: 16px !important; }
+body.big-font .tsz-13 { font-size: 18px !important; }
+body.big-font .tsz-14 { font-size: 19px !important; }
+body.big-font .tsz-15 { font-size: 20px !important; }
+body.big-font .tsz-16 { font-size: 21px !important; }
+body.big-font .tsz-17 { font-size: 22px !important; }
+body.big-font .tsz-18 { font-size: 24px !important; }
+body.big-font .tsz-19 { font-size: 25px !important; }
+body.big-font .tsz-20 { font-size: 26px !important; }
+body.big-font .tsz-22 { font-size: 29px !important; }
+body.big-font .tsz-24 { font-size: 31px !important; }
+body.big-font .tsz-28 { font-size: 36px !important; }
+body.big-font .tsz-30 { font-size: 39px !important; }
+body.big-font .tsz-34 { font-size: 44px !important; }
+body.big-font .tsz-36 { font-size: 46px !important; }
+body.big-font .tsz-42 { font-size: 55px !important; }
+body.big-font .zoom-btn-label { font-size: 16px !important; }
+body.big-font .zoom-btn-icon { font-size: 26px !important; }
 </style>
 
 <div class="wrap">
@@ -176,8 +243,8 @@
 
     <!-- ── 섹션1: 시니어 교통 혜택 핵심 요약 ── -->
     <div style="margin:24px 14px 0;">
-      <div style="font-size:22px;font-weight:900;color:#222;margin-bottom:14px;">🎫 시니어 교통 혜택 핵심 요약</div>
-      <div style="background:#fff8e1;border-radius:14px;padding:13px 16px;margin-bottom:12px;font-size:16px;color:#7a4000;font-weight:700;line-height:1.7;word-break:keep-all;">
+      <div class="tsz-22" style="font-size:22px;font-weight:900;color:#222;margin-bottom:14px;">🎫 시니어 교통 혜택 핵심 요약</div>
+      <div class="tsz-16" style="background:#fff8e1;border-radius:14px;padding:13px 16px;margin-bottom:12px;font-size:16px;color:#7a4000;font-weight:700;line-height:1.7;word-break:keep-all;">
         💡 만 60~65세 이상이면 받을 수 있는 교통 혜택이에요. 꼭 챙기세요!
       </div>
 
@@ -185,27 +252,27 @@
       <div style="background:linear-gradient(135deg,#fff3e0,#ffe0b2);border-radius:18px;padding:20px 18px;margin-bottom:12px;box-shadow:0 2px 8px rgba(230,81,0,0.12);">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:34px;">💳</span>
-            <span style="font-size:22px;font-weight:900;color:#e65100;">K-패스</span>
+            <span class="tsz-34" style="font-size:34px;">💳</span>
+            <span class="tsz-22" style="font-size:22px;font-weight:900;color:#e65100;">K-패스</span>
           </div>
-          <div style="background:#e65100;color:#fff;border-radius:20px;padding:6px 14px;font-size:16px;font-weight:900;">최대 53% 환급</div>
+          <div class="tsz-16" style="background:#e65100;color:#fff;border-radius:20px;padding:6px 14px;font-size:16px;font-weight:900;">최대 53% 환급</div>
         </div>
-        <div style="font-size:17px;color:#444;line-height:1.8;margin-bottom:14px;word-break:keep-all;">
+        <div class="tsz-17" style="font-size:17px;color:#444;line-height:1.8;margin-bottom:14px;word-break:keep-all;">
           만 60세 이상 · 월 15회 이상 버스·지하철 이용 시<br>교통비를 <strong>현금으로 돌려받는</strong> 제도예요!
         </div>
-        <button onclick="confirmExternalLink('https://korea-pass.kr')" style="width:100%;padding:16px;background:#e65100;color:#fff;border:none;border-radius:12px;font-size:18px;font-weight:900;cursor:pointer;font-family:inherit;">🔗 K-패스 신청하기</button>
+        <button class="tsz-18" onclick="confirmExternalLink('https://korea-pass.kr')" style="width:100%;padding:16px;background:#e65100;color:#fff;border:none;border-radius:12px;font-size:18px;font-weight:900;cursor:pointer;font-family:inherit;">🔗 K-패스 신청하기</button>
       </div>
 
       <!-- 지하철 무임 배너 -->
       <div style="background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-radius:18px;padding:20px 18px;margin-bottom:12px;box-shadow:0 2px 8px rgba(21,101,192,0.12);">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:34px;">🚇</span>
-            <span style="font-size:22px;font-weight:900;color:#1565c0;">지하철 무임승차</span>
+            <span class="tsz-34" style="font-size:34px;">🚇</span>
+            <span class="tsz-22" style="font-size:22px;font-weight:900;color:#1565c0;">지하철 무임승차</span>
           </div>
-          <div style="background:#1565c0;color:#fff;border-radius:20px;padding:6px 14px;font-size:16px;font-weight:900;">완전 무료!</div>
+          <div class="tsz-16" style="background:#1565c0;color:#fff;border-radius:20px;padding:6px 14px;font-size:16px;font-weight:900;">완전 무료!</div>
         </div>
-        <div style="font-size:17px;color:#444;line-height:1.8;word-break:keep-all;">
+        <div class="tsz-17" style="font-size:17px;color:#444;line-height:1.8;word-break:keep-all;">
           만 65세 이상 · 전국 지하철·도시철도 무료<br>
           👉 <strong>주민센터</strong>에서 신분증 가져가시면 바로 발급!
         </div>
@@ -215,80 +282,80 @@
       <div style="background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-radius:18px;padding:20px 18px;margin-bottom:12px;box-shadow:0 2px 8px rgba(46,125,50,0.12);">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:34px;">🚄</span>
-            <span style="font-size:22px;font-weight:900;color:#2e7d32;">KTX 경로 할인</span>
+            <span class="tsz-34" style="font-size:34px;">🚄</span>
+            <span class="tsz-22" style="font-size:22px;font-weight:900;color:#2e7d32;">KTX 경로 할인</span>
           </div>
-          <div style="background:#2e7d32;color:#fff;border-radius:20px;padding:6px 14px;font-size:16px;font-weight:900;">평일 30% 할인</div>
+          <div class="tsz-16" style="background:#2e7d32;color:#fff;border-radius:20px;padding:6px 14px;font-size:16px;font-weight:900;">평일 30% 할인</div>
         </div>
-        <div style="font-size:17px;color:#444;line-height:1.8;margin-bottom:6px;word-break:keep-all;">
+        <div class="tsz-17" style="font-size:17px;color:#444;line-height:1.8;margin-bottom:6px;word-break:keep-all;">
           만 65세 이상 · 신분증 제시
         </div>
-        <div style="background:#fff3f3;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:16px;color:#c62828;font-weight:700;">
+        <div class="tsz-16" style="background:#fff3f3;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:16px;color:#c62828;font-weight:700;">
           ⚠️ 주말·공휴일·명절은 할인 안 돼요!
         </div>
-        <button onclick="confirmExternalLink('https://www.letskorail.com')" style="width:100%;padding:16px;background:#2e7d32;color:#fff;border:none;border-radius:12px;font-size:18px;font-weight:900;cursor:pointer;font-family:inherit;">🔗 코레일 예매하기</button>
+        <button class="tsz-18" onclick="confirmExternalLink('https://www.letskorail.com')" style="width:100%;padding:16px;background:#2e7d32;color:#fff;border:none;border-radius:12px;font-size:18px;font-weight:900;cursor:pointer;font-family:inherit;">🔗 코레일 예매하기</button>
       </div>
 
       <!-- 1333 콜택시 배너 -->
       <div style="background:linear-gradient(135deg,#fce4ec,#f8bbd0);border-radius:18px;padding:20px 18px;box-shadow:0 2px 8px rgba(198,40,40,0.12);">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:34px;">🚕</span>
-            <span style="font-size:22px;font-weight:900;color:#c62828;">전국 콜택시</span>
+            <span class="tsz-34" style="font-size:34px;">🚕</span>
+            <span class="tsz-22" style="font-size:22px;font-weight:900;color:#c62828;">전국 콜택시</span>
           </div>
-          <div style="background:#c62828;color:#fff;border-radius:20px;padding:6px 14px;font-size:16px;font-weight:900;">☎ 1333</div>
+          <div class="tsz-16" style="background:#c62828;color:#fff;border-radius:20px;padding:6px 14px;font-size:16px;font-weight:900;">☎ 1333</div>
         </div>
-        <div style="font-size:17px;color:#444;line-height:1.8;margin-bottom:14px;word-break:keep-all;">
+        <div class="tsz-17" style="font-size:17px;color:#444;line-height:1.8;margin-bottom:14px;word-break:keep-all;">
           전국 어디서나 한 번호로 택시를 부를 수 있어요.<br>
           지역번호 없이 그냥 <strong>1333</strong>만 누르세요!
         </div>
-        <a href="tel:1333" style="display:block;width:100%;padding:16px;background:#c62828;color:#fff;border-radius:12px;font-size:18px;font-weight:900;text-align:center;text-decoration:none;">📞 지금 바로 1333 전화하기</a>
+        <a class="tsz-18" href="tel:1333" style="display:block;width:100%;padding:16px;background:#c62828;color:#fff;border-radius:12px;font-size:18px;font-weight:900;text-align:center;text-decoration:none;">📞 지금 바로 1333 전화하기</a>
       </div>
     </div>
 
     <!-- ── 섹션2: 내 주변 교통편 찾기 ── -->
     <div style="margin:24px 14px 0;">
-      <div style="font-size:22px;font-weight:900;color:#222;margin-bottom:14px;">🗺️ 내 주변 교통편 찾기</div>
-      <div style="background:#e8eaf6;border-radius:14px;padding:13px 16px;margin-bottom:14px;font-size:16px;color:#283593;font-weight:700;line-height:1.7;word-break:keep-all;">
+      <div class="tsz-22" style="font-size:22px;font-weight:900;color:#222;margin-bottom:14px;">🗺️ 내 주변 교통편 찾기</div>
+      <div class="tsz-16" style="background:#e8eaf6;border-radius:14px;padding:13px 16px;margin-bottom:14px;font-size:16px;color:#283593;font-weight:700;line-height:1.7;word-break:keep-all;">
         💡 지금 계신 곳에서 바로 이용할 수 있는 교통편을 찾아드려요. 아래 버튼을 눌러보세요!
       </div>
 
       <!-- 카카오맵 -->
       <button onclick="confirmExternalLink('https://map.kakao.com')" style="width:100%;display:flex;align-items:center;gap:16px;background:#fff;border:2px solid #FDD835;border-radius:18px;padding:18px 16px;margin-bottom:10px;cursor:pointer;font-family:inherit;text-align:left;box-shadow:0 2px 6px rgba(0,0,0,0.06);">
-        <div style="width:56px;height:56px;background:#FEE500;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;">🗺️</div>
+        <div class="tsz-30" style="width:56px;height:56px;background:#FEE500;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;">🗺️</div>
         <div style="flex:1;">
-          <div style="font-size:19px;font-weight:900;color:#333;margin-bottom:4px;">카카오맵 대중교통</div>
-          <div style="font-size:15px;color:#666;line-height:1.6;">버스·지하철·도보 길찾기<br>⭐ 어르신들이 가장 쉽게 쓸 수 있어요!</div>
+          <div class="tsz-19" style="font-size:19px;font-weight:900;color:#333;margin-bottom:4px;">카카오맵 대중교통</div>
+          <div class="tsz-15" style="font-size:15px;color:#666;line-height:1.6;">버스·지하철·도보 길찾기<br>⭐ 어르신들이 가장 쉽게 쓸 수 있어요!</div>
         </div>
-        <span style="font-size:24px;color:#e65100;font-weight:900;">→</span>
+        <span class="tsz-24" style="font-size:24px;color:#e65100;font-weight:900;">→</span>
       </button>
 
       <!-- 카카오T -->
       <button onclick="confirmExternalLink('https://www.kakaomobility.com')" style="width:100%;display:flex;align-items:center;gap:16px;background:#fff;border:2px solid #ffcc80;border-radius:18px;padding:18px 16px;margin-bottom:10px;cursor:pointer;font-family:inherit;text-align:left;box-shadow:0 2px 6px rgba(0,0,0,0.06);">
-        <div style="width:56px;height:56px;background:#FFB300;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;">🚕</div>
+        <div class="tsz-30" style="width:56px;height:56px;background:#FFB300;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0;">🚕</div>
         <div style="flex:1;">
-          <div style="font-size:19px;font-weight:900;color:#333;margin-bottom:4px;">카카오T 택시</div>
-          <div style="font-size:15px;color:#666;line-height:1.6;">앱으로 택시 바로 호출<br>전화가 편하시면 ☎ 1333</div>
+          <div class="tsz-19" style="font-size:19px;font-weight:900;color:#333;margin-bottom:4px;">카카오T 택시</div>
+          <div class="tsz-15" style="font-size:15px;color:#666;line-height:1.6;">앱으로 택시 바로 호출<br>전화가 편하시면 ☎ 1333</div>
         </div>
-        <span style="font-size:24px;color:#e65100;font-weight:900;">→</span>
+        <span class="tsz-24" style="font-size:24px;color:#e65100;font-weight:900;">→</span>
       </button>
 
       <!-- 네이버 지도 -->
       <button onclick="confirmExternalLink('https://map.naver.com')" style="width:100%;display:flex;align-items:center;gap:16px;background:#fff;border:2px solid #a5d6a7;border-radius:18px;padding:18px 16px;margin-bottom:14px;cursor:pointer;font-family:inherit;text-align:left;box-shadow:0 2px 6px rgba(0,0,0,0.06);">
-        <div style="width:56px;height:56px;background:#03C75A;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0;">N</div>
+        <div class="tsz-22" style="width:56px;height:56px;background:#03C75A;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;flex-shrink:0;">N</div>
         <div style="flex:1;">
-          <div style="font-size:19px;font-weight:900;color:#333;margin-bottom:4px;">네이버 지도</div>
-          <div style="font-size:15px;color:#666;line-height:1.6;">실시간 교통·길찾기<br>가게·병원 위치도 찾을 수 있어요</div>
+          <div class="tsz-19" style="font-size:19px;font-weight:900;color:#333;margin-bottom:4px;">네이버 지도</div>
+          <div class="tsz-15" style="font-size:15px;color:#666;line-height:1.6;">실시간 교통·길찾기<br>가게·병원 위치도 찾을 수 있어요</div>
         </div>
-        <span style="font-size:24px;color:#e65100;font-weight:900;">→</span>
+        <span class="tsz-24" style="font-size:24px;color:#e65100;font-weight:900;">→</span>
       </button>
 
       <!-- 외부링크 안내 — 눈에 확 띄게 -->
       <div style="background:#e65100;border-radius:16px;padding:18px 18px;display:flex;align-items:center;gap:14px;">
-        <span style="font-size:36px;flex-shrink:0;">📌</span>
+        <span class="tsz-36" style="font-size:36px;flex-shrink:0;">📌</span>
         <div>
-          <div style="font-size:18px;font-weight:900;color:#fff;margin-bottom:4px;">외부 사이트로 이동해요!</div>
-          <div style="font-size:16px;color:#ffe0b2;line-height:1.7;font-weight:700;">봄날마당으로 돌아오려면<br><span style="color:#fff;font-size:18px;">📱 휴대폰 뒤로가기</span> 를 누르세요!</div>
+          <div class="tsz-18" style="font-size:18px;font-weight:900;color:#fff;margin-bottom:4px;">외부 사이트로 이동해요!</div>
+          <div class="tsz-16" style="font-size:16px;color:#ffe0b2;line-height:1.7;font-weight:700;">봄날마당으로 돌아오려면<br><span class="tsz-18" style="color:#fff;font-size:18px;">📱 휴대폰 뒤로가기</span> 를 누르세요!</div>
         </div>
       </div>
     </div>
@@ -363,14 +430,14 @@
       <div class="traf-card">
         <div class="traf-card-title">💳 어르신 교통카드 발급 안내</div>
         <div style="background:#fff3e0;border-radius:12px;padding:14px 16px;margin-bottom:12px;text-align:center;">
-          <div style="font-size:17px;font-weight:900;color:#e65100;margin-bottom:4px;">만 65세 이상이시면</div>
-          <div style="font-size:22px;font-weight:900;color:#e65100;">무임 교통카드를 받으세요!</div>
-          <div style="font-size:15px;color:#555;margin-top:6px;">지하철·도시철도를 완전 무료로 이용할 수 있어요</div>
+          <div class="tsz-17" style="font-size:17px;font-weight:900;color:#e65100;margin-bottom:4px;">만 65세 이상이시면</div>
+          <div class="tsz-22" style="font-size:22px;font-weight:900;color:#e65100;">무임 교통카드를 받으세요!</div>
+          <div class="tsz-15" style="font-size:15px;color:#555;margin-top:6px;">지하철·도시철도를 완전 무료로 이용할 수 있어요</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
           <div style="background:#f7f8fa;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#333;margin-bottom:6px;">📋 발급 방법</div>
-            <div style="font-size:15px;color:#444;line-height:1.9;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#333;margin-bottom:6px;">📋 발급 방법</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.9;">
               ① 신분증(주민등록증) 챙기기<br>
               ② 가까운 <strong>주민센터 방문</strong><br>
               ③ "어르신 교통카드 신청합니다" 말씀하기<br>
@@ -378,8 +445,8 @@
             </div>
           </div>
           <div style="background:#f7f8fa;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#333;margin-bottom:6px;">🏦 지역별 발급 은행</div>
-            <div style="font-size:15px;color:#444;line-height:1.9;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#333;margin-bottom:6px;">🏦 지역별 발급 은행</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.9;">
               서울: 신한은행<br>
               경기·강원: 농협은행<br>
               부산: 부산은행<br>
@@ -388,7 +455,7 @@
             </div>
           </div>
         </div>
-        <div style="background:#fff8e1;border-radius:10px;padding:12px 14px;font-size:15px;color:#7a4000;line-height:1.7;font-weight:600;">
+        <div class="tsz-15" style="background:#fff8e1;border-radius:10px;padding:12px 14px;font-size:15px;color:#7a4000;line-height:1.7;font-weight:600;">
           💡 문의: 주민센터 또는 ☎ 120 (다산콜센터)
         </div>
       </div>
@@ -398,20 +465,20 @@
         <div class="traf-card-title">⚠️ 꼭 알아두세요! 환승 주의사항</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:#fff3f3;border-left:4px solid #c62828;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:5px;">❌ 지하철 무임카드로 버스는 무료가 아니에요!</div>
-            <div style="font-size:15px;color:#444;line-height:1.7;">지하철은 무임이지만 버스는 유료예요. 버스 탈 때는 꼭 요금이 청구돼요.</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:5px;">❌ 지하철 무임카드로 버스는 무료가 아니에요!</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.7;">지하철은 무임이지만 버스는 유료예요. 버스 탈 때는 꼭 요금이 청구돼요.</div>
           </div>
           <div style="background:#fff3f3;border-left:4px solid #c62828;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:5px;">❌ 교통카드 두 개 쓰면 환승 할인 안 돼요!</div>
-            <div style="font-size:15px;color:#444;line-height:1.7;">지하철은 무임카드, 버스는 다른 카드로 따로 쓰면 환승 할인이 사라져요. <strong>카드 한 장만</strong> 사용하세요!</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:5px;">❌ 교통카드 두 개 쓰면 환승 할인 안 돼요!</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.7;">지하철은 무임카드, 버스는 다른 카드로 따로 쓰면 환승 할인이 사라져요. <strong>카드 한 장만</strong> 사용하세요!</div>
           </div>
           <div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#2e7d32;margin-bottom:5px;">✅ 올바른 사용법</div>
-            <div style="font-size:15px;color:#444;line-height:1.7;">무임 교통카드 하나로 지하철·버스 모두 사용하세요.<br>버스→지하철→버스 이동 시 버스 간 환승할인이 적용돼요!</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#2e7d32;margin-bottom:5px;">✅ 올바른 사용법</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.7;">무임 교통카드 하나로 지하철·버스 모두 사용하세요.<br>버스→지하철→버스 이동 시 버스 간 환승할인이 적용돼요!</div>
           </div>
           <div style="background:#fff3e0;border-left:4px solid #e65100;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:5px;">⏰ 환승 시간은 30분!</div>
-            <div style="font-size:15px;color:#444;line-height:1.7;">내린 후 30분 안에 다음 교통수단을 타야 환승 할인이 적용돼요.</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:5px;">⏰ 환승 시간은 30분!</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.7;">내린 후 30분 안에 다음 교통수단을 타야 환승 할인이 적용돼요.</div>
           </div>
         </div>
       </div>
@@ -421,16 +488,16 @@
         <div class="traf-card-title">💡 버스 이용 꿀팁</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">🚪 내릴 때도 카드를 꼭 찍으세요</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">버스에서 내릴 때 카드를 안 찍으면 다음 번 환승 할인이 안 될 수 있어요.</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">🚪 내릴 때도 카드를 꼭 찍으세요</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">버스에서 내릴 때 카드를 안 찍으면 다음 번 환승 할인이 안 될 수 있어요.</div>
           </div>
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">🪑 노약자석은 앞쪽에 있어요</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">버스 앞문 쪽에 빨간색 또는 노란색 시트가 노약자 우선석이에요. 편하게 앉으세요!</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">🪑 노약자석은 앞쪽에 있어요</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">버스 앞문 쪽에 빨간색 또는 노란색 시트가 노약자 우선석이에요. 편하게 앉으세요!</div>
           </div>
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">📱 버스 번호판 사진 찍어두기</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">분실물이 생기면 버스 번호를 알아야 연락이 가능해요. 탈 때 번호 사진을 찍어두세요.</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">📱 버스 번호판 사진 찍어두기</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">분실물이 생기면 버스 번호를 알아야 연락이 가능해요. 탈 때 번호 사진을 찍어두세요.</div>
           </div>
         </div>
       </div>
@@ -463,29 +530,29 @@
       <div class="traf-card">
         <div class="traf-card-title">🎫 어르신 지하철 무임승차 안내</div>
         <div style="background:#e3f2fd;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px;">
-          <div style="font-size:17px;font-weight:900;color:#1565c0;margin-bottom:4px;">만 65세 이상</div>
-          <div style="font-size:24px;font-weight:900;color:#1565c0;">전국 지하철 완전 무료!</div>
-          <div style="font-size:15px;color:#555;margin-top:6px;">우대용 교통카드 한 장으로 이용하세요</div>
+          <div class="tsz-17" style="font-size:17px;font-weight:900;color:#1565c0;margin-bottom:4px;">만 65세 이상</div>
+          <div class="tsz-24" style="font-size:24px;font-weight:900;color:#1565c0;">전국 지하철 완전 무료!</div>
+          <div class="tsz-15" style="font-size:15px;color:#555;margin-top:6px;">우대용 교통카드 한 장으로 이용하세요</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
           <div style="background:#f7f8fa;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#1565c0;margin-bottom:6px;">✅ 무임 적용 노선</div>
-            <div style="font-size:15px;color:#444;line-height:1.9;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#1565c0;margin-bottom:6px;">✅ 무임 적용 노선</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.9;">
               수도권 1~9호선, 분당선, 경의중앙선, 공항철도<br>
               부산 1~4호선, 대구 1~3호선<br>
               인천 1·2호선, 광주 1호선, 대전 1호선
             </div>
           </div>
           <div style="background:#fff3f3;border-radius:10px;padding:12px 14px;border-left:4px solid #c62828;">
-            <div style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:6px;">⚠️ 주의사항</div>
-            <div style="font-size:15px;color:#444;line-height:1.9;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:6px;">⚠️ 주의사항</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.9;">
               ❌ 다른 사람에게 카드 빌려주면 안 돼요 (벌금 부과)<br>
               ❌ 발급받은 지역 외 다른 지역 지하철에서 안 될 수 있어요<br>
               ✅ 잃어버리면 즉시 주민센터에 신고하세요
             </div>
           </div>
         </div>
-        <div style="background:#fff8e1;border-radius:10px;padding:12px 14px;font-size:15px;color:#7a4000;line-height:1.7;font-weight:600;">
+        <div class="tsz-15" style="background:#fff8e1;border-radius:10px;padding:12px 14px;font-size:15px;color:#7a4000;line-height:1.7;font-weight:600;">
           💳 카드 발급: 주민센터 방문 (신분증 지참) 또는 ☎ 120 문의
         </div>
       </div>
@@ -495,20 +562,20 @@
         <div class="traf-card-title">🏥 지하철 편의시설 안내</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#1565c0;margin-bottom:4px;">🛗 엘리베이터 위치 찾기</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">역 안내 화면이나 역무원에게 물어보시면 엘리베이터 위치를 안내해 드려요. 무거운 짐이 있으실 때 꼭 이용하세요!</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#1565c0;margin-bottom:4px;">🛗 엘리베이터 위치 찾기</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">역 안내 화면이나 역무원에게 물어보시면 엘리베이터 위치를 안내해 드려요. 무거운 짐이 있으실 때 꼭 이용하세요!</div>
           </div>
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#1565c0;margin-bottom:4px;">🆘 도움이 필요할 때</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">승강장 양 끝에 있는 <strong>도움벨(인터폰)</strong>을 누르시면 역무원이 바로 달려와요!</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#1565c0;margin-bottom:4px;">🆘 도움이 필요할 때</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">승강장 양 끝에 있는 <strong>도움벨(인터폰)</strong>을 누르시면 역무원이 바로 달려와요!</div>
           </div>
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#1565c0;margin-bottom:4px;">💺 노약자석은 양 끝 칸에</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">지하철 양 끝 칸(1번·마지막 칸)에 노약자 전용 객차가 있어요. 편하게 앉으실 수 있어요!</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#1565c0;margin-bottom:4px;">💺 노약자석은 양 끝 칸에</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">지하철 양 끝 칸(1번·마지막 칸)에 노약자 전용 객차가 있어요. 편하게 앉으실 수 있어요!</div>
           </div>
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#1565c0;margin-bottom:4px;">🚨 안전사고 예방</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">스크린도어와 열차 사이 틈이 있어요. 발이 빠지지 않도록 조심하시고, 탑승 후 손잡이를 꼭 잡으세요!</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#1565c0;margin-bottom:4px;">🚨 안전사고 예방</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">스크린도어와 열차 사이 틈이 있어요. 발이 빠지지 않도록 조심하시고, 탑승 후 손잡이를 꼭 잡으세요!</div>
           </div>
         </div>
       </div>
@@ -528,7 +595,7 @@
       <div class="notice-box" style="background:#e8f5e9;border-color:#2e7d32;color:#1b5e20;">💡 출발역과 도착역을 선택하신 후 <strong>조회 버튼</strong>을 눌러주세요.<br>오늘 운행하는 KTX·무궁화호 시간표를 보여드려요!</div>
       <div class="traf-card">
         <div class="traf-card-title">🚉 출발·도착 선택</div>
-        <label style="font-size:16px;font-weight:700;color:#555;display:block;margin-bottom:6px;">출발역</label>
+        <label class="tsz-16" style="font-size:16px;font-weight:700;color:#555;display:block;margin-bottom:6px;">출발역</label>
         <select class="traf-select" id="train-depart">
           <option value="">출발역 선택</option>
           <option value="서울">서울</option><option value="용산">용산</option>
@@ -541,7 +608,7 @@
           <option value="목포">목포</option><option value="수서">수서</option>
           <option value="행신">행신</option>
         </select>
-        <label style="font-size:16px;font-weight:700;color:#555;display:block;margin-bottom:6px;">도착역</label>
+        <label class="tsz-16" style="font-size:16px;font-weight:700;color:#555;display:block;margin-bottom:6px;">도착역</label>
         <select class="traf-select" id="train-arrive">
           <option value="">도착역 선택</option>
           <option value="서울">서울</option><option value="용산">용산</option>
@@ -580,51 +647,51 @@
       <div class="traf-card">
         <div class="traf-card-title" style="color:#2e7d32;">🎟️ 만 65세 이상 기차 할인 받는 법</div>
         <div style="background:#e8f5e9;border-radius:12px;padding:14px;text-align:center;margin-bottom:14px;">
-          <div style="font-size:15px;color:#2e7d32;font-weight:700;margin-bottom:4px;">경로우대 할인율</div>
+          <div class="tsz-15" style="font-size:15px;color:#2e7d32;font-weight:700;margin-bottom:4px;">경로우대 할인율</div>
           <div style="display:flex;gap:8px;margin-top:8px;">
             <div style="flex:1;background:#fff;border-radius:10px;padding:10px;text-align:center;">
-              <div style="font-size:13px;color:#888;margin-bottom:2px;">KTX·SRT·새마을</div>
-              <div style="font-size:20px;font-weight:900;color:#2e7d32;">30% 할인</div>
-              <div style="font-size:12px;color:#e65100;margin-top:2px;">⚠️ 평일만</div>
+              <div class="tsz-13" style="font-size:13px;color:#888;margin-bottom:2px;">KTX·SRT·새마을</div>
+              <div class="tsz-20" style="font-size:20px;font-weight:900;color:#2e7d32;">30% 할인</div>
+              <div class="tsz-12" style="font-size:12px;color:#e65100;margin-top:2px;">⚠️ 평일만</div>
             </div>
             <div style="flex:1;background:#fff;border-radius:10px;padding:10px;text-align:center;">
-              <div style="font-size:13px;color:#888;margin-bottom:2px;">무궁화·누리로</div>
-              <div style="font-size:20px;font-weight:900;color:#2e7d32;">30% 할인</div>
-              <div style="font-size:12px;color:#2e7d32;margin-top:2px;">✅ 매일 적용</div>
+              <div class="tsz-13" style="font-size:13px;color:#888;margin-bottom:2px;">무궁화·누리로</div>
+              <div class="tsz-20" style="font-size:20px;font-weight:900;color:#2e7d32;">30% 할인</div>
+              <div class="tsz-12" style="font-size:12px;color:#2e7d32;margin-top:2px;">✅ 매일 적용</div>
             </div>
             <div style="flex:1;background:#fff;border-radius:10px;padding:10px;text-align:center;">
-              <div style="font-size:13px;color:#888;margin-bottom:2px;">통근열차</div>
-              <div style="font-size:20px;font-weight:900;color:#2e7d32;">50% 할인</div>
-              <div style="font-size:12px;color:#2e7d32;margin-top:2px;">✅ 매일 적용</div>
+              <div class="tsz-13" style="font-size:13px;color:#888;margin-bottom:2px;">통근열차</div>
+              <div class="tsz-20" style="font-size:20px;font-weight:900;color:#2e7d32;">50% 할인</div>
+              <div class="tsz-12" style="font-size:12px;color:#2e7d32;margin-top:2px;">✅ 매일 적용</div>
             </div>
           </div>
         </div>
-        <div style="background:#fff3f3;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:15px;color:#c62828;line-height:1.8;font-weight:600;">
+        <div class="tsz-15" style="background:#fff3f3;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:15px;color:#c62828;line-height:1.8;font-weight:600;">
           ⚠️ 주말·공휴일·명절에는 KTX 30% 할인이 적용되지 않아요!<br>
           이때는 무궁화호나 ITX-새마을이 더 유리할 수 있어요.
         </div>
-        <div style="font-size:16px;font-weight:900;color:#2e7d32;margin-bottom:10px;">📋 창구 예매 방법 (쉬운 방법)</div>
+        <div class="tsz-16" style="font-size:16px;font-weight:900;color:#2e7d32;margin-bottom:10px;">📋 창구 예매 방법 (쉬운 방법)</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="display:flex;align-items:flex-start;gap:10px;">
-            <span style="background:#2e7d32;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">1</span>
-            <div style="font-size:15px;color:#333;line-height:1.7;">기차역 매표창구로 가세요</div>
+            <span class="tsz-14" style="background:#2e7d32;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">1</span>
+            <div class="tsz-15" style="font-size:15px;color:#333;line-height:1.7;">기차역 매표창구로 가세요</div>
           </div>
           <div style="display:flex;align-items:flex-start;gap:10px;">
-            <span style="background:#2e7d32;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">2</span>
-            <div style="font-size:15px;color:#333;line-height:1.7;"><strong>"경로우대 할인으로 [출발역]에서 [도착역]까지"</strong> 말씀하세요</div>
+            <span class="tsz-14" style="background:#2e7d32;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">2</span>
+            <div class="tsz-15" style="font-size:15px;color:#333;line-height:1.7;"><strong>"경로우대 할인으로 [출발역]에서 [도착역]까지"</strong> 말씀하세요</div>
           </div>
           <div style="display:flex;align-items:flex-start;gap:10px;">
-            <span style="background:#2e7d32;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">3</span>
-            <div style="font-size:15px;color:#333;line-height:1.7;">신분증(주민등록증) 제시하기</div>
+            <span class="tsz-14" style="background:#2e7d32;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">3</span>
+            <div class="tsz-15" style="font-size:15px;color:#333;line-height:1.7;">신분증(주민등록증) 제시하기</div>
           </div>
           <div style="display:flex;align-items:flex-start;gap:10px;">
-            <span style="background:#2e7d32;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">4</span>
-            <div style="font-size:15px;color:#333;line-height:1.7;">탑승 시에도 신분증 검사할 수 있으니 꼭 지참하세요</div>
+            <span class="tsz-14" style="background:#2e7d32;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">4</span>
+            <div class="tsz-15" style="font-size:15px;color:#333;line-height:1.7;">탑승 시에도 신분증 검사할 수 있으니 꼭 지참하세요</div>
           </div>
         </div>
         <a href="tel:1544-7788" style="display:flex;align-items:center;justify-content:space-between;background:#e8f5e9;border-radius:12px;padding:14px 16px;text-decoration:none;color:inherit;margin-top:12px;">
-          <div><div style="font-size:16px;font-weight:900;color:#2e7d32;">코레일 고객센터</div><div style="font-size:14px;color:#666;margin-top:2px;">기차표 예매·변경·취소 문의</div></div>
-          <span style="font-size:20px;font-weight:900;color:#2e7d32;">1544-7788</span>
+          <div><div class="tsz-16" style="font-size:16px;font-weight:900;color:#2e7d32;">코레일 고객센터</div><div class="tsz-14" style="font-size:14px;color:#666;margin-top:2px;">기차표 예매·변경·취소 문의</div></div>
+          <span class="tsz-20" style="font-size:20px;font-weight:900;color:#2e7d32;">1544-7788</span>
         </a>
       </div>
     </div>
@@ -643,7 +710,7 @@
       <div class="notice-box" style="background:#f3e5f5;border-color:#6a1b9a;color:#4a148c;">💡 출발 터미널과 도착 터미널을 선택하신 후 <strong>조회 버튼</strong>을 눌러주세요.<br>오늘 출발하는 고속버스 시간표를 보여드려요!</div>
       <div class="traf-card">
         <div class="traf-card-title">🚍 출발·도착 선택</div>
-        <label style="font-size:16px;font-weight:700;color:#555;display:block;margin-bottom:6px;">출발터미널</label>
+        <label class="tsz-16" style="font-size:16px;font-weight:700;color:#555;display:block;margin-bottom:6px;">출발터미널</label>
         <select class="traf-select" id="express-depart">
           <option value="">출발 터미널 선택</option>
           <option value="서울경부">서울경부 (강남)</option>
@@ -657,7 +724,7 @@
           <option value="광주">광주 (유스퀘어)</option>
           <option value="전주">전주</option>
         </select>
-        <label style="font-size:16px;font-weight:700;color:#555;display:block;margin-bottom:6px;">도착터미널</label>
+        <label class="tsz-16" style="font-size:16px;font-weight:700;color:#555;display:block;margin-bottom:6px;">도착터미널</label>
         <select class="traf-select" id="express-arrive">
           <option value="">도착 터미널 선택</option>
           <option value="서울경부">서울경부 (강남)</option>
@@ -698,21 +765,21 @@
         <div style="background:#f3e5f5;border-radius:12px;padding:14px;margin-bottom:12px;">
           <div style="display:flex;gap:8px;">
             <div style="flex:1;background:#fff;border-radius:10px;padding:10px;text-align:center;">
-              <div style="font-size:13px;color:#888;margin-bottom:2px;">고속버스</div>
-              <div style="font-size:20px;font-weight:900;color:#6a1b9a;">10~20%</div>
-              <div style="font-size:12px;color:#888;margin-top:2px;">업체별 상이</div>
+              <div class="tsz-13" style="font-size:13px;color:#888;margin-bottom:2px;">고속버스</div>
+              <div class="tsz-20" style="font-size:20px;font-weight:900;color:#6a1b9a;">10~20%</div>
+              <div class="tsz-12" style="font-size:12px;color:#888;margin-top:2px;">업체별 상이</div>
             </div>
             <div style="flex:1;background:#fff;border-radius:10px;padding:10px;text-align:center;">
-              <div style="font-size:13px;color:#888;margin-bottom:2px;">시외버스</div>
-              <div style="font-size:20px;font-weight:900;color:#6a1b9a;">20~30%</div>
-              <div style="font-size:12px;color:#888;margin-top:2px;">노선별 상이</div>
+              <div class="tsz-13" style="font-size:13px;color:#888;margin-bottom:2px;">시외버스</div>
+              <div class="tsz-20" style="font-size:20px;font-weight:900;color:#6a1b9a;">20~30%</div>
+              <div class="tsz-12" style="font-size:12px;color:#888;margin-top:2px;">노선별 상이</div>
             </div>
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
           <div style="background:#fff3f3;border-left:4px solid #c62828;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:4px;">⚠️ 꼭 확인하세요!</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:4px;">⚠️ 꼭 확인하세요!</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ❌ 고속버스 할인은 법적 의무가 아니에요<br>
               ❌ 업체·노선마다 할인율이 달라요<br>
               ❌ 우등·프리미엄석은 할인 안 되는 경우 많아요<br>
@@ -720,8 +787,8 @@
             </div>
           </div>
           <div style="background:#e8f5e9;border-left:4px solid #2e7d32;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#2e7d32;margin-bottom:4px;">✅ 할인받는 방법</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#2e7d32;margin-bottom:4px;">✅ 할인받는 방법</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ① 터미널 매표창구 방문<br>
               ② "경로우대 할인 있나요?" 문의<br>
               ③ 신분증 제시 후 할인 적용
@@ -729,8 +796,8 @@
           </div>
         </div>
         <a href="tel:1688-0109" style="display:flex;align-items:center;justify-content:space-between;background:#f3e5f5;border-radius:12px;padding:14px 16px;text-decoration:none;color:inherit;">
-          <div><div style="font-size:16px;font-weight:900;color:#6a1b9a;">코버스 고객센터</div><div style="font-size:14px;color:#666;margin-top:2px;">고속버스 예매·문의</div></div>
-          <span style="font-size:20px;font-weight:900;color:#6a1b9a;">1688-0109</span>
+          <div><div class="tsz-16" style="font-size:16px;font-weight:900;color:#6a1b9a;">코버스 고객센터</div><div class="tsz-14" style="font-size:14px;color:#666;margin-top:2px;">고속버스 예매·문의</div></div>
+          <span class="tsz-20" style="font-size:20px;font-weight:900;color:#6a1b9a;">1688-0109</span>
         </a>
       </div>
 
@@ -739,16 +806,16 @@
         <div class="traf-card-title">💡 고속버스 이용 팁</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">🪑 앞좌석이 편해요</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">멀미가 있으신 분은 앞쪽 좌석을 예매하세요. 창문 쪽 자리가 더 안정적이에요.</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">🪑 앞좌석이 편해요</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">멀미가 있으신 분은 앞쪽 좌석을 예매하세요. 창문 쪽 자리가 더 안정적이에요.</div>
           </div>
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">🚽 휴게소에서 꼭 화장실을</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">고속버스는 화장실이 없어요. 출발 전, 휴게소에서 반드시 화장실을 이용하세요!</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">🚽 휴게소에서 꼭 화장실을</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">고속버스는 화장실이 없어요. 출발 전, 휴게소에서 반드시 화장실을 이용하세요!</div>
           </div>
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">⏰ 30분 전에 터미널 도착하기</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">출발 10분 전에 탑승이 마감되는 경우가 있어요. 여유 있게 30분 전에 도착하세요.</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">⏰ 30분 전에 터미널 도착하기</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">출발 10분 전에 탑승이 마감되는 경우가 있어요. 여유 있게 30분 전에 도착하세요.</div>
           </div>
         </div>
       </div>
@@ -813,8 +880,8 @@
         <div class="traf-card-title">📱 어르신께 추천하는 길찾기 앱 비교</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:#FFF9C4;border-radius:12px;padding:13px 14px;border:2px solid #FDD835;">
-            <div style="font-size:17px;font-weight:900;color:#333;margin-bottom:6px;">⭐ 카카오맵 — 가장 쉬워요!</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-17" style="font-size:17px;font-weight:900;color:#333;margin-bottom:6px;">⭐ 카카오맵 — 가장 쉬워요!</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ✅ 글씨가 크고 한눈에 보여요<br>
               ✅ 음성으로 목적지 말할 수 있어요<br>
               ✅ 대중교통·도보·자동차 모두 안내<br>
@@ -822,16 +889,16 @@
             </div>
           </div>
           <div style="background:#f7f8fa;border-radius:12px;padding:13px 14px;">
-            <div style="font-size:17px;font-weight:900;color:#333;margin-bottom:6px;">🟢 네이버지도</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-17" style="font-size:17px;font-weight:900;color:#333;margin-bottom:6px;">🟢 네이버지도</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ✅ 실시간 교통 정보 정확해요<br>
               ✅ 가게·음식점 정보도 같이 볼 수 있어요<br>
               ✅ 사진으로 장소 찾기 가능
             </div>
           </div>
           <div style="background:#f7f8fa;border-radius:12px;padding:13px 14px;">
-            <div style="font-size:17px;font-weight:900;color:#333;margin-bottom:6px;">📍 티맵</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-17" style="font-size:17px;font-weight:900;color:#333;margin-bottom:6px;">📍 티맵</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ✅ 자동차 운전하실 때 가장 좋아요<br>
               ✅ 과속카메라 위치 알려줘요<br>
               ✅ 목소리 안내 크고 명확해요
@@ -844,20 +911,20 @@
       <div class="traf-card">
         <div class="traf-card-title">🎤 음성으로 쉽게 길찾기</div>
         <div style="background:#e8eaf6;border-radius:12px;padding:14px;margin-bottom:12px;text-align:center;">
-          <div style="font-size:16px;color:#283593;font-weight:700;">스마트폰에 말만 해도 길을 찾을 수 있어요!</div>
+          <div class="tsz-16" style="font-size:16px;color:#283593;font-weight:700;">스마트폰에 말만 해도 길을 찾을 수 있어요!</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">📱 갤럭시(안드로이드) 사용법</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">📱 갤럭시(안드로이드) 사용법</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ① 카카오맵 앱 열기<br>
               ② 검색창 옆 🎤 마이크 버튼 누르기<br>
               ③ <strong>"○○역 가는 길"</strong> 말하기
             </div>
           </div>
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">🍎 아이폰(iOS) 사용법</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">🍎 아이폰(iOS) 사용법</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ① 시리에게 말하기 (홈버튼 길게 누르기)<br>
               ② <strong>"○○병원 가는 길 알려줘"</strong> 말하기
             </div>
@@ -882,28 +949,28 @@
       <div class="traf-card">
         <div class="traf-card-title">📱 앱으로 택시 부르기</div>
         <div style="background:#FFF9C4;border:2px solid #FDD835;border-radius:12px;padding:14px 16px;margin-bottom:12px;">
-          <div style="font-size:17px;font-weight:900;color:#333;margin-bottom:10px;">⭐ 카카오T — 가장 쉬워요!</div>
-          <div style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:8px;">📋 이용 방법</div>
+          <div class="tsz-17" style="font-size:17px;font-weight:900;color:#333;margin-bottom:10px;">⭐ 카카오T — 가장 쉬워요!</div>
+          <div class="tsz-16" style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:8px;">📋 이용 방법</div>
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
             <div style="display:flex;align-items:flex-start;gap:10px;">
-              <span style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">1</span>
-              <div style="font-size:15px;color:#333;line-height:1.7;">스마트폰에서 <strong>카카오T 앱</strong> 열기<br><span style="font-size:13px;color:#888;">앱이 없으면 플레이스토어·앱스토어에서 설치</span></div>
+              <span class="tsz-14" style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">1</span>
+              <div class="tsz-15" style="font-size:15px;color:#333;line-height:1.7;">스마트폰에서 <strong>카카오T 앱</strong> 열기<br><span class="tsz-13" style="font-size:13px;color:#888;">앱이 없으면 플레이스토어·앱스토어에서 설치</span></div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:10px;">
-              <span style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">2</span>
-              <div style="font-size:15px;color:#333;line-height:1.7;"><strong>출발지</strong>가 현재 위치로 자동 설정돼요<br><span style="font-size:13px;color:#888;">다른 곳이면 직접 수정하면 돼요</span></div>
+              <span class="tsz-14" style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">2</span>
+              <div class="tsz-15" style="font-size:15px;color:#333;line-height:1.7;"><strong>출발지</strong>가 현재 위치로 자동 설정돼요<br><span class="tsz-13" style="font-size:13px;color:#888;">다른 곳이면 직접 수정하면 돼요</span></div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:10px;">
-              <span style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">3</span>
-              <div style="font-size:15px;color:#333;line-height:1.7;"><strong>목적지</strong> 입력하기<br><span style="font-size:13px;color:#888;">예: "삼성서울병원", "강남역"</span></div>
+              <span class="tsz-14" style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">3</span>
+              <div class="tsz-15" style="font-size:15px;color:#333;line-height:1.7;"><strong>목적지</strong> 입력하기<br><span class="tsz-13" style="font-size:13px;color:#888;">예: "삼성서울병원", "강남역"</span></div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:10px;">
-              <span style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">4</span>
-              <div style="font-size:15px;color:#333;line-height:1.7;"><strong>택시 유형 선택</strong> 후 호출 버튼 누르기<br><span style="font-size:13px;color:#888;">일반·웨이고·모범 중 선택</span></div>
+              <span class="tsz-14" style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">4</span>
+              <div class="tsz-15" style="font-size:15px;color:#333;line-height:1.7;"><strong>택시 유형 선택</strong> 후 호출 버튼 누르기<br><span class="tsz-13" style="font-size:13px;color:#888;">일반·웨이고·모범 중 선택</span></div>
             </div>
             <div style="display:flex;align-items:flex-start;gap:10px;">
-              <span style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">5</span>
-              <div style="font-size:15px;color:#333;line-height:1.7;">택시 배차 완료! <strong>차량번호 확인</strong> 후 탑승<br><span style="font-size:13px;color:#888;">기사님 정보와 차량번호가 화면에 표시돼요</span></div>
+              <span class="tsz-14" style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">5</span>
+              <div class="tsz-15" style="font-size:15px;color:#333;line-height:1.7;">택시 배차 완료! <strong>차량번호 확인</strong> 후 탑승<br><span class="tsz-13" style="font-size:13px;color:#888;">기사님 정보와 차량번호가 화면에 표시돼요</span></div>
             </div>
           </div>
         </div>
@@ -935,8 +1002,8 @@
         <div class="traf-card-title">♿ 복지택시·바우처 택시 안내</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:#fce4ec;border-radius:12px;padding:13px 14px;border-left:4px solid #c62828;">
-            <div style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:6px;">🚖 장애인·거동불편 어르신 복지택시</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:6px;">🚖 장애인·거동불편 어르신 복지택시</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ✅ 휠체어 탑승 가능한 특수택시<br>
               ✅ 일반 택시보다 훨씬 저렴하게 이용<br>
               ✅ 신청: 주민센터 또는 복지관 문의<br>
@@ -944,15 +1011,15 @@
             </div>
           </div>
           <div style="background:#fce4ec;border-radius:12px;padding:13px 14px;border-left:4px solid #c62828;">
-            <div style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:6px;">🎫 교통약자 택시 바우처</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:6px;">🎫 교통약자 택시 바우처</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ✅ 거동이 불편한 어르신에게 택시비 지원<br>
               ✅ 지역마다 지원 금액·방법 다름<br>
               ✅ 신청: 거주지 주민센터 방문<br>
               📞 문의: ☎ 120 (주민센터)
             </div>
           </div>
-          <div style="background:#fff8e1;border-radius:10px;padding:12px 14px;font-size:15px;color:#7a4000;line-height:1.7;font-weight:600;">
+          <div class="tsz-15" style="background:#fff8e1;border-radius:10px;padding:12px 14px;font-size:15px;color:#7a4000;line-height:1.7;font-weight:600;">
             💡 복지택시·바우처는 지역마다 달라요. 주민센터(☎ 120)에 문의하시면 자세히 안내받을 수 있어요!
           </div>
         </div>
@@ -963,31 +1030,31 @@
         <!-- 1333 전국 통합콜 강조 카드 -->
         <div style="background:#fff3e0;border:2px solid #e65100;border-radius:14px;padding:18px 16px;margin-bottom:12px;">
           <div style="text-align:center;margin-bottom:12px;">
-            <div style="font-size:15px;font-weight:700;color:#e65100;margin-bottom:4px;">전국 어디서나 한 번호로!</div>
-            <div style="font-size:42px;font-weight:900;color:#e65100;letter-spacing:2px;">☎ 1333</div>
-            <div style="font-size:15px;color:#555;margin-top:4px;">국번 없이 누르세요</div>
+            <div class="tsz-15" style="font-size:15px;font-weight:700;color:#e65100;margin-bottom:4px;">전국 어디서나 한 번호로!</div>
+            <div class="tsz-42" style="font-size:42px;font-weight:900;color:#e65100;letter-spacing:2px;">☎ 1333</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;margin-top:4px;">국번 없이 누르세요</div>
           </div>
-          <a href="tel:1333" style="display:block;width:100%;padding:16px;background:#e65100;color:#fff;border-radius:12px;font-size:20px;font-weight:900;text-align:center;text-decoration:none;margin-bottom:12px;">
+          <a class="tsz-20" href="tel:1333" style="display:block;width:100%;padding:16px;background:#e65100;color:#fff;border-radius:12px;font-size:20px;font-weight:900;text-align:center;text-decoration:none;margin-bottom:12px;">
             📞 지금 바로 1333 전화하기
           </a>
           <div style="background:#fff;border-radius:10px;padding:14px 16px;">
-            <div style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:10px;">📋 이용 방법 (아주 쉬워요!)</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#e65100;margin-bottom:10px;">📋 이용 방법 (아주 쉬워요!)</div>
             <div style="display:flex;flex-direction:column;gap:8px;">
               <div style="display:flex;align-items:flex-start;gap:10px;">
-                <span style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">1</span>
-                <div style="font-size:16px;color:#333;line-height:1.6;">전화기에서 <strong>1333</strong> 누르세요<br><span style="font-size:14px;color:#888;">지역번호 필요 없어요!</span></div>
+                <span class="tsz-14" style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">1</span>
+                <div class="tsz-16" style="font-size:16px;color:#333;line-height:1.6;">전화기에서 <strong>1333</strong> 누르세요<br><span class="tsz-14" style="font-size:14px;color:#888;">지역번호 필요 없어요!</span></div>
               </div>
               <div style="display:flex;align-items:flex-start;gap:10px;">
-                <span style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">2</span>
-                <div style="font-size:16px;color:#333;line-height:1.6;">연결되면 <strong>지금 계신 곳</strong>을 말씀해 주세요<br><span style="font-size:14px;color:#888;">예: "서울 강남구 역삼동이에요"</span></div>
+                <span class="tsz-14" style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">2</span>
+                <div class="tsz-16" style="font-size:16px;color:#333;line-height:1.6;">연결되면 <strong>지금 계신 곳</strong>을 말씀해 주세요<br><span class="tsz-14" style="font-size:14px;color:#888;">예: "서울 강남구 역삼동이에요"</span></div>
               </div>
               <div style="display:flex;align-items:flex-start;gap:10px;">
-                <span style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">3</span>
-                <div style="font-size:16px;color:#333;line-height:1.6;">가실 <strong>목적지</strong>를 말씀해 주세요<br><span style="font-size:14px;color:#888;">그러면 택시가 바로 배차돼요!</span></div>
+                <span class="tsz-14" style="background:#e65100;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">3</span>
+                <div class="tsz-16" style="font-size:16px;color:#333;line-height:1.6;">가실 <strong>목적지</strong>를 말씀해 주세요<br><span class="tsz-14" style="font-size:14px;color:#888;">그러면 택시가 바로 배차돼요!</span></div>
               </div>
             </div>
           </div>
-          <div style="background:#fff8e1;border-radius:10px;padding:12px 14px;margin-top:10px;font-size:15px;color:#7a4000;line-height:1.8;font-weight:600;">
+          <div class="tsz-15" style="background:#fff8e1;border-radius:10px;padding:12px 14px;margin-top:10px;font-size:15px;color:#7a4000;line-height:1.8;font-weight:600;">
             💡 1333은 국토교통부에서 운영하는 <strong>전국 택시 통합콜</strong>이에요.<br>
             서울·부산·대구·인천·광주·대전·울산·경기 등 전국 어디서나 이용할 수 있어요!
           </div>
@@ -1058,21 +1125,21 @@
       <div class="traf-card">
         <div class="traf-card-title" style="color:#00695c;">🎫 만 65세 이상 항공 할인</div>
         <div style="background:#e0f2f1;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px;">
-          <div style="font-size:28px;font-weight:900;color:#00695c;">국내선 10% 할인</div>
-          <div style="font-size:15px;color:#555;margin-top:4px;">대한항공·아시아나 국내선 (신분증 제시)</div>
+          <div class="tsz-28" style="font-size:28px;font-weight:900;color:#00695c;">국내선 10% 할인</div>
+          <div class="tsz-15" style="font-size:15px;color:#555;margin-top:4px;">대한항공·아시아나 국내선 (신분증 제시)</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
           <div style="background:#f7f8fa;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#00695c;margin-bottom:6px;">📋 할인 받는 방법</div>
-            <div style="font-size:15px;color:#444;line-height:1.9;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#00695c;margin-bottom:6px;">📋 할인 받는 방법</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.9;">
               ① 항공사 홈페이지·앱에서 예매 시 <strong>'경로우대'</strong> 선택<br>
               ② 또는 공항 카운터에서 신분증 제시 후 할인 신청<br>
               ③ 탑승 시 신분증(주민등록증) 반드시 지참
             </div>
           </div>
           <div style="background:#fff3f3;border-left:4px solid #c62828;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:4px;">⚠️ 주의사항</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#c62828;margin-bottom:4px;">⚠️ 주의사항</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ❌ 특가·할인운임 적용 좌석은 경로 할인 안 돼요<br>
               ❌ 제주항공·진에어 등 저비용항공사는 자체 노인 할인 없어요<br>
               ✅ 일반석 정상요금에만 적용돼요
@@ -1086,24 +1153,24 @@
         <div class="traf-card-title">🚌 공항 가는 방법</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:#e0f2f1;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#00695c;margin-bottom:6px;">✈️ 인천공항</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#00695c;margin-bottom:6px;">✈️ 인천공항</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               🚇 공항철도: 서울역 직통 43분 (일반 9,500원/직통 11,000원)<br>
               🚌 공항버스: 전국 주요 도시에서 운행<br>
               📞 인천공항 안내: 1577-2600
             </div>
           </div>
           <div style="background:#e0f2f1;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#00695c;margin-bottom:6px;">🛩️ 김포공항</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#00695c;margin-bottom:6px;">🛩️ 김포공항</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               🚇 지하철 5호선·공항철도 이용<br>
               🚌 시내버스·공항버스 운행<br>
               📞 김포공항 안내: 1661-2626
             </div>
           </div>
           <div style="background:#e0f2f1;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#00695c;margin-bottom:6px;">🛫 김해공항 (부산)</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#00695c;margin-bottom:6px;">🛫 김해공항 (부산)</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               🚇 부산김해경전철 이용 (사상역 환승)<br>
               🚌 시내버스·리무진버스 운행<br>
               📞 김해공항 안내: 1661-2626
@@ -1117,16 +1184,16 @@
         <div class="traf-card-title">♿ 공항 어르신 편의시설</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">🛒 전동카트 서비스</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">공항 안에서 무료로 전동카트를 이용할 수 있어요. 공항 안내데스크에 요청하세요!</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">🛒 전동카트 서비스</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">공항 안에서 무료로 전동카트를 이용할 수 있어요. 공항 안내데스크에 요청하세요!</div>
           </div>
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">♿ 휠체어 서비스</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">거동이 불편하신 분은 항공사 체크인 카운터에 휠체어 서비스를 요청하세요. 무료예요!</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">♿ 휠체어 서비스</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">거동이 불편하신 분은 항공사 체크인 카운터에 휠체어 서비스를 요청하세요. 무료예요!</div>
           </div>
           <div style="background:#f7f8fa;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">🆘 공항 내 도움이 필요할 때</div>
-            <div style="font-size:15px;color:#555;line-height:1.7;">공항 내 안내데스크나 직원에게 도움을 요청하시면 탑승구까지 안내해 드려요!</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#333;margin-bottom:4px;">🆘 공항 내 도움이 필요할 때</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;">공항 내 안내데스크나 직원에게 도움을 요청하시면 탑승구까지 안내해 드려요!</div>
           </div>
         </div>
       </div>
@@ -1165,28 +1232,28 @@
         <div class="traf-card-title">🏝️ 주요 여객선 항로</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:#e8eaf6;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">인천 → 제주</div>
-            <div style="font-size:15px;color:#555;line-height:1.6;">소요 약 13시간 · 카페리 운행 · 객실 선택 가능</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">인천 → 제주</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.6;">소요 약 13시간 · 카페리 운행 · 객실 선택 가능</div>
           </div>
           <div style="background:#e8eaf6;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">목포 → 제주</div>
-            <div style="font-size:15px;color:#555;line-height:1.6;">소요 약 4시간 30분 · 쾌속선</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">목포 → 제주</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.6;">소요 약 4시간 30분 · 쾌속선</div>
           </div>
           <div style="background:#e8eaf6;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">완도 → 제주</div>
-            <div style="font-size:15px;color:#555;line-height:1.6;">소요 약 2시간 30분 · 쾌속선 (가장 빠름)</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">완도 → 제주</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.6;">소요 약 2시간 30분 · 쾌속선 (가장 빠름)</div>
           </div>
           <div style="background:#e8eaf6;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">인천 → 백령도</div>
-            <div style="font-size:15px;color:#555;line-height:1.6;">소요 약 4시간 · 서해 최북단 섬</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">인천 → 백령도</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.6;">소요 약 4시간 · 서해 최북단 섬</div>
           </div>
           <div style="background:#e8eaf6;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">통영 → 한산도·욕지도</div>
-            <div style="font-size:15px;color:#555;line-height:1.6;">소요 약 40분~1시간 · 남해 섬 여행</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">통영 → 한산도·욕지도</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.6;">소요 약 40분~1시간 · 남해 섬 여행</div>
           </div>
           <div style="background:#e8eaf6;border-radius:10px;padding:13px 14px;">
-            <div style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">포항 → 울릉도</div>
-            <div style="font-size:15px;color:#555;line-height:1.6;">소요 약 3시간 · 동해 울릉도·독도 여행</div>
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#283593;margin-bottom:4px;">포항 → 울릉도</div>
+            <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.6;">소요 약 3시간 · 동해 울릉도·독도 여행</div>
           </div>
         </div>
       </div>
@@ -1194,12 +1261,12 @@
       <div class="traf-card">
         <div class="traf-card-title" style="color:#283593;">🎫 만 65세 이상 여객선 할인</div>
         <div style="background:#e8eaf6;border-radius:12px;padding:14px;text-align:center;margin-bottom:12px;">
-          <div style="font-size:28px;font-weight:900;color:#283593;">국내 여객선 20% 할인</div>
-          <div style="font-size:15px;color:#555;margin-top:4px;">경로우대 (신분증 지참)</div>
+          <div class="tsz-28" style="font-size:28px;font-weight:900;color:#283593;">국내 여객선 20% 할인</div>
+          <div class="tsz-15" style="font-size:15px;color:#555;margin-top:4px;">경로우대 (신분증 지참)</div>
         </div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:#f7f8fa;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:15px;color:#444;line-height:1.9;">
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.9;">
               ✅ 만 65세 이상 여객선 운임 20% 할인<br>
               ✅ 매표창구에서 신분증(주민등록증) 제시<br>
               ⚠️ 일부 노선은 할인율이 다를 수 있어요<br>
@@ -1214,8 +1281,8 @@
         <div class="traf-card-title">💊 배멀미 예방 & 탑승 준비물</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="background:#fff3e0;border-radius:10px;padding:13px 14px;border-left:4px solid #e65100;">
-            <div style="font-size:16px;font-weight:800;color:#e65100;margin-bottom:6px;">🤢 멀미 예방법</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#e65100;margin-bottom:6px;">🤢 멀미 예방법</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ① 승선 30분 전 멀미약 복용 (약국에서 구매)<br>
               ② 배 중간 부분 좌석 선택 (흔들림 적음)<br>
               ③ 신선한 바깥 공기 마시기<br>
@@ -1223,8 +1290,8 @@
             </div>
           </div>
           <div style="background:#e8f5e9;border-radius:10px;padding:13px 14px;border-left:4px solid #2e7d32;">
-            <div style="font-size:16px;font-weight:800;color:#2e7d32;margin-bottom:6px;">🎒 탑승 전 준비물 체크</div>
-            <div style="font-size:15px;color:#444;line-height:1.9;">
+            <div class="tsz-16" style="font-size:16px;font-weight:800;color:#2e7d32;margin-bottom:6px;">🎒 탑승 전 준비물 체크</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.9;">
               ✅ 신분증 (할인 적용 + 본인 확인)<br>
               ✅ 멀미약 (미리 복용)<br>
               ✅ 따뜻한 옷 (바다 위는 추워요)<br>
@@ -1261,7 +1328,7 @@
           ✅ 신청: 카드사 앱 또는 K-패스 홈페이지
         </div>
         <div class="benefit-tip">💡 만 65세 이상은 지하철 무임이라 K-패스 효과가 버스에서 더 크게 나와요!</div>
-        <button style="width:100%;margin-top:10px;padding:13px;background:#e65100;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;" onclick="confirmExternalLink('https://korea-pass.kr')">🔗 K-패스 신청하기</button>
+        <button class="tsz-16" style="width:100%;margin-top:10px;padding:13px;background:#e65100;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;" onclick="confirmExternalLink('https://korea-pass.kr')">🔗 K-패스 신청하기</button>
       </div>
 
       <!-- 지하철 무임승차 -->
@@ -1349,27 +1416,27 @@
         <div class="benefit-amount" style="color:#0277bd;">지역마다 달라요!</div>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
           <div style="background:#e1f5fe;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#0277bd;margin-bottom:4px;">대구광역시 — 가장 혜택 많아요!</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#0277bd;margin-bottom:4px;">대구광역시 — 가장 혜택 많아요!</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ✅ 만 70세 이상: 시내버스·마을버스 무료<br>
               ✅ 전국 최초 버스 무임승차 시행
             </div>
           </div>
           <div style="background:#e1f5fe;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#0277bd;margin-bottom:4px;">인천광역시</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#0277bd;margin-bottom:4px;">인천광역시</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ✅ 만 75세 이상: 시내버스 무료 (2026년 시행)
             </div>
           </div>
           <div style="background:#e1f5fe;border-radius:10px;padding:12px 14px;">
-            <div style="font-size:16px;font-weight:900;color:#0277bd;margin-bottom:4px;">서울특별시 (예정)</div>
-            <div style="font-size:15px;color:#444;line-height:1.8;">
+            <div class="tsz-16" style="font-size:16px;font-weight:900;color:#0277bd;margin-bottom:4px;">서울특별시 (예정)</div>
+            <div class="tsz-15" style="font-size:15px;color:#444;line-height:1.8;">
               ⏳ 만 70세 이상 버스 무료 조례안 추진 중<br>
               ⏳ 이르면 2026년 하반기~2027년 시행 예정
             </div>
           </div>
           <div style="background:#fff8e1;border-radius:10px;padding:12px 14px;border-left:3px solid #f57f17;">
-            <div style="font-size:15px;color:#7a4000;line-height:1.8;font-weight:600;">
+            <div class="tsz-15" style="font-size:15px;color:#7a4000;line-height:1.8;font-weight:600;">
               💡 버스 무료 혜택은 지역마다 달라요!<br>
               내가 사는 지역의 혜택은 주민센터(☎ 120)에 문의하세요.
             </div>
@@ -1381,6 +1448,12 @@
   </div>
 
 </div><!-- /wrap -->
+
+<!-- 돋보기 버튼 (우하단 고정) -->
+<button class="zoom-btn" onclick="toggleBigFont()" id="zoom-btn" title="글자 크기 크게/기본 전환">
+  <span class="zoom-btn-icon">🔍</span>
+  <span class="zoom-btn-label" id="zoom-label">기본</span>
+</button>
 
 <script>
 /* ── 날짜 ── */
@@ -1487,11 +1560,11 @@ function searchBusStop() {
         resultEl.innerHTML = '<div class="traf-empty">😢 "' + keyword + '" 정류장을 찾을 수 없어요.<br>다른 이름으로 검색해 보세요.</div>';
         return;
       }
-      var html = '<div style="font-size:16px;font-weight:700;color:#555;margin-bottom:8px;">🚏 정류장을 선택해 주세요</div>';
+      var html = '<div class="tsz-16" style="font-size:16px;font-weight:700;color:#555;margin-bottom:8px;">🚏 정류장을 선택해 주세요</div>';
       data.items.forEach(function(item) {
         html += '<button onclick="loadBusArrival(\'' + item.nodeId + '\',\'' + encodeURIComponent(item.nodeName) + '\',\'' + item.cityCode + '\')" style="width:100%;background:#fff3e0;border:1.5px solid #ffcc80;border-radius:12px;padding:14px 16px;margin-bottom:8px;text-align:left;cursor:pointer;font-family:inherit;">'
-          + '<div style="font-size:17px;font-weight:800;color:#e65100;">' + item.nodeName + '</div>'
-          + '<div style="font-size:14px;color:#888;margin-top:3px;">정류장 번호: ' + (item.nodeNo || '-') + '</div>'
+          + '<div class="tsz-17" style="font-size:17px;font-weight:800;color:#e65100;">' + item.nodeName + '</div>'
+          + '<div class="tsz-14" style="font-size:14px;color:#888;margin-top:3px;">정류장 번호: ' + (item.nodeNo || '-') + '</div>'
           + '</button>';
       });
       resultEl.innerHTML = html;
@@ -1639,6 +1712,16 @@ function searchExpress() {
     .catch(function() {
       resultEl.innerHTML = '<div class="traf-error">⚠️ 고속버스 정보를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>';
     });
+}
+
+/* ════════════════════════════════
+   돋보기 (큰글씨 토글)
+════════════════════════════════ */
+var isBigFont = false;
+function toggleBigFont() {
+  isBigFont = !isBigFont;
+  document.body.classList.toggle('big-font', isBigFont);
+  document.getElementById('zoom-label').textContent = isBigFont ? '크게' : '기본';
 }
 </script>
 </body>
