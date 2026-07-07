@@ -119,6 +119,65 @@
 .footer-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 4px; }
 .footer-link { font-size: 11px; color: #999; text-decoration: none; }
 .footer-dot { font-size: 11px; color: #ccc; }
+
+/* ── 돋보기 버튼 (우하단 고정) ── */
+.zoom-btn { position: fixed; right: 16px; bottom: 24px; width: 54px; height: 54px; border-radius: 50%; background: #fff; border: 2px solid #4A90D9; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.14); -webkit-tap-highlight-color: transparent; gap: 1px; }
+.zoom-btn-icon { font-size: 22px; line-height: 1; }
+.zoom-btn-label { font-size: 13px; font-weight: 700; color: #111; line-height: 1; }
+
+/* ── 큰글씨 모드 ── */
+body.big-font { font-size: 135% !important; }
+body.big-font .header-date-solar { font-size: 23px !important; }
+body.big-font .header-date-lunar { font-size: 18px !important; }
+body.big-font .home-bar button { font-size: 22px !important; }
+body.big-font .welcome-popup .pop-icon { font-size: 68px !important; }
+body.big-font .welcome-popup h2 { font-size: 29px !important; }
+body.big-font .welcome-rules li { font-size: 21px !important; }
+body.big-font .welcome-disclaimer { font-size: 17px !important; }
+body.big-font .welcome-btn { font-size: 23px !important; }
+body.big-font .notice-banner .nb-icon { font-size: 34px !important; }
+body.big-font .notice-banner .nb-title { font-size: 22px !important; }
+body.big-font .notice-banner .nb-text { font-size: 18px !important; }
+body.big-font .sec-title { font-size: 30px !important; }
+body.big-font .cat-icon-box { font-size: 42px !important; height: 96px !important; }
+body.big-font .cat-name { font-size: 21px !important; }
+body.big-font .preview-card-title { font-size: 23px !important; }
+body.big-font .preview-more-btn { font-size: 17px !important; }
+body.big-font .preview-badge { font-size: 16px !important; }
+body.big-font .preview-text { font-size: 20px !important; }
+body.big-font .preview-time { font-size: 16px !important; }
+body.big-font .preview-empty { font-size: 20px !important; }
+body.big-font .talk-back-btn { font-size: 22px !important; }
+body.big-font .talk-page-title { font-size: 29px !important; }
+body.big-font .talk-page-badge { font-size: 17px !important; }
+body.big-font .board-desc-box { font-size: 20px !important; }
+body.big-font .coming-icon { font-size: 73px !important; }
+body.big-font .coming-title { font-size: 26px !important; }
+body.big-font .coming-desc { font-size: 20px !important; }
+body.big-font .talktalk-enter-btn { font-size: 23px !important; }
+body.big-font .tel-card-title { font-size: 30px !important; }
+body.big-font .tel-card-icon { font-size: 36px !important; }
+body.big-font .tel-name { font-size: 22px !important; }
+body.big-font .tel-desc { font-size: 17px !important; }
+body.big-font .tel-num { font-size: 26px !important; }
+body.big-font .btn-kakao-main { font-size: 22px !important; }
+body.big-font .btn-pwa-main { font-size: 22px !important; }
+body.big-font .affiliate-notice-box { font-size: 16px !important; }
+body.big-font .footer-link { font-size: 18px !important; }
+body.big-font .footer-dot { font-size: 18px !important; }
+
+/* ── 게시글·댓글·글쓰기 모달 (크기별 공용 이름표) ── */
+body.big-font .tsz-11 { font-size: 16px !important; }
+body.big-font .tsz-12 { font-size: 16px !important; }
+body.big-font .tsz-13 { font-size: 18px !important; }
+body.big-font .tsz-14 { font-size: 19px !important; }
+body.big-font .tsz-15 { font-size: 20px !important; }
+body.big-font .tsz-16 { font-size: 21px !important; }
+body.big-font .tsz-17 { font-size: 22px !important; }
+body.big-font .tsz-20 { font-size: 26px !important; }
+body.big-font .tsz-22 { font-size: 29px !important; }
+body.big-font .zoom-btn-label { font-size: 16px !important; }
+body.big-font .zoom-btn-icon { font-size: 26px !important; }
 </style>
 
 <!-- ══════════════════════════════
@@ -175,10 +234,10 @@
     <!-- 닉네임 설정 -->
     <div style="margin:10px 14px 0;background:var(--talk-soft);border:2px solid var(--talk-border);border-radius:14px;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;">
       <div style="display:flex;flex-direction:column;gap:2px;">
-        <span style="font-size:13px;font-weight:600;color:#aaa;">내 닉네임</span>
-        <span id="nickname-display" style="font-size:22px;font-weight:900;color:var(--talk-dark);">봄날이웃</span>
+        <span class="tsz-13" style="font-size:13px;font-weight:600;color:#aaa;">내 닉네임</span>
+        <span class="tsz-22" id="nickname-display" style="font-size:22px;font-weight:900;color:var(--talk-dark);">봄날이웃</span>
       </div>
-      <button onclick="setNickname()" style="background:var(--talk-main);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">✏️ 변경</button>
+      <button class="tsz-15" onclick="setNickname()" style="background:var(--talk-main);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">✏️ 변경</button>
     </div>
 
     <!-- 아이콘 그리드 -->
@@ -330,9 +389,9 @@
     <div class="talk-page-inner">
       <div class="board-desc-box" style="background:#fff3e8; border-color:#c47a30; color:#7a4a20;">
         📣 오늘 있었던 일, 뭐든 편하게 나눠요! 😊<br>
-        <span style="font-size:13px;color:#aaa;">📸 사진 올리기 기능은 추후 업데이트 예정이에요</span>
+        <span class="tsz-13" style="font-size:13px;color:#aaa;">📸 사진 올리기 기능은 추후 업데이트 예정이에요</span>
       </div>
-      <button onclick="openWriteModal('sudabox')"
+      <button class="tsz-17" onclick="openWriteModal('sudabox')"
         style="width:100%;padding:15px;background:#c47a30;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;">
         ✏️ 글쓰기
       </button>
@@ -354,7 +413,7 @@
       <div class="board-desc-box" style="background:#e8f5e9; border-color:#2e7d32; color:#1b5e20;">
         🤗 혼자 끙끙 말고 함께 나눠요. <strong>익명으로 써도 돼요 🤫</strong> 따뜻한 댓글로 서로 위로해드려요
       </div>
-      <button onclick="openWriteModal('worry')"
+      <button class="tsz-17" onclick="openWriteModal('worry')"
         style="width:100%;padding:15px;background:#2e7d32;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;">
         ✏️ 고민 올리기
       </button>
@@ -376,7 +435,7 @@
       <div class="board-desc-box" style="background:#e8f0fe; border-color:#3a5bbf; color:#1a3a8f;">
         🤝 관심사가 비슷한 이웃을 찾아보세요! 소모임 글을 올리면 <strong>봄날톡톡 채팅방</strong>으로 함께 모일 수 있어요 🌸
       </div>
-      <button onclick="openWriteModal('friend')"
+      <button class="tsz-17" onclick="openWriteModal('friend')"
         style="width:100%;padding:15px;background:#3a5bbf;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;">
         ✏️ 소모임 글쓰기
       </button>
@@ -397,9 +456,9 @@
     <div class="talk-page-inner">
       <div class="board-desc-box" style="background:#f3e8f5; border-color:#7b3fa0; color:#4a1870;">
         📝 마음에 드는 글귀를 올려보세요 🌸 좋아요로 서로 응원해드려요<br>
-        <span style="font-size:13px;color:#aaa;">📸 사진 올리기 기능은 추후 업데이트 예정이에요</span>
+        <span class="tsz-13" style="font-size:13px;color:#aaa;">📸 사진 올리기 기능은 추후 업데이트 예정이에요</span>
       </div>
-      <button onclick="openWriteModal('goodpost')"
+      <button class="tsz-17" onclick="openWriteModal('goodpost')"
         style="width:100%;padding:15px;background:#7b3fa0;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;">
         ✏️ 좋은 글귀 올리기
       </button>
@@ -423,12 +482,18 @@
       </div>
       <div id="notice-write-area"></div>
       <div id="board-list-notice">
-        <div style="text-align:center;padding:40px 20px;color:#bbb;font-size:16px;">아직 공지사항이 없어요 🌸</div>
+        <div class="tsz-16" style="text-align:center;padding:40px 20px;color:#bbb;font-size:16px;">아직 공지사항이 없어요 🌸</div>
       </div>
     </div>
   </div>
 
 </div><!-- /wrap -->
+
+<!-- 돋보기 버튼 (우하단 고정) -->
+<button class="zoom-btn" onclick="toggleBigFont()" id="zoom-btn" title="글자 크기 크게/기본 전환">
+  <span class="zoom-btn-icon">🔍</span>
+  <span class="zoom-btn-label" id="zoom-label">기본</span>
+</button>
 
 <!-- ══════════════════════════════
      글쓰기 모달
@@ -601,23 +666,23 @@ window.openWriteModal = function(boardId) {
   var realBoardId = isNoticeAdmin ? 'notice' : boardId;
 
   var anonCheck = isWorry
-    ? '<label style="display:flex;align-items:center;gap:8px;font-size:15px;color:#555;margin-top:8px;"><input type="checkbox" id="anon-check" style="width:18px;height:18px;"> 익명으로 올리기 (닉네임 대신 "봄날이웃"으로 표시)</label>'
+    ? '<label class="tsz-15" style="display:flex;align-items:center;gap:8px;font-size:15px;color:#555;margin-top:8px;"><input type="checkbox" id="anon-check" style="width:18px;height:18px;"> 익명으로 올리기 (닉네임 대신 "봄날이웃"으로 표시)</label>'
     : '';
 
   var titleLabel = isNoticeAdmin ? '📢 공지 글쓰기' : '✏️ 글쓰기';
 
   document.getElementById('write-modal-inner').innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <h3 style="font-size:20px;font-weight:700;">${titleLabel}</h3>
-      <button onclick="closeWriteModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">✕</button>
+      <h3 class="tsz-20" style="font-size:20px;font-weight:700;">${titleLabel}</h3>
+      <button class="tsz-22" onclick="closeWriteModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;">✕</button>
     </div>
-    <input id="write-title" type="text" placeholder="제목을 입력하세요" maxlength="30"
+    <input class="tsz-16" id="write-title" type="text" placeholder="제목을 입력하세요" maxlength="30"
       style="width:100%;padding:13px 14px;border:1.5px solid #e0e0e0;border-radius:12px;font-size:16px;font-family:inherit;margin-bottom:10px;box-sizing:border-box;">
-    <textarea id="write-content" placeholder="내용을 입력하세요 (최대 500자)" maxlength="500" rows="5"
+    <textarea class="tsz-16" id="write-content" placeholder="내용을 입력하세요 (최대 500자)" maxlength="500" rows="5"
       style="width:100%;padding:13px 14px;border:1.5px solid #e0e0e0;border-radius:12px;font-size:16px;font-family:inherit;resize:none;box-sizing:border-box;"></textarea>
     ${anonCheck}
-    <div style="font-size:13px;color:#aaa;margin-top:6px;margin-bottom:14px;">📸 사진 올리기 기능은 추후 업데이트 예정이에요</div>
-    <button onclick="submitPost('${realBoardId}')"
+    <div class="tsz-13" style="font-size:13px;color:#aaa;margin-top:6px;margin-bottom:14px;">📸 사진 올리기 기능은 추후 업데이트 예정이에요</div>
+    <button class="tsz-17" onclick="submitPost('${realBoardId}')"
       style="width:100%;padding:15px;background:#e8839a;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;">
       올리기 🌸
     </button>`;
@@ -756,7 +821,7 @@ function refreshNoticeWriteArea() {
   var area = document.getElementById('notice-write-area');
   if (!area) return;
   if (isAdmin) {
-    area.innerHTML = `<button onclick="openWriteModal('notice_admin')"
+    area.innerHTML = `<button class="tsz-17" onclick="openWriteModal('notice_admin')"
       style="width:100%;padding:15px;background:#c47d00;color:#fff;border:none;border-radius:12px;font-size:17px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:4px;">
       📢 공지 글쓰기 (관리자)
     </button>`;
@@ -780,12 +845,12 @@ window.adminDelete = async function(boardId, postId) {
 async function loadComments(boardId, postId) {
   var el = document.getElementById('comments-' + postId);
   if (!el) return;
-  el.innerHTML = '<div style="color:#aaa;font-size:14px;padding:8px 0;">댓글 불러오는 중...</div>';
+  el.innerHTML = '<div class="tsz-14" style="color:#aaa;font-size:14px;padding:8px 0;">댓글 불러오는 중...</div>';
   try {
     var q = query(collection(db, boardId, postId, 'comments'), orderBy('createdAt','asc'), limit(30));
     var snap = await getDocs(q);
     if (snap.empty) {
-      el.innerHTML = '<div style="color:#bbb;font-size:14px;padding:6px 0;">아직 댓글이 없어요. 첫 댓글을 달아보세요 🌸</div>';
+      el.innerHTML = '<div class="tsz-14" style="color:#bbb;font-size:14px;padding:6px 0;">아직 댓글이 없어요. 첫 댓글을 달아보세요 🌸</div>';
       return;
     }
     var html = '';
@@ -793,15 +858,15 @@ async function loadComments(boardId, postId) {
       var d = c.data();
       html += `<div style="background:#f7f8fa;border-radius:10px;padding:10px 12px;margin-bottom:6px;">
         <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
-          <span style="font-size:13px;font-weight:700;color:#888;">🌸 ${escapeHtml(d.nickname)}${d.isAnon ? ' (익명)' : ''}</span>
-          <span style="font-size:11px;color:#bbb;">${getDateStr(d.createdAt)}</span>
+          <span class="tsz-13" style="font-size:13px;font-weight:700;color:#888;">🌸 ${escapeHtml(d.nickname)}${d.isAnon ? ' (익명)' : ''}</span>
+          <span class="tsz-11" style="font-size:11px;color:#bbb;">${getDateStr(d.createdAt)}</span>
         </div>
-        <div style="font-size:15px;color:#333;line-height:1.6;">${escapeHtml(d.content)}</div>
+        <div class="tsz-15" style="font-size:15px;color:#333;line-height:1.6;">${escapeHtml(d.content)}</div>
       </div>`;
     });
     el.innerHTML = html;
   } catch(e) {
-    el.innerHTML = '<div style="color:#e57373;font-size:14px;padding:6px 0;">댓글을 불러오지 못했어요 😢</div>';
+    el.innerHTML = '<div class="tsz-14" style="color:#e57373;font-size:14px;padding:6px 0;">댓글을 불러오지 못했어요 😢</div>';
   }
 }
 
@@ -851,7 +916,7 @@ window.submitComment = async function(boardId, postId, isWorry) {
 async function loadBoard(boardId) {
   var listEl = document.getElementById('board-list-' + boardId);
   if (!listEl) return;
-  listEl.innerHTML = '<div style="text-align:center;padding:30px;color:#aaa;font-size:15px;">글을 불러오는 중이에요...</div>';
+  listEl.innerHTML = '<div class="tsz-15" style="text-align:center;padding:30px;color:#aaa;font-size:15px;">글을 불러오는 중이에요...</div>';
 
   // 댓글 기능 여부 (수다방·고민나눠요·친구찾아요만)
   var hasComment = ['sudabox','worry','friend'].includes(boardId);
@@ -862,7 +927,7 @@ async function loadBoard(boardId) {
     var q = query(collection(db, boardId), orderBy('createdAt','desc'), limit(20));
     var snap = await getDocs(q);
     if (snap.empty) {
-      listEl.innerHTML = '<div style="text-align:center;padding:40px 20px;color:#bbb;font-size:16px;">아직 글이 없어요 🌸<br>첫 번째 글을 올려보세요!</div>';
+      listEl.innerHTML = '<div class="tsz-16" style="text-align:center;padding:40px 20px;color:#bbb;font-size:16px;">아직 글이 없어요 🌸<br>첫 번째 글을 올려보세요!</div>';
       return;
     }
     var html = '';
@@ -874,16 +939,16 @@ async function loadBoard(boardId) {
           html += `
             <div style="background:#fff3f3;border-radius:14px;box-shadow:0 1px 5px rgba(0,0,0,0.07);padding:16px;margin-bottom:10px;border:1.5px dashed #e57373;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-                <span style="font-size:13px;font-weight:700;color:#e57373;">🙈 숨겨진 글 (관리자만 보임)</span>
-                <span style="font-size:12px;color:#bbb;">${getDateStr(data.createdAt)}</span>
+                <span class="tsz-13" style="font-size:13px;font-weight:700;color:#e57373;">🙈 숨겨진 글 (관리자만 보임)</span>
+                <span class="tsz-12" style="font-size:12px;color:#bbb;">${getDateStr(data.createdAt)}</span>
               </div>
-              <div style="font-size:17px;font-weight:700;color:#aaa;margin-bottom:6px;">${escapeHtml(data.title)}</div>
+              <div class="tsz-17" style="font-size:17px;font-weight:700;color:#aaa;margin-bottom:6px;">${escapeHtml(data.title)}</div>
               <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button onclick="adminRestore('${boardId}','${d.id}')"
+                <button class="tsz-13" onclick="adminRestore('${boardId}','${d.id}')"
                   style="background:#e8f5e9;border:none;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:#2e7d32;cursor:pointer;font-family:inherit;">
                   🔓 복구
                 </button>
-                <button onclick="adminDelete('${boardId}','${d.id}')"
+                <button class="tsz-13" onclick="adminDelete('${boardId}','${d.id}')"
                   style="background:#fce8e8;border:none;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:#c0392b;cursor:pointer;font-family:inherit;">
                   🗑️ 삭제
                 </button>
@@ -898,13 +963,13 @@ async function loadBoard(boardId) {
         <div id="comment-wrap-${d.id}" style="display:none;margin-top:12px;border-top:1px solid #f0f0f0;padding-top:12px;">
           <div id="comments-${d.id}" style="margin-bottom:10px;"></div>
           <div style="display:flex;flex-direction:column;gap:6px;">
-            ${isWorry ? `<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#888;">
+            ${isWorry ? `<label class="tsz-13" style="display:flex;align-items:center;gap:6px;font-size:13px;color:#888;">
               <input type="checkbox" id="comment-anon-${d.id}" style="width:16px;height:16px;"> 익명으로 달기
             </label>` : ''}
             <div style="display:flex;gap:6px;">
-              <input id="comment-input-${d.id}" type="text" placeholder="따뜻한 댓글을 달아주세요 🌸" maxlength="100"
+              <input class="tsz-15" id="comment-input-${d.id}" type="text" placeholder="따뜻한 댓글을 달아주세요 🌸" maxlength="100"
                 style="flex:1;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:15px;font-family:inherit;">
-              <button onclick="submitComment('${boardId}','${d.id}',${isWorry})"
+              <button class="tsz-15" onclick="submitComment('${boardId}','${d.id}',${isWorry})"
                 style="padding:10px 14px;background:#e8839a;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;">
                 등록
               </button>
@@ -915,32 +980,32 @@ async function loadBoard(boardId) {
       html += `
         <div style="background:#fff;border-radius:14px;box-shadow:0 1px 5px rgba(0,0,0,0.07);padding:16px;margin-bottom:10px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:14px;font-weight:700;color:#888;">🌸 ${escapeHtml(data.nickname)}${data.isAnon ? ' (익명)' : ''}</span>
-            <span style="font-size:12px;color:#bbb;">${getDateStr(data.createdAt)}</span>
+            <span class="tsz-14" style="font-size:14px;font-weight:700;color:#888;">🌸 ${escapeHtml(data.nickname)}${data.isAnon ? ' (익명)' : ''}</span>
+            <span class="tsz-12" style="font-size:12px;color:#bbb;">${getDateStr(data.createdAt)}</span>
           </div>
-          <div style="font-size:17px;font-weight:700;color:#222;margin-bottom:6px;">${escapeHtml(data.title)}</div>
-          <div style="font-size:15px;color:#555;line-height:1.7;margin-bottom:12px;white-space:pre-wrap;">${escapeHtml(data.content)}</div>
+          <div class="tsz-17" style="font-size:17px;font-weight:700;color:#222;margin-bottom:6px;">${escapeHtml(data.title)}</div>
+          <div class="tsz-15" style="font-size:15px;color:#555;line-height:1.7;margin-bottom:12px;white-space:pre-wrap;">${escapeHtml(data.content)}</div>
           ${!isNotice ? `
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button onclick="likePost('${boardId}','${d.id}',this)"
+            <button class="tsz-14" onclick="likePost('${boardId}','${d.id}',this)"
               style="background:#fce8ee;border:none;border-radius:10px;padding:7px 14px;font-size:14px;font-weight:700;color:#c4607a;cursor:pointer;font-family:inherit;">
               ❤️ ${data.likes || 0}
             </button>
             ${hasComment ? `
-            <button onclick="toggleComments('${boardId}','${d.id}')"
+            <button class="tsz-14" onclick="toggleComments('${boardId}','${d.id}')"
               style="background:#e8f4ff;border:none;border-radius:10px;padding:7px 14px;font-size:14px;font-weight:700;color:#3a5bbf;cursor:pointer;font-family:inherit;">
               💬 댓글
             </button>` : ''}
-            <button onclick="reportPost('${boardId}','${d.id}')"
+            <button class="tsz-13" onclick="reportPost('${boardId}','${d.id}')"
               style="background:#f5f5f5;border:none;border-radius:10px;padding:7px 14px;font-size:13px;color:#aaa;cursor:pointer;font-family:inherit;">
               🚨 신고
             </button>
             ${isAdmin ? `
-            <button onclick="adminHide('${boardId}','${d.id}')"
+            <button class="tsz-13" onclick="adminHide('${boardId}','${d.id}')"
               style="background:#fff3e0;border:none;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:#e65100;cursor:pointer;font-family:inherit;">
               🙈 숨기기
             </button>
-            <button onclick="adminDelete('${boardId}','${d.id}')"
+            <button class="tsz-13" onclick="adminDelete('${boardId}','${d.id}')"
               style="background:#fce8e8;border:none;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:#c0392b;cursor:pointer;font-family:inherit;">
               🗑️ 삭제
             </button>` : ''}
@@ -948,9 +1013,9 @@ async function loadBoard(boardId) {
           ${commentArea}` : ''}
         </div>`;
     });
-    listEl.innerHTML = html || '<div style="text-align:center;padding:40px 20px;color:#bbb;font-size:16px;">아직 글이 없어요 🌸</div>';
+    listEl.innerHTML = html || '<div class="tsz-16" style="text-align:center;padding:40px 20px;color:#bbb;font-size:16px;">아직 글이 없어요 🌸</div>';
   } catch(e) {
-    listEl.innerHTML = '<div style="text-align:center;padding:30px;color:#e57373;font-size:15px;">글을 불러오지 못했어요 😢<br>잠시 후 다시 시도해주세요.</div>';
+    listEl.innerHTML = '<div class="tsz-15" style="text-align:center;padding:30px;color:#e57373;font-size:15px;">글을 불러오지 못했어요 😢<br>잠시 후 다시 시도해주세요.</div>';
   }
 }
 
@@ -1021,6 +1086,16 @@ window.onload = function() {
     document.getElementById('welcome-overlay').classList.add('active');
   }
   loadPreview();
+};
+
+/* ════════════════════════════════
+   돋보기 (큰글씨 토글)
+════════════════════════════════ */
+var isBigFont = false;
+window.toggleBigFont = function() {
+  isBigFont = !isBigFont;
+  document.body.classList.toggle('big-font', isBigFont);
+  document.getElementById('zoom-label').textContent = isBigFont ? '크게' : '기본';
 };
 </script>
 </body>
