@@ -465,6 +465,7 @@ body.big-font .empty-msg { font-size: 20px !important; }
             ※ 위 결과는 입력값 기준 참고용이며, 실제 수령액은 담당기관 확인이 필요합니다.<br>
             ※ 소득인정액은 소득·재산을 종합 산정한 금액으로 주민센터에서 확인하실 수 있습니다.
           </div>
+          <button class="calc-btn" style="background:#e0e0e0;color:#555;margin-top:10px;" onclick="resetHomeCalc()">🔄 다시 계산하기</button>
         </div>
 
         <a onclick="confirmExternalLink('https://www.bokjiro.go.kr');return false;" class="bokjiro-btn" id="bokjiro-link" href="#"  rel="noopener">
@@ -513,6 +514,7 @@ body.big-font .empty-msg { font-size: 20px !important; }
         <div class="welfare-result" id="welfare-result">
           <div class="welfare-result-header" id="welfare-result-header">검색 결과</div>
           <div id="welfare-cards"></div>
+          <button class="welfare-search-btn" style="background:#e0e0e0;color:#555;margin-top:10px;" onclick="resetHomeWelfare()">🔄 다시 검색하기</button>
         </div>
       </div>
     </div>
@@ -654,6 +656,7 @@ body.big-font .empty-msg { font-size: 20px !important; }
           ※ 위 결과는 입력값 기준 참고용이며, 실제 수령액은 담당기관 확인이 필요합니다.<br>
           ※ 소득인정액은 소득·재산을 종합 산정한 금액으로 주민센터에서 확인하실 수 있습니다.
         </div>
+        <button class="calc-btn" style="background:#e0e0e0;color:#555;margin-top:10px;" onclick="resetPage('page-calc')">🔄 다시 계산하기</button>
       </div>
 
       <a onclick="confirmExternalLink('https://www.bokjiro.go.kr');return false;" class="bokjiro-btn" id="pc-bokjiro-link" href="#"  rel="noopener">
@@ -781,6 +784,7 @@ body.big-font .empty-msg { font-size: 20px !important; }
         <!-- 진단 결과 -->
         <div id="pp-result" style="display:none;margin-top:14px;">
           <div id="pp-result-box"></div>
+          <button class="page-btn" style="background:#e0e0e0;color:#555;" onclick="resetPage('page-pension')">🔄 다시 입력하기</button>
         </div>
       </div>
 
@@ -896,6 +900,7 @@ body.big-font .empty-msg { font-size: 20px !important; }
       </div>
       <div class="page-result" id="pw-result">
         <div id="pw-cards" style="margin-top:12px;"></div>
+        <button class="page-btn" style="background:#e0e0e0;color:#555;margin-top:10px;" onclick="resetPage('page-welfare')">🔄 다시 검색하기</button>
       </div>
 
       <!-- 시설 종류 안내 카드 (아래로) -->
@@ -1200,6 +1205,7 @@ body.big-font .empty-msg { font-size: 20px !important; }
         <!-- 자가체크 결과 -->
         <div id="lt-result" style="display:none;margin-top:14px;">
           <div id="lt-result-box"></div>
+          <button class="page-btn" style="background:#e0e0e0;color:#555;" onclick="resetPage('page-longterm')">🔄 다시 체크하기</button>
         </div>
       </div>
 
@@ -1383,6 +1389,7 @@ body.big-font .empty-msg { font-size: 20px !important; }
       </div>
       <div class="page-result" id="pb-result">
         <div id="pb-cards"></div>
+        <button class="page-btn" style="background:#e0e0e0;color:#555;margin-top:10px;" onclick="resetPage('page-benefit')">🔄 검색 초기화</button>
       </div>
 
       <!-- 꼭 챙겨야 할 혜택 5가지 (아래로) -->
@@ -1510,6 +1517,7 @@ body.big-font .empty-msg { font-size: 20px !important; }
       </div>
       <div class="page-result" id="ps-result">
         <div id="ps-cards" style="margin-top:12px;"></div>
+        <button class="page-btn" style="background:#e0e0e0;color:#555;margin-top:10px;" onclick="resetPage('page-store')">🔄 다시 검색하기</button>
       </div>
 
       <!-- 온누리상품권 안내 (아래로) -->
@@ -2162,6 +2170,17 @@ function calcBenefit() {
   document.getElementById('result-box').scrollIntoView({ behavior: 'smooth' });
 }
 
+// 홈 화면 혜택계산기 초기화 (입력값 지우고 결과 숨기기)
+function resetHomeCalc() {
+  document.getElementById('inp-age').value = '';
+  document.getElementById('inp-income').value = '';
+  document.getElementById('inp-family').value = 'single';
+  document.getElementById('inp-disability').value = 'none';
+  document.getElementById('result-box').classList.remove('show');
+  document.getElementById('bokjiro-link').style.display = 'none';
+  document.getElementById('calc-sec').scrollIntoView({ behavior: 'smooth' });
+}
+
 /* ══════════════════════════════════════
    혜택계산기 (전환 페이지용)
 ══════════════════════════════════════ */
@@ -2304,6 +2323,18 @@ function searchWelfare() {
     .then(function(r){ return r.json(); })
     .then(function(data){ renderWelfareCards(data, sido+' '+sigungu); loading.classList.remove('show'); })
     .catch(function(){ loading.classList.remove('show'); showWelfareEmpty(); });
+}
+
+// 홈 화면 복지시설찾기 초기화 (지역·시설종류 되돌리고 결과 숨기기)
+function resetHomeWelfare() {
+  document.getElementById('welfare-sido').value = '';
+  document.getElementById('welfare-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
+  document.querySelectorAll('.welfare-type-btn').forEach(function(b){ b.classList.remove('selected'); });
+  document.querySelector('.welfare-type-btn').classList.add('selected');
+  selectedWelfareType = '';
+  document.getElementById('welfare-result').classList.remove('show');
+  document.getElementById('welfare-cards').innerHTML = '';
+  document.querySelector('.welfare-sec').scrollIntoView({ behavior: 'smooth' });
 }
 
 function renderWelfareCards(data, areaName) {
