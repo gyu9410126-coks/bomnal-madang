@@ -529,6 +529,7 @@ body.big-font .zoom-btn-icon { font-size: 26px !important; }
         </div>
         <button class="traf-btn traf-btn-blue" onclick="searchSubway()">🚇 열차 도착 조회</button>
         <div id="subway-result" class="traf-result-box"></div>
+        <button class="traf-btn traf-btn-gray" style="margin-top:10px;" onclick="resetSubway()">🔄 검색 초기화</button>
       </div>
 
       <!-- 어르신 무임승차 안내 -->
@@ -628,6 +629,7 @@ body.big-font .zoom-btn-icon { font-size: 26px !important; }
         </select>
         <button class="traf-btn traf-btn-green" onclick="searchTrain()">🚄 기차 시간 조회</button>
         <div id="train-result" class="traf-result-box"></div>
+        <button class="traf-btn traf-btn-gray" style="margin-top:10px;" onclick="resetTrain()">🔄 검색 초기화</button>
       </div>
       <!-- 예매 바로가기 -->
       <div class="traf-card">
@@ -745,6 +747,7 @@ body.big-font .zoom-btn-icon { font-size: 26px !important; }
         </select>
         <button class="traf-btn traf-btn-purple" onclick="searchExpress()">🚍 고속버스 조회</button>
         <div id="express-result" class="traf-result-box"></div>
+        <button class="traf-btn traf-btn-gray" style="margin-top:10px;" onclick="resetExpress()">🔄 검색 초기화</button>
       </div>
       <div class="traf-card">
         <div class="traf-card-title">🎫 고속버스 예매 바로가기</div>
@@ -1536,6 +1539,23 @@ function resetBus() {
   document.getElementById('bus-stop-result').innerHTML = '';
   document.getElementById('bus-stop-result').classList.remove('show');
   document.getElementById('bus-arrival-card').style.display = 'none';
+}
+function resetSubway() {
+  document.getElementById('subway-input').value = '';
+  document.getElementById('subway-result').innerHTML = '';
+  document.getElementById('subway-result').classList.remove('show');
+}
+function resetTrain() {
+  document.getElementById('train-depart').value = '';
+  document.getElementById('train-arrive').value = '';
+  document.getElementById('train-result').innerHTML = '';
+  document.getElementById('train-result').classList.remove('show');
+}
+function resetExpress() {
+  document.getElementById('express-depart').value = '';
+  document.getElementById('express-arrive').value = '';
+  document.getElementById('express-result').innerHTML = '';
+  document.getElementById('express-result').classList.remove('show');
 }
 
 /* ── 외부링크 팝업 ── */
