@@ -29,13 +29,14 @@
 .sec-title em { font-style: normal; color: #e65100; }
 .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .cat-item { display: flex; flex-direction: column; align-items: center; border: none; border-radius: 14px; padding: 11px 4px 10px; gap: 7px; cursor: pointer; background: none; }
-.cat-icon-box { width: 64px; height: 64px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 34px; line-height: 1; }
-.cat-name { font-size: 13px; font-weight: 700; text-align: center; line-height: 1.3; word-break: keep-all; }
+.cat-icon-box { width: 64px; height: 64px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 38px; line-height: 1; }
+.cat-name { font-size: 15px; font-weight: 600; text-align: center; line-height: 1.3; word-break: keep-all; }
 
 /* ── 전환 페이지 공통 ── */
 .traf-page { display: none; }
 .traf-page.active { display: block; }
-.traf-back-btn { display: block; width: calc(100% - 28px); margin: 14px 14px 0; padding: 13px 16px; background: #e65100; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; color: #fff; cursor: pointer; text-align: left; font-family: inherit; }
+.traf-back-btn { display: block; width: 100%; padding: 20px 16px; background: #e65100; border: none; font-size: 20px; font-weight: 900; letter-spacing: -0.3px; color: #fff; cursor: pointer; text-align: center; font-family: inherit; -webkit-tap-highlight-color: transparent; }
+.traf-back-btn:active { background: #b33c00; }
 .traf-page-header { margin: 10px 14px 0; background: #fff3e0; border: 1.5px solid #ffcc80; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
 .traf-page-title { font-size: 22px; font-weight: 900; }
 .traf-page-badge { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 8px; }
@@ -98,9 +99,9 @@
 .tel-card-item:active { background: #eef2f8; }
 .tel-card-icon { font-size: 28px; width: 48px; height: 48px; background: #f0f4f8; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .tel-text { flex: 1; }
-.tel-name { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 2px; }
-.tel-desc { font-size: 13px; color: #666; }
-.tel-num { font-size: 20px; font-weight: 800; color: #4A90D9; margin-left: auto; white-space: nowrap; }
+.tel-name { font-size: 17px; font-weight: 600; color: #222; margin-bottom: 2px; }
+.tel-desc { font-size: 15px; font-weight: 400; color: #666; }
+.tel-num { font-size: 20px; font-weight: 700; color: #4A90D9; margin-left: auto; white-space: nowrap; }
 .tel-divider { height: 1px; background: #f0f0f0; margin: 0; }
 .btn-kakao-main { display: block; width: calc(100% - 28px); margin: 24px 14px 0; padding: 14px; background: #FEE500; color: #1a1a1a; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
 .btn-pwa-main { display: block; width: calc(100% - 28px); margin: 8px 14px 0; padding: 13px; background: #7db8e8; color: #111; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
