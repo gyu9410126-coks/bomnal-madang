@@ -58,8 +58,8 @@
 .sec-title em { font-style: normal; color: var(--talk-main); }
 .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .cat-item { display: flex; flex-direction: column; align-items: center; border: none; border-radius: 14px; padding: 11px 4px 10px; gap: 7px; cursor: pointer; background: none; }
-.cat-icon-box { width: 64px; height: 64px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 34px; line-height: 1; }
-.cat-name { font-size: 16px; font-weight: 700; text-align: center; line-height: 1.3; word-break: keep-all; }
+.cat-icon-box { width: 64px; height: 64px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 38px; line-height: 1; }
+.cat-name { font-size: 15px; font-weight: 600; text-align: center; line-height: 1.3; word-break: keep-all; }
 
 /* ── 미리보기 섹션 ── */
 .preview-sec { margin: 20px 14px 0; }
@@ -81,7 +81,8 @@
 /* ── 전환 페이지 공통 ── */
 .talk-page { display: none; }
 .talk-page.active { display: block; }
-.talk-back-btn { display: block; width: 100%; margin: 0; padding: 15px 16px; border: none; border-radius: 0; font-size: 17px; font-weight: 700; cursor: pointer; text-align: left; font-family: inherit; background: #e0f5f1; color: #1a7a6a; }
+.talk-back-btn { display: block; width: 100%; margin: 0; padding: 20px 16px; border: none; border-radius: 0; font-size: 20px; font-weight: 900; letter-spacing: -0.3px; cursor: pointer; text-align: center; font-family: inherit; background: var(--talk-main); color: #fff; }
+.talk-back-btn:active { background: var(--talk-dark); }
 .talk-page-header { margin: 10px 14px 0; border-radius: 14px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; }
 .talk-page-title { font-size: 22px; font-weight: 900; }
 .talk-page-badge { font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 8px; }
@@ -108,9 +109,9 @@
 .tel-card-item:active { background: #eef2f8; }
 .tel-card-icon { font-size: 28px; width: 48px; height: 48px; background: #f0f4f8; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .tel-text { flex: 1; }
-.tel-name { font-size: 17px; font-weight: 700; color: #222; margin-bottom: 2px; }
-.tel-desc { font-size: 13px; color: #666; }
-.tel-num { font-size: 20px; font-weight: 800; color: #4A90D9; margin-left: auto; white-space: nowrap; }
+.tel-name { font-size: 17px; font-weight: 600; color: #222; margin-bottom: 2px; }
+.tel-desc { font-size: 15px; font-weight: 400; color: #666; }
+.tel-num { font-size: 20px; font-weight: 700; color: #4A90D9; margin-left: auto; white-space: nowrap; }
 .tel-divider { height: 1px; background: #f0f0f0; margin: 0; }
 .btn-kakao-main { display: block; width: calc(100% - 28px); margin: 24px 14px 0; padding: 14px; background: #FEE500; color: #1a1a1a; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
 .btn-pwa-main { display: block; width: calc(100% - 28px); margin: 8px 14px 0; padding: 13px; background: #7db8e8; color: #111; border: none; border-radius: 13px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; }
