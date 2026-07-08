@@ -1384,7 +1384,7 @@ body.big-font .zoom-btn-icon { font-size: 26px !important; }
       <div class="header-date-box"><span class="header-date-solar" id="quiz-header-date"></span><span class="header-date-lunar"></span></div>
     </div>
     <div class="home-bar"><button onclick="location.href='index.html'">🏠 홈으로</button></div>
-    <button class="back-btn" onclick="goPage('main')">← 게임·오락으로 돌아가기</button>
+    <button class="back-btn" onclick="history.back()">← 게임·오락으로 돌아가기</button>
     <div class="quiz-home-wrap">
       <div class="quiz-home-title">🎯 오늘의 퀴즈</div>
       <div class="quiz-home-date" id="quiz-today-label"></div>
@@ -2814,7 +2814,7 @@ function pz_goList() {
 }
 function pz_goMain() {
   clearInterval(pz_timerID);
-  goPage('main');
+  history.back();
 }
 function pz_selectLevel(lv) {
   pz_currentLevel=lv;
@@ -3028,7 +3028,7 @@ function wd_goList() {
 }
 function wd_goMain() {
   clearInterval(wd_timerID);
-  goPage('main');
+  history.back();
 }
 
 function wd_selectLevel(lv) {
@@ -3251,7 +3251,7 @@ function cd_goList() {
 }
 function cd_goMain() {
   clearInterval(cd_timerID);
-  goPage('main');
+  history.back();
 }
 
 function cd_selectLevel(lv) {
@@ -3448,7 +3448,7 @@ function sm_goList() {
   document.getElementById('sm-back-btn').onclick = sm_goMain;
 }
 function sm_goMain() {
-  goPage('main');
+  history.back();
 }
 
 function sm_selectLevel(lv) {
@@ -3652,7 +3652,7 @@ function fg_goList() {
 }
 function fg_goMain() {
   clearInterval(fg_timerID);
-  goPage('main');
+  history.back();
 }
 
 function fg_selectLevel(lv) {
@@ -3860,7 +3860,7 @@ function mn_goList() {
   document.getElementById('mn-back-btn').onclick = mn_goMain;
 }
 function mn_goMain() {
-  goPage('main');
+  history.back();
 }
 
 function mn_selectLevel(lv) {
@@ -4102,7 +4102,7 @@ function mth_goList() {
 }
 function mth_goMain() {
   clearInterval(mth_timerID);
-  goPage('main');
+  history.back();
 }
 
 function mth_selectLevel(lv) {
@@ -4359,7 +4359,7 @@ function st_goList() {
 }
 function st_goMain() {
   clearInterval(st_timer);
-  goPage('main');
+  history.back();
 }
 
 function st_startGame(level) {
