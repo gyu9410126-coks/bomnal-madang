@@ -596,6 +596,24 @@ window.addEventListener('popstate', function(e) {
   if (isPageActive) { window.goBack(); }
 });
 
+/* 새로고침 후 상태 복원 — 뒤로가기를 여러 번 눌러야 하는 문제 방지 */
+(function restorePageOnLoad() {
+  var st = history.state;
+  if (!st || !st.page) return;
+  var target = document.getElementById(st.page);
+  if (!target || !target.classList.contains('talk-page')) return;
+  document.getElementById('main-view').style.display = 'none';
+  document.querySelectorAll('.talk-page').forEach(function(p) { p.classList.remove('active'); });
+  target.classList.add('active');
+  window.scrollTo(0, 0);
+  history.replaceState({ page: st.page }, '', '');
+  if (st.page === 'page-sudabox') loadBoard('sudabox');
+  if (st.page === 'page-worry') loadBoard('worry');
+  if (st.page === 'page-friend') loadBoard('friend');
+  if (st.page === 'page-goodpost') loadBoard('goodpost');
+  if (st.page === 'page-notice') { refreshNoticeWriteArea(); loadBoard('notice'); }
+})();
+
 window.goHome = function() { window.location.href = 'index.html'; };
 
 /* ════════════════════════════════

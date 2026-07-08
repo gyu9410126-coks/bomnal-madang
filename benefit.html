@@ -1989,6 +1989,20 @@ window.addEventListener('popstate', function(e) {
   }
 });
 
+/* 새로고침 후 상태 복원 — 뒤로가기를 여러 번 눌러야 하는 문제 방지 */
+(function restorePageOnLoad() {
+  var st = history.state;
+  if (!st || !st.page) return;
+  var target = document.getElementById(st.page);
+  if (!target) return;
+  document.getElementById('main-view').style.display = 'none';
+  currentPage = st.page;
+  target.classList.add('active');
+  window.scrollTo(0, 0);
+  history.replaceState({ page: st.page }, '', '');
+  resetPage(st.page);
+})();
+
 // 세부페이지 안에서 다른 세부페이지로 바로 이동할 때 쓰는 전용 함수
 // (history를 추가로 쌓지 않고 교체 — 뒤로가기 중첩 방지)
 function goPageReplace(id) {

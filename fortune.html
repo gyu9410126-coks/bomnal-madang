@@ -1577,6 +1577,20 @@ window.addEventListener('popstate', function(e) {
   if (isPageActive) { goBack(); }
 });
 
+/* 새로고침 후 상태 복원 — 뒤로가기를 여러 번 눌러야 하는 문제 방지 */
+(function restorePageOnLoad() {
+  var st = history.state;
+  if (!st || !st.page || PAGES.indexOf(st.page) === -1) return;
+  document.getElementById('main-grid-wrap').style.display = 'none';
+  document.getElementById('main-content').style.display = 'none';
+  var page = document.getElementById('page-' + st.page);
+  if (page) page.classList.add('active');
+  window.scrollTo(0, 0);
+  history.replaceState({ page: st.page }, '', '');
+  if (st.page === 'cal') initCal();
+  resetFortunePage(st.page);
+})();
+
 /* ════════════════════════════════════
    🔮 운세 페이지 전용 JS
 ════════════════════════════════════ */

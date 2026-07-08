@@ -2371,6 +2371,21 @@ window.addEventListener('popstate', function(e) {
   if (isPageActive) { goPage('main'); }
 });
 
+/* 새로고침 후 상태 복원 — 뒤로가기를 여러 번 눌러야 하는 문제 방지 */
+(function restorePageOnLoad() {
+  var st = history.state;
+  if (!st || !st.page || st.page === 'main') return;
+  var target = document.getElementById('page-' + st.page);
+  if (!target) return;
+  document.getElementById('main-content').style.display = 'none';
+  document.getElementById('main-header').style.display = 'none';
+  document.getElementById('main-home-bar').style.display = 'none';
+  document.querySelectorAll('.page-view').forEach(function(p){ p.classList.remove('active'); });
+  target.classList.add('active');
+  window.scrollTo(0, 0);
+  history.replaceState({ page: st.page }, '', '');
+})();
+
 // 퀴즈 내부 화면전환 전용 — quiz-home 진입 시 1번만 history가 쌓이고,
 // quiz-play/quiz-result 사이 전환은 history를 추가로 쌓지 않음 (뒤로가기 중첩 방지)
 function goQuizSub(name) {

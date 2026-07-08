@@ -820,6 +820,18 @@ window.addEventListener('popstate', function(e) {
   if (isPageActive) { goBack(); }
 });
 
+/* 새로고침 후 상태 복원 — 뒤로가기를 여러 번 눌러야 하는 문제 방지 */
+(function restorePageOnLoad() {
+  var st = history.state;
+  if (!st || !st.page || PAGES.indexOf(st.page) === -1) return;
+  document.getElementById('main-grid-wrap').style.display = 'none';
+  var page = document.getElementById('page-' + st.page);
+  if (page) page.classList.add('active');
+  window.scrollTo(0, 0);
+  history.replaceState({ page: st.page }, '', '');
+  resetHealthPage(st.page);
+})();
+
 /* ═══════════════════════════════════════════
    주소 자동완성 공통 함수
    카카오 주소검색 API → /api/kakao 프록시 경유

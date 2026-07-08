@@ -1795,6 +1795,20 @@ function goBack() {
 window.addEventListener('popstate', function(e) {
   if (currentJobPage) { goBack(); }
 });
+
+/* 새로고침 후 상태 복원 — 뒤로가기를 여러 번 눌러야 하는 문제 방지 */
+(function restorePageOnLoad() {
+  var st = history.state;
+  if (!st || !st.page) return;
+  var target = document.getElementById(st.page);
+  if (!target) return;
+  document.getElementById('main-view').style.display = 'none';
+  currentJobPage = st.page;
+  target.classList.add('active');
+  window.scrollTo(0, 0);
+  history.replaceState({ page: st.page }, '', '');
+  resetJobPage(st.page);
+})();
 function resetMainCalc() {
   var el = document.getElementById('job-type'); if(el) el.value = '';
   var el2 = document.getElementById('job-hours'); if(el2) el2.value = '';

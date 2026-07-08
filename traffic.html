@@ -1517,6 +1517,19 @@ window.addEventListener('popstate', function(e) {
 });
 function goHome() { window.location.href = 'index.html'; }
 
+/* 새로고침 후 상태 복원 — 뒤로가기를 여러 번 눌러야 하는 문제 방지 */
+(function restorePageOnLoad() {
+  var st = history.state;
+  if (!st || !st.page) return;
+  var target = document.getElementById(st.page);
+  if (!target) return;
+  document.getElementById('main-view').style.display = 'none';
+  currentPage = st.page;
+  target.classList.add('active');
+  window.scrollTo(0, 0);
+  history.replaceState({ page: st.page }, '', '');
+})();
+
 /* ── 리셋 ── */
 function resetAll() {
   document.getElementById('bus-stop-input').value = '';
