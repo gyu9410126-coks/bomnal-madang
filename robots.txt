@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /talk-chat.html
+
+Sitemap: https://bomnal-madang.vercel.app/sitemap.xml
