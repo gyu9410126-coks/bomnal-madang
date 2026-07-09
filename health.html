@@ -92,6 +92,11 @@
 .gps-btn:active { background: #bbdefb; }
 .gps-btn.loading { background: #f0f0f0; color: #999; pointer-events: none; }
 
+/* ── 건강매장찾기 지역/업종 드롭다운 (전통시장·상가와 동일한 검증된 패턴) ── */
+.page-label { font-size: 15px; font-weight: 700; color: #444; margin: 12px 0 6px; display: block; }
+.page-select { width: 100%; border: 1.5px solid #ddd; border-radius: 10px; padding: 11px 12px; font-size: 15px; font-weight: 600; font-family: inherit; color: #222; background: #fff; outline: none; margin-bottom: 8px; }
+.page-select:focus { border-color: #e65100; }
+
 /* ── 결과 카드 ── */
 .result-list { margin-top: 4px; }
 .result-card { background: #f7f8fa; border-radius: 12px; padding: 13px 14px; margin-bottom: 10px; }
@@ -190,6 +195,8 @@ body.big-font .addr-dropdown-item { font-size: 18px !important; }
 body.big-font .addr-selected-txt { font-size: 18px !important; }
 body.big-font .addr-selected-clear { font-size: 17px !important; }
 body.big-font .gps-btn { font-size: 20px !important; }
+body.big-font .page-label { font-size: 18px !important; }
+body.big-font .page-select { font-size: 19px !important; }
 body.big-font .result-card-name { font-size: 21px !important; }
 body.big-font .result-card-addr { font-size: 17px !important; }
 body.big-font .result-card-tel { font-size: 18px !important; }
@@ -456,18 +463,37 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
         <div class="page-box-title" style="color:#e65100;">🏪 건강매장 찾기</div>
       </div>
       <div class="page-box-body">
-        <div class="addr-wrap">
-          <button class="gps-btn" id="st-gps-btn" onclick="gpsLocate('st')">📍 현재 위치로 자동입력</button>
-          <input class="addr-input" id="st-addr-input" type="text" placeholder="동네 입력 (예: 경기 수원 영통동)" oninput="addrSearch('st')" autocomplete="off" />
-          <div class="addr-hint">시·군·구·읍·면·동 단위까지 입력하면 더 정확해요</div>
-          <div class="addr-dropdown" id="st-addr-dropdown" style="display:none;"></div>
-        </div>
-        <div class="addr-selected" id="st-addr-selected" style="display:none;">
-          <span class="addr-selected-txt" id="st-addr-selected-txt"></span>
-          <span class="addr-selected-clear" onclick="addrClear('st')">✕ 다시선택</span>
-        </div>
-        <div class="search-row">
-          <button class="search-btn" style="width:100%;background:#e65100;" onclick="searchStore(1)">🏪 건강매장 찾기</button>
+        <button class="gps-btn" id="st-gps-btn" onclick="searchStoreGPS()">📍 내 위치로 찾기</button>
+        <div style="text-align:center;font-size:13px;color:#999;margin:10px 0;">— 또는 지역으로 검색 —</div>
+
+        <div class="page-label">📍 지역 선택</div>
+        <select class="page-select" id="st-sido" onchange="updateSTSigungu()">
+          <option value="">시·도 선택</option>
+          <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
+          <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
+          <option>울산광역시</option><option>세종특별자치시</option><option>경기도</option>
+          <option>강원도</option><option>충청북도</option><option>충청남도</option>
+          <option>전라북도</option><option>전라남도</option><option>경상북도</option>
+          <option>경상남도</option><option>제주특별자치도</option>
+        </select>
+        <select class="page-select" id="st-sigungu" onchange="updateSTDong()">
+          <option value="">시·군·구 선택</option>
+        </select>
+        <select class="page-select" id="st-dong">
+          <option value="">읍·면·동 선택 (선택 사항)</option>
+        </select>
+
+        <div class="page-label">🏪 업종 선택</div>
+        <select class="page-select" id="st-type">
+          <option value="">전체</option>
+          <option value="G21501">약국</option>
+          <option value="Q1">병원·의원</option>
+          <option value="G21602">안경원</option>
+          <option value="S20801">목욕탕·사우나</option>
+        </select>
+
+        <div class="search-row" style="margin-top:10px;">
+          <button class="search-btn" style="width:100%;background:#e65100;" onclick="searchStore()">🏪 건강매장 찾기</button>
         </div>
         <div id="st-result" class="result-list"></div>
       </div>
@@ -837,7 +863,7 @@ window.addEventListener('popstate', function(e) {
 /* ═══════════════════════════════════════════
    주소 자동완성 공통 함수
    카카오 주소검색 API → /api/kakao 프록시 경유
-   prefix: 'ph','em','st','care','hosp','sec-ph'
+   prefix: 'ph','em','care','hosp','sec-ph' (건강매장찾기는 드롭다운 방식으로 전환됨)
 ═══════════════════════════════════════════ */
 
 // 각 prefix 별 선택된 주소 저장 (시도명, 시군구명, 읍면동명)
@@ -987,7 +1013,7 @@ function getAddrVal(prefix) {
 
 // 드롭다운 외부 클릭 시 닫기
 document.addEventListener('click', function(e) {
-  ['ph','em','st','care','hosp','sec-ph'].forEach(function(p) {
+  ['ph','em','care','hosp','sec-ph'].forEach(function(p) {
     var dd = document.getElementById(p + '-addr-dropdown');
     var inp = document.getElementById(p + '-addr-input');
     if (dd && inp && !inp.contains(e.target) && !dd.contains(e.target)) {
@@ -1183,51 +1209,152 @@ function clearIfEmpty(prefix) {
 }
 
 /* ═══════════════════════════════════════════
-   4. 🏪 건강매장찾기
+   4. 🏪 건강매장찾기 (전면 교체 — 드롭다운 + GPS + 지도/길찾기)
 ═══════════════════════════════════════════ */
-var stPage = 1;
 
-async function searchStore(page) {
-  var addr = getAddrVal('st');
-  if(!addr) { alert('동네를 입력하고 선택해주세요.'); return; }
-  var sido = addr.sido;
-  stPage = page;
-  var el = document.getElementById('st-result');
-  if(page===1) el.innerHTML = skeletonHTML(3);
+// (한글 설명) 시/도별 시/군/구 목록 표예요. 복지혜택(benefit.html)에서
+//             이미 검증된 표를 그대로 재사용해요.
+var SIGUNGU = {
+  '서울특별시':['종로구','중구','용산구','성동구','광진구','동대문구','중랑구','성북구','강북구','도봉구','노원구','은평구','서대문구','마포구','양천구','강서구','구로구','금천구','영등포구','동작구','관악구','서초구','강남구','송파구','강동구'],
+  '부산광역시':['중구','서구','동구','영도구','부산진구','동래구','남구','북구','해운대구','사하구','금정구','강서구','연제구','수영구','사상구','기장군'],
+  '대구광역시':['중구','동구','서구','남구','북구','수성구','달서구','달성군'],
+  '인천광역시':['중구','동구','미추홀구','연수구','남동구','부평구','계양구','서구','강화군','옹진군'],
+  '광주광역시':['동구','서구','남구','북구','광산구'],
+  '대전광역시':['동구','중구','서구','유성구','대덕구'],
+  '울산광역시':['중구','남구','동구','북구','울주군'],
+  '세종특별자치시':['세종시'],
+  '경기도':['수원시','성남시','의정부시','안양시','부천시','광명시','평택시','동두천시','안산시','고양시','과천시','구리시','남양주시','오산시','시흥시','군포시','의왕시','하남시','용인시','파주시','이천시','안성시','김포시','화성시','광주시','양주시','포천시','여주시','연천군','가평군','양평군'],
+  '강원도':['춘천시','원주시','강릉시','동해시','태백시','속초시','삼척시','홍천군','횡성군','영월군','평창군','정선군','철원군','화천군','양구군','인제군','고성군','양양군'],
+  '충청북도':['청주시','충주시','제천시','보은군','옥천군','영동군','증평군','진천군','괴산군','음성군','단양군'],
+  '충청남도':['천안시','공주시','보령시','아산시','서산시','논산시','계룡시','당진시','금산군','부여군','서천군','청양군','홍성군','예산군','태안군'],
+  '전라북도':['전주시','군산시','익산시','정읍시','남원시','김제시','완주군','진안군','무주군','장수군','임실군','순창군','고창군','부안군'],
+  '전라남도':['목포시','여수시','순천시','나주시','광양시','담양군','곡성군','구례군','고흥군','보성군','화순군','장흥군','강진군','해남군','영암군','무안군','함평군','영광군','장성군','완도군','진도군','신안군'],
+  '경상북도':['포항시','경주시','김천시','안동시','구미시','영주시','영천시','상주시','문경시','경산시','군위군','의성군','청송군','영양군','영덕군','청도군','고령군','성주군','칠곡군','예천군','봉화군','울진군','울릉군'],
+  '경상남도':['창원시','진주시','통영시','사천시','김해시','밀양시','거제시','양산시','의령군','함안군','창녕군','고성군','남해군','하동군','산청군','함양군','거창군','합천군'],
+  '제주특별자치도':['제주시','서귀포시']
+};
 
-  // 소상공인 API는 시도코드 필요 (2자리)
-  var SIDO_CODE2 = {
-    '서울특별시':'11','부산광역시':'21','대구광역시':'22','인천광역시':'23','광주광역시':'24',
-    '대전광역시':'25','울산광역시':'26','세종특별자치시':'29','경기도':'41','강원특별자치도':'42',
-    '충청북도':'43','충청남도':'44','전라북도':'45','전라남도':'46','경상북도':'47','경상남도':'48','제주특별자치도':'50'
-  };
-  var ctprvnCd = SIDO_CODE2[sido] || '11';
+// 시/도 선택 → 시/군/구 목록 채우기 (동 목록은 초기화)
+function updateSTSigungu() {
+  var sido = document.getElementById('st-sido').value;
+  var sel  = document.getElementById('st-sigungu');
+  sel.innerHTML = '<option value="">시·군·구 선택</option>';
+  if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
+  document.getElementById('st-dong').innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
+}
+
+// (한글 설명) 시/군/구를 고르면, 서버에 "여기 동 목록 좀 줘"라고 물어봐서
+//             "읍·면·동 선택" 드롭다운을 채워요. 동을 몰라도 검색은 되니까 "선택 사항"이에요.
+function updateSTDong() {
+  var sido = document.getElementById('st-sido').value;
   var sigungu = document.getElementById('st-sigungu').value;
+  var dongSel = document.getElementById('st-dong');
+  dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
+  if (!sido || !sigungu) return;
 
-  try {
-    var data = await callHealthAPI({ type:'store', ctprvnCd:ctprvnCd, pageNo:page, numOfRows:10 });
-    var items = extractItems(data);
-    if(page===1) el.innerHTML = '';
-    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🏪','검색 결과가 없어요','다른 지역을 선택해 보세요'); return; }
-    items.forEach(function(it){
-      var card = document.createElement('div');
-      card.className = 'result-card';
-      card.innerHTML =
-        '<div class="result-card-tag" style="background:#fff3e0;color:#e65100;">🏪 건강매장</div>' +
-        '<div class="result-card-name">'+(it.bizesNm||it.상호명||'상호명 없음')+'</div>' +
-        '<div class="result-card-addr">📍 '+(it.rdnWhlAddr||it.도로명주소||it.lnoAdr||it.지번주소||'주소 정보 없음')+'</div>' +
-        (it.indsSclsCdNm||it.상권업종소분류명 ? '<div class="result-card-desc">업종: '+(it.indsSclsCdNm||it.상권업종소분류명||'-')+'</div>' : '');
-      el.appendChild(card);
+  dongSel.innerHTML = '<option value="">⏳ 동 목록 불러오는 중...</option>';
+  fetch('/api/health?type=dongList&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
+      var items = (data && data.items) || [];
+      items.forEach(function(it){
+        if (it.adongNm) dongSel.innerHTML += '<option>'+it.adongNm+'</option>';
+      });
+    })
+    .catch(function(){
+      dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
+      /* 동 목록을 못 가져와도 시/군/구 단위로는 검색이 되니 조용히 넘어가요 */
     });
-    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
-    if(items.length===10){
-      var btn = document.createElement('button');
-      btn.className = 'more-btn';
-      btn.style.background='#fff3e0'; btn.style.color='#e65100';
-      btn.textContent = '더보기 ▼';
-      btn.onclick = function(){ searchStore(stPage+1); };
-      el.appendChild(btn);
+}
+
+// (한글 설명) "지도로 보기"/"길찾기" 버튼 HTML을 만드는 공통 함수예요 (복지혜택과 동일한 검증된 패턴).
+//             이름·위도·경도만 넣으면 되고, 새 API 키 없이 카카오맵으로 바로 연결돼요.
+function buildMapLinks(name, lat, lon) {
+  if (!lat || !lon) return ''; // 좌표가 없으면 버튼을 안 만들어요 (에러 방지)
+  var n = encodeURIComponent(name || '위치');
+  var mapUrl = 'https://map.kakao.com/link/map/' + n + ',' + lat + ',' + lon;
+  var wayUrl = 'https://map.kakao.com/link/to/' + n + ',' + lat + ',' + lon;
+  return '<div class="result-card-row">'
+    + '<a href="#" style="flex:1;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:8px 6px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;" onclick="confirmExternalLink(\'' + mapUrl + '\');return false;" rel="noopener">🗺️ 지도로 보기</a>'
+    + '<a href="#" style="flex:1;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:8px 6px;border-radius:8px;background:#e65100;color:#fff;" onclick="confirmExternalLink(\'' + wayUrl + '\');return false;" rel="noopener">🚗 길찾기</a>'
+    + '</div>';
+}
+
+// 건강매장 결과 카드 1개를 만들어주는 공통 함수 (GPS 검색/드롭다운 검색 둘 다 사용)
+function renderStoreCard(it) {
+  var name = it.bizesNm || it.상호명 || '상호명 없음';
+  var addr = it.rdnmAdr || it.rdnWhlAddr || it.도로명주소 || it.lnoAdr || it.지번주소 || '주소 정보 없음';
+  var tel = it.telNo || it.전화번호 || '';
+  var card = document.createElement('div');
+  card.className = 'result-card';
+  card.innerHTML =
+    '<div class="result-card-tag" style="background:#fff3e0;color:#e65100;">🏪 건강매장</div>' +
+    '<div class="result-card-name">'+name+'</div>' +
+    '<div class="result-card-addr">📍 '+addr+'</div>' +
+    (it.indsSclsNm||it.indsMclsNm||it.indsSclsCdNm||it.상권업종소분류명 ? '<div class="result-card-desc">업종: '+(it.indsSclsNm||it.indsMclsNm||it.indsSclsCdNm||it.상권업종소분류명||'-')+'</div>' : '') +
+    (tel ? '<div class="result-card-tel"><a href="tel:'+tel+'" style="color:#e65100;text-decoration:none;">📞 '+tel+'</a></div>' : '<div class="result-card-desc" style="color:#aaa;">전화번호 정보없음</div>') +
+    buildMapLinks(name, it.lat || it.y, it.lon || it.x);
+  return card;
+}
+
+// 소상공인 상가 API 응답에서 items 배열만 안전하게 꺼내는 함수
+// (한글 설명) [수정] 이 API는 다른 건강 API들과 달리 data.response.body.items.item이 아니라
+//             data.body.items(배열) 형태로 와요. 예전엔 이 차이를 놓쳐서 검색이 항상 빈 결과였어요.
+function extractStoreItems(data) {
+  try {
+    var items = (data.body && data.body.items) || [];
+    return Array.isArray(items) ? items : [items];
+  } catch(e) { return []; }
+}
+
+// 📍 내 위치로 찾기 (GPS)
+function searchStoreGPS() {
+  if (!navigator.geolocation) { alert('이 브라우저는 위치 서비스를 지원하지 않아요.'); return; }
+  var btn = document.getElementById('st-gps-btn');
+  var el = document.getElementById('st-result');
+  btn.classList.add('loading');
+  btn.textContent = '⏳ 위치 확인 중...';
+  el.innerHTML = skeletonHTML(3);
+
+  navigator.geolocation.getCurrentPosition(async function(pos) {
+    btn.classList.remove('loading');
+    btn.textContent = '📍 내 위치로 찾기';
+    var type = document.getElementById('st-type').value;
+    try {
+      var data = await callHealthAPI({ type:'store', lat:pos.coords.latitude, lng:pos.coords.longitude, keyword:type });
+      var items = extractStoreItems(data);
+      el.innerHTML = '';
+      if (items.length === 0) { el.innerHTML = emptyHTML('🏪','검색 결과가 없어요','업종을 바꾸거나 지역으로 검색해 보세요'); return; }
+      items.forEach(function(it){ el.appendChild(renderStoreCard(it)); });
+    } catch(e) {
+      el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
     }
+  }, function(err) {
+    btn.classList.remove('loading');
+    btn.textContent = '📍 내 위치로 찾기';
+    var msg = '위치 정보를 가져올 수 없어요.';
+    if (err.code === 1) msg = '위치 권한이 거부됐어요. 브라우저 설정에서 허용해주세요.';
+    alert(msg);
+    el.innerHTML = '';
+  });
+}
+
+// 🔍 지역 드롭다운으로 검색
+async function searchStore() {
+  var sido = document.getElementById('st-sido').value;
+  var sigungu = document.getElementById('st-sigungu').value;
+  var dong = document.getElementById('st-dong').value;
+  var type = document.getElementById('st-type').value;
+  if (!sido) { alert('시·도를 선택해주세요.'); return; }
+  var el = document.getElementById('st-result');
+  el.innerHTML = skeletonHTML(3);
+  try {
+    var data = await callHealthAPI({ type:'store', sido:sido, sigungu:sigungu, dong:dong, keyword:type });
+    var items = extractStoreItems(data);
+    el.innerHTML = '';
+    if (items.length === 0) { el.innerHTML = emptyHTML('🏪','검색 결과가 없어요','다른 지역이나 업종으로 검색해 보세요'); return; }
+    items.forEach(function(it){ el.appendChild(renderStoreCard(it)); });
   } catch(e) {
     el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
   }
