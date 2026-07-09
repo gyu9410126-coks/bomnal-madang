@@ -1722,7 +1722,7 @@ function searchWelfareGPSPage() {
       .then(function(data){
         loading.classList.remove('show');
         var items = [];
-        try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+        try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
         if (items.length === 0) {
           document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 주변 복지시설이 없습니다.<br>지역 선택으로 검색해 보세요.</div>';
         } else {
@@ -1756,7 +1756,7 @@ function searchStoreGPSPage() {
       .then(function(data){
         loading.classList.remove('show');
         var items = [];
-        try { items = data.data || data.response?.body?.items?.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+        try { items = (data.body && data.body.items) || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
         if (items.length === 0) {
           document.getElementById('ps-cards').innerHTML = '<div class="empty-msg">😔 주변 상가가 없습니다.<br>지역 선택으로 검색해 보세요.</div>';
         } else {
@@ -1764,7 +1764,7 @@ function searchStoreGPSPage() {
             return '<div class="store-card">'
               +'<div class="store-card-name">'+(item.bizesNm||item.bsnNm||'상호명 없음')+'</div>'
               +'<span class="store-card-type">'+(item.uptaeNm||item.indsLclsNm||type)+'</span>'
-              +'<div class="store-card-addr">📍 '+(item.rdnmadr||item.lnmAddr||'주소 없음')+'</div>'
+              +'<div class="store-card-addr">📍 '+(item.rdnmAdr||item.lnoAdr||'주소 없음')+'</div>'
               +(item.telNo ? '<a class="store-card-tel" href="tel:'+item.telNo+'">📞 '+item.telNo+'</a>' : '')
               +'</div>';
           }).join('');
@@ -2365,7 +2365,7 @@ function renderWelfareCards(data, areaName) {
   var cards = document.getElementById('welfare-cards');
   var header = document.getElementById('welfare-result-header');
   var items = [];
-  try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+  try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
   header.textContent = '📍 ' + areaName + ' 복지시설 ' + items.length + '개';
   if (items.length === 0) { showWelfareEmpty(); return; }
   cards.innerHTML = items.map(function(item){
@@ -2399,7 +2399,7 @@ function searchWelfarePage() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 검색 결과가 없습니다.<br>다른 조건으로 검색해 보세요.</div>';
       } else {
@@ -2429,7 +2429,7 @@ function loadFinanceEdu() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('pf-cards').innerHTML = '<div class="empty-msg">😔 콘텐츠를 불러오지 못했습니다.</div>';
       } else {
@@ -2465,7 +2465,7 @@ function searchBenefit() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.response.body.items.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('pb-cards').innerHTML = '<div class="empty-msg">😔 "'+keyword+'" 관련 복지서비스가 없습니다.<br>다른 키워드로 검색해 보세요.</div>';
       } else {
@@ -2503,7 +2503,7 @@ function searchStore() {
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
-      try { items = data.data || data.response?.body?.items?.item || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+      try { items = (data.body && data.body.items) || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
       if (items.length === 0) {
         document.getElementById('ps-cards').innerHTML = '<div class="empty-msg">😔 검색 결과가 없습니다.<br>다른 지역이나 업종으로 검색해 보세요.</div>';
       } else {
@@ -2511,7 +2511,7 @@ function searchStore() {
           return '<div class="store-card">'
             +'<div class="store-card-name">'+(item.bizesNm||item.bsnNm||item.upjongNm||'상호명 없음')+'</div>'
             +'<span class="store-card-type">'+(item.uptaeNm||item.indsLclsNm||type)+'</span>'
-            +'<div class="store-card-addr">📍 '+(item.rdnmadr||item.lnmAddr||'주소 없음')+'</div>'
+            +'<div class="store-card-addr">📍 '+(item.rdnmAdr||item.lnoAdr||'주소 없음')+'</div>'
             +(item.telNo ? '<a class="store-card-tel" href="tel:'+item.telNo+'">📞 '+item.telNo+'</a>' : '')
             +'</div>';
         }).join('');
