@@ -1767,8 +1767,8 @@ function buildStoreMapLinks(item) {
   var mapUrl = 'https://map.kakao.com/link/map/' + name + ',' + lat + ',' + lon;
   var wayUrl = 'https://map.kakao.com/link/to/' + name + ',' + lat + ',' + lon;
   return '<div class="store-card-actions">'
-    + '<a class="store-card-map-btn" href="' + mapUrl + '" target="_blank" rel="noopener">🗺️ 지도로 보기</a>'
-    + '<a class="store-card-way-btn" href="' + wayUrl + '" target="_blank" rel="noopener">🚗 길찾기</a>'
+    + '<a class="store-card-map-btn" href="#" onclick="confirmExternalLink(\'' + mapUrl + '\');return false;" rel="noopener">🗺️ 지도로 보기</a>'
+    + '<a class="store-card-way-btn" href="#" onclick="confirmExternalLink(\'' + wayUrl + '\');return false;" rel="noopener">🚗 길찾기</a>'
     + '</div>';
 }
 
@@ -2355,15 +2355,22 @@ function updatePSDong() {
   dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
   if (!sido || !sigungu) return;
 
+  // (한글 설명) 정부 API를 2번 연속 불러야 해서 시간이 좀 걸려요. 그동안 "불러오는 중" 표시를 해줘요.
+  dongSel.innerHTML = '<option value="">⏳ 동 목록 불러오는 중...</option>';
+
   fetch('/api/benefit?type=dongList&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu))
     .then(function(r){ return r.json(); })
     .then(function(data){
+      dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
       var items = (data && data.items) || [];
       items.forEach(function(it){
         if (it.adongNm) dongSel.innerHTML += '<option>'+it.adongNm+'</option>';
       });
     })
-    .catch(function(){ /* 동 목록을 못 가져와도 시/군/구 단위로는 검색이 되니 조용히 넘어가요 */ });
+    .catch(function(){
+      dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
+      /* 동 목록을 못 가져와도 시/군/구 단위로는 검색이 되니 조용히 넘어가요 */
+    });
 }
 
 /* ══════════════════════════════════════
