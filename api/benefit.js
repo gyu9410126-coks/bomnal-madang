@@ -19,6 +19,58 @@ function parseXmlItems(xml, itemTag) {
   return items;
 }
 
+// (한글 설명) 전국 17개 시도 코드는 정부에서 정한 고정 번호라서 안전하게 표로 만들어둬요.
+// health.js에서 이미 검증된 표를 그대로 가져왔어요.
+const SIDO_CODES = {
+  '서울특별시': '11', '부산광역시': '26', '대구광역시': '27', '인천광역시': '28',
+  '광주광역시': '29', '대전광역시': '30', '울산광역시': '31', '세종특별자치시': '36',
+  '경기도': '41', '강원도': '42', '충청북도': '43', '충청남도': '44',
+  '전라북도': '45', '전라남도': '46', '경상북도': '47', '경상남도': '48',
+  '제주특별자치도': '50'
+};
+
+// (한글 설명) 시/군/구는 250개 가까이 되서 표로 다 외우지 않고, 그때그때 정부서버에
+//             "이 시/도 안에 있는 시/군/구 목록 좀 줘"라고 물어봐서 정확한 코드를 찾아요.
+//             (health.js와 동일한 검증된 로직)
+async function resolveRegionCode(sido, sigungu, rawServiceKey) {
+  if (!sido || !SIDO_CODES[sido]) return null;
+  const ctprvnCd = SIDO_CODES[sido];
+  if (!sigungu) return { divId: 'ctprvnCd', key: ctprvnCd };
+
+  const key = encodeURIComponent(rawServiceKey);
+  const url = `https://apis.data.go.kr/B553077/api/open/sdsc2/baroApi`
+    + `?resId=dong&catId=cty&ctprvnCd=${ctprvnCd}&type=json&ServiceKey=${key}`;
+  try {
+    const r = await fetch(url);
+    const data = await r.json();
+    const items = (data.body && data.body.items) || [];
+    const norm = (s) => (s || '').replace(/\s/g, '');
+    const match = items.find((it) => norm(it.signguNm) === norm(sigungu));
+    if (match) return { divId: 'signguCd', key: match.signguCd };
+  } catch (e) {
+    // 실패하면 시/도 단위로라도 검색되도록 아래에서 처리
+  }
+  return { divId: 'ctprvnCd', key: ctprvnCd };
+}
+
+// (한글 설명) "내 위치로 찾기" GPS 버튼용: 좌표를 카카오 API에 보내서
+//             "여기가 어느 시/도, 어느 시/군/구인지" 이름을 알아내요.
+//             (health.js와 동일한 검증된 로직)
+async function reverseGeocodeSidoSigungu(lat, lng, kakaoKey) {
+  if (!kakaoKey) return null;
+  const url = `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${lng}&y=${lat}`;
+  try {
+    const r = await fetch(url, { headers: { Authorization: `KakaoAK ${kakaoKey}` } });
+    const data = await r.json();
+    const docs = data.documents || [];
+    const doc = docs.find((d) => d.region_type === 'H') || docs[0];
+    if (!doc) return null;
+    return { sido: doc.region_1depth_name, sigungu: doc.region_2depth_name };
+  } catch (e) {
+    return null;
+  }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -111,15 +163,47 @@ export default async function handler(req, res) {
     }
 
     // ── 5. 소상공인 상가정보 (전통시장·상가) ────────────────────────
+    // (한글 설명) 여기부터가 이번에 고친 부분이에요.
+    //   - GPS 좌표(lat/lng)가 오면 카카오로 동네 이름을 알아내고
+    //   - 동네 이름(경기도, 수원시 등)은 정부가 원하는 지역 코드로 정확히 바꾸고
+    //   - 업종 코드(G20404 등)는 이름 검색 칸이 아니라 진짜 업종코드 칸에 넣어요
     if (type === 'store') {
-      const { keyword, sido, sigungu } = req.query;
-      const key = encodeURIComponent(process.env.STORE_API_KEY);
-      const url = `https://apis.data.go.kr/B553077/api/open/sdsc2/storeListInUpjong`
-        + `?serviceKey=${key}`
-        + `&pageNo=1&numOfRows=20&resultType=json`
-        + (keyword ? `&indsNm=${encodeURIComponent(keyword)}` : '')
-        + (sido    ? `&ctprvnCd=${encodeURIComponent(sido)}`  : '')
-        + (sigungu ? `&signguCd=${encodeURIComponent(sigungu)}` : '');
+      // keyword = 업종코드 (예: I2, G20404 등, 화면 선택 상자 값 그대로)
+      // sido/sigungu = 지역 이름 글자 (예: "부산광역시", "기장군")
+      // lat/lng = GPS 좌표(선택), 있으면 지역 이름보다 우선 사용
+      const { keyword, sido, sigungu, lat, lng } = req.query;
+      const rawKey = process.env.STORE_API_KEY;
+      const serviceKey = encodeURIComponent(rawKey);
+
+      let regionSido = sido;
+      let regionSigungu = sigungu;
+
+      if (lat && lng) {
+        const geo = await reverseGeocodeSidoSigungu(lat, lng, process.env.KAKAO_API_KEY);
+        if (geo) {
+          regionSido = geo.sido;
+          regionSigungu = geo.sigungu;
+        }
+      }
+
+      const region = await resolveRegionCode(regionSido, regionSigungu, rawKey);
+      if (!region) {
+        return res.status(200).json({ body: { items: [] }, message: '지역을 확인할 수 없습니다.' });
+      }
+
+      // (한글 설명) 업종코드가 2글자면 대분류(indsLclsCd), 그보다 길면 소분류(indsSclsCd)로 판단
+      let indsParam = '';
+      if (keyword) {
+        indsParam = keyword.length <= 2
+          ? `&indsLclsCd=${encodeURIComponent(keyword)}`
+          : `&indsSclsCd=${encodeURIComponent(keyword)}`;
+      }
+
+      const url = `https://apis.data.go.kr/B553077/api/open/sdsc2/storeListInDong`
+        + `?serviceKey=${serviceKey}`
+        + `&divId=${region.divId}&key=${region.key}`
+        + `&numOfRows=20&pageNo=1&type=json`
+        + indsParam;
 
       const r = await fetch(url);
 
