@@ -105,17 +105,35 @@ export default async function handler(req, res) {
   try {
 
     // ── 1. 사회복지시설 현황 (복지시설찾기) ─────────────────────────
+    // (한글 설명) 여기부터가 이번에 고친 부분이에요.
+    //   - GPS 좌표(lat/lng)가 오면 카카오로 동네 이름을 알아내고 (예전엔 아예 무시하고 있었어요)
+    //   - 이 API는 시/도, 시/군/구 "이름"을 그대로 받는 방식이라 별도 코드 변환은 필요 없어요
+    //   - "동" 이름이 있으면, 주소에 그 동 이름이 포함된 것만 걸러서 보여줘요
     if (type === 'welfare') {
       // (한글 설명) 예전 코드는 'type: facilityType' 이라고 써서, req.query.type(=welfare, 카테고리 이름)을
       //             엉뚱하게 시설종류로 착각해서 읽고 있었어요. req.query.facilityType을 직접 읽도록 수정.
-      const { sido, sigungu, facilityType } = req.query;
+      const { sido, sigungu, facilityType, lat, lng, dong } = req.query;
+
+      let regionSido = sido;
+      let regionSigungu = sigungu;
+      let regionDong = dong || null;
+
+      if (lat && lng) {
+        const geo = await reverseGeocodeSidoSigungu(lat, lng, process.env.KAKAO_API_KEY);
+        if (geo) {
+          regionSido = geo.sido;
+          regionSigungu = geo.sigungu;
+          regionDong = geo.dong;
+        }
+      }
+
       const key = encodeURIComponent(process.env.WELFARE_API_KEY);
       const url = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getNFcltBizInqire`
         + `?serviceKey=${key}`
         + `&pageNo=1&numOfRows=20`
-        + (sido        ? `&ctpvNm=${encodeURIComponent(sido)}`       : '')
-        + (sigungu     ? `&signguNm=${encodeURIComponent(sigungu)}`  : '')
-        + (facilityType? `&fcltyTy=${encodeURIComponent(facilityType)}` : '');
+        + (regionSido    ? `&ctpvNm=${encodeURIComponent(regionSido)}`       : '')
+        + (regionSigungu ? `&signguNm=${encodeURIComponent(regionSigungu)}`  : '')
+        + (facilityType  ? `&fcltyTy=${encodeURIComponent(facilityType)}` : '');
 
       const r = await fetch(url);
       const xml = await r.text();
@@ -127,7 +145,21 @@ export default async function handler(req, res) {
         return res.status(200).send(xml);
       }
 
-      const items = parseXmlItems(xml, 'item');
+      let items = parseXmlItems(xml, 'item');
+
+      // (한글 설명) [신규] 이 API는 "동" 단위로 직접 걸러주는 기능이 없어서,
+      //             주소 글자 안에 선택한 동 이름이 들어있는 것만 골라내는 방식으로 좁혀요.
+      //             걸러냈는데 하나도 안 남으면(주소 표기가 다를 수 있어서), 빈 화면보다 나으니
+      //             그냥 시/군/구 전체 결과를 그대로 보여줘요.
+      if (regionDong) {
+        const norm = (s) => (s || '').replace(/\s/g, '');
+        const dongNorm = norm(regionDong);
+        const filtered = items.filter((it) => {
+          const addr = norm(it.rdnmadr || it.lotnoAddr || it.rdnmAdr || it.lnoAddr || '');
+          return addr.includes(dongNorm);
+        });
+        if (filtered.length > 0) items = filtered;
+      }
       return res.status(200).json({ items });
     }
 

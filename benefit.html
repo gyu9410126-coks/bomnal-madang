@@ -891,8 +891,11 @@ body.big-font .benefit-btn-sm { font-size: 19px !important; }
         <option>전라북도</option><option>전라남도</option><option>경상북도</option>
         <option>경상남도</option><option>제주특별자치도</option>
       </select>
-      <select class="page-select" id="pw-sigungu" style="border-color:#e1bee7;">
+      <select class="page-select" id="pw-sigungu" style="border-color:#e1bee7;" onchange="updatePWDong()">
         <option value="">시·군·구 선택</option>
+      </select>
+      <select class="page-select" id="pw-dong" style="border-color:#e1bee7;">
+        <option value="">읍·면·동 선택 (선택 사항)</option>
       </select>
 
       <span class="page-label">🏠 시설 종류</span>
@@ -1745,6 +1748,7 @@ function searchWelfareGPSPage() {
               +'<span class="welfare-card-type">'+(item.fcltyTy||item.fcltKindNm||'복지시설')+'</span></div>'
               +'<div class="welfare-card-addr">📍 '+(item.rdnmadr||item.lotnoAddr||'주소 없음')+'</div>'
               +(item.phoneNo ? '<a class="welfare-card-tel" href="tel:'+item.phoneNo+'">📞 '+item.phoneNo+'</a>' : '')
+              +buildWelfareMapLinks(item)
               +'</div>';
           }).join('');
         }
@@ -1757,19 +1761,33 @@ function searchWelfareGPSPage() {
 /* ══════════════════════════════════════
    전환 페이지 — 전통시장·상가 GPS 검색
 ══════════════════════════════════════ */
-// (한글 설명) [신규 추가] 검색 결과 카드마다 "지도로 보기" / "길찾기" 버튼을 만들어주는 함수예요.
-//             API가 이미 주고 있는 위도(lat)·경도(lon) 좌표를 그대로 활용해서, 새로운 API 키 없이
-//             카카오맵으로 정확한 위치를 바로 연결해요. 전화번호는 없어도 이걸로 찾아가긴 훨씬 쉬워져요.
-function buildStoreMapLinks(item) {
-  var lat = item.lat, lon = item.lon;
-  if (!lat || !lon) return ''; // 좌표가 없는 항목은 버튼을 안 만들어요 (에러 방지)
-  var name = encodeURIComponent(item.bizesNm || item.bsnNm || item.upjongNm || '가게');
-  var mapUrl = 'https://map.kakao.com/link/map/' + name + ',' + lat + ',' + lon;
-  var wayUrl = 'https://map.kakao.com/link/to/' + name + ',' + lat + ',' + lon;
+// (한글 설명) [신규 추가] "지도로 보기" / "길찾기" 버튼 HTML을 만들어주는 공통 함수예요.
+//             이름·위도·경도만 넣으면 되고, 새로운 API 키 없이 카카오맵으로 바로 연결해요.
+function buildMapLinks(name, lat, lon) {
+  if (!lat || !lon) return ''; // 좌표가 없으면 버튼을 안 만들어요 (에러 방지)
+  var n = encodeURIComponent(name || '위치');
+  var mapUrl = 'https://map.kakao.com/link/map/' + n + ',' + lat + ',' + lon;
+  var wayUrl = 'https://map.kakao.com/link/to/' + n + ',' + lat + ',' + lon;
   return '<div class="store-card-actions">'
     + '<a class="store-card-map-btn" href="#" onclick="confirmExternalLink(\'' + mapUrl + '\');return false;" rel="noopener">🗺️ 지도로 보기</a>'
     + '<a class="store-card-way-btn" href="#" onclick="confirmExternalLink(\'' + wayUrl + '\');return false;" rel="noopener">🚗 길찾기</a>'
     + '</div>';
+}
+
+// (한글 설명) 전통시장·상가 카드용: API가 확실하게 주는 lat/lon 필드를 그대로 사용해요.
+function buildStoreMapLinks(item) {
+  var name = item.bizesNm || item.bsnNm || item.upjongNm || '가게';
+  return buildMapLinks(name, item.lat, item.lon);
+}
+
+// (한글 설명) [신규 추가] 복지시설 카드용: 이 API가 위도/경도를 어떤 이름으로 주는지 아직 확인 전이라,
+//             가능성 있는 이름 여러 개를 순서대로 찾아봐요. 못 찾으면 버튼이 그냥 안 생겨요(에러 없음).
+//             실제로 어떤 이름인지는 배포 후 &debug=1로 확인해서, 필요하면 나중에 정확히 맞춰드릴게요.
+function buildWelfareMapLinks(item) {
+  var lat = item.lat || item.latitude || item.wgs84Lat || item.la || item.LA;
+  var lon = item.lon || item.lng || item.longitude || item.wgs84Lot || item.lo || item.LO;
+  var name = item.fcltNm || item.fcltyNm || '복지시설';
+  return buildMapLinks(name, lat, lon);
 }
 
 function searchStoreGPSPage() {
@@ -2082,8 +2100,9 @@ function resetPage(id) {
 
   else if (id === 'page-welfare') {
     /* 복지시설 찾기 */
-    resetVal('pw-sido'); resetVal('pw-sigungu'); resetVal('pw-type');
+    resetVal('pw-sido'); resetVal('pw-sigungu'); resetVal('pw-dong'); resetVal('pw-type');
     document.getElementById('pw-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
+    document.getElementById('pw-dong').innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
     removeShow('pw-loading'); removeShow('pw-result');
     document.getElementById('pw-cards').innerHTML = '';
   }
@@ -2336,6 +2355,33 @@ function updatePWSigungu() {
   var sel  = document.getElementById('pw-sigungu');
   sel.innerHTML = '<option value="">시·군·구 선택</option>';
   if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
+  // (한글 설명) 시/도를 다시 고르면, 이미 골라둔 "동" 목록도 초기화해줘요
+  document.getElementById('pw-dong').innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
+}
+
+// (한글 설명) [신규 추가] 시/군/구를 고르면 동 목록을 채워요. 전통시장 페이지에서 쓰는
+//             /api/benefit?type=dongList 기능을 그대로 재사용해요(카테고리 상관없이 동작해요).
+function updatePWDong() {
+  var sido = document.getElementById('pw-sido').value;
+  var sigungu = document.getElementById('pw-sigungu').value;
+  var dongSel = document.getElementById('pw-dong');
+  dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
+  if (!sido || !sigungu) return;
+
+  dongSel.innerHTML = '<option value="">⏳ 동 목록 불러오는 중...</option>';
+
+  fetch('/api/benefit?type=dongList&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
+      var items = (data && data.items) || [];
+      items.forEach(function(it){
+        if (it.adongNm) dongSel.innerHTML += '<option>'+it.adongNm+'</option>';
+      });
+    })
+    .catch(function(){
+      dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
+    });
 }
 function updatePSSigungu() {
   var sido = document.getElementById('ps-sido').value;
@@ -2433,6 +2479,7 @@ function renderWelfareCards(data, areaName) {
       +'<span class="welfare-card-type">'+(item.fcltyTy||item.fcltKindNm||'복지시설')+'</span></div>'
       +'<div class="welfare-card-addr">📍 '+(item.rdnmadr||item.lotnoAddr||'주소 없음')+'</div>'
       +(item.phoneNo ? '<a class="welfare-card-tel" href="tel:'+item.phoneNo+'">📞 '+item.phoneNo+'</a>' : '')
+      +buildWelfareMapLinks(item)
       +'</div>';
   }).join('');
   document.getElementById('welfare-result').classList.add('show');
@@ -2448,12 +2495,13 @@ function showWelfareEmpty() {
 function searchWelfarePage() {
   var sido    = document.getElementById('pw-sido').value;
   var sigungu = document.getElementById('pw-sigungu').value;
+  var dong    = document.getElementById('pw-dong').value;
   var type    = document.getElementById('pw-type').value;
   if (!sido) { alert('시·도를 선택해 주세요'); return; }
   var loading = document.getElementById('pw-loading');
   var result  = document.getElementById('pw-result');
   loading.classList.add('show'); result.classList.remove('show');
-  fetch('/api/benefit?type=welfare&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&facilityType='+encodeURIComponent(type))
+  fetch('/api/benefit?type=welfare&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&dong='+encodeURIComponent(dong)+'&facilityType='+encodeURIComponent(type))
     .then(function(r){ return r.json(); })
     .then(function(data){
       loading.classList.remove('show');
@@ -2468,6 +2516,7 @@ function searchWelfarePage() {
             +'<span class="welfare-card-type">'+(item.fcltyTy||item.fcltKindNm||'복지시설')+'</span></div>'
             +'<div class="welfare-card-addr">📍 '+(item.rdnmadr||item.lotnoAddr||'주소 없음')+'</div>'
             +(item.phoneNo ? '<a class="welfare-card-tel" href="tel:'+item.phoneNo+'">📞 '+item.phoneNo+'</a>' : '')
+            +buildWelfareMapLinks(item)
             +'</div>';
         }).join('');
       }
