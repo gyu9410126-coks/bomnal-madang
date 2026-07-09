@@ -105,62 +105,96 @@ export default async function handler(req, res) {
   try {
 
     // ── 1. 사회복지시설 현황 (복지시설찾기) ─────────────────────────
-    // (한글 설명) 여기부터가 이번에 고친 부분이에요.
-    //   - GPS 좌표(lat/lng)가 오면 카카오로 동네 이름을 알아내고 (예전엔 아예 무시하고 있었어요)
-    //   - 이 API는 시/도, 시/군/구 "이름"을 그대로 받는 방식이라 별도 코드 변환은 필요 없어요
-    //   - "동" 이름이 있으면, 주소에 그 동 이름이 포함된 것만 걸러서 보여줘요
+    // (한글 설명) [전면 수정] 예전엔 완전히 다른 기능(통신요금감면대상조회)을 쓰고 있어서
+    //             지역을 아무리 골라도 항상 같은 결과만 나왔어요. 진짜 정답인
+    //             "시설 목록정보 조회" + "시설별 기본정보 조회" 2단계로 교체했어요.
+    //   1단계: 시/군/구로 시설 목록(이름·종류)을 받아오고
+    //   2단계: 화면에 보여줄 만큼만(최대 10개) 주소·전화번호를 동시에(병렬로) 받아오고
+    //   3단계: 받아온 주소를 카카오로 좌표로 바꿔서 지도/길찾기 버튼용 좌표까지 만들어요
+    //   (이 API는 "동" 단위 필터는 지원하지 않아요 - 시/군/구까지만 가능해요)
     if (type === 'welfare') {
-      // (한글 설명) 예전 코드는 'type: facilityType' 이라고 써서, req.query.type(=welfare, 카테고리 이름)을
-      //             엉뚱하게 시설종류로 착각해서 읽고 있었어요. req.query.facilityType을 직접 읽도록 수정.
-      const { sido, sigungu, facilityType, lat, lng, dong } = req.query;
+      const { sido, sigungu, facilityType, lat, lng } = req.query;
 
       let regionSido = sido;
       let regionSigungu = sigungu;
-      let regionDong = dong || null;
 
       if (lat && lng) {
         const geo = await reverseGeocodeSidoSigungu(lat, lng, process.env.KAKAO_API_KEY);
         if (geo) {
           regionSido = geo.sido;
           regionSigungu = geo.sigungu;
-          regionDong = geo.dong;
         }
       }
 
-      const key = encodeURIComponent(process.env.WELFARE_API_KEY);
-      const url = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getNFcltBizInqire`
-        + `?serviceKey=${key}`
-        + `&pageNo=1&numOfRows=20`
-        + (regionSido    ? `&ctpvNm=${encodeURIComponent(regionSido)}`       : '')
-        + (regionSigungu ? `&signguNm=${encodeURIComponent(regionSigungu)}`  : '')
-        + (facilityType  ? `&fcltyTy=${encodeURIComponent(facilityType)}` : '');
+      // (한글 설명) 이 API는 시/도+시/군/구를 "서울특별시 중랑구"처럼 한 덩어리 글자로 받아요.
+      const jrsdSggNm = (regionSido && regionSigungu) ? `${regionSido} ${regionSigungu}` : '';
+      // (한글 설명) 시/군/구까지 정확히 알면 조금만 받고, 시/도만 알면 넉넉히 받아서 뒤에서 걸러내요.
+      const fetchCount = jrsdSggNm ? 15 : 50;
 
-      const r = await fetch(url);
-      const xml = await r.text();
+      const listKey = encodeURIComponent(process.env.WELFARE_API_KEY);
+      const listUrl = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getFcltListInfoInqire`
+        + `?serviceKey=${listKey}`
+        + `&numOfRows=${fetchCount}&pageNo=1`
+        + (jrsdSggNm    ? `&jrsdSggNm=${encodeURIComponent(jrsdSggNm)}`   : '')
+        + (facilityType ? `&fcltKindNm=${encodeURIComponent(facilityType)}` : '');
 
-      // (한글 설명) 2단계 진단모드: 주소 끝에 &debug=1 을 붙이면, 정부서버가 보낸
-      //             원본 응답을 그대로 화면에 보여줘요. 실제 항목 이름표를 눈으로 확인하는 용도.
+      const listRes = await fetch(listUrl);
+      const listXml = await listRes.text();
+
+      // (한글 설명) 진단모드: &debug=1 을 붙이면 1단계(목록조회) 원본 응답을 그대로 보여줘요.
       if (req.query.debug === '1') {
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-        return res.status(200).send(xml);
+        return res.status(200).send(listXml);
       }
 
-      let items = parseXmlItems(xml, 'item');
+      let listItems = parseXmlItems(listXml, 'item');
 
-      // (한글 설명) [신규] 이 API는 "동" 단위로 직접 걸러주는 기능이 없어서,
-      //             주소 글자 안에 선택한 동 이름이 들어있는 것만 골라내는 방식으로 좁혀요.
-      //             걸러냈는데 하나도 안 남으면(주소 표기가 다를 수 있어서), 빈 화면보다 나으니
-      //             그냥 시/군/구 전체 결과를 그대로 보여줘요.
-      if (regionDong) {
+      // (한글 설명) 시/도만 선택했을 때는(시/군/구를 못 정해서 필터를 못 걸었으니) 결과 중에서
+      //             시/도 이름으로 시작하는 것만 한 번 더 걸러줘요.
+      if (regionSido && !regionSigungu) {
         const norm = (s) => (s || '').replace(/\s/g, '');
-        const dongNorm = norm(regionDong);
-        const filtered = items.filter((it) => {
-          const addr = norm(it.rdnmadr || it.lotnoAddr || it.rdnmAdr || it.lnoAddr || '');
-          return addr.includes(dongNorm);
-        });
-        if (filtered.length > 0) items = filtered;
+        listItems = listItems.filter((it) => norm(it.jrsdSggNm || '').startsWith(norm(regionSido)));
       }
-      return res.status(200).json({ items });
+
+      // (한글 설명) 화면엔 최대 10개만 보여주니까, 상세조회도 딱 그만큼만 해요 (불필요한 API 호출 절약)
+      const topItems = listItems.slice(0, 10);
+      const detailKey = encodeURIComponent(process.env.WELFARE_API_KEY);
+      const kakaoKey = process.env.KAKAO_API_KEY;
+
+      // (한글 설명) [신규] 시설 10개의 "상세정보 조회 + 주소→좌표 변환"을 Promise.all로 한꺼번에 실행해요.
+      //             하나씩 순서대로 하면 10개면 10배 느려지는데, 동시에 하면 제일 느린 것 1개만큼만 걸려요.
+      const enriched = await Promise.all(topItems.map(async (it) => {
+        let detail = {};
+        try {
+          const detailUrl = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getFcltByBassInfoInqire`
+            + `?serviceKey=${detailKey}&numOfRows=1&pageNo=1&fcltCd=${encodeURIComponent(it.fcltCd || '')}`;
+          const detailRes = await fetch(detailUrl);
+          const detailXml = await detailRes.text();
+          const detailItems = parseXmlItems(detailXml, 'item');
+          detail = detailItems[0] || {};
+        } catch (e) {
+          // 상세정보 조회가 실패해도 목록 정보(이름·종류)라도 보여줘요
+        }
+
+        // (한글 설명) 주소를 카카오 주소검색으로 좌표(위도/경도)로 바꿔서, 지도/길찾기 버튼에 써요.
+        let itemLat = null, itemLon = null;
+        const fullAddr = ((detail.fcltAddr || '') + ' ' + (detail.fcltDtl_1Addr || '')).trim();
+        if (fullAddr && kakaoKey) {
+          try {
+            const geoUrl = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(fullAddr)}`;
+            const geoRes = await fetch(geoUrl, { headers: { Authorization: `KakaoAK ${kakaoKey}` } });
+            const geoData = await geoRes.json();
+            const doc = geoData.documents && geoData.documents[0];
+            if (doc) { itemLat = doc.y; itemLon = doc.x; } // 카카오는 x=경도, y=위도예요
+          } catch (e) {
+            // 좌표 변환이 실패해도 주소·전화번호는 그대로 보여줘요
+          }
+        }
+
+        return Object.assign({}, it, detail, { lat: itemLat, lon: itemLon, fullAddr });
+      }));
+
+      return res.status(200).json({ items: enriched });
     }
 
     // ── 2. 중앙부처복지서비스 (복지혜택검색) ────────────────────────
