@@ -32,7 +32,9 @@ export default async function handler(req, res) {
 
     // ── 1. 사회복지시설 현황 (복지시설찾기) ─────────────────────────
     if (type === 'welfare') {
-      const { sido, sigungu, type: facilityType } = req.query;
+      // (한글 설명) 예전 코드는 'type: facilityType' 이라고 써서, req.query.type(=welfare, 카테고리 이름)을
+      //             엉뚱하게 시설종류로 착각해서 읽고 있었어요. req.query.facilityType을 직접 읽도록 수정.
+      const { sido, sigungu, facilityType } = req.query;
       const key = encodeURIComponent(process.env.WELFARE_API_KEY);
       const url = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getNFcltBizInqire`
         + `?serviceKey=${key}`
@@ -43,6 +45,14 @@ export default async function handler(req, res) {
 
       const r = await fetch(url);
       const xml = await r.text();
+
+      // (한글 설명) 2단계 진단모드: 주소 끝에 &debug=1 을 붙이면, 정부서버가 보낸
+      //             원본 응답을 그대로 화면에 보여줘요. 실제 항목 이름표를 눈으로 확인하는 용도.
+      if (req.query.debug === '1') {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.status(200).send(xml);
+      }
+
       const items = parseXmlItems(xml, 'item');
       return res.status(200).json({ items });
     }
@@ -90,6 +100,12 @@ export default async function handler(req, res) {
 
       const r = await fetch(url);
       const xml = await r.text();
+
+      if (req.query.debug === '1') {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.status(200).send(xml);
+      }
+
       const items = parseXmlItems(xml, 'item');
       return res.status(200).json({ items });
     }
@@ -106,6 +122,14 @@ export default async function handler(req, res) {
         + (sigungu ? `&signguCd=${encodeURIComponent(sigungu)}` : '');
 
       const r = await fetch(url);
+
+      // (한글 설명) 진단모드: JSON을 미리 해석하지 않고 원본 텍스트 그대로 보여줌
+      if (req.query.debug === '1') {
+        const raw = await r.text();
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.status(200).send(raw);
+      }
+
       const data = await r.json();
       return res.status(200).json(data);
     }
