@@ -317,7 +317,7 @@ body.big-font .tsz-36 { font-size: 46px !important; }
     <div id="job-api-list">
       <div class="job-loading">공고를 불러오는 중이에요…</div>
     </div>
-    <button class="job-refresh-btn" onclick="loadJobApi()">🔄 공고 새로고침</button>
+    <button class="job-refresh-btn" onclick="loadJobApi(true)">🔄 공고 새로고침</button>
   </div>
 
   <!-- 시니어 채용공고 바로가기 카드 -->
@@ -642,7 +642,7 @@ body.big-font .tsz-36 { font-size: 46px !important; }
     <div id="job-api-list2">
       <div style="text-align:center;padding:30px;color:#666;">공고를 불러오는 중이에요...</div>
     </div>
-    <button class="job-refresh-btn" onclick="loadJobApi2()" style="margin-top:12px;">🔄 공고 새로고침</button>
+    <button class="job-refresh-btn" onclick="loadJobApi2(true)" style="margin-top:12px;">🔄 공고 새로고침</button>
 
     <div class="card" style="margin:20px 0 0;">
       <div class="card-title" style="font-size:18px;margin-bottom:10px;">🔗 다른 채용 사이트</div>
@@ -2005,28 +2005,18 @@ function resetCalc3(){
   var rb=document.getElementById('job-result3'); if(rb) rb.classList.remove('show');
 }
 
-/* ── 채용공고 전환 페이지용 API ── */
-var jobCache2=null; var jobCacheTime2=0;
-async function loadJobApi2(){
-  var listEl=document.getElementById('job-api-list2');
-  if(!listEl)return;
-  listEl.innerHTML=getJobSkeletonHTML();
-  var now=Date.now();
-  if(jobCache2&&(now-jobCacheTime2)<JOB_CACHE_TTL){listEl.innerHTML=renderJobItems(jobCache2);return;}
-  try{
-    var res=await fetch('/api/jobs?numOfRows=10&pageNo=1');
-    var data=await res.json();
-    if(!data.ok||!data.items||data.items.length===0){listEl.innerHTML='<div class="job-api-error">⚠️ 지금은 공고를 불러올 수 없어요.<br>'+(data.message||'잠시 후 새로고침을 눌러주세요.')+'</div>';return;}
-    jobCache2=data.items; jobCacheTime2=Date.now();
-    listEl.innerHTML=renderJobItems(data.items);
-  }catch(err){
-    listEl.innerHTML='<div class="job-api-error">⚠️ 인터넷 연결을 확인해 주세요.<br>('+err.message+')</div>';
-  }
-}
+/* ── 채용공고 API (메인 카드 + 검색페이지 공통 로직) ── */
+// (한글 설명) 예전에는 10개만 받아서, 새로고침 누르면 서버에 매번 다시 물어봤어요.
+//             지금은 처음에 30개를 한 번에 받아두고(장보기), 새로고침 누를 때마다
+//             냉장고에서 10개씩 꺼내 보여줘요(순환) → 버튼 누르면 "즉시" 화면이 바뀝니다.
+//             30개를 다 보여주고 나면, 그때만 서버에 새로 30개를 요청합니다.
+var JOB_CACHE_TTL=5*60*1000;   // 한 번 받아온 30개를 5분간 유효한 것으로 봄
+var JOB_BATCH_SIZE=30;         // 서버에서 한 번에 받아오는 공고 개수
+var JOB_PAGE_SIZE=10;          // 화면에 한 번에 보여주는 개수
 
-var jobCache=null;
-var jobCacheTime=0;
-var JOB_CACHE_TTL=5*60*1000;
+// 메인화면 카드용 상태, 검색페이지용 상태를 각각 따로 기억
+var jobState=Object.create(null);  jobState.cache=null;  jobState.time=0;  jobState.offset=0;
+var jobState2=Object.create(null); jobState2.cache=null; jobState2.time=0; jobState2.offset=0;
 
 function getJobSkeletonHTML(){
   var card='<div class="skel-job-item"><div class="skel skel-job-title"></div><div class="skel skel-job-line"></div><div class="skel skel-job-line2"></div><div class="skel skel-job-line3"></div></div>';
@@ -2055,21 +2045,48 @@ function renderJobItems(items){
   return html;
 }
 
-async function loadJobApi(){
-  var listEl=document.getElementById('job-api-list');
-  listEl.innerHTML=getJobSkeletonHTML();
+// (한글 설명) state = 어떤 화면의 데이터인지(메인/검색페이지), listElId = 그 화면의 목록 영역 id,
+//             nextPage = true면 "새로고침 버튼 클릭"이라는 뜻 → 다음 10개로 이동
+async function loadJobList(state,listElId,nextPage){
+  var listEl=document.getElementById(listElId);
+  if(!listEl)return;
   var now=Date.now();
-  if(jobCache&&(now-jobCacheTime)<JOB_CACHE_TTL){listEl.innerHTML=renderJobItems(jobCache);return;}
+  var cacheValid=state.cache&&(now-state.time)<JOB_CACHE_TTL;
+
+  if(nextPage&&cacheValid){
+    var nextOffset=state.offset+JOB_PAGE_SIZE;
+    if(nextOffset<state.cache.length){
+      // 이미 받아둔 30개 안에서 다음 10개가 남아있음 → 서버 요청 없이 즉시 전환
+      state.offset=nextOffset;
+      listEl.innerHTML=renderJobItems(state.cache.slice(state.offset,state.offset+JOB_PAGE_SIZE));
+      return;
+    }
+    // 30개를 다 보여줬음 → 이때만 서버에 새로 30개 요청
+    state.cache=null;
+    cacheValid=false;
+  }
+
+  if(cacheValid){
+    // 일반 진입(자동로드/재방문): 마지막으로 보던 10개 그대로 표시
+    listEl.innerHTML=renderJobItems(state.cache.slice(state.offset,state.offset+JOB_PAGE_SIZE));
+    return;
+  }
+
+  listEl.innerHTML=getJobSkeletonHTML();
   try{
-    var res=await fetch('/api/jobs?numOfRows=10&pageNo=1');
+    var res=await fetch('/api/jobs?numOfRows='+JOB_BATCH_SIZE+'&pageNo=1');
     var data=await res.json();
     if(!data.ok||!data.items||data.items.length===0){listEl.innerHTML='<div class="job-api-error">⚠️ 지금은 공고를 불러올 수 없어요.<br>'+(data.message||'잠시 후 새로고침을 눌러주세요.')+'</div>';return;}
-    jobCache=data.items;jobCacheTime=Date.now();
-    listEl.innerHTML=renderJobItems(data.items);
+    state.cache=data.items;state.time=Date.now();state.offset=0;
+    listEl.innerHTML=renderJobItems(state.cache.slice(0,JOB_PAGE_SIZE));
   }catch(err){
     listEl.innerHTML='<div class="job-api-error">⚠️ 인터넷 연결을 확인해 주세요.<br>('+err.message+')</div>';
   }
 }
+
+function loadJobApi(nextPage){ return loadJobList(jobState,'job-api-list',nextPage); }
+function loadJobApi2(nextPage){ return loadJobList(jobState2,'job-api-list2',nextPage); }
+
 loadJobApi();
 
 var jobDetailCache={};
