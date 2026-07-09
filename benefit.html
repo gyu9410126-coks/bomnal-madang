@@ -2442,7 +2442,7 @@ function loadFinanceEdu() {
           return '<div class="finance-card">'
             +'<div class="finance-card-title">'+(item.edcSbjcNm||item.eduNm||'교육 콘텐츠')+'</div>'
             +'<div class="finance-card-desc">'+(item.edcSbjcIntrc||item.eduCn||'내용 준비 중입니다.')+'</div>'
-            +(item.linkUrl ? '<a class="finance-card-link" href="#" onclick="confirmExternalLink(\''+item.linkUrl+'\');return false;">🔗 자세히 보기</a>' : '')
+            +'<a class="finance-card-link" href="#" onclick="confirmExternalLink(\'https://edu.kinfa.or.kr\');return false;">🔗 교육포털에서 보기</a>'
             +'</div>';
         }).join('');
       }
