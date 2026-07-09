@@ -2347,6 +2347,27 @@ function updatePWSigungu() {
   sel.innerHTML = '<option value="">시·군·구 선택</option>';
   if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
 }
+
+// (한글 설명) [신규 추가] 시설종류 드롭다운을, 우리가 대충 지어낸 이름이 아니라
+//             정부가 실제로 쓰는 정확한 명칭으로 채워요. 페이지 열릴 때 한 번만 실행돼요.
+//             혹시 못 가져오면(네트워크 문제 등) 기존 목록을 그대로 써서 화면이 비지 않게 해요.
+function loadWelfareKinds() {
+  var sel = document.getElementById('pw-type');
+  if (!sel) return;
+  fetch('/api/benefit?type=welfareKinds')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var items = (data && data.items) || [];
+      if (items.length === 0) return;
+      var html = '<option value="">전체</option>';
+      items.forEach(function(it){
+        if (it.fcltKindNm) html += '<option value="'+it.fcltKindNm+'">'+it.fcltKindNm+'</option>';
+      });
+      sel.innerHTML = html;
+    })
+    .catch(function(){ /* 실패하면 기존 목록 그대로 둬요 */ });
+}
+loadWelfareKinds();
 function updatePSSigungu() {
   var sido = document.getElementById('ps-sido').value;
   var sel  = document.getElementById('ps-sigungu');

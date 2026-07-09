@@ -126,16 +126,25 @@ export default async function handler(req, res) {
         }
       }
 
-      // (한글 설명) 이 API는 시/도+시/군/구를 "서울특별시 중랑구"처럼 한 덩어리 글자로 받아요.
-      const jrsdSggNm = (regionSido && regionSigungu) ? `${regionSido} ${regionSigungu}` : '';
-      // (한글 설명) 시/군/구까지 정확히 알면 조금만 받고, 시/도만 알면 넉넉히 받아서 뒤에서 걸러내요.
-      const fetchCount = jrsdSggNm ? 15 : 50;
+      // (한글 설명) [수정] 글자 이름(jrsdSggNm)으로 필터링하면 정부 서버가 제대로 못 걸러내는 것 같아서,
+      //             더 확실한 숫자 코드(jrsdSggCd) 방식으로 바꿨어요. 이미 전통시장에서 검증된
+      //             "시/군/구 이름 → 정확한 코드" 변환 기능(resolveRegionCode)을 그대로 재사용해요.
+      //             예: 서울 중랑구 코드 "11260" + "00000" = "1126000000" (문서 예시와 정확히 일치)
+      let jrsdSggCd = '';
+      if (regionSido && regionSigungu) {
+        const region = await resolveRegionCode(regionSido, regionSigungu, process.env.STORE_API_KEY);
+        if (region && region.divId === 'signguCd') {
+          jrsdSggCd = region.key + '00000';
+        }
+      }
+      // (한글 설명) 시/군/구까지 정확히 알면 조금만 받고, 못 정했으면 넉넉히 받아서 뒤에서 걸러내요.
+      const fetchCount = jrsdSggCd ? 15 : 50;
 
       const listKey = encodeURIComponent(process.env.WELFARE_API_KEY);
       const listUrl = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getFcltListInfoInqire`
         + `?serviceKey=${listKey}`
         + `&numOfRows=${fetchCount}&pageNo=1`
-        + (jrsdSggNm    ? `&jrsdSggNm=${encodeURIComponent(jrsdSggNm)}`   : '')
+        + (jrsdSggCd    ? `&jrsdSggCd=${encodeURIComponent(jrsdSggCd)}`   : '')
         + (facilityType ? `&fcltKindNm=${encodeURIComponent(facilityType)}` : '');
 
       const listRes = await fetch(listUrl);
@@ -149,9 +158,9 @@ export default async function handler(req, res) {
 
       let listItems = parseXmlItems(listXml, 'item');
 
-      // (한글 설명) 시/도만 선택했을 때는(시/군/구를 못 정해서 필터를 못 걸었으니) 결과 중에서
+      // (한글 설명) 시/군/구 코드를 못 정했을 때(=시/도만 골랐을 때)는, 결과 중에서
       //             시/도 이름으로 시작하는 것만 한 번 더 걸러줘요.
-      if (regionSido && !regionSigungu) {
+      if (regionSido && !jrsdSggCd) {
         const norm = (s) => (s || '').replace(/\s/g, '');
         listItems = listItems.filter((it) => norm(it.jrsdSggNm || '').startsWith(norm(regionSido)));
       }
@@ -195,6 +204,36 @@ export default async function handler(req, res) {
       }));
 
       return res.status(200).json({ items: enriched });
+    }
+
+    // ── 1-1. 시설종류 목록 조회 (신규) ───────────────────────────────
+    // (한글 설명) 시설종류 이름을 추측해서 드롭다운에 넣으면 정부 데이터의 정확한 명칭과
+    //             안 맞을 수 있어서, 정부가 실제로 쓰는 "정확한 시설종류 이름"을 직접 가져와요.
+    //             이걸로 화면의 시설종류 드롭다운을 채우면, 검색이 항상 정확히 맞아요.
+    if (type === 'welfareKinds') {
+      const key = encodeURIComponent(process.env.WELFARE_API_KEY);
+      const url = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getFcltKindCodeInfoInqire`
+        + `?serviceKey=${key}&numOfRows=100&pageNo=1`;
+
+      const r = await fetch(url);
+      const xml = await r.text();
+
+      if (req.query.debug === '1') {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.status(200).send(xml);
+      }
+
+      const rawItems = parseXmlItems(xml, 'item');
+      // (한글 설명) 같은 이름이 여러 번 나올 수 있어서(세부종류가 여러 개인 경우) 이름 기준으로 중복 제거
+      const seen = new Set();
+      const items = [];
+      rawItems.forEach((it) => {
+        if (it.fcltKindNm && !seen.has(it.fcltKindNm)) {
+          seen.add(it.fcltKindNm);
+          items.push({ fcltKindNm: it.fcltKindNm });
+        }
+      });
+      return res.status(200).json({ items });
     }
 
     // ── 2. 중앙부처복지서비스 (복지혜택검색) ────────────────────────
@@ -349,7 +388,7 @@ export default async function handler(req, res) {
       return res.status(200).json(data);
     }
 
-    return res.status(400).json({ error: 'type 파라미터가 필요합니다 (welfare/benefit/lawyer/finance/dongList/store)' });
+    return res.status(400).json({ error: 'type 파라미터가 필요합니다 (welfare/welfareKinds/benefit/lawyer/finance/dongList/store)' });
 
   } catch (err) {
     console.error('[benefit.js error]', err);
