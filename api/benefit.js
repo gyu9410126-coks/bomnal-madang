@@ -172,15 +172,26 @@ export default async function handler(req, res) {
 
       // (한글 설명) [신규] 시설 10개의 "상세정보 조회 + 주소→좌표 변환"을 Promise.all로 한꺼번에 실행해요.
       //             하나씩 순서대로 하면 10개면 10배 느려지는데, 동시에 하면 제일 느린 것 1개만큼만 걸려요.
+      // (한글 설명) [수정] 상세조회를 fcltCd(시설코드) 하나만 보내면 정부 서버가 제대로 못 찾는 것 같아서,
+      //             공식 예시 문서와 똑같이 jrsdSggCd(시군구코드)·fcltKindCd(시설종류코드)도 같이 보내요.
+      //             이 값들은 이미 1단계 목록조회에서 같이 받아둔 값이라 새로 조회할 필요 없어요.
       const enriched = await Promise.all(topItems.map(async (it) => {
         let detail = {};
         try {
           const detailUrl = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getFcltByBassInfoInqire`
-            + `?serviceKey=${detailKey}&numOfRows=1&pageNo=1&fcltCd=${encodeURIComponent(it.fcltCd || '')}`;
+            + `?serviceKey=${detailKey}&numOfRows=1&pageNo=1`
+            + `&fcltCd=${encodeURIComponent(it.fcltCd || '')}`
+            + (it.jrsdSggCd ? `&jrsdSggCd=${encodeURIComponent(it.jrsdSggCd)}`   : '')
+            + (it.fcltKindCd ? `&fcltKindCd=${encodeURIComponent(it.fcltKindCd)}` : '');
           const detailRes = await fetch(detailUrl);
           const detailXml = await detailRes.text();
           const detailItems = parseXmlItems(detailXml, 'item');
-          detail = detailItems[0] || {};
+          const candidate = detailItems[0] || {};
+          // (한글 설명) [안전장치] 혹시 정부 서버가 엉뚱한 시설 정보를 줬을 경우를 대비해서,
+          //             시설코드가 우리가 요청한 것과 일치할 때만 사용해요. 다르면 목록 정보만 써요.
+          if (!candidate.fcltCd || candidate.fcltCd === it.fcltCd) {
+            detail = candidate;
+          }
         } catch (e) {
           // 상세정보 조회가 실패해도 목록 정보(이름·종류)라도 보여줘요
         }
