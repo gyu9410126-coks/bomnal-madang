@@ -1511,12 +1511,17 @@ body.big-font .benefit-btn-sm { font-size: 19px !important; }
 
       <span class="page-label">🏪 업종 선택</span>
       <select class="page-select" id="ps-type" style="border-color:#f8bbd0;">
-        <option value="전통시장">전통시장</option>
-        <option value="슈퍼마켓">슈퍼마켓</option>
-        <option value="약국">약국</option>
-        <option value="병원">병원·의원</option>
-        <option value="음식점">음식점</option>
-        <option value="미용실">미용실</option>
+        <option value="G20404">슈퍼마켓</option>
+        <option value="G20405">편의점</option>
+        <option value="G21501">약국</option>
+        <option value="Q1">병원·의원</option>
+        <option value="I2">음식점</option>
+        <option value="I21201">카페</option>
+        <option value="I21001">빵집·제과점</option>
+        <option value="S20901">세탁소</option>
+        <option value="S20801">목욕탕·사우나</option>
+        <option value="G21602">안경원</option>
+        <option value="S20701">미용실</option>
       </select>
 
       <button class="page-btn" style="background:#880e4f;color:#fff;" onclick="searchStore()">🔍 주변 상가 찾기</button>
@@ -1763,7 +1768,7 @@ function searchStoreGPSPage() {
           document.getElementById('ps-cards').innerHTML = items.map(function(item){
             return '<div class="store-card">'
               +'<div class="store-card-name">'+(item.bizesNm||item.bsnNm||'상호명 없음')+'</div>'
-              +'<span class="store-card-type">'+(item.uptaeNm||item.indsLclsNm||type)+'</span>'
+              +'<span class="store-card-type">'+(item.indsSclsNm||item.indsMclsNm||item.indsLclsNm||'상가')+'</span>'
               +'<div class="store-card-addr">📍 '+(item.rdnmAdr||item.lnoAdr||'주소 없음')+'</div>'
               +(item.telNo ? '<a class="store-card-tel" href="tel:'+item.telNo+'">📞 '+item.telNo+'</a>' : '')
               +'</div>';
@@ -2435,8 +2440,8 @@ function loadFinanceEdu() {
       } else {
         document.getElementById('pf-cards').innerHTML = items.map(function(item){
           return '<div class="finance-card">'
-            +'<div class="finance-card-title">'+(item.eduNm||item.title||'교육 콘텐츠')+'</div>'
-            +'<div class="finance-card-desc">'+(item.eduCn||item.contents||item.smry||'내용을 불러오는 중입니다.')+'</div>'
+            +'<div class="finance-card-title">'+(item.edcSbjcNm||item.eduNm||'교육 콘텐츠')+'</div>'
+            +'<div class="finance-card-desc">'+(item.edcSbjcIntrc||item.eduCn||'내용 준비 중입니다.')+'</div>'
             +(item.linkUrl ? '<a class="finance-card-link" href="#" onclick="confirmExternalLink(\''+item.linkUrl+'\');return false;">🔗 자세히 보기</a>' : '')
             +'</div>';
         }).join('');
@@ -2510,7 +2515,7 @@ function searchStore() {
         document.getElementById('ps-cards').innerHTML = items.map(function(item){
           return '<div class="store-card">'
             +'<div class="store-card-name">'+(item.bizesNm||item.bsnNm||item.upjongNm||'상호명 없음')+'</div>'
-            +'<span class="store-card-type">'+(item.uptaeNm||item.indsLclsNm||type)+'</span>'
+            +'<span class="store-card-type">'+(item.indsSclsNm||item.indsMclsNm||item.indsLclsNm||'상가')+'</span>'
             +'<div class="store-card-addr">📍 '+(item.rdnmAdr||item.lnoAdr||'주소 없음')+'</div>'
             +(item.telNo ? '<a class="store-card-tel" href="tel:'+item.telNo+'">📞 '+item.telNo+'</a>' : '')
             +'</div>';
