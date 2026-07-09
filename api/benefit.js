@@ -55,7 +55,8 @@ async function resolveRegionCode(sido, sigungu, rawServiceKey) {
 
 // (한글 설명) "내 위치로 찾기" GPS 버튼용: 좌표를 카카오 API에 보내서
 //             "여기가 어느 시/도, 어느 시/군/구인지" 이름을 알아내요.
-//             (health.js와 동일한 검증된 로직)
+//             (수정) region_3depth_name = "동" 이름도 같이 받아오도록 추가했어요.
+//             예전에는 이 값이 있었는데도 그냥 버리고 있었어요. (health.js와 동일한 검증된 로직)
 async function reverseGeocodeSidoSigungu(lat, lng, kakaoKey) {
   if (!kakaoKey) return null;
   const url = `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${lng}&y=${lat}`;
@@ -65,10 +66,31 @@ async function reverseGeocodeSidoSigungu(lat, lng, kakaoKey) {
     const docs = data.documents || [];
     const doc = docs.find((d) => d.region_type === 'H') || docs[0];
     if (!doc) return null;
-    return { sido: doc.region_1depth_name, sigungu: doc.region_2depth_name };
+    return { sido: doc.region_1depth_name, sigungu: doc.region_2depth_name, dong: doc.region_3depth_name };
   } catch (e) {
     return null;
   }
+}
+
+// (한글 설명) [신규 추가] 시/군/구 코드 안에 있는 "동" 이름을 진짜 "동 코드(adongCd)"로 바꿔주는 함수예요.
+//             정부의 공식 "행정동 조회" API(baroApi, catId=admi)를 그대로 사용해요.
+//             (health.js와 동일한 검증된 로직)
+async function resolveAdongCode(signguCd, dongName, rawServiceKey) {
+  if (!signguCd || !dongName) return null;
+  const key = encodeURIComponent(rawServiceKey);
+  const url = `https://apis.data.go.kr/B553077/api/open/sdsc2/baroApi`
+    + `?resId=dong&catId=admi&signguCd=${signguCd}&type=json&ServiceKey=${key}`;
+  try {
+    const r = await fetch(url);
+    const data = await r.json();
+    const items = (data.body && data.body.items) || [];
+    const norm = (s) => (s || '').replace(/\s/g, '');
+    const match = items.find((it) => norm(it.adongNm) === norm(dongName));
+    if (match) return match.adongCd;
+  } catch (e) {
+    // 실패하면 그냥 null을 돌려줘서, 시/군/구 단위로라도 검색되게 해요
+  }
+  return null;
 }
 
 export default async function handler(req, res) {
@@ -177,18 +199,32 @@ export default async function handler(req, res) {
 
       let regionSido = sido;
       let regionSigungu = sigungu;
+      let regionDong = null; // (한글 설명) GPS로 찾았을 때만 "동" 이름이 채워져요
 
       if (lat && lng) {
         const geo = await reverseGeocodeSidoSigungu(lat, lng, process.env.KAKAO_API_KEY);
         if (geo) {
           regionSido = geo.sido;
           regionSigungu = geo.sigungu;
+          regionDong = geo.dong;
         }
       }
 
       const region = await resolveRegionCode(regionSido, regionSigungu, rawKey);
       if (!region) {
         return res.status(200).json({ body: { items: [] }, message: '지역을 확인할 수 없습니다.' });
+      }
+
+      // (한글 설명) [신규 추가] GPS로 "동" 이름까지 알고 있으면(=region.divId가 signguCd일 때),
+      //             동 코드로 한 번 더 좁혀봐요. 동 코드를 못 찾으면 그냥 시/군/구 단위를 그대로 써요.
+      let finalDivId = region.divId;
+      let finalKey = region.key;
+      if (regionDong && region.divId === 'signguCd') {
+        const adongCd = await resolveAdongCode(region.key, regionDong, rawKey);
+        if (adongCd) {
+          finalDivId = 'adongCd';
+          finalKey = adongCd;
+        }
       }
 
       // (한글 설명) 업종코드가 2글자면 대분류(indsLclsCd), 그보다 길면 소분류(indsSclsCd)로 판단
@@ -201,7 +237,7 @@ export default async function handler(req, res) {
 
       const url = `https://apis.data.go.kr/B553077/api/open/sdsc2/storeListInDong`
         + `?serviceKey=${serviceKey}`
-        + `&divId=${region.divId}&key=${region.key}`
+        + `&divId=${finalDivId}&key=${finalKey}`
         + `&numOfRows=20&pageNo=1&type=json`
         + indsParam;
 
