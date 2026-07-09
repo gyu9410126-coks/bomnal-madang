@@ -1505,8 +1505,11 @@ body.big-font .benefit-btn-sm { font-size: 19px !important; }
         <option>전라북도</option><option>전라남도</option><option>경상북도</option>
         <option>경상남도</option><option>제주특별자치도</option>
       </select>
-      <select class="page-select" id="ps-sigungu" style="border-color:#f8bbd0;">
+      <select class="page-select" id="ps-sigungu" style="border-color:#f8bbd0;" onchange="updatePSDong()">
         <option value="">시·군·구 선택</option>
+      </select>
+      <select class="page-select" id="ps-dong" style="border-color:#f8bbd0;">
+        <option value="">읍·면·동 선택 (선택 사항)</option>
       </select>
 
       <span class="page-label">🏪 업종 선택</span>
@@ -2088,8 +2091,9 @@ function resetPage(id) {
 
   else if (id === 'page-store') {
     /* 전통시장·상가 */
-    resetVal('ps-sido'); resetVal('ps-sigungu');
+    resetVal('ps-sido'); resetVal('ps-sigungu'); resetVal('ps-dong');
     document.getElementById('ps-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
+    document.getElementById('ps-dong').innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
     resetVal('ps-type', '전통시장');
     removeShow('ps-loading'); removeShow('ps-result');
     document.getElementById('ps-cards').innerHTML = '';
@@ -2317,6 +2321,28 @@ function updatePSSigungu() {
   var sel  = document.getElementById('ps-sigungu');
   sel.innerHTML = '<option value="">시·군·구 선택</option>';
   if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
+  // (한글 설명) 시/도를 다시 고르면, 이미 골라둔 "동" 목록도 초기화해줘요
+  document.getElementById('ps-dong').innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
+}
+
+// (한글 설명) [신규 추가] 시/군/구를 고르면, 서버에 "여기 동 목록 좀 줘"라고 물어봐서
+//             "읍·면·동 선택" 드롭다운을 채워요. 동을 몰라도 검색은 되니까 "선택 사항"이에요.
+function updatePSDong() {
+  var sido = document.getElementById('ps-sido').value;
+  var sigungu = document.getElementById('ps-sigungu').value;
+  var dongSel = document.getElementById('ps-dong');
+  dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
+  if (!sido || !sigungu) return;
+
+  fetch('/api/benefit?type=dongList&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var items = (data && data.items) || [];
+      items.forEach(function(it){
+        if (it.adongNm) dongSel.innerHTML += '<option>'+it.adongNm+'</option>';
+      });
+    })
+    .catch(function(){ /* 동 목록을 못 가져와도 시/군/구 단위로는 검색이 되니 조용히 넘어가요 */ });
 }
 
 /* ══════════════════════════════════════
@@ -2498,12 +2524,13 @@ function searchBenefit() {
 function searchStore() {
   var sido    = document.getElementById('ps-sido').value;
   var sigungu = document.getElementById('ps-sigungu').value;
+  var dong    = document.getElementById('ps-dong').value;
   var type    = document.getElementById('ps-type').value;
   if (!sido) { alert('시·도를 선택해 주세요'); return; }
   var loading = document.getElementById('ps-loading');
   var result  = document.getElementById('ps-result');
   loading.classList.add('show'); result.classList.remove('show');
-  fetch('/api/benefit?type=store&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&keyword='+encodeURIComponent(type))
+  fetch('/api/benefit?type=store&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&dong='+encodeURIComponent(dong)+'&keyword='+encodeURIComponent(type))
     .then(function(r){ return r.json(); })
     .then(function(data){
       loading.classList.remove('show');

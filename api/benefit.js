@@ -184,7 +184,35 @@ export default async function handler(req, res) {
       return res.status(200).json({ items });
     }
 
-    // ── 5. 소상공인 상가정보 (전통시장·상가) ────────────────────────
+    // ── 5-1. 읍/면/동 목록 조회 (신규) ───────────────────────────────
+    // (한글 설명) 화면에서 시/도, 시/군/구를 선택하면, 그 안에 있는 "동" 목록을
+    //             전부 가져와서 세 번째 드롭다운(읍/면/동 선택)을 채우는 데 써요.
+    if (type === 'dongList') {
+      const { sido, sigungu } = req.query;
+      const rawKey = process.env.STORE_API_KEY;
+
+      const region = await resolveRegionCode(sido, sigungu, rawKey);
+      // (한글 설명) 시/군/구까지 정확히 못 찾았으면(=시/도만 찾았으면) 동 목록을 줄 수 없어요
+      if (!region || region.divId !== 'signguCd') {
+        return res.status(200).json({ items: [] });
+      }
+
+      const key = encodeURIComponent(rawKey);
+      const url = `https://apis.data.go.kr/B553077/api/open/sdsc2/baroApi`
+        + `?resId=dong&catId=admi&signguCd=${region.key}&type=json&ServiceKey=${key}`;
+
+      try {
+        const r = await fetch(url);
+        const data = await r.json();
+        const rawItems = (data.body && data.body.items) || [];
+        const items = rawItems.map((it) => ({ adongCd: it.adongCd, adongNm: it.adongNm }));
+        return res.status(200).json({ items });
+      } catch (e) {
+        return res.status(200).json({ items: [] });
+      }
+    }
+
+    // ── 6. 소상공인 상가정보 (전통시장·상가) ────────────────────────
     // (한글 설명) 여기부터가 이번에 고친 부분이에요.
     //   - GPS 좌표(lat/lng)가 오면 카카오로 동네 이름을 알아내고
     //   - 동네 이름(경기도, 수원시 등)은 정부가 원하는 지역 코드로 정확히 바꾸고
@@ -192,21 +220,22 @@ export default async function handler(req, res) {
     if (type === 'store') {
       // keyword = 업종코드 (예: I2, G20404 등, 화면 선택 상자 값 그대로)
       // sido/sigungu = 지역 이름 글자 (예: "부산광역시", "기장군")
-      // lat/lng = GPS 좌표(선택), 있으면 지역 이름보다 우선 사용
-      const { keyword, sido, sigungu, lat, lng } = req.query;
+      // dong = 읍/면/동 이름 (지역 선택 드롭다운에서 직접 고른 경우)
+      // lat/lng = GPS 좌표(선택), 있으면 dong 파라미터보다 우선 사용
+      const { keyword, sido, sigungu, lat, lng, dong } = req.query;
       const rawKey = process.env.STORE_API_KEY;
       const serviceKey = encodeURIComponent(rawKey);
 
       let regionSido = sido;
       let regionSigungu = sigungu;
-      let regionDong = null; // (한글 설명) GPS로 찾았을 때만 "동" 이름이 채워져요
+      let regionDong = dong || null; // (한글 설명) 지역 선택 드롭다운에서 동을 직접 골랐으면 여기 채워져요
 
       if (lat && lng) {
         const geo = await reverseGeocodeSidoSigungu(lat, lng, process.env.KAKAO_API_KEY);
         if (geo) {
           regionSido = geo.sido;
           regionSigungu = geo.sigungu;
-          regionDong = geo.dong;
+          regionDong = geo.dong; // GPS가 있으면 GPS로 찾은 동 이름을 우선 사용
         }
       }
 
@@ -254,7 +283,7 @@ export default async function handler(req, res) {
       return res.status(200).json(data);
     }
 
-    return res.status(400).json({ error: 'type 파라미터가 필요합니다 (welfare/benefit/lawyer/finance/store)' });
+    return res.status(400).json({ error: 'type 파라미터가 필요합니다 (welfare/benefit/lawyer/finance/dongList/store)' });
 
   } catch (err) {
     console.error('[benefit.js error]', err);
