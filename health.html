@@ -507,11 +507,15 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
 
         <div class="page-label">🏪 업종 선택</div>
         <select class="page-select" id="st-type">
-          <option value="">전체</option>
+          <option value="">업종을 선택하세요</option>
           <option value="G21501">약국</option>
           <option value="Q1">병원·의원</option>
           <option value="G21602">안경원</option>
           <option value="S20801">목욕탕·사우나</option>
+          <option value="G21502">의료기기 (보청기·휠체어·지팡이)</option>
+          <option value="G20508">건강보조식품 매장</option>
+          <option value="S20802">마사지·안마</option>
+          <option value="R10307">헬스장</option>
         </select>
 
         <div class="search-row" style="margin-top:10px;">
@@ -1420,8 +1424,42 @@ function extractStoreItems(data) {
   } catch(e) { return []; }
 }
 
+// (한글 설명) 건강매장 검색은 페이지가 여러 개로 나뉠 수 있어서, 지금 몇 페이지째인지
+//             그리고 마지막에 어떤 조건(GPS 또는 지역선택)으로 검색했는지 기억해둬요.
+//             "더보기" 버튼을 눌렀을 때 이 기억을 그대로 재사용해서 다음 페이지를 가져와요.
+var stPage = 1;
+var stLastQuery = null;
+
+// GPS/지역 검색 공통: 결과를 불러와서 화면에 그려주는 함수
+async function loadStoreResults(page, reset) {
+  var el = document.getElementById('st-result');
+  stPage = page;
+  if (reset) el.innerHTML = skeletonHTML(3);
+  try {
+    var params = Object.assign({ type: 'store', pageNo: page }, stLastQuery);
+    var data = await callHealthAPI(params);
+    var items = extractStoreItems(data);
+    if (reset) el.innerHTML = '';
+    if (items.length === 0 && reset) { el.innerHTML = emptyHTML('🏪','검색 결과가 없어요','업종을 바꾸거나 다른 지역으로 검색해 보세요'); return; }
+    items.forEach(function(it){ el.appendChild(renderStoreCard(it)); });
+    // 더보기 버튼 (약국찾기와 동일한 패턴: 받아온 개수가 요청 개수와 같으면 다음 페이지가 더 있을 가능성이 있다고 봄)
+    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
+    if (items.length === 20) {
+      var btn = document.createElement('button');
+      btn.className = 'more-btn';
+      btn.textContent = '더보기 ▼';
+      btn.onclick = function(){ loadStoreResults(stPage + 1, false); };
+      el.appendChild(btn);
+    }
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+  }
+}
+
 // 📍 내 위치로 찾기 (GPS)
 function searchStoreGPS() {
+  var type = document.getElementById('st-type').value;
+  if (!type) { alert('업종을 선택해주세요.'); return; }
   if (!navigator.geolocation) { alert('이 브라우저는 위치 서비스를 지원하지 않아요.'); return; }
   var btn = document.getElementById('st-gps-btn');
   var el = document.getElementById('st-result');
@@ -1432,16 +1470,8 @@ function searchStoreGPS() {
   navigator.geolocation.getCurrentPosition(async function(pos) {
     btn.classList.remove('loading');
     btn.textContent = '📍 내 위치로 찾기';
-    var type = document.getElementById('st-type').value;
-    try {
-      var data = await callHealthAPI({ type:'store', lat:pos.coords.latitude, lng:pos.coords.longitude, keyword:type });
-      var items = extractStoreItems(data);
-      el.innerHTML = '';
-      if (items.length === 0) { el.innerHTML = emptyHTML('🏪','검색 결과가 없어요','업종을 바꾸거나 지역으로 검색해 보세요'); return; }
-      items.forEach(function(it){ el.appendChild(renderStoreCard(it)); });
-    } catch(e) {
-      el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
-    }
+    stLastQuery = { lat: pos.coords.latitude, lng: pos.coords.longitude, keyword: type };
+    await loadStoreResults(1, true);
   }, function(err) {
     btn.classList.remove('loading');
     btn.textContent = '📍 내 위치로 찾기';
@@ -1459,17 +1489,9 @@ async function searchStore() {
   var dong = document.getElementById('st-dong').value;
   var type = document.getElementById('st-type').value;
   if (!sido) { alert('시·도를 선택해주세요.'); return; }
-  var el = document.getElementById('st-result');
-  el.innerHTML = skeletonHTML(3);
-  try {
-    var data = await callHealthAPI({ type:'store', sido:sido, sigungu:sigungu, dong:dong, keyword:type });
-    var items = extractStoreItems(data);
-    el.innerHTML = '';
-    if (items.length === 0) { el.innerHTML = emptyHTML('🏪','검색 결과가 없어요','다른 지역이나 업종으로 검색해 보세요'); return; }
-    items.forEach(function(it){ el.appendChild(renderStoreCard(it)); });
-  } catch(e) {
-    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
-  }
+  if (!type) { alert('업종을 선택해주세요.'); return; }
+  stLastQuery = { sido: sido, sigungu: sigungu, dong: dong, keyword: type };
+  await loadStoreResults(1, true);
 }
 
 /* ═══════════════════════════════════════════

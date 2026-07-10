@@ -256,10 +256,13 @@ export default async function handler(req, res) {
           : `&indsSclsCd=${encodeURIComponent(keyword)}`;
       }
 
+      // (한글 설명) [수정] pageNo가 항상 1로 고정돼 있어서 "더보기"를 눌러도 같은 페이지만
+      //             다시 받아오던 문제를 고쳤어요. 이제 화면에서 보낸 페이지 번호를 그대로 써요.
+      const storePageNo = params.pageNo || '1';
       const storeUrl = `https://apis.data.go.kr/B553077/api/open/sdsc2/storeListInDong`
         + `?serviceKey=${serviceKey}`
         + `&divId=${finalDivId}&key=${finalKey}`
-        + `&numOfRows=20&pageNo=1&type=json`
+        + `&numOfRows=20&pageNo=${storePageNo}&type=json`
         + indsParam;
 
       const r = await fetch(storeUrl);
