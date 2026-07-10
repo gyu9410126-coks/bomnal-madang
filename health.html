@@ -1213,7 +1213,7 @@ function searchPharmacyGPS() {
     if (err.code === 1) msg = '위치 권한이 거부됐어요. 브라우저 설정에서 허용해주세요.';
     alert(msg);
     el.innerHTML = '';
-  });
+  }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
 }
 
 // 🔍 지역 드롭다운으로 검색
