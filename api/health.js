@@ -151,14 +151,23 @@ export default async function handler(req, res) {
     //             이 API는 애초에 지역 필터가 없어서 Q0/Q1을 보내도 무시되고 전체 목록이
     //             나왔던 것으로 확인됨(공식 활용가이드 hwp 문서로 검증). 지역별 목록을 찾는
     //             진짜 API는 getEgytListInfoInqire이고, Q0(시도)·Q1(시군구)를 정상 지원함.
+    //             [신규] GPS 좌표(lat/lng)가 오면 약국찾기와 동일한 방식으로 시도·시군구
+    //             이름을 알아내서 Q0/Q1 자리에 채워요.
     // 파라미터: Q0(시도명), Q1(시군구명), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'emergency') {
+      const { Q0: emQ0, Q1: emQ1, lat: emLat, lng: emLng } = params;
+      let emq0 = emQ0 || '서울특별시';
+      let emq1 = emQ1 || '';
+      if (emLat && emLng) {
+        const geo = await reverseGeocodeSidoSigungu(emLat, emLng, process.env.KAKAO_API_KEY);
+        if (geo) { emq0 = geo.sido; emq1 = geo.sigungu; }
+      }
       const emergencyUrl = 'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytListInfoInqire';
       const emergencyParams = new URLSearchParams();
       emergencyParams.append('serviceKey', process.env.EMERGENCY_API_KEY);
-      emergencyParams.append('Q0', params.Q0 || '서울특별시');
-      emergencyParams.append('Q1', params.Q1 || '');
+      emergencyParams.append('Q0', emq0);
+      emergencyParams.append('Q1', emq1);
       emergencyParams.append('pageNo', params.pageNo || '1');
       emergencyParams.append('numOfRows', params.numOfRows || '10');
       emergencyParams.append('_type', 'json');

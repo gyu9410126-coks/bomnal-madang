@@ -400,17 +400,28 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
         <div class="page-box-title" style="color:#c62828;">🚑 응급실 찾기</div>
       </div>
       <div class="page-box-body">
-        <div class="addr-wrap">
-          <button class="gps-btn" id="em-gps-btn" onclick="gpsLocate('em')">📍 현재 위치로 자동입력</button>
-          <input class="addr-input" id="em-addr-input" type="text" placeholder="동네 입력 (예: 서울 강남구 역삼동)" oninput="addrSearch('em')" autocomplete="off" />
-          <div class="addr-hint">시·군·구·읍·면·동 단위까지 입력하면 더 정확해요</div>
-          <div class="addr-dropdown" id="em-addr-dropdown" style="display:none;"></div>
+        <button class="gps-btn" id="em-gps-btn" onclick="searchEmergencyGPS()">📍 내 위치로 찾기</button>
+        <div style="text-align:center;font-size:13px;color:#999;margin:10px 0;">— 또는 지역으로 검색 —</div>
+
+        <div class="page-label">📍 지역 선택</div>
+        <select class="page-select" id="em-sido" onchange="updateEMSigungu()">
+          <option value="">시·도 선택</option>
+          <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
+          <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
+          <option>울산광역시</option><option>세종특별자치시</option><option>경기도</option>
+          <option>강원도</option><option>충청북도</option><option>충청남도</option>
+          <option>전라북도</option><option>전라남도</option><option>경상북도</option>
+          <option>경상남도</option><option>제주특별자치도</option>
+        </select>
+        <select class="page-select" id="em-sigungu">
+          <option value="">시·군·구 선택</option>
+        </select>
+        <div style="display:flex;align-items:center;gap:8px;background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:10px;padding:10px 12px;margin:2px 0 10px;font-size:14px;font-weight:600;color:#2e7d32;">
+          <span style="font-size:18px;">💡</span>
+          <span>응급실찾기는 <b>시·군·구 단위</b>까지 검색돼요</span>
         </div>
-        <div class="addr-selected" id="em-addr-selected" style="display:none;">
-          <span class="addr-selected-txt" id="em-addr-selected-txt"></span>
-          <span class="addr-selected-clear" onclick="addrClear('em')">✕ 다시선택</span>
-        </div>
-        <div class="search-row">
+
+        <div class="search-row" style="margin-top:10px;">
           <button class="search-btn" style="width:100%;background:#c62828;" onclick="searchEmergency(1)">🚑 응급실 찾기</button>
         </div>
         <div id="em-result" class="result-list"></div>
@@ -1175,10 +1186,65 @@ async function searchPharmacy(page) {
 ═══════════════════════════════════════════ */
 var emPage = 1;
 
+// (한글 설명) 시/도를 고르면 시/군/구 목록을 채워요. 응급실찾기도 약국찾기와 같은 이유로
+//             시·군·구 단위까지만 검색되는 API라 동 목록 기능은 넣지 않아요.
+function updateEMSigungu() {
+  var sido = document.getElementById('em-sido').value;
+  var sel  = document.getElementById('em-sigungu');
+  sel.innerHTML = '<option value="">시·군·구 선택</option>';
+  if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
+}
+
+// 응급실 카드 1개를 만들어주는 함수 (GPS 검색/드롭다운 검색 둘 다 사용)
+function renderEmergencyCard(it) {
+  var card = document.createElement('div');
+  card.className = 'result-card';
+  card.innerHTML =
+    '<div class="result-card-tag" style="background:#ffebee;color:#c62828;">🚑 '+(it.dutyEmclsName||'응급실')+'</div>' +
+    '<div class="result-card-name">'+(it.dutyName||'기관명 없음')+'</div>' +
+    '<div class="result-card-addr">📍 '+(it.dutyAddr||'주소 정보 없음')+'</div>' +
+    (it.dutyTel3 ? '<div class="result-card-tel">🚨 응급실 직통: <a href="tel:'+it.dutyTel3+'" style="color:#c62828;font-weight:700;text-decoration:none;">'+it.dutyTel3+'</a></div>' : '') +
+    (it.dutyTel1 ? '<div class="result-card-tel">📞 대표전화: <a href="tel:'+it.dutyTel1+'" style="color:#c62828;text-decoration:none;">'+it.dutyTel1+'</a></div>' : '') +
+    buildMapLinks(it.dutyName, it.wgs84Lat, it.wgs84Lon);
+  return card;
+}
+
+// 📍 내 위치로 찾기 (GPS)
+function searchEmergencyGPS() {
+  if (!navigator.geolocation) { alert('이 브라우저는 위치 서비스를 지원하지 않아요.'); return; }
+  var btn = document.getElementById('em-gps-btn');
+  var el = document.getElementById('em-result');
+  btn.classList.add('loading');
+  btn.textContent = '⏳ 위치 확인 중...';
+  el.innerHTML = skeletonHTML(3);
+
+  navigator.geolocation.getCurrentPosition(async function(pos) {
+    btn.classList.remove('loading');
+    btn.textContent = '📍 내 위치로 찾기';
+    try {
+      var data = await callHealthAPI({ type:'emergency', lat:pos.coords.latitude, lng:pos.coords.longitude, pageNo:1, numOfRows:10 });
+      var items = extractItems(data);
+      el.innerHTML = '';
+      if (items.length === 0) { el.innerHTML = emptyHTML('🚑','검색 결과가 없어요','지역으로 검색해 보세요'); return; }
+      items.forEach(function(it){ el.appendChild(renderEmergencyCard(it)); });
+    } catch(e) {
+      el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+    }
+  }, function(err) {
+    btn.classList.remove('loading');
+    btn.textContent = '📍 내 위치로 찾기';
+    var msg = '위치 정보를 가져올 수 없어요.';
+    if (err.code === 1) msg = '위치 권한이 거부됐어요. 브라우저 설정에서 허용해주세요.';
+    alert(msg);
+    el.innerHTML = '';
+  });
+}
+
+// 🔍 지역 드롭다운으로 검색
 async function searchEmergency(page) {
-  var addr = getAddrVal('em');
-  if(!addr) { alert('동네를 입력하고 선택해주세요.'); return; }
-  var sido = addr.sido; var sigungu = addr.sigungu;
+  var sido = document.getElementById('em-sido').value;
+  var sigungu = document.getElementById('em-sigungu').value;
+  if (!sido) { alert('시·도를 선택해주세요.'); return; }
   emPage = page;
   var el = document.getElementById('em-result');
   if(page===1) el.innerHTML = skeletonHTML(3);
@@ -1187,17 +1253,7 @@ async function searchEmergency(page) {
     var items = extractItems(data);
     if(page===1) el.innerHTML = '';
     if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🚑','검색 결과가 없어요','다른 지역을 선택해 보세요'); return; }
-    items.forEach(function(it){
-      var card = document.createElement('div');
-      card.className = 'result-card';
-      card.innerHTML =
-        '<div class="result-card-tag" style="background:#ffebee;color:#c62828;">🚑 응급실</div>' +
-        '<div class="result-card-name">'+(it.dutyName||'기관명 없음')+'</div>' +
-        '<div class="result-card-addr">📍 '+(it.dutyAddr||'주소 정보 없음')+'</div>' +
-        (it.dutyTel1 ? '<div class="result-card-tel">📞 <a href="tel:'+it.dutyTel1+'" style="color:#c62828;text-decoration:none;">'+it.dutyTel1+'</a></div>' : '') +
-        (it.dutyEryn==='Y' ? '<div class="result-card-desc" style="color:#c62828;font-weight:700;">✅ 응급실 운영중</div>' : '');
-      el.appendChild(card);
-    });
+    items.forEach(function(it){ el.appendChild(renderEmergencyCard(it)); });
     el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
     if(items.length===10){
       var btn = document.createElement('button');
