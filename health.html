@@ -361,13 +361,12 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
           <option>전라북도</option><option>전라남도</option><option>경상북도</option>
           <option>경상남도</option><option>제주특별자치도</option>
         </select>
-        <select class="page-select" id="ph-sigungu">
+        <select class="page-select" id="ph-sigungu" onchange="updatePHDong()">
           <option value="">시·군·구 선택</option>
         </select>
-        <div style="display:flex;align-items:center;gap:8px;background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:10px;padding:10px 12px;margin:2px 0 10px;font-size:14px;font-weight:600;color:#2e7d32;">
-          <span style="font-size:18px;">💡</span>
-          <span>약국찾기는 <b>시·군·구 단위</b>까지 검색돼요</span>
-        </div>
+        <select class="page-select" id="ph-dong">
+          <option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>
+        </select>
 
         <div class="search-row" style="margin-top:10px;">
           <button class="search-btn" style="width:100%;" onclick="searchPharmacy(1)">💊 약국 찾기</button>
@@ -1101,29 +1100,92 @@ function extractItems(data) {
    1. 💊 약국찾기
 ═══════════════════════════════════════════ */
 var phPage = 1;
+var phLastCoords = null; // (한글 설명) GPS로 찾은 좌표를 기억해뒀다가 "더보기" 눌렀을 때 재사용해요.
 
-// (한글 설명) [수정] 시/도를 고르면 시/군/구 목록을 채워요. 약국찾기는 시·군·구 단위까지만
-//             검색되는 API라 동 목록 기능은 제거했어요. (store와는 다름 — 여기 주석 참고)
+// (한글 설명) 시/도를 고르면 시/군/구 목록을 채워요. (동 목록은 시/군/구를 고른 다음 채워져요)
 function updatePHSigungu() {
   var sido = document.getElementById('ph-sido').value;
   var sel  = document.getElementById('ph-sigungu');
   sel.innerHTML = '<option value="">시·군·구 선택</option>';
   if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
+  document.getElementById('ph-dong').innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
 }
 
-// 약국 카드 1개를 만들어주는 함수 (GPS 검색/드롭다운 검색 둘 다 사용)
+// (한글 설명) 시/군/구를 고르면, 그 안에 있는 "동" 목록을 서버에 물어봐서 채워요.
+//             동을 몰라도 검색은 되니까 "선택 사항"이에요 (store와 동일한 검증된 패턴).
+function updatePHDong() {
+  var sido = document.getElementById('ph-sido').value;
+  var sigungu = document.getElementById('ph-sigungu').value;
+  var dongSel = document.getElementById('ph-dong');
+  dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+  if (!sido || !sigungu) return;
+
+  dongSel.innerHTML = '<option value="">⏳ 동 목록 불러오는 중...</option>';
+  fetch('/api/health?type=dongList&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+      var items = (data && data.items) || [];
+      items.forEach(function(it){
+        if (it.adongNm) dongSel.innerHTML += '<option>'+it.adongNm+'</option>';
+      });
+    })
+    .catch(function(){
+      dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+    });
+}
+
+// 카카오 로컬 API 응답에서 결과 목록만 안전하게 꺼내는 함수
+function extractKakaoDocs(data) {
+  try {
+    return (data && data.documents) || [];
+  } catch(e) { return []; }
+}
+
+// 약국 카드 1개를 만들어주는 함수 (GPS 검색/드롭다운 검색 둘 다 사용) — 카카오 응답 기준
 function renderPharmacyCard(it) {
-  var name = it.dutyName || '약국명 없음';
+  var name = it.place_name || '약국명 없음';
+  var addr = it.road_address_name || it.address_name || '주소 정보 없음';
+  var distText = '';
+  if (it.distance) {
+    var d = parseInt(it.distance, 10);
+    if (!isNaN(d) && d > 0) distText = d >= 1000 ? ' · 약 '+(Math.round(d/100)/10)+'km' : ' · 약 '+d+'m';
+  }
   var card = document.createElement('div');
   card.className = 'result-card';
   card.innerHTML =
-    '<div class="result-card-tag" style="background:#e8f5e9;color:#2e7d32;">💊 약국</div>' +
+    '<div class="result-card-tag" style="background:#e8f5e9;color:#2e7d32;">💊 약국'+distText+'</div>' +
     '<div class="result-card-name">'+name+'</div>' +
-    '<div class="result-card-addr">📍 '+(it.dutyAddr||'주소 정보 없음')+'</div>' +
-    (it.dutyTel1 ? '<div class="result-card-tel">📞 <a href="tel:'+it.dutyTel1+'" style="color:#2e7d32;text-decoration:none;">'+it.dutyTel1+'</a></div>' : '') +
-    (it.dutyTime1s ? '<div class="result-card-desc">⏰ 평일 '+it.dutyTime1s+'~'+it.dutyTime1c+'</div>' : '') +
-    buildMapLinks(name, it.wgs84Lat, it.wgs84Lon);
+    '<div class="result-card-addr">📍 '+addr+'</div>' +
+    (it.phone ? '<div class="result-card-tel">📞 <a href="tel:'+it.phone+'" style="color:#2e7d32;text-decoration:none;">'+it.phone+'</a></div>' : '<div class="result-card-desc" style="color:#aaa;">전화번호 정보없음</div>') +
+    buildMapLinks(name, it.y, it.x);
   return card;
+}
+
+// GPS 검색 결과를 불러와서 화면에 그려주는 함수 ("더보기" 눌렀을 때도 이 함수를 재사용해요)
+async function loadPharmacyGPSResults(page, reset) {
+  var el = document.getElementById('ph-result');
+  phPage = page;
+  if (reset) el.innerHTML = skeletonHTML(3);
+  try {
+    var data = await callHealthAPI({ type:'pharmacy', lat:phLastCoords.lat, lng:phLastCoords.lng, pageNo:page, numOfRows:15 });
+    var items = extractKakaoDocs(data);
+    if (reset) el.innerHTML = '';
+    if (items.length === 0 && reset) { el.innerHTML = emptyHTML('💊','검색 결과가 없어요','지역으로 검색해 보세요'); return; }
+    items.forEach(function(it){ el.appendChild(renderPharmacyCard(it)); });
+    // 더보기 버튼 (카카오는 meta.is_end로 "더 있는지"를 정확히 알려줘요. 페이지는 최대 3까지만 지원)
+    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
+    var isEnd = data && data.meta && data.meta.is_end;
+    if (!isEnd && page < 3) {
+      var btn = document.createElement('button');
+      btn.className = 'more-btn';
+      btn.textContent = '더보기 ▼';
+      btn.onclick = function(){ loadPharmacyGPSResults(phPage + 1, false); };
+      el.appendChild(btn);
+    }
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+  }
 }
 
 // 📍 내 위치로 찾기 (GPS)
@@ -1138,15 +1200,8 @@ function searchPharmacyGPS() {
   navigator.geolocation.getCurrentPosition(async function(pos) {
     btn.classList.remove('loading');
     btn.textContent = '📍 내 위치로 찾기';
-    try {
-      var data = await callHealthAPI({ type:'pharmacy', lat:pos.coords.latitude, lng:pos.coords.longitude, pageNo:1, numOfRows:10 });
-      var items = extractItems(data);
-      el.innerHTML = '';
-      if (items.length === 0) { el.innerHTML = emptyHTML('💊','검색 결과가 없어요','지역으로 검색해 보세요'); return; }
-      items.forEach(function(it){ el.appendChild(renderPharmacyCard(it)); });
-    } catch(e) {
-      el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
-    }
+    phLastCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    await loadPharmacyGPSResults(1, true);
   }, function(err) {
     btn.classList.remove('loading');
     btn.textContent = '📍 내 위치로 찾기';
@@ -1161,19 +1216,21 @@ function searchPharmacyGPS() {
 async function searchPharmacy(page) {
   var sido = document.getElementById('ph-sido').value;
   var sigungu = document.getElementById('ph-sigungu').value;
+  var dong = document.getElementById('ph-dong').value;
   if (!sido) { alert('시·도를 선택해주세요.'); return; }
   phPage = page;
   var el = document.getElementById('ph-result');
   if(page===1) el.innerHTML = skeletonHTML(3);
   try {
-    var data = await callHealthAPI({ type:'pharmacy', Q0:sido, Q1:sigungu, pageNo:page, numOfRows:10 });
-    var items = extractItems(data);
+    var data = await callHealthAPI({ type:'pharmacy', Q0:sido, Q1:sigungu, dong:dong, pageNo:page, numOfRows:15 });
+    var items = extractKakaoDocs(data);
     if(page===1) el.innerHTML = '';
     if(items.length===0 && page===1) { el.innerHTML = emptyHTML('💊','검색 결과가 없어요','다른 지역을 선택해 보세요'); return; }
     items.forEach(function(it){ el.appendChild(renderPharmacyCard(it)); });
     // 더보기 버튼
     el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
-    if(items.length===10){
+    var isEnd = data && data.meta && data.meta.is_end;
+    if (!isEnd && page < 3) {
       var btn = document.createElement('button');
       btn.className = 'more-btn';
       btn.textContent = '더보기 ▼';

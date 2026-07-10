@@ -104,36 +104,65 @@ export default async function handler(req, res) {
     // 파라미터: Q0(시도명), Q1(시군구명), pageNo, numOfRows
     // ─────────────────────────────────────────
     if (type === 'pharmacy') {
-      // (한글 설명) [수정] 이 정부 API의 QN은 "읍면동"이 아니라 "약국 이름 검색"용 파라미터였어요.
-      //             동 이름을 QN에 넣으면 "그 이름을 가진 약국"을 찾다가 0건이 나왔던 것이 원인이라
-      //             확인됐어요. 그래서 QN(동 이름)은 더 이상 보내지 않고, 이 API가 실제로 지원하는
-      //             범위인 Q0(시도)·Q1(시군구)까지만 사용해요. GPS 좌표가 오면 동일한 방식으로
-      //             시도·시군구 이름만 알아내서 채워요.
-      //
-      //             [되돌림] 좌표기반 "위치정보 조회" API로 바꿔봤다가, 그 API가 지도버튼에 필요한
-      //             좌표 필드를 안 주고 더보기에 필요한 개수 조절도 안 먹혀서(numOfRows 무시로 추정)
-      //             문제가 생겨 다시 이 검증된 방식으로 되돌렸어요.
-      const { Q0, Q1, lat, lng } = params;
-      let q0 = Q0 || '서울특별시';
-      let q1 = Q1 || '';
+      // (한글 설명) [전면 교체] 정부의 "전국약국정보" API는 시/군/구 단위까지만 검색되고,
+      //             거리순 정렬 기능이 아예 없었어요(좌표기반 기능도 있었지만 지도버튼에 필요한
+      //             좌표를 안 주고 결과 개수 조절도 안 먹혀서 못 믿을 데이터였음, 이미 확인됨).
+      //             그래서 카카오 로컬 API의 "카테고리로 장소검색"(약국=PM9)으로 완전히 바꿨어요.
+      //             이미 쓰고 있는 KAKAO_API_KEY를 그대로 재사용해요(새 키 필요 없음).
+      //             GPS는 내 좌표를 그대로 중심점으로 쓰고, 지역 드롭다운은 "시도+시군구+동"
+      //             텍스트를 먼저 좌표로 바꾼(주소검색) 다음 그 좌표를 중심으로 검색해요.
+      //             이러면 "진짜 가까운 순서" 정렬과 "읍/면/동 단위 검색"이 둘 다 가능해져요.
+      const { Q0, Q1, dong, lat, lng } = params;
+      const kakaoKey = process.env.KAKAO_API_KEY;
+
+      let x, y; // 검색 중심 좌표 (x=경도, y=위도 — 카카오 API 표기 방식)
+
       if (lat && lng) {
-        const geo = await reverseGeocodeSidoSigungu(lat, lng, process.env.KAKAO_API_KEY);
-        if (geo) { q0 = geo.sido; q1 = geo.sigungu; }
+        x = lng;
+        y = lat;
+      } else {
+        // (한글 설명) 동까지 선택했으면 "시도 시군구 동"으로, 안 했으면 "시도 시군구"로
+        //             주소검색을 해서 중심 좌표를 알아내요. 동 단위가 더 정확해서 먼저 시도하고,
+        //             혹시 실패하면 시군구 단위로 한 번 더 시도해요.
+        const tryGeocode = async (queryText) => {
+          if (!queryText) return null;
+          const url = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(queryText)}&size=1`;
+          const r = await fetch(url, { headers: { Authorization: `KakaoAK ${kakaoKey}` } });
+          if (!r.ok) return null;
+          const d = await r.json();
+          const doc = d.documents && d.documents[0];
+          return doc ? { x: doc.x, y: doc.y } : null;
+        };
+
+        const fullQuery = [Q0, Q1, dong].filter(Boolean).join(' ');
+        let geo = await tryGeocode(fullQuery);
+        if (!geo && dong) {
+          geo = await tryGeocode([Q0, Q1].filter(Boolean).join(' '));
+        }
+        if (!geo) {
+          return res.status(200).json({ documents: [], meta: { is_end: true }, message: '지역을 확인할 수 없습니다. 다른 지역을 선택해 보세요.' });
+        }
+        x = geo.x;
+        y = geo.y;
       }
-      const pharmacyUrl = 'https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyListInfoInqire';
-      const pharmacyParams = new URLSearchParams();
-      pharmacyParams.append('serviceKey', process.env.PHARMACY_API_KEY);
-      pharmacyParams.append('Q0', q0);
-      pharmacyParams.append('Q1', q1);
-      pharmacyParams.append('pageNo', params.pageNo || '1');
-      pharmacyParams.append('numOfRows', params.numOfRows || '10');
-      pharmacyParams.append('_type', 'json');
 
-      const pharmacyApiUrl = `${pharmacyUrl}?${pharmacyParams.toString()}`;
-      const pr = await fetch(pharmacyApiUrl);
+      // (한글 설명) 카카오 장소검색은 한 번에 최대 15개, 페이지는 최대 3페이지(총 45개)까지만 지원해요.
+      const pageNo = Math.min(parseInt(params.pageNo || '1', 10) || 1, 3);
+      const size = Math.min(parseInt(params.numOfRows || '15', 10) || 15, 15);
 
-      // (한글 설명) debug=1 을 붙여서 호출하면, 정부 API가 준 답을 우리 서버가
-      //             가공하지 않고 원본 그대로 화면에 보여줘요.
+      const catParams = new URLSearchParams();
+      catParams.append('category_group_code', 'PM9'); // PM9 = 약국
+      catParams.append('x', x);
+      catParams.append('y', y);
+      catParams.append('radius', '20000'); // 최대 반경(20km) — 결과는 거리순이라 가까운 곳부터 나옴
+      catParams.append('sort', 'distance');
+      catParams.append('page', String(pageNo));
+      catParams.append('size', String(size));
+
+      const catUrl = `https://dapi.kakao.com/v2/local/search/category.json?${catParams.toString()}`;
+      const pr = await fetch(catUrl, { headers: { Authorization: `KakaoAK ${kakaoKey}` } });
+
+      // (한글 설명) debug=1 을 붙여서 호출하면, 카카오 API가 준 답을 그대로 화면에 보여줘요.
       if (params.debug === '1') {
         const raw = await pr.text();
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
