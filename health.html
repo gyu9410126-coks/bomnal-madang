@@ -578,28 +578,20 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
         <div class="page-box-title" style="color:#6a1b9a;">🏥 요양시설 찾기</div>
       </div>
       <div class="page-box-body">
-        <button class="gps-btn" id="care-gps-btn" onclick="searchCareGPS()">📍 내 위치로 찾기</button>
-        <div style="text-align:center;font-size:13px;color:#999;margin:10px 0;">— 또는 지역으로 검색 —</div>
-
-        <div class="page-label">📍 지역 선택</div>
-        <select class="page-select" id="care-sido" onchange="updateCARESigungu()">
-          <option value="">시·도 선택</option>
-          <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
-          <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
-          <option>울산광역시</option><option>세종특별자치시</option><option>경기도</option>
-          <option>강원도</option><option>충청북도</option><option>충청남도</option>
-          <option>전라북도</option><option>전라남도</option><option>경상북도</option>
-          <option>경상남도</option><option>제주특별자치도</option>
-        </select>
-        <select class="page-select" id="care-sigungu">
-          <option value="">시·군·구 선택</option>
-        </select>
-
-        <div class="search-row" style="margin-top:10px;">
+        <div class="addr-wrap">
+          <button class="gps-btn" id="care-gps-btn" onclick="gpsLocate('care')">📍 현재 위치로 자동입력</button>
+          <input class="addr-input" id="care-addr-input" type="text" placeholder="동네 입력 (예: 인천 남동구 구월동)" oninput="addrSearch('care')" autocomplete="off" />
+          <div class="addr-hint">시·군·구·읍·면·동 단위까지 입력하면 더 정확해요</div>
+          <div class="addr-dropdown" id="care-addr-dropdown" style="display:none;"></div>
+        </div>
+        <div class="addr-selected" id="care-addr-selected" style="display:none;">
+          <span class="addr-selected-txt" id="care-addr-selected-txt"></span>
+          <span class="addr-selected-clear" onclick="addrClear('care')">✕ 다시선택</span>
+        </div>
+        <div class="search-row">
           <button class="search-btn" style="width:100%;background:#6a1b9a;" onclick="searchCare(1)">🏥 요양시설 찾기</button>
         </div>
         <div id="care-result" class="result-list"></div>
-        <div style="font-size:12px;color:#bbb;text-align:center;margin-top:10px;">📅 시설 주소 데이터 기준일: 2026.6.10 (국민건강보험공단)</div>
       </div>
     </div>
     <div class="coupang-box">
@@ -1528,84 +1520,29 @@ async function searchHerbal(page) {
 ═══════════════════════════════════════════ */
 var carePage = 1;
 
-// (한글 설명) 시/도를 고르면 시/군/구 목록을 채워요. (약국찾기와 동일한 패턴)
-function updateCARESigungu() {
-  var sido = document.getElementById('care-sido').value;
-  var sel  = document.getElementById('care-sigungu');
-  sel.innerHTML = '<option value="">시·군·구 선택</option>';
-  if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
-}
-
-// (한글 설명) [신규] 좌표가 없는 대신 실제 주소가 있어서, 좌표 지도버튼 대신
-//             카카오맵 "주소로 검색" 링크를 만들어요. 별도 API 호출 없이 바로 열려요.
-function buildAddressSearchLink(name, addr) {
-  if (!addr) return '';
-  var q = encodeURIComponent((name || '') + ' ' + addr);
-  var url = 'https://map.kakao.com/link/search/' + q;
-  return '<div class="result-card-row">'
-    + '<a href="#" style="flex:1;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:8px 6px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;" onclick="confirmExternalLink(\'' + url + '\');return false;" rel="noopener">🗺️ 지도에서 찾기</a>'
-    + '</div>';
-}
-
-// 요양시설 카드 1개를 만들어주는 함수 (GPS 검색/드롭다운 검색 둘 다 사용)
-function renderCareCard(it) {
-  var name = it.adminNm || '기관명 없음';
-  var card = document.createElement('div');
-  card.className = 'result-card';
-  card.innerHTML =
-    '<div class="result-card-tag" style="background:#f3e5f5;color:#6a1b9a;">🏥 '+(it.adminPttnNm||'요양시설')+'</div>' +
-    '<div class="result-card-name">'+name+'</div>' +
-    '<div class="result-card-addr">📍 '+(it.addr||'주소 정보 없음')+'</div>' +
-    (it.tel ? '<div class="result-card-tel">📞 <a href="tel:'+it.tel+'" style="color:#6a1b9a;text-decoration:none;">'+it.tel+'</a></div>' : '<div class="result-card-desc" style="color:#aaa;">전화번호 정보없음</div>') +
-    buildAddressSearchLink(name, it.addr);
-  return card;
-}
-
-// 📍 내 위치로 찾기 (GPS)
-function searchCareGPS() {
-  if (!navigator.geolocation) { alert('이 브라우저는 위치 서비스를 지원하지 않아요.'); return; }
-  var btn = document.getElementById('care-gps-btn');
-  var el = document.getElementById('care-result');
-  btn.classList.add('loading');
-  btn.textContent = '⏳ 위치 확인 중...';
-  el.innerHTML = skeletonHTML(3);
-
-  navigator.geolocation.getCurrentPosition(async function(pos) {
-    btn.classList.remove('loading');
-    btn.textContent = '📍 내 위치로 찾기';
-    try {
-      var data = await callHealthAPI({ type:'care', lat:pos.coords.latitude, lng:pos.coords.longitude, pageNo:1, numOfRows:10 });
-      var items = (data && data.items) || [];
-      el.innerHTML = '';
-      if (items.length === 0) { el.innerHTML = emptyHTML('🏥','검색 결과가 없어요','지역으로 검색해 보세요'); return; }
-      items.forEach(function(it){ el.appendChild(renderCareCard(it)); });
-    } catch(e) {
-      el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
-    }
-  }, function(err) {
-    btn.classList.remove('loading');
-    btn.textContent = '📍 내 위치로 찾기';
-    var msg = '위치 정보를 가져올 수 없어요.';
-    if (err.code === 1) msg = '위치 권한이 거부됐어요. 브라우저 설정에서 허용해주세요.';
-    alert(msg);
-    el.innerHTML = '';
-  });
-}
-
-// 🔍 지역 드롭다운으로 검색
 async function searchCare(page) {
-  var sido = document.getElementById('care-sido').value;
-  var sigungu = document.getElementById('care-sigungu').value;
-  if (!sido || !sigungu) { alert('시·도와 시·군·구를 선택해주세요.'); return; }
+  var addr = getAddrVal('care');
+  if(!addr) { alert('동네를 입력하고 선택해주세요.'); return; }
+  var sido = addr.sido; var sigungu = addr.sigungu;
   carePage = page;
   var el = document.getElementById('care-result');
   if(page===1) el.innerHTML = skeletonHTML(3);
   try {
-    var data = await callHealthAPI({ type:'care', sido:sido, sigungu:sigungu, pageNo:page, numOfRows:10 });
-    var items = (data && data.items) || [];
+    var data = await callHealthAPI({ type:'care', siDoNm:sido, siGunGuNm:sigungu, emdongNm:addr ? addr.eupmyeondong : '', pageNo:page, numOfRows:10 });
+    var items = extractItems(data);
     if(page===1) el.innerHTML = '';
     if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🏥','검색 결과가 없어요','다른 지역을 선택해 보세요'); return; }
-    items.forEach(function(it){ el.appendChild(renderCareCard(it)); });
+    items.forEach(function(it){
+      var card = document.createElement('div');
+      card.className = 'result-card';
+      card.innerHTML =
+        '<div class="result-card-tag" style="background:#f3e5f5;color:#6a1b9a;">🏥 요양시설</div>' +
+        '<div class="result-card-name">'+(it.longTermCareNm||it.기관명||'기관명 없음')+'</div>' +
+        '<div class="result-card-addr">📍 '+(it.addr||it.주소||'주소 정보 없음')+'</div>' +
+        (it.telNo ? '<div class="result-card-tel">📞 <a href="tel:'+it.telNo+'" style="color:#6a1b9a;text-decoration:none;">'+it.telNo+'</a></div>' : '') +
+        (it.longTermCareTypeCdNm ? '<div class="result-card-desc">유형: '+it.longTermCareTypeCdNm+'</div>' : '');
+      el.appendChild(card);
+    });
     el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
     if(items.length===10){
       var btn = document.createElement('button');
