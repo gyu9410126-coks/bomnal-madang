@@ -104,82 +104,46 @@ export default async function handler(req, res) {
     // 파라미터: Q0(시도명), Q1(시군구명), pageNo, numOfRows
     // ─────────────────────────────────────────
     if (type === 'pharmacy') {
-      // (한글 설명) [수정] QN은 "읍면동"이 아니라 "약국 이름 검색"용 파라미터였어요.
+      // (한글 설명) [수정] 이 정부 API의 QN은 "읍면동"이 아니라 "약국 이름 검색"용 파라미터였어요.
       //             동 이름을 QN에 넣으면 "그 이름을 가진 약국"을 찾다가 0건이 나왔던 것이 원인이라
-      //             확인됐어요. 그래서 QN(동 이름)은 더 이상 보내지 않아요.
+      //             확인됐어요. 그래서 QN(동 이름)은 더 이상 보내지 않고, 이 API가 실제로 지원하는
+      //             범위인 Q0(시도)·Q1(시군구)까지만 사용해요. GPS 좌표가 오면 동일한 방식으로
+      //             시도·시군구 이름만 알아내서 채워요.
       //
-      //             [추가 수정 + 안전장치] GPS(내 위치로 찾기)는 예전엔 좌표를 "시/군/구 이름"으로
-      //             바꿔서 그 동네 전체를 검색했어요. 그러면 같은 시/군/구 안이기만 하면 수십 km
-      //             떨어진 약국도 똑같이 나왔어요(거리순 정렬이 아니었음). 이 서비스에는 "약국
-      //             위치정보 조회"라는 좌표기반 기능이 따로 있어서 이걸 먼저 써보되, 아직 공식
-      //             가이드로 100% 검증된 게 아니라서 "혹시나" 응답이 이상하면(호출 실패·빈 응답 등)
-      //             자동으로 예전에 확실히 검증된 시/군/구 방식으로 돌아가도록 만들었어요.
-      //             즉 최악의 경우에도 지금보다 나빠지지 않고, 잘 되면 더 정확해져요.
+      //             [되돌림] 좌표기반 "위치정보 조회" API로 바꿔봤다가, 그 API가 지도버튼에 필요한
+      //             좌표 필드를 안 주고 더보기에 필요한 개수 조절도 안 먹혀서(numOfRows 무시로 추정)
+      //             문제가 생겨 다시 이 검증된 방식으로 되돌렸어요.
       const { Q0, Q1, lat, lng } = params;
+      let q0 = Q0 || '서울특별시';
+      let q1 = Q1 || '';
+      if (lat && lng) {
+        const geo = await reverseGeocodeSidoSigungu(lat, lng, process.env.KAKAO_API_KEY);
+        if (geo) { q0 = geo.sido; q1 = geo.sigungu; }
+      }
+      const pharmacyUrl = 'https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyListInfoInqire';
+      const pharmacyParams = new URLSearchParams();
+      pharmacyParams.append('serviceKey', process.env.PHARMACY_API_KEY);
+      pharmacyParams.append('Q0', q0);
+      pharmacyParams.append('Q1', q1);
+      pharmacyParams.append('pageNo', params.pageNo || '1');
+      pharmacyParams.append('numOfRows', params.numOfRows || '10');
+      pharmacyParams.append('_type', 'json');
 
-      const basePharmacyParams = {
-        serviceKey: process.env.PHARMACY_API_KEY,
-        pageNo: params.pageNo || '1',
-        numOfRows: params.numOfRows || '10',
-        _type: 'json'
-      };
+      const pharmacyApiUrl = `${pharmacyUrl}?${pharmacyParams.toString()}`;
+      const pr = await fetch(pharmacyApiUrl);
 
-      // (한글 설명) debug=1 이면 안전장치 없이, 새 좌표기반 API가 실제로 뭘 돌려주는지 그대로 보여줘요.
-      //             (사용자가 직접 눈으로 확인하는 용도라 실제 서비스 이용자에게는 영향 없어요.)
-      if (params.debug === '1' && lat && lng) {
-        const debugParams = new URLSearchParams(basePharmacyParams);
-        debugParams.append('WGS84_LON', lng);
-        debugParams.append('WGS84_LAT', lat);
-        const debugUrl = `https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyLcinfoInqire?${debugParams.toString()}`;
-        const debugRes = await fetch(debugUrl);
-        const raw = await debugRes.text();
+      // (한글 설명) debug=1 을 붙여서 호출하면, 정부 API가 준 답을 우리 서버가
+      //             가공하지 않고 원본 그대로 화면에 보여줘요.
+      if (params.debug === '1') {
+        const raw = await pr.text();
         res.setHeader('Content-Type', 'text/plain; charset=utf-8');
         return res.status(200).send(raw);
       }
 
-      let pharmacyData = null;
-
-      // 1차 시도: 좌표기반 위치정보 조회 (GPS로 찾을 때만)
-      if (lat && lng) {
-        try {
-          const locParams = new URLSearchParams(basePharmacyParams);
-          locParams.append('WGS84_LON', lng);
-          locParams.append('WGS84_LAT', lat);
-          const locUrl = `https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyLcinfoInqire?${locParams.toString()}`;
-          const locRes = await fetch(locUrl);
-          if (locRes.ok) {
-            const json = await locRes.json();
-            const header = json && json.response && json.response.header;
-            const items = json && json.response && json.response.body && json.response.body.items && json.response.body.items.item;
-            // 정상 응답(resultCode 00)이고, 실제 약국 목록이 들어있을 때만 이 결과를 사용해요.
-            if (header && header.resultCode === '00' && items) {
-              pharmacyData = json;
-            }
-          }
-        } catch (e) {
-          // 여기서 실패해도 괜찮아요 — 아래 예전 방식으로 자동 전환돼요.
-        }
+      if (!pr.ok) {
+        return res.status(pr.status).json({ error: 'API 호출 실패', status: pr.status });
       }
-
-      // 2차(기본): 새 방식이 없거나 실패했을 때 — 예전부터 써오던 검증된 시/군/구 방식
-      if (!pharmacyData) {
-        let q0 = Q0 || '서울특별시';
-        let q1 = Q1 || '';
-        if (lat && lng) {
-          const geo = await reverseGeocodeSidoSigungu(lat, lng, process.env.KAKAO_API_KEY);
-          if (geo) { q0 = geo.sido; q1 = geo.sigungu; }
-        }
-        const listParams = new URLSearchParams(basePharmacyParams);
-        listParams.append('Q0', q0);
-        listParams.append('Q1', q1);
-        const listUrl = `https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyListInfoInqire?${listParams.toString()}`;
-        const listRes = await fetch(listUrl);
-        if (!listRes.ok) {
-          return res.status(listRes.status).json({ error: 'API 호출 실패', status: listRes.status });
-        }
-        pharmacyData = await listRes.json();
-      }
-
+      const pharmacyData = await pr.json();
       return res.status(200).json(pharmacyData);
     }
 
