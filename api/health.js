@@ -3,6 +3,9 @@
 // Vercel 서버리스 함수 (API 키를 클라이언트에 노출하지 않기 위한 중간 서버)
 // =============================================
 
+import { readFileSync } from 'fs';
+import path from 'path';
+
 // (한글 설명) 전국 17개 시도 코드는 정부에서 정한 고정 번호라서 안전하게 표로 만들어둬요.
 //             benefit.js에서 이미 검증된 표를 그대로 가져왔어요.
 const SIDO_CODES = {
@@ -12,6 +15,40 @@ const SIDO_CODES = {
   '전라북도': '45', '전라남도': '46', '경상북도': '47', '경상남도': '48',
   '제주특별자치도': '50'
 };
+
+// (한글 설명) [신규] 요양시설찾기용 정적 데이터예요. 정부 실시간 API에는 상세주소가
+//             아예 없어서(기관코드로만 조회 가능), 국민건강보험공단이 별도로 공개한
+//             "장기요양기관 시설별 현황" 파일(전국 30,595개 기관, 상세주소 포함,
+//             2026-06-10 기준 스냅샷)을 미리 가공해서 함께 배포해요.
+//             - care-facilities.json: { 기관코드: [이름, 주소, 시도코드, 시군구코드] }
+//             - care-sigungu.json: { 시도코드: { 시군구코드: 시군구명 } }
+//             데이터가 스냅샷이라 시간이 지나면 갱신이 필요할 수 있어요(화면에 기준일 표시).
+let CARE_FACILITIES = null;
+let CARE_SIGUNGU = null;
+let CARE_TYPE_CODES = null;
+function loadCareData() {
+  if (CARE_FACILITIES && CARE_SIGUNGU && CARE_TYPE_CODES) return;
+  try {
+    CARE_FACILITIES = JSON.parse(readFileSync(path.join(process.cwd(), 'api', 'data', 'care-facilities.json'), 'utf-8'));
+    CARE_SIGUNGU = JSON.parse(readFileSync(path.join(process.cwd(), 'api', 'data', 'care-sigungu.json'), 'utf-8'));
+    CARE_TYPE_CODES = JSON.parse(readFileSync(path.join(process.cwd(), 'api', 'data', 'care-type-codes.json'), 'utf-8'));
+  } catch (e) {
+    CARE_FACILITIES = {};
+    CARE_SIGUNGU = {};
+    CARE_TYPE_CODES = {};
+  }
+}
+
+// (한글 설명) [신규] 시/군/구 "이름"(예: 기장군)으로 이 데이터가 쓰는 3자리 코드(예: 710)를 찾아요.
+function findSiGunGuCd(siDoCd, sigunguName) {
+  if (!siDoCd || !sigunguName) return null;
+  const table = CARE_SIGUNGU[siDoCd] || {};
+  const norm = (s) => (s || '').replace(/\s/g, '');
+  for (const code in table) {
+    if (norm(table[code]) === norm(sigunguName)) return code;
+  }
+  return null;
+}
 
 // (한글 설명) 시/군/구는 250개 가까이 되서 표로 다 외우지 않고, 그때그때 정부서버에
 //             "이 시/도 안에 있는 시/군/구 목록 좀 줘"라고 물어봐서 정확한 코드를 찾아요.
@@ -76,7 +113,26 @@ async function resolveAdongCode(signguCd, dongName, rawServiceKey) {
   return null;
 }
 
-export default async function handler(req, res) {
+// (한글 설명) [신규] 요양시설찾기 API는 JSON을 지원 안 할 수도 있어서(공식문서: XML만 명시),
+//             XML 응답에서도 안전하게 값을 꺼낼 수 있도록 준비해요. (benefit.js와 동일한 검증된 로직)
+function parseXmlItems(xml, itemTag) {
+  const items = [];
+  const regex = new RegExp(`<${itemTag}[^>]*>([\\s\\S]*?)<\\/${itemTag}>`, 'g');
+  let match;
+  while ((match = regex.exec(xml)) !== null) {
+    const block = match[1];
+    const obj = {};
+    const fieldRegex = /<([^\/>\s]+)[^>]*>([\s\S]*?)<\/\1>/g;
+    let f;
+    while ((f = fieldRegex.exec(block)) !== null) {
+      obj[f[1]] = f[2].trim();
+    }
+    items.push(obj);
+  }
+  return items;
+}
+
+
   // CORS 헤더 설정 (브라우저에서 이 함수를 호출할 수 있도록 허용)
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
@@ -320,18 +376,104 @@ export default async function handler(req, res) {
 
     // ─────────────────────────────────────────
     // 6. 🏥 요양시설찾기
-    // 국민건강보험공단 장기요양기관 정보
-    // 파라미터: emdongNm(읍면동명), pageNo, numOfRows
+    // 국민건강보험공단 장기요양기관 검색 서비스 + 정적 주소 데이터 + 상세조회(전화번호)
+    // (한글 설명) [전면 수정] 이 API 묶음은 실시간으로는 "상세주소"를 전혀 안 줘요(기관코드로만
+    //             조회 가능한 상세조회 API도 도로명코드 등 코드 형태만 줌). 그래서 국민건강보험공단이
+    //             별도로 공개한 파일(전국 기관 상세주소 포함, care-facilities.json으로 미리 가공해둠)
+    //             과 결합해서 사용해요. 목록·기관유형코드는 실시간 검색 API로 최신 상태를 유지하고,
+    //             주소는 정적 데이터에서, 전화번호는 실시간 상세조회 API에서 채워요.
+    // 파라미터: sido(시도명), sigungu(시군구명) 또는 lat/lng(GPS), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'care') {
-      url = 'https://apis.data.go.kr/B550928/getLtcInsttDetailInfoService02/getLtcInsttDetailInfo02';
-      queryParams.append('serviceKey', process.env.CARE_API_KEY);
-      queryParams.append('emdongNm', params.emdongNm || '');
-      if (params.siDoNm) queryParams.append('siDoNm', params.siDoNm);
-      if (params.siGunGuNm) queryParams.append('siGunGuNm', params.siGunGuNm);
-      queryParams.append('pageNo', params.pageNo || '1');
-      queryParams.append('numOfRows', params.numOfRows || '10');
-      queryParams.append('type', 'json');
+      loadCareData();
+      const { sido: careSido, sigungu: careSigungu, lat: careLat, lng: careLng } = params;
+      let cSido = careSido || '';
+      let cSigungu = careSigungu || '';
+      if (careLat && careLng) {
+        const geo = await reverseGeocodeSidoSigungu(careLat, careLng, process.env.KAKAO_API_KEY);
+        if (geo) { cSido = geo.sido; cSigungu = geo.sigungu; }
+      }
+      const careSiDoCd = SIDO_CODES[cSido];
+      const careSiGunGuCd = findSiGunGuCd(careSiDoCd, cSigungu);
+      if (!careSiDoCd || !careSiGunGuCd) {
+        return res.status(200).json({ items: [], message: '지역을 확인할 수 없습니다.' });
+      }
+
+      const careKey = encodeURIComponent(process.env.CARE_API_KEY);
+
+      // 1) 정부 실시간 검색 API로 그 지역의 최신 기관목록(기관코드·이름·기관유형코드)을 가져와요.
+      const searchUrl = `https://apis.data.go.kr/B550928/searchLtcInsttService01/getLtcInsttSeachList02`
+        + `?serviceKey=${careKey}&siDoCd=${careSiDoCd}&siGunGuCd=${careSiGunGuCd}`
+        + `&pageNo=${params.pageNo || '1'}&numOfRows=${params.numOfRows || '10'}&_type=json`;
+      const sr = await fetch(searchUrl);
+
+      // (한글 설명) debug=1 이면 원본 그대로 보여줘요. (JSON인지 XML인지 아직 확실하지 않아서
+      //             확인용 통로를 만들어뒀어요)
+      if (params.debug === '1') {
+        const raw = await sr.text();
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.status(200).send(raw);
+      }
+
+      if (!sr.ok) {
+        return res.status(sr.status).json({ error: 'API 호출 실패', status: sr.status });
+      }
+
+      const searchCt = sr.headers.get('content-type') || '';
+      let list = [];
+      if (searchCt.includes('json')) {
+        const searchData = await sr.json();
+        const rawItems = searchData.response && searchData.response.body && searchData.response.body.items && searchData.response.body.items.item;
+        list = Array.isArray(rawItems) ? rawItems : (rawItems ? [rawItems] : []);
+      } else {
+        const xml = await sr.text();
+        list = parseXmlItems(xml, 'item');
+      }
+
+      // 2) 정적 주소 데이터에서 실제 상세주소를 채우고, 3) 상세조회 API로 전화번호를 병렬로 채워요.
+      const enriched = await Promise.all(list.map(async (it) => {
+        const code = it.longTermAdminSym;
+        const staticInfo = CARE_FACILITIES[code]; // [이름, 주소, 시도코드, 시군구코드]
+        const addr = staticInfo ? staticInfo[1] : '';
+
+        let tel = '';
+        if (code && it.adminPttnCd) {
+          try {
+            const dUrl = `https://apis.data.go.kr/B550928/getLtcInsttDetailInfoService02/getGeneralSttusDetailInfoItem02`
+              + `?serviceKey=${careKey}&longTermAdminSym=${code}&adminPttnCd=${encodeURIComponent(it.adminPttnCd)}&_type=json`;
+            const dr = await fetch(dUrl);
+            const dCt = dr.headers.get('content-type') || '';
+            let d = null;
+            if (dCt.includes('json')) {
+              const dData = await dr.json();
+              d = dData.response && dData.response.body && dData.response.body.item;
+            } else {
+              const dXml = await dr.text();
+              const dItems = parseXmlItems(dXml, 'item');
+              d = dItems[0];
+            }
+            if (d) {
+              const t1 = d.locTelNo_1 || d.locTelNo1;
+              const t2 = d.locTelNo_2 || d.locTelNo2;
+              const t3 = d.locTelNo_3 || d.locTelNo3;
+              if (t1 && t2 && t3) tel = `${t1}-${t2}-${t3}`;
+            }
+          } catch (e) {
+            // 전화번호를 못 가져와도 나머지 정보는 그대로 보여줘요
+          }
+        }
+
+        return {
+          longTermAdminSym: code,
+          adminNm: it.adminNm,
+          adminPttnCd: it.adminPttnCd,
+          adminPttnNm: CARE_TYPE_CODES[it.adminPttnCd] || it.adminPttnCd || '',
+          addr: addr,
+          tel: tel
+        };
+      }));
+
+      return res.status(200).json({ items: enriched });
     }
 
     // ─────────────────────────────────────────
