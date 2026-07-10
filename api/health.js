@@ -161,7 +161,7 @@ export default async function handler(req, res) {
     //             숫자코드로 바꿔서 검색해요. GPS로 눌러도, 드롭다운으로 골라도 다 지원돼요.
     // 파라미터: sido, sigungu, dong(선택) 또는 lat/lng(GPS, 선택) / keyword(업종코드)
     // ─────────────────────────────────────────
-    if (type === 'store') {
+    else if (type === 'store') {
       const { keyword, sido, sigungu, dong, lat, lng } = params;
       const rawKey = process.env.STORE_API_KEY;
       const serviceKey = encodeURIComponent(rawKey);
@@ -229,7 +229,7 @@ export default async function handler(req, res) {
     //             전부 가져와서 세 번째 드롭다운(동 선택)을 채우는 데 써요.
     //             (benefit.js의 dongList와 동일한 검증된 로직)
     // ─────────────────────────────────────────
-    if (type === 'dongList') {
+    else if (type === 'dongList') {
       const { sido, sigungu } = params;
       const rawKey = process.env.STORE_API_KEY;
 
