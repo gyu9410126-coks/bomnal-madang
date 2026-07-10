@@ -1143,11 +1143,15 @@ function extractKakaoDocs(data) {
 }
 
 // 약국 카드 1개를 만들어주는 함수 (GPS 검색/드롭다운 검색 둘 다 사용) — 카카오 응답 기준
-function renderPharmacyCard(it) {
+// (한글 설명) showDistance가 true일 때만 "약 OOOm" 거리를 보여줘요. 카카오는 항상
+//             "검색 중심점에서의 거리"를 주는데, 지역 드롭다운으로 찾을 땐 중심점이
+//             "선택한 동네"이지 "사용자의 실제 위치"가 아니라서, 그때 거리를 보여주면
+//             마치 내 위치에서 가까운 것처럼 오해하게 만들어요. 그래서 GPS로 찾을 때만 보여줘요.
+function renderPharmacyCard(it, showDistance) {
   var name = it.place_name || '약국명 없음';
   var addr = it.road_address_name || it.address_name || '주소 정보 없음';
   var distText = '';
-  if (it.distance) {
+  if (showDistance && it.distance) {
     var d = parseInt(it.distance, 10);
     if (!isNaN(d) && d > 0) distText = d >= 1000 ? ' · 약 '+(Math.round(d/100)/10)+'km' : ' · 약 '+d+'m';
   }
@@ -1172,7 +1176,7 @@ async function loadPharmacyGPSResults(page, reset) {
     var items = extractKakaoDocs(data);
     if (reset) el.innerHTML = '';
     if (items.length === 0 && reset) { el.innerHTML = emptyHTML('💊','검색 결과가 없어요','지역으로 검색해 보세요'); return; }
-    items.forEach(function(it){ el.appendChild(renderPharmacyCard(it)); });
+    items.forEach(function(it){ el.appendChild(renderPharmacyCard(it, true)); });
     // 더보기 버튼 (카카오는 meta.is_end로 "더 있는지"를 정확히 알려줘요. 페이지는 최대 3까지만 지원)
     el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
     var isEnd = data && data.meta && data.meta.is_end;
@@ -1226,7 +1230,7 @@ async function searchPharmacy(page) {
     var items = extractKakaoDocs(data);
     if(page===1) el.innerHTML = '';
     if(items.length===0 && page===1) { el.innerHTML = emptyHTML('💊','검색 결과가 없어요','다른 지역을 선택해 보세요'); return; }
-    items.forEach(function(it){ el.appendChild(renderPharmacyCard(it)); });
+    items.forEach(function(it){ el.appendChild(renderPharmacyCard(it, false)); });
     // 더보기 버튼
     el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
     var isEnd = data && data.meta && data.meta.is_end;
