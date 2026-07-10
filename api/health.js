@@ -104,11 +104,21 @@ export default async function handler(req, res) {
     // 파라미터: Q0(시도명), Q1(시군구명), pageNo, numOfRows
     // ─────────────────────────────────────────
     if (type === 'pharmacy') {
+      // (한글 설명) [수정] GPS 좌표(lat/lng)가 오면, 이미 검증된 방식으로 동네 이름을 알아내서
+      //             Q0(시도)·Q1(시군구)·QN(읍면동) 자리에 채워요. 없으면 예전처럼 직접 받은 값을 써요.
+      const { Q0, Q1, QN, lat, lng } = params;
+      let q0 = Q0 || '서울특별시';
+      let q1 = Q1 || '';
+      let qn = QN || '';
+      if (lat && lng) {
+        const geo = await reverseGeocodeSidoSigungu(lat, lng, process.env.KAKAO_API_KEY);
+        if (geo) { q0 = geo.sido; q1 = geo.sigungu; qn = geo.dong || ''; }
+      }
       url = 'https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyListInfoInqire';
       queryParams.append('serviceKey', process.env.PHARMACY_API_KEY);
-      queryParams.append('Q0', params.Q0 || '서울특별시');
-      queryParams.append('Q1', params.Q1 || '');
-      if (params.QN) queryParams.append('QN', params.QN);
+      queryParams.append('Q0', q0);
+      queryParams.append('Q1', q1);
+      if (qn) queryParams.append('QN', qn);
       queryParams.append('pageNo', params.pageNo || '1');
       queryParams.append('numOfRows', params.numOfRows || '10');
       queryParams.append('_type', 'json');
