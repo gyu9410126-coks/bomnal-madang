@@ -146,11 +146,15 @@ export default async function handler(req, res) {
 
     // ─────────────────────────────────────────
     // 2. 🚑 응급실찾기
-    // 국립중앙의료원 응급의료기관 기본정보 조회
+    // 국립중앙의료원 응급의료기관 목록정보 조회
+    // (한글 설명) [수정] 예전엔 getEgytBassInfoInqire(기관ID로 딱 1곳만 찾는 API)를 썼는데,
+    //             이 API는 애초에 지역 필터가 없어서 Q0/Q1을 보내도 무시되고 전체 목록이
+    //             나왔던 것으로 확인됨(공식 활용가이드 hwp 문서로 검증). 지역별 목록을 찾는
+    //             진짜 API는 getEgytListInfoInqire이고, Q0(시도)·Q1(시군구)를 정상 지원함.
     // 파라미터: Q0(시도명), Q1(시군구명), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'emergency') {
-      const emergencyUrl = 'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytBassInfoInqire';
+      const emergencyUrl = 'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytListInfoInqire';
       const emergencyParams = new URLSearchParams();
       emergencyParams.append('serviceKey', process.env.EMERGENCY_API_KEY);
       emergencyParams.append('Q0', params.Q0 || '서울특별시');
