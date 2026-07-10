@@ -114,14 +114,33 @@ export default async function handler(req, res) {
         const geo = await reverseGeocodeSidoSigungu(lat, lng, process.env.KAKAO_API_KEY);
         if (geo) { q0 = geo.sido; q1 = geo.sigungu; qn = geo.dong || ''; }
       }
-      url = 'https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyListInfoInqire';
-      queryParams.append('serviceKey', process.env.PHARMACY_API_KEY);
-      queryParams.append('Q0', q0);
-      queryParams.append('Q1', q1);
-      if (qn) queryParams.append('QN', qn);
-      queryParams.append('pageNo', params.pageNo || '1');
-      queryParams.append('numOfRows', params.numOfRows || '10');
-      queryParams.append('_type', 'json');
+      const pharmacyUrl = 'https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyListInfoInqire';
+      const pharmacyParams = new URLSearchParams();
+      pharmacyParams.append('serviceKey', process.env.PHARMACY_API_KEY);
+      pharmacyParams.append('Q0', q0);
+      pharmacyParams.append('Q1', q1);
+      if (qn) pharmacyParams.append('QN', qn);
+      pharmacyParams.append('pageNo', params.pageNo || '1');
+      pharmacyParams.append('numOfRows', params.numOfRows || '10');
+      pharmacyParams.append('_type', 'json');
+
+      const pharmacyApiUrl = `${pharmacyUrl}?${pharmacyParams.toString()}`;
+      const pr = await fetch(pharmacyApiUrl);
+
+      // (한글 설명) [신규] debug=1 을 붙여서 호출하면, 정부 API가 준 답을 우리 서버가
+      //             가공하지 않고 원본 그대로 화면에 보여줘요. "화면이 답을 못 찾는 이유"가
+      //             서버 문제인지, 답의 생김새(모양) 문제인지 눈으로 확인하기 위한 통로예요.
+      if (params.debug === '1') {
+        const raw = await pr.text();
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.status(200).send(raw);
+      }
+
+      if (!pr.ok) {
+        return res.status(pr.status).json({ error: 'API 호출 실패', status: pr.status });
+      }
+      const pharmacyData = await pr.json();
+      return res.status(200).json(pharmacyData);
     }
 
     // ─────────────────────────────────────────
