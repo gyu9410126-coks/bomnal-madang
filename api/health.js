@@ -104,22 +104,23 @@ export default async function handler(req, res) {
     // 파라미터: Q0(시도명), Q1(시군구명), pageNo, numOfRows
     // ─────────────────────────────────────────
     if (type === 'pharmacy') {
-      // (한글 설명) [수정] GPS 좌표(lat/lng)가 오면, 이미 검증된 방식으로 동네 이름을 알아내서
-      //             Q0(시도)·Q1(시군구)·QN(읍면동) 자리에 채워요. 없으면 예전처럼 직접 받은 값을 써요.
-      const { Q0, Q1, QN, lat, lng } = params;
+      // (한글 설명) [수정] 이 정부 API의 QN은 "읍면동"이 아니라 "약국 이름 검색"용 파라미터였어요.
+      //             동 이름을 QN에 넣으면 "그 이름을 가진 약국"을 찾다가 0건이 나왔던 것이 원인이라
+      //             확인됐어요. 그래서 QN(동 이름)은 더 이상 보내지 않고, 이 API가 실제로 지원하는
+      //             범위인 Q0(시도)·Q1(시군구)까지만 사용해요. GPS 좌표가 오면 동일한 방식으로
+      //             시도·시군구 이름만 알아내서 채워요.
+      const { Q0, Q1, lat, lng } = params;
       let q0 = Q0 || '서울특별시';
       let q1 = Q1 || '';
-      let qn = QN || '';
       if (lat && lng) {
         const geo = await reverseGeocodeSidoSigungu(lat, lng, process.env.KAKAO_API_KEY);
-        if (geo) { q0 = geo.sido; q1 = geo.sigungu; qn = geo.dong || ''; }
+        if (geo) { q0 = geo.sido; q1 = geo.sigungu; }
       }
       const pharmacyUrl = 'https://apis.data.go.kr/B552657/ErmctInsttInfoInqireService/getParmacyListInfoInqire';
       const pharmacyParams = new URLSearchParams();
       pharmacyParams.append('serviceKey', process.env.PHARMACY_API_KEY);
       pharmacyParams.append('Q0', q0);
       pharmacyParams.append('Q1', q1);
-      if (qn) pharmacyParams.append('QN', qn);
       pharmacyParams.append('pageNo', params.pageNo || '1');
       pharmacyParams.append('numOfRows', params.numOfRows || '10');
       pharmacyParams.append('_type', 'json');
