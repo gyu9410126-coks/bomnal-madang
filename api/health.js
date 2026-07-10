@@ -150,13 +150,31 @@ export default async function handler(req, res) {
     // 파라미터: Q0(시도명), Q1(시군구명), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'emergency') {
-      url = 'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytBassInfoInqire';
-      queryParams.append('serviceKey', process.env.EMERGENCY_API_KEY);
-      queryParams.append('Q0', params.Q0 || '서울특별시');
-      queryParams.append('Q1', params.Q1 || '');
-      queryParams.append('pageNo', params.pageNo || '1');
-      queryParams.append('numOfRows', params.numOfRows || '10');
-      queryParams.append('_type', 'json');
+      const emergencyUrl = 'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytBassInfoInqire';
+      const emergencyParams = new URLSearchParams();
+      emergencyParams.append('serviceKey', process.env.EMERGENCY_API_KEY);
+      emergencyParams.append('Q0', params.Q0 || '서울특별시');
+      emergencyParams.append('Q1', params.Q1 || '');
+      emergencyParams.append('pageNo', params.pageNo || '1');
+      emergencyParams.append('numOfRows', params.numOfRows || '10');
+      emergencyParams.append('_type', 'json');
+
+      const emergencyApiUrl = `${emergencyUrl}?${emergencyParams.toString()}`;
+      const er = await fetch(emergencyApiUrl);
+
+      // (한글 설명) [신규] debug=1 을 붙여서 호출하면, 정부 API가 준 답을 가공하지 않고
+      //             원본 그대로 보여줘요. 좌표(위치정보) 필드가 실제로 있는지 확인하기 위한 통로예요.
+      if (params.debug === '1') {
+        const raw = await er.text();
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.status(200).send(raw);
+      }
+
+      if (!er.ok) {
+        return res.status(er.status).json({ error: 'API 호출 실패', status: er.status });
+      }
+      const emergencyData = await er.json();
+      return res.status(200).json(emergencyData);
     }
 
     // ─────────────────────────────────────────
