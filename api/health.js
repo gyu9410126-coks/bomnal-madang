@@ -588,6 +588,18 @@ export default async function handler(req, res) {
     // 실제 공공 API 호출
     // ─────────────────────────────────────────
     const apiUrl = `${url}?${queryParams.toString()}`;
+
+    // (한글 설명) [신규] debug=1 을 붙여서 호출하면, 정부 API가 준 답을 가공하지 않고
+    //             (성공이든 에러든) HTTP 상태코드와 함께 원본 그대로 보여줘요. 약국찾기·
+    //             응급실찾기에 이미 있는 것과 같은 진단용 통로인데, 이 공통 처리부(병원찾기,
+    //             건강기능식품정보 등이 씀)에는 빠져있어서 이번에 추가했어요.
+    if (params.debug === '1') {
+      const debugResponse = await fetch(apiUrl);
+      const raw = await debugResponse.text();
+      res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      return res.status(200).send(`[호출한 주소]\n${apiUrl}\n\n[응답 상태코드] ${debugResponse.status}\n\n[원본 응답]\n${raw}`);
+    }
+
     const response = await fetch(apiUrl);
 
     if (!response.ok) {
