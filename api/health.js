@@ -518,15 +518,14 @@ export default async function handler(req, res) {
 
     // ─────────────────────────────────────────
     // 8. 🏨 병원찾기
-    // 건강보험심사평가원 병원정보서비스 (hospInfoService1)
-    // (한글 설명) [전면 교체 - 2026-07] 예전 코드가 존재하지 않는 주소(hospInfoServicev2)를
-    //             부르고 있어서 항상 실패하던 미완성 상태였어요. 활용가이드
-    //             (OpenAPI활용가이드_건강보험심사평가원_병원정보서비스__210616.docx)와
-    //             공공데이터포털에 실제 등록된 서비스 페이지(수정일 2026-05-12까지도
-    //             이 문서를 참고문서로 쓰고 있음)를 직접 확인해서, 진짜 주소인
-    //             hospInfoService1/getHospBasisList1로 바로잡았어요.
-    //             이 API는 xPos/yPos/radius로 GPS 반경검색을 자체 지원하고 거리(distance)까지
-    //             줘서, 응급실찾기 때와 달리 카카오 API로 바꿀 필요가 없었어요.
+    // 건강보험심사평가원 병원정보서비스 (hospInfoServicev2)
+    // (한글 설명) [2차 수정 - 2026-07] 활용가이드 문서만 보고 hospInfoService1로 바꿨었는데,
+    //             경아오빠 data.go.kr 계정의 실제 승인된 활용신청 상세정보를 직접 확인해보니
+    //             End Point가 hospInfoServicev2로 등록되어 있었어요(문서가 오래돼서 실제와
+    //             달랐던 것). 그래서 진짜 주소인 v2로 다시 되돌렸어요.
+    //             오퍼레이션명(getHospBasisList)은 data.go.kr에 v2 전용 공식 문서가 없어서
+    //             100% 확정은 아니고, 2016년 이전 구버전 명칭을 참고한 추정이에요.
+    //             debug=1로 꼭 확인해야 해요 — 안 되면 다른 오퍼레이션명으로 바로 재시도할게요.
     // 파라미터: sido(시도명, 지역검색시 필수), sigungu(시군구명, 선택), dong(읍면동명, 선택-텍스트),
     //          clCd(종별코드, 선택), dgsbjtCd(진료과목코드, 선택),
     //          lat/lng(GPS검색시), pageNo, numOfRows
@@ -534,7 +533,7 @@ export default async function handler(req, res) {
     // ─────────────────────────────────────────
     else if (type === 'hospital') {
       const { sido, sigungu, dong, clCd, dgsbjtCd, lat, lng } = params;
-      url = 'https://apis.data.go.kr/B551182/hospInfoService1/getHospBasisList1';
+      url = 'https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList';
       queryParams.append('serviceKey', process.env.HOSPITAL_API_KEY);
       queryParams.append('pageNo', params.pageNo || '1');
       queryParams.append('numOfRows', params.numOfRows || '10');
