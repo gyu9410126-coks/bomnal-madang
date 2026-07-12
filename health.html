@@ -945,6 +945,16 @@ function resetHealthPage(name) {
     resetVal(t+'-input');
     clearHtml(t+'-result');
   }
+
+  // (한글 설명) [신규] 병원찾기는 드롭다운 5개(시도/시군구/읍면동/종별/진료과목)를 쓰는데,
+  //             결과창(hosp-result)은 위 ADDR_PREFIX 로직으로 지워지지만 드롭다운 선택은
+  //             그대로 남아있던 문제가 있었어요. 재방문 시 전부 첫 번째 옵션으로 되돌려요.
+  if (name === 'hospital') {
+    ['hosp-sido','hosp-sigungu','hosp-dong','hosp-cl','hosp-dgsbjt'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.selectedIndex = 0;
+    });
+  }
 }
 
 function goBack() {
