@@ -19,6 +19,19 @@ import careSigunguCodes from './data/care-sigungu-codes.json';
 //             똑같이 맞도록 "코드표의 2자리 코드 + 0000"으로 미리 계산해 저장해뒀어요.
 import hospitalSigunguCodes from './data/hospital-sigungu-codes.json';
 
+// (한글 설명) [버그 수정] 부산·대구·인천·광주·대전·울산 6개 광역시는 심평원 코드표 안에서
+//             시/군/구 이름 앞에 도시 짧은이름이 붙어있어요(예: "기장군"이 아니라 "부산기장군").
+//             화면 드롭다운은 "기장군"처럼 정식 법정동 이름만 쓰기 때문에, 그대로 찾으면
+//             못 찾아서 시/군/구 코드 없이 시/도 전체로만 검색되던 실제 버그가 있었어요.
+//             (서울/경기/강원 등은 이 문제가 없어요 — 코드표에 도시이름이 안 붙어있음)
+const SIDO_SHORT = {
+  '서울특별시':'서울', '부산광역시':'부산', '대구광역시':'대구', '인천광역시':'인천',
+  '광주광역시':'광주', '대전광역시':'대전', '울산광역시':'울산', '세종특별자치시':'세종',
+  '경기도':'경기', '강원도':'강원', '충청북도':'충북', '충청남도':'충남',
+  '전라북도':'전북', '전라남도':'전남', '경상북도':'경북', '경상남도':'경남',
+  '제주특별자치도':'제주'
+};
+
 // (한글 설명) 전국 17개 시도 코드는 정부에서 정한 고정 번호라서 안전하게 표로 만들어둬요.
 //             benefit.js에서 이미 검증된 표를 그대로 가져왔어요.
 const SIDO_CODES = {
@@ -119,7 +132,15 @@ function resolveHospitalRegion(sido, sigungu) {
   const result = { sidoCd: entry.sidoCd, sgguCd: null, sigunguMatched: true };
   if (!sigungu) { result.sigunguMatched = false; return result; }
   const norm = (s) => (s || '').replace(/\s/g, '');
-  const key = Object.keys(entry.sigungu || {}).find((name) => norm(name) === norm(sigungu));
+  const keys = Object.keys(entry.sigungu || {});
+  let key = keys.find((name) => norm(name) === norm(sigungu));
+  if (!key) {
+    // (한글 설명) [버그 수정] 직접 일치가 안 되면, 광역시 짧은이름을 앞에 붙여서 한 번 더
+    //             찾아봐요. 예: "기장군" → "부산기장군"으로 재시도. (부산진구처럼 정식 이름에
+    //             이미 도시이름이 포함된 경우는 1차 시도에서 이미 찾아지므로 문제없어요.)
+    const short = SIDO_SHORT[sido];
+    if (short) key = keys.find((name) => norm(name) === norm(short + sigungu));
+  }
   if (key) {
     result.sgguCd = entry.sigungu[key];
   } else {
