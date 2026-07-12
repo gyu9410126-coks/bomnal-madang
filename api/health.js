@@ -9,6 +9,9 @@
 //             알아채서 같이 담아가기 때문에, 별도 설정(vercel.json) 없이도 안전해요.
 //             (fs로 직접 읽는 방식은 배포 시 파일 누락 위험이 있어서 이 방식으로 교체함)
 import careData from './data/care-data.json';
+// (한글 설명) care-data.json 자체에서 뽑아낸 "시/군/구 이름 → 코드" 표예요.
+//             요양시설찾기 검색할 때 이 표로 지역코드를 찾아야 care-data.json과 항상 맞아요.
+import careSigunguCodes from './data/care-sigungu-codes.json';
 
 // (한글 설명) 전국 17개 시도 코드는 정부에서 정한 고정 번호라서 안전하게 표로 만들어둬요.
 //             benefit.js에서 이미 검증된 표를 그대로 가져왔어요.
@@ -402,18 +405,26 @@ export default async function handler(req, res) {
       if (!sidoCd) {
         return res.status(200).json({ items: [], total: 0, hasMore: false, message: '시/도를 확인할 수 없습니다.' });
       }
-      const region = await resolveRegionCode(sido, sigungu, process.env.STORE_API_KEY);
-      if (!region || region.divId !== 'signguCd') {
+
+      // (한글 설명) [수정] 예전엔 소상공인시장진흥공단 API가 주는 시/군/구 코드(resolveRegionCode)를
+      //             그대로 썼는데, 이 코드는 care-data.json을 만들 때 쓴 국민건강보험공단 코드와
+      //             체계가 달라서(자릿수도 다름) 매번 검색 결과가 0건으로 나왔던 실제 버그가 있었어요.
+      //             그래서 대신 care-data.json 자체에서 뽑아낸 "시/군/구 이름 → 코드" 표
+      //             (care-sigungu-codes.json)로 직접 찾도록 바꿨어요. care-data.json의 키와
+      //             100% 같은 체계라서 이제 항상 정확히 맞아요.
+      const norm = (s) => (s || '').replace(/\s/g, '');
+      const sigunguTable = careSigunguCodes[sidoCd] || {};
+      const sigunguKey = Object.keys(sigunguTable).find((name) => norm(name) === norm(sigungu));
+      if (!sigunguKey) {
         return res.status(200).json({ items: [], total: 0, hasMore: false, message: '시/군/구를 확인할 수 없습니다. 지역을 다시 선택해 주세요.' });
       }
 
-      const regionKey = sidoCd + '_' + region.key;
+      const regionKey = sidoCd + '_' + sigunguTable[sigunguKey];
       let list = careData[regionKey] || [];
 
       // 읍/면/동까지 입력했으면 한 번 더 좁혀요. 정확히 일치하는 곳이 없으면
       // 0건으로 끝내지 않고 시/군/구 전체 결과를 그대로 보여줘요.
       if (dong) {
-        const norm = (s) => (s || '').replace(/\s/g, '');
         const filtered = list.filter((it) => norm(it.d) === norm(dong));
         if (filtered.length > 0) list = filtered;
       }
