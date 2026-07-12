@@ -3,21 +3,12 @@
 // Vercel 서버리스 함수 (API 키를 클라이언트에 노출하지 않기 위한 중간 서버)
 // =============================================
 
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import path from 'path';
-
 // (한글 설명) 요양시설 3만여 곳 데이터를 "실시간으로 정부 API에 물어보는" 대신,
 //             미리 만들어둔 파일(data/care-data.json)에서 바로 꺼내 써요.
-//             그래서 요양시설찾기는 외부 API 응답을 기다릴 필요 없이 훨씬 빨라요.
-//             (로딩시간 최적화 — 아래 'care' 부분에서 자세히 설명)
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-let careData = {};
-try {
-  careData = JSON.parse(readFileSync(path.join(__dirname, '..', 'data', 'care-data.json'), 'utf-8'));
-} catch (e) {
-  console.error('[care-data.json 로딩 실패]', e.message);
-}
+//             import 방식은 배포할 때 Vercel이 이 파일이 필요하다는 걸 자동으로
+//             알아채서 같이 담아가기 때문에, 별도 설정(vercel.json) 없이도 안전해요.
+//             (fs로 직접 읽는 방식은 배포 시 파일 누락 위험이 있어서 이 방식으로 교체함)
+import careData from '../data/care-data.json';
 
 // (한글 설명) 전국 17개 시도 코드는 정부에서 정한 고정 번호라서 안전하게 표로 만들어둬요.
 //             benefit.js에서 이미 검증된 표를 그대로 가져왔어요.
@@ -29,12 +20,29 @@ const SIDO_CODES = {
   '제주특별자치도': '50'
 };
 
+// (한글 설명) [신규] 카카오 주소검색은 "서울", "인천"처럼 줄임말로 시/도 이름을 줘요.
+//             그런데 SIDO_CODES는 "서울특별시"처럼 정식명칭이라 그대로 두면 못 찾아요.
+//             그래서 줄임말이 오면 정식명칭으로 바꿔주는 변환표를 하나 둬요.
+const SIDO_ALIAS = {
+  '서울': '서울특별시', '부산': '부산광역시', '대구': '대구광역시', '인천': '인천광역시',
+  '광주': '광주광역시', '대전': '대전광역시', '울산': '울산광역시', '세종': '세종특별자치시',
+  '경기': '경기도', '강원': '강원도', '충북': '충청북도', '충남': '충청남도',
+  '전북': '전라북도', '전남': '전라남도', '경북': '경상북도', '경남': '경상남도',
+  '제주': '제주특별자치도'
+};
+function normalizeSido(s) {
+  if (!s) return s;
+  if (SIDO_CODES[s]) return s; // 이미 정식명칭이면 그대로 둬요
+  return SIDO_ALIAS[s] || s;
+}
+
 // (한글 설명) 시/군/구는 250개 가까이 되서 표로 다 외우지 않고, 그때그때 정부서버에
 //             "이 시/도 안에 있는 시/군/구 목록 좀 줘"라고 물어봐서 정확한 코드를 찾아요.
 //             (benefit.js와 동일한 검증된 로직)
 async function resolveRegionCode(sido, sigungu, rawServiceKey) {
-  if (!sido || !SIDO_CODES[sido]) return null;
-  const ctprvnCd = SIDO_CODES[sido];
+  const sidoFull = normalizeSido(sido);
+  if (!sidoFull || !SIDO_CODES[sidoFull]) return null;
+  const ctprvnCd = SIDO_CODES[sidoFull];
   if (!sigungu) return { divId: 'ctprvnCd', key: ctprvnCd };
 
   const key = encodeURIComponent(rawServiceKey);
@@ -389,7 +397,8 @@ export default async function handler(req, res) {
       if (!sido || !sigungu) {
         return res.status(200).json({ items: [], total: 0, hasMore: false, message: '시/도와 시/군/구를 먼저 선택해 주세요.' });
       }
-      const sidoCd = SIDO_CODES[sido];
+      const sidoFull = normalizeSido(sido);
+      const sidoCd = SIDO_CODES[sidoFull];
       if (!sidoCd) {
         return res.status(200).json({ items: [], total: 0, hasMore: false, message: '시/도를 확인할 수 없습니다.' });
       }
