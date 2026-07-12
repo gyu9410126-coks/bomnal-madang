@@ -8,7 +8,7 @@
 //             import 방식은 배포할 때 Vercel이 이 파일이 필요하다는 걸 자동으로
 //             알아채서 같이 담아가기 때문에, 별도 설정(vercel.json) 없이도 안전해요.
 //             (fs로 직접 읽는 방식은 배포 시 파일 누락 위험이 있어서 이 방식으로 교체함)
-import careData from '../data/care-data.json';
+import careData from './data/care-data.json';
 
 // (한글 설명) 전국 17개 시도 코드는 정부에서 정한 고정 번호라서 안전하게 표로 만들어둬요.
 //             benefit.js에서 이미 검증된 표를 그대로 가져왔어요.
