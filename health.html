@@ -581,17 +581,27 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
         <div class="page-box-title" style="color:#6a1b9a;">🏥 요양시설 찾기</div>
       </div>
       <div class="page-box-body">
-        <div class="addr-wrap">
-          <button class="gps-btn" id="care-gps-btn" onclick="gpsLocate('care')">📍 현재 위치로 자동입력</button>
-          <input class="addr-input" id="care-addr-input" type="text" placeholder="동네 입력 (예: 인천 남동구 구월동)" oninput="addrSearch('care')" autocomplete="off" />
-          <div class="addr-hint">시·군·구·읍·면·동 단위까지 입력하면 더 정확해요</div>
-          <div class="addr-dropdown" id="care-addr-dropdown" style="display:none;"></div>
-        </div>
-        <div class="addr-selected" id="care-addr-selected" style="display:none;">
-          <span class="addr-selected-txt" id="care-addr-selected-txt"></span>
-          <span class="addr-selected-clear" onclick="addrClear('care')">✕ 다시선택</span>
-        </div>
-        <div class="search-row">
+        <button class="gps-btn" id="care-gps-btn" onclick="searchCareGPS()">📍 내 위치로 찾기</button>
+        <div style="text-align:center;font-size:13px;color:#999;margin:10px 0;">— 또는 지역으로 검색 —</div>
+
+        <div class="page-label">📍 지역 선택</div>
+        <select class="page-select" id="care-sido" onchange="updateCareSigungu()">
+          <option value="">시·도 선택</option>
+          <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
+          <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
+          <option>울산광역시</option><option>세종특별자치시</option><option>경기도</option>
+          <option>강원도</option><option>충청북도</option><option>충청남도</option>
+          <option>전라북도</option><option>전라남도</option><option>경상북도</option>
+          <option>경상남도</option><option>제주특별자치도</option>
+        </select>
+        <select class="page-select" id="care-sigungu" onchange="updateCareDong()">
+          <option value="">시·군·구 선택</option>
+        </select>
+        <select class="page-select" id="care-dong">
+          <option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>
+        </select>
+
+        <div class="search-row" style="margin-top:10px;">
           <button class="search-btn" style="width:100%;background:#6a1b9a;" onclick="searchCare(1)">🏥 요양시설 찾기</button>
         </div>
         <div id="care-result" class="result-list"></div>
@@ -1602,6 +1612,41 @@ async function searchHerbal(page) {
    6. 🏥 요양시설찾기
 ═══════════════════════════════════════════ */
 var carePage = 1;
+var careGPSRegion = null; // GPS로 찾은 시/도·시/군/구·동 (드롭다운 대신 이걸로 검색해요)
+
+// (한글 설명) 시/도를 고르면 시/군/구 목록을 채워요. (약국찾기와 동일한 패턴)
+function updateCareSigungu() {
+  var sido = document.getElementById('care-sido').value;
+  var sel  = document.getElementById('care-sigungu');
+  sel.innerHTML = '<option value="">시·군·구 선택</option>';
+  if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
+  document.getElementById('care-dong').innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+  careGPSRegion = null; // 드롭다운을 직접 바꾸면 GPS로 찾은 위치는 더 이상 쓰지 않아요
+}
+
+// (한글 설명) 시/군/구를 고르면, 그 안에 있는 "동" 목록을 서버에 물어봐서 채워요.
+//             동을 몰라도 검색은 되니까 "선택 사항"이에요 (약국찾기와 동일한 검증된 패턴).
+function updateCareDong() {
+  var sido = document.getElementById('care-sido').value;
+  var sigungu = document.getElementById('care-sigungu').value;
+  var dongSel = document.getElementById('care-dong');
+  dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+  if (!sido || !sigungu) return;
+
+  dongSel.innerHTML = '<option value="">⏳ 동 목록 불러오는 중...</option>';
+  fetch('/api/health?type=dongList&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+      var items = (data && data.items) || [];
+      items.forEach(function(it){
+        if (it.adongNm) dongSel.innerHTML += '<option>'+it.adongNm+'</option>';
+      });
+    })
+    .catch(function(){
+      dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+    });
+}
 
 // 요양시설 카드 1개를 만들어주는 함수
 // (한글 설명) 전화번호는 카카오가 그 시설을 등록해뒀을 때만 나와요. 없으면
@@ -1620,14 +1665,22 @@ function renderCareCard(it) {
   return card;
 }
 
+// 🔍 지역 드롭다운(또는 GPS로 찾은 지역)으로 검색
 async function searchCare(page) {
-  var addr = getAddrVal('care');
-  if(!addr || !addr.sido || !addr.sigungu) { alert('동네를 입력하고 선택해주세요. (시·군·구까지 필요해요)'); return; }
+  var sido, sigungu, dong;
+  if (careGPSRegion) {
+    sido = careGPSRegion.sido; sigungu = careGPSRegion.sigungu; dong = careGPSRegion.dong;
+  } else {
+    sido = document.getElementById('care-sido').value;
+    sigungu = document.getElementById('care-sigungu').value;
+    dong = document.getElementById('care-dong').value;
+  }
+  if (!sido || !sigungu) { alert('시·도와 시·군·구를 선택해주세요.'); return; }
   carePage = page;
   var el = document.getElementById('care-result');
   if(page===1) el.innerHTML = skeletonHTML(3);
   try {
-    var data = await callHealthAPI({ type:'care', sido:addr.sido, sigungu:addr.sigungu, dong:addr.eupmyeondong||'', pageNo:page, numOfRows:10 });
+    var data = await callHealthAPI({ type:'care', sido:sido, sigungu:sigungu, dong:dong||'', pageNo:page, numOfRows:10 });
     var items = (data && data.items) || [];
     if(page===1) el.innerHTML = '';
     if(items.length===0 && page===1) {
@@ -1647,6 +1700,41 @@ async function searchCare(page) {
   } catch(e) {
     el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
   }
+}
+
+// 📍 내 위치로 찾기 (GPS)
+// (한글 설명) 요양시설찾기 서버는 좌표(lat/lng)를 직접 못 받아요(시/도·시/군/구 이름만 받음).
+//             그래서 좌표를 먼저 카카오로 "시/도·시/군/구·동" 이름으로 바꾼 다음,
+//             그 이름으로 검색해요 (드롭다운으로 직접 고른 것과 똑같은 방식으로 처리).
+function searchCareGPS() {
+  if (!navigator.geolocation) { alert('이 브라우저는 위치 서비스를 지원하지 않아요.'); return; }
+  var btn = document.getElementById('care-gps-btn');
+  var el = document.getElementById('care-result');
+  btn.classList.add('loading');
+  btn.textContent = '⏳ 위치 확인 중...';
+  el.innerHTML = skeletonHTML(3);
+
+  navigator.geolocation.getCurrentPosition(async function(pos) {
+    btn.classList.remove('loading');
+    btn.textContent = '📍 내 위치로 찾기';
+    try {
+      var r = await fetch('/api/kakao?type=coord&lat=' + pos.coords.latitude + '&lng=' + pos.coords.longitude);
+      var data = await r.json();
+      var doc = data.documents && data.documents[0];
+      if (!doc) throw new Error('주소 변환 실패');
+      careGPSRegion = { sido: doc.region_1depth_name, sigungu: doc.region_2depth_name, dong: doc.region_3depth_name };
+      await searchCare(1);
+    } catch(e) {
+      el.innerHTML = emptyHTML('⚠️','위치 확인에 실패했어요','지역으로 검색해 보세요');
+    }
+  }, function(err) {
+    btn.classList.remove('loading');
+    btn.textContent = '📍 내 위치로 찾기';
+    var msg = '위치 정보를 가져올 수 없어요.';
+    if (err.code === 1) msg = '위치 권한이 거부됐어요. 브라우저 설정에서 허용해주세요.';
+    alert(msg);
+    el.innerHTML = '';
+  }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
 }
 
 /* ═══════════════════════════════════════════
