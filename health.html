@@ -1460,12 +1460,26 @@ function updateSTDong() {
 function buildMapLinks(name, lat, lon) {
   if (!lat || !lon) return ''; // 좌표가 없으면 버튼을 안 만들어요 (에러 방지)
   var n = encodeURIComponent(name || '위치');
-  var mapUrl = 'https://map.kakao.com/link/map/' + n + ',' + lat + ',' + lon;
-  var wayUrl = 'https://map.kakao.com/link/to/' + n + ',' + lat + ',' + lon;
+  var mapUrl = 'https://map.kakao.com/link/map/' + n + ',' + lat + ',' + lon; // 앱이 없을 때 쓸 웹 지도 주소
+  var wayUrl = 'https://map.kakao.com/link/to/' + n + ',' + lat + ',' + lon;  // 길찾기는 그대로
+  var appMapUrl = 'kakaomap://look?p=' + lat + ',' + lon; // (한글 설명) 카카오맵 앱의 "장소만 보기" 전용 주소 - 길찾기 화면이 아니라 지도만 열려요
   return '<div class="result-card-row">'
-    + '<a href="#" style="flex:1;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:8px 6px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;" onclick="confirmExternalLink(\'' + mapUrl + '\');return false;" rel="noopener">🗺️ 지도로 보기</a>'
+    + '<a href="#" style="flex:1;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:8px 6px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;" onclick="openKakaoMapPlace(\'' + appMapUrl + '\', \'' + mapUrl + '\');return false;" rel="noopener">🗺️ 지도로 보기</a>'
     + '<a href="#" style="flex:1;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:8px 6px;border-radius:8px;background:#e65100;color:#fff;" onclick="confirmExternalLink(\'' + wayUrl + '\');return false;" rel="noopener">🚗 길찾기</a>'
     + '</div>';
+}
+
+// (한글 설명) [신규] "지도로 보기" 버튼 전용 함수예요. 휴대폰에 카카오맵 앱이 깔려있으면
+//             앱의 "장소만 보기" 화면을 먼저 열어봐요(길찾기 화면이 아니에요). 0.8초 안에
+//             앱이 안 열리면(=앱이 없다는 뜻) 자동으로 그냥 웹 지도를 대신 열어줘요.
+//             "길찾기" 버튼은 이 함수를 쓰지 않고 예전 방식(confirmExternalLink) 그대로예요.
+function openKakaoMapPlace(appUrl, webUrl) {
+  if (!confirm('지도로 이동합니다.\n봄날마당으로 돌아오려면 휴대폰 뒤로가기를 누르세요.')) return;
+  var fallbackTimer = setTimeout(function() {
+    window.open(webUrl, '_blank');
+  }, 800);
+  window.addEventListener('pagehide', function() { clearTimeout(fallbackTimer); }, { once: true });
+  window.location.href = appUrl;
 }
 
 // 건강매장 결과 카드 1개를 만들어주는 공통 함수 (GPS 검색/드롭다운 검색 둘 다 사용)
