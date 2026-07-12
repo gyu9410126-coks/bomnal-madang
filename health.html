@@ -665,17 +665,98 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
         <div class="page-box-title" style="color:#3949ab;">🏨 병원 찾기</div>
       </div>
       <div class="page-box-body">
-        <div class="addr-wrap">
-          <button class="gps-btn" id="hosp-gps-btn" onclick="gpsLocate('hosp')">📍 현재 위치로 자동입력</button>
-          <input class="addr-input" id="hosp-addr-input" type="text" placeholder="동네 입력 (예: 서울 종로구 혜화동)" oninput="addrSearch('hosp')" autocomplete="off" />
-          <div class="addr-hint">시·군·구·읍·면·동 단위까지 입력하면 더 정확해요</div>
-          <div class="addr-dropdown" id="hosp-addr-dropdown" style="display:none;"></div>
-        </div>
-        <div class="addr-selected" id="hosp-addr-selected" style="display:none;">
-          <span class="addr-selected-txt" id="hosp-addr-selected-txt"></span>
-          <span class="addr-selected-clear" onclick="addrClear('hosp')">✕ 다시선택</span>
-        </div>
-        <div class="search-row">
+        <button class="gps-btn" id="hosp-gps-btn" onclick="searchHospitalGPS()">📍 내 위치로 찾기</button>
+        <div style="text-align:center;font-size:13px;color:#999;margin:10px 0;">— 또는 지역으로 검색 —</div>
+
+        <div class="page-label">📍 지역 선택</div>
+        <select class="page-select" id="hosp-sido" onchange="updateHospSigungu()">
+          <option value="">시·도 선택</option>
+          <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
+          <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
+          <option>울산광역시</option><option>세종특별자치시</option><option>경기도</option>
+          <option>강원도</option><option>충청북도</option><option>충청남도</option>
+          <option>전라북도</option><option>전라남도</option><option>경상북도</option>
+          <option>경상남도</option><option>제주특별자치도</option>
+        </select>
+        <select class="page-select" id="hosp-sigungu" onchange="updateHospDong()">
+          <option value="">시·군·구 선택</option>
+        </select>
+        <select class="page-select" id="hosp-dong">
+          <option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>
+        </select>
+
+        <div class="page-label">🏷️ 병원 종류 (선택 사항)</div>
+        <select class="page-select" id="hosp-cl">
+          <option value="">전체</option>
+          <option value="01">상급종합병원</option>
+          <option value="11">종합병원</option>
+          <option value="21">병원</option>
+          <option value="28">요양병원</option>
+          <option value="29">정신병원</option>
+          <option value="31">의원</option>
+          <option value="41">치과병원</option>
+          <option value="51">치과의원</option>
+          <option value="61">조산원</option>
+          <option value="71">보건소</option>
+          <option value="72">보건지소</option>
+          <option value="73">보건진료소</option>
+          <option value="75">보건의료원</option>
+          <option value="92">한방병원</option>
+          <option value="93">한의원</option>
+        </select>
+
+        <div class="page-label">🩺 진료과목 (선택 사항)</div>
+        <select class="page-select" id="hosp-dgsbjt">
+          <option value="">전체</option>
+          <option value="01">내과</option>
+          <option value="02">신경과</option>
+          <option value="03">정신건강의학과</option>
+          <option value="04">외과</option>
+          <option value="05">정형외과</option>
+          <option value="06">신경외과</option>
+          <option value="07">흉부외과</option>
+          <option value="08">성형외과</option>
+          <option value="09">마취통증의학과</option>
+          <option value="10">산부인과</option>
+          <option value="11">소아청소년과</option>
+          <option value="12">안과</option>
+          <option value="13">이비인후과</option>
+          <option value="14">피부과</option>
+          <option value="15">비뇨의학과</option>
+          <option value="16">영상의학과</option>
+          <option value="17">방사선종양학과</option>
+          <option value="18">병리과</option>
+          <option value="19">진단검사의학과</option>
+          <option value="20">결핵과</option>
+          <option value="21">재활의학과</option>
+          <option value="22">핵의학과</option>
+          <option value="23">가정의학과</option>
+          <option value="24">응급의학과</option>
+          <option value="25">직업환경의학과</option>
+          <option value="26">예방의학과</option>
+          <option value="50">구강악안면외과</option>
+          <option value="51">치과보철과</option>
+          <option value="52">치과교정과</option>
+          <option value="53">소아치과</option>
+          <option value="54">치주과</option>
+          <option value="55">치과보존과</option>
+          <option value="56">구강내과</option>
+          <option value="57">영상치의학과</option>
+          <option value="58">구강병리과</option>
+          <option value="59">예방치과</option>
+          <option value="61">통합치의학과</option>
+          <option value="80">한방내과</option>
+          <option value="81">한방부인과</option>
+          <option value="82">한방소아과</option>
+          <option value="83">한방안·이비인후·피부과</option>
+          <option value="84">한방신경정신과</option>
+          <option value="85">침구과</option>
+          <option value="86">한방재활의학과</option>
+          <option value="87">사상체질과</option>
+          <option value="88">한방응급</option>
+        </select>
+
+        <div class="search-row" style="margin-top:10px;">
           <button class="search-btn" style="width:100%;background:#3949ab;" onclick="searchHospital(1)">🏨 병원 찾기</button>
         </div>
         <div id="hosp-result" class="result-list"></div>
@@ -898,7 +979,7 @@ window.addEventListener('popstate', function(e) {
 /* ═══════════════════════════════════════════
    주소 자동완성 공통 함수
    카카오 주소검색 API → /api/kakao 프록시 경유
-   prefix: 'ph','em','care','hosp','sec-ph' (건강매장찾기는 드롭다운 방식으로 전환됨)
+   prefix: 'ph','em','care','sec-ph' (건강매장찾기·병원찾기는 드롭다운 방식으로 전환됨)
 ═══════════════════════════════════════════ */
 
 // 각 prefix 별 선택된 주소 저장 (시도명, 시군구명, 읍면동명)
@@ -1822,36 +1903,133 @@ async function searchNutrition(page) {
 /* ═══════════════════════════════════════════
    8. 🏨 병원찾기
    출처표시 필수: 건강보험심사평가원 (공공저작물 제1유형)
+   (한글 설명) [전면 교체] 예전엔 존재하지도 않는 SIDO_CODE_MAP을 쓰다가 항상 에러가 나던
+   미완성 기능이었어요. 약국찾기/요양시설찾기와 같은 표준 드롭다운 방식으로 새로 만들었고,
+   이 API는 GPS 반경검색을 자체 지원해서 카카오 없이 정부 API만으로 "내 위치 근처" 검색이 돼요.
 ═══════════════════════════════════════════ */
 var hospPage = 1;
+var hospLastCoords = null; // GPS로 찾은 좌표를 "더보기" 눌렀을 때 재사용
 
+// (한글 설명) 시/도를 고르면 시/군/구 목록을 채워요. (약국찾기와 동일한 검증된 패턴)
+function updateHospSigungu() {
+  var sido = document.getElementById('hosp-sido').value;
+  var sel  = document.getElementById('hosp-sigungu');
+  sel.innerHTML = '<option value="">시·군·구 선택</option>';
+  if (SIGUNGU[sido]) SIGUNGU[sido].forEach(function(s){ sel.innerHTML += '<option>'+s+'</option>'; });
+  document.getElementById('hosp-dong').innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+}
+
+// (한글 설명) 시/군/구를 고르면 "동" 목록을 서버에 물어봐서 채워요. (약국찾기와 동일한 검증된 패턴)
+function updateHospDong() {
+  var sido = document.getElementById('hosp-sido').value;
+  var sigungu = document.getElementById('hosp-sigungu').value;
+  var dongSel = document.getElementById('hosp-dong');
+  dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+  if (!sido || !sigungu) return;
+
+  dongSel.innerHTML = '<option value="">⏳ 동 목록 불러오는 중...</option>';
+  fetch('/api/health?type=dongList&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+      var items = (data && data.items) || [];
+      items.forEach(function(it){
+        if (it.adongNm) dongSel.innerHTML += '<option>'+it.adongNm+'</option>';
+      });
+    })
+    .catch(function(){
+      dongSel.innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+    });
+}
+
+// 병원 카드 1개를 만들어주는 함수 (GPS 검색/드롭다운 검색 둘 다 사용)
+// (한글 설명) showDistance가 true일 때만 "약 OOOm" 거리를 보여줘요. GPS로 찾을 때만 내 실제
+//             위치 기준 거리라서 의미가 있고, 지역 드롭다운으로 찾을 땐 표시하지 않아요(품질기준 13번).
+function renderHospitalCard(it, showDistance) {
+  var distText = '';
+  if (showDistance && it.distance) {
+    var d = parseInt(it.distance, 10);
+    if (!isNaN(d) && d > 0) distText = d >= 1000 ? ' · 약 '+(Math.round(d/100)/10)+'km' : ' · 약 '+d+'m';
+  }
+  var card = document.createElement('div');
+  card.className = 'result-card';
+  card.innerHTML =
+    '<div class="result-card-tag" style="background:#e8eaf6;color:#3949ab;">🏨 '+(it.clCdNm||'병원')+distText+'</div>' +
+    '<div class="result-card-name">'+(it.yadmNm||'병원명 없음')+'</div>' +
+    '<div class="result-card-addr">📍 '+(it.addr||'주소 정보 없음')+'</div>' +
+    (it.telno ? '<div class="result-card-tel">📞 <a href="tel:'+it.telno+'" style="color:#3949ab;text-decoration:none;">'+it.telno+'</a></div>' : '<div class="result-card-desc" style="color:#aaa;">전화번호 정보없음</div>') +
+    (it.hospUrl ? '<div class="result-card-row"><a href="#" style="font-size:13px;color:#3949ab;text-decoration:underline;" onclick="confirmExternalLink(\''+it.hospUrl+'\');return false;">🔗 병원 홈페이지</a></div>' : '') +
+    buildMapLinks(it.yadmNm, it.YPos, it.XPos);
+  return card;
+}
+
+// GPS 검색 결과를 불러와서 화면에 그려요 ("더보기" 눌렀을 때도 재사용)
+async function loadHospitalGPSResults(page, reset) {
+  var el = document.getElementById('hosp-result');
+  hospPage = page;
+  if (reset) el.innerHTML = skeletonHTML(3);
+  var clCd = document.getElementById('hosp-cl').value;
+  var dgsbjtCd = document.getElementById('hosp-dgsbjt').value;
+  try {
+    var data = await callHealthAPI({ type:'hospital', lat:hospLastCoords.lat, lng:hospLastCoords.lng, clCd:clCd, dgsbjtCd:dgsbjtCd, pageNo:page, numOfRows:10 });
+    var items = extractItems(data);
+    if (reset) el.innerHTML = '';
+    if (items.length === 0 && reset) { el.innerHTML = emptyHTML('🏨','검색 결과가 없어요','반경 30km 안에 병원이 없거나, 다른 조건으로 찾아보세요'); return; }
+    items.forEach(function(it){ el.appendChild(renderHospitalCard(it, true)); });
+    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
+    if (items.length === 10) {
+      var btn = document.createElement('button');
+      btn.className = 'more-btn';
+      btn.textContent = '더보기 ▼';
+      btn.onclick = function(){ loadHospitalGPSResults(hospPage + 1, false); };
+      el.appendChild(btn);
+    }
+  } catch(e) {
+    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+  }
+}
+
+// 📍 내 위치로 찾기 (GPS, 반경 30km)
+function searchHospitalGPS() {
+  if (!navigator.geolocation) { alert('이 브라우저는 위치 서비스를 지원하지 않아요.'); return; }
+  var btn = document.getElementById('hosp-gps-btn');
+  var el = document.getElementById('hosp-result');
+  btn.classList.add('loading');
+  btn.textContent = '⏳ 위치 확인 중...';
+  el.innerHTML = skeletonHTML(3);
+
+  navigator.geolocation.getCurrentPosition(async function(pos) {
+    btn.classList.remove('loading');
+    btn.textContent = '📍 내 위치로 찾기';
+    hospLastCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    await loadHospitalGPSResults(1, true);
+  }, function(err) {
+    btn.classList.remove('loading');
+    btn.textContent = '📍 내 위치로 찾기';
+    var msg = '위치 정보를 가져올 수 없어요.';
+    if (err.code === 1) msg = '위치 권한이 거부됐어요. 브라우저 설정에서 허용해주세요.';
+    alert(msg);
+    el.innerHTML = '';
+  }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+}
+
+// 🔍 지역 드롭다운으로 검색
 async function searchHospital(page) {
-  var addr = getAddrVal('hosp');
-  if(!addr) { alert('동네를 입력하고 선택해주세요.'); return; }
-  var sido = addr.sido;
+  var sido = document.getElementById('hosp-sido').value;
+  var sigungu = document.getElementById('hosp-sigungu').value;
+  var dong = document.getElementById('hosp-dong').value;
+  var clCd = document.getElementById('hosp-cl').value;
+  var dgsbjtCd = document.getElementById('hosp-dgsbjt').value;
+  if (!sido) { alert('시·도를 선택해주세요.'); return; }
   hospPage = page;
   var el = document.getElementById('hosp-result');
   if(page===1) el.innerHTML = skeletonHTML(3);
-
-  // 심평원 API는 시도코드(앞 2자리), 시군구코드(뒤 3자리) 형식
-  var sidoCd = (SIDO_CODE_MAP[sido]||'').substring(0,3);
-
   try {
-    var data = await callHealthAPI({ type:'hospital', sidoCd:sidoCd, pageNo:page, numOfRows:10 });
+    var data = await callHealthAPI({ type:'hospital', sido:sido, sigungu:sigungu, dong:dong, clCd:clCd, dgsbjtCd:dgsbjtCd, pageNo:page, numOfRows:10 });
     var items = extractItems(data);
     if(page===1) el.innerHTML = '';
-    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🏨','검색 결과가 없어요','다른 지역을 선택해 보세요'); return; }
-    items.forEach(function(it){
-      var card = document.createElement('div');
-      card.className = 'result-card';
-      card.innerHTML =
-        '<div class="result-card-tag" style="background:#e8eaf6;color:#3949ab;">🏨 병원</div>' +
-        '<div class="result-card-name">'+(it.yadmNm||'병원명 없음')+'</div>' +
-        '<div class="result-card-addr">📍 '+(it.addr||'주소 정보 없음')+'</div>' +
-        (it.telno ? '<div class="result-card-tel">📞 <a href="tel:'+it.telno+'" style="color:#3949ab;text-decoration:none;">'+it.telno+'</a></div>' : '') +
-        (it.dgsbjtCdNm ? '<div class="result-card-desc">진료과목: '+it.dgsbjtCdNm+'</div>' : '');
-      el.appendChild(card);
-    });
+    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🏨','검색 결과가 없어요','다른 지역이나 조건을 선택해 보세요'); return; }
+    items.forEach(function(it){ el.appendChild(renderHospitalCard(it, false)); });
     el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
     if(items.length===10){
       var btn = document.createElement('button');

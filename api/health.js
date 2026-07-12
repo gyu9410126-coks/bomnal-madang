@@ -12,6 +12,12 @@ import careData from './data/care-data.json';
 // (한글 설명) care-data.json 자체에서 뽑아낸 "시/군/구 이름 → 코드" 표예요.
 //             요양시설찾기 검색할 때 이 표로 지역코드를 찾아야 care-data.json과 항상 맞아요.
 import careSigunguCodes from './data/care-sigungu-codes.json';
+// (한글 설명) [신규] 병원찾기(건강보험심사평가원 hospInfoService1) 전용 시도/시군구 코드표예요.
+//             건강보험심사평가원이 직접 배포한 코드표(코드테이블_행정구역_20240524.csv)에서
+//             뽑아냈어요. 다른 API들과 코드 체계가 완전히 달라서(자릿수도 다름) 반드시
+//             이 표로만 코드를 찾아야 해요. 시도코드는 활용가이드 예제(sidoCd=110000)와
+//             똑같이 맞도록 "코드표의 2자리 코드 + 0000"으로 미리 계산해 저장해뒀어요.
+import hospitalSigunguCodes from './data/hospital-sigungu-codes.json';
 
 // (한글 설명) 전국 17개 시도 코드는 정부에서 정한 고정 번호라서 안전하게 표로 만들어둬요.
 //             benefit.js에서 이미 검증된 표를 그대로 가져왔어요.
@@ -102,6 +108,26 @@ async function resolveAdongCode(signguCd, dongName, rawServiceKey) {
   }
   return null;
 }
+
+// (한글 설명) [신규] 병원찾기용 "시/도 이름, 시/군/구 이름" → "심평원 코드"로 바꿔주는 함수예요.
+//             hospitalSigunguCodes.json 안에서 정확히 이름이 일치하는 항목을 찾아요.
+//             시/군/구까지는 찾았는데 정확히 일치하는 이름이 없으면(예: 오타/다른 표기),
+//             시/도 코드만이라도 돌려줘서 "시/도 전체"로라도 검색되게 해요(요양시설찾기와 동일한 안전장치).
+function resolveHospitalRegion(sido, sigungu) {
+  const entry = hospitalSigunguCodes[sido];
+  if (!entry) return null; // 시/도 이름 자체를 못 찾으면 검색 불가
+  const result = { sidoCd: entry.sidoCd, sgguCd: null, sigunguMatched: true };
+  if (!sigungu) { result.sigunguMatched = false; return result; }
+  const norm = (s) => (s || '').replace(/\s/g, '');
+  const key = Object.keys(entry.sigungu || {}).find((name) => norm(name) === norm(sigungu));
+  if (key) {
+    result.sgguCd = entry.sigungu[key];
+  } else {
+    result.sigunguMatched = false; // 못 찾았다는 표시만 해두고, 시/도 코드는 그대로 씀
+  }
+  return result;
+}
+
 
 export default async function handler(req, res) {
   // CORS 헤더 설정 (브라우저에서 이 함수를 호출할 수 있도록 허용)
@@ -492,19 +518,51 @@ export default async function handler(req, res) {
 
     // ─────────────────────────────────────────
     // 8. 🏨 병원찾기
-    // 건강보험심사평가원 병원정보서비스
-    // 파라미터: sidoCd(시도코드), sgguCd(시군구코드), pageNo, numOfRows
+    // 건강보험심사평가원 병원정보서비스 (hospInfoService1)
+    // (한글 설명) [전면 교체 - 2026-07] 예전 코드가 존재하지 않는 주소(hospInfoServicev2)를
+    //             부르고 있어서 항상 실패하던 미완성 상태였어요. 활용가이드
+    //             (OpenAPI활용가이드_건강보험심사평가원_병원정보서비스__210616.docx)와
+    //             공공데이터포털에 실제 등록된 서비스 페이지(수정일 2026-05-12까지도
+    //             이 문서를 참고문서로 쓰고 있음)를 직접 확인해서, 진짜 주소인
+    //             hospInfoService1/getHospBasisList1로 바로잡았어요.
+    //             이 API는 xPos/yPos/radius로 GPS 반경검색을 자체 지원하고 거리(distance)까지
+    //             줘서, 응급실찾기 때와 달리 카카오 API로 바꿀 필요가 없었어요.
+    // 파라미터: sido(시도명, 지역검색시 필수), sigungu(시군구명, 선택), dong(읍면동명, 선택-텍스트),
+    //          clCd(종별코드, 선택), dgsbjtCd(진료과목코드, 선택),
+    //          lat/lng(GPS검색시), pageNo, numOfRows
     // 출처표시 필수: 건강보험심사평가원 (공공저작물 제1유형)
     // ─────────────────────────────────────────
     else if (type === 'hospital') {
-      url = 'https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList';
+      const { sido, sigungu, dong, clCd, dgsbjtCd, lat, lng } = params;
+      url = 'https://apis.data.go.kr/B551182/hospInfoService1/getHospBasisList1';
       queryParams.append('serviceKey', process.env.HOSPITAL_API_KEY);
-      if (params.sidoCd) queryParams.append('sidoCd', params.sidoCd);
-      if (params.sgguCd) queryParams.append('sgguCd', params.sgguCd);
-      if (params.dgsbjtCd) queryParams.append('dgsbjtCd', params.dgsbjtCd); // 진료과목코드
       queryParams.append('pageNo', params.pageNo || '1');
       queryParams.append('numOfRows', params.numOfRows || '10');
       queryParams.append('_type', 'json');
+
+      if (lat && lng) {
+        // (한글 설명) GPS 검색 모드 — 내 좌표를 중심으로 반경 안의 병원을 거리순으로 찾아요.
+        //             반경은 30km로 시작해요(경아오빠 결정). 정부 API가 이 반경을 거부하면
+        //             (에러 응답이 오면) 다음 세션에서 반경을 줄여서 재시도해야 해요.
+        queryParams.append('xPos', lng);
+        queryParams.append('yPos', lat);
+        queryParams.append('radius', '30000'); // 단위: 미터(m) = 30km
+      } else {
+        // (한글 설명) 지역 드롭다운 검색 모드
+        if (!sido) {
+          return res.status(200).json({ response: { body: { items: {}, totalCount: 0 } }, message: '시/도를 먼저 선택해 주세요.' });
+        }
+        const region = resolveHospitalRegion(sido, sigungu);
+        if (!region) {
+          return res.status(200).json({ response: { body: { items: {}, totalCount: 0 } }, message: '시/도를 확인할 수 없습니다.' });
+        }
+        queryParams.append('sidoCd', region.sidoCd);
+        if (region.sgguCd) queryParams.append('sgguCd', region.sgguCd);
+        if (dong) queryParams.append('emdongNm', dong); // 텍스트로 직접 필터(코드 아님)
+      }
+
+      if (clCd) queryParams.append('clCd', clCd);           // 종별코드(병원등급)
+      if (dgsbjtCd) queryParams.append('dgsbjtCd', dgsbjtCd); // 진료과목코드
     }
 
     // ─────────────────────────────────────────
