@@ -3,6 +3,22 @@
 // Vercel 서버리스 함수 (API 키를 클라이언트에 노출하지 않기 위한 중간 서버)
 // =============================================
 
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+// (한글 설명) 요양시설 3만여 곳 데이터를 "실시간으로 정부 API에 물어보는" 대신,
+//             미리 만들어둔 파일(data/care-data.json)에서 바로 꺼내 써요.
+//             그래서 요양시설찾기는 외부 API 응답을 기다릴 필요 없이 훨씬 빨라요.
+//             (로딩시간 최적화 — 아래 'care' 부분에서 자세히 설명)
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+let careData = {};
+try {
+  careData = JSON.parse(readFileSync(path.join(__dirname, '..', 'data', 'care-data.json'), 'utf-8'));
+} catch (e) {
+  console.error('[care-data.json 로딩 실패]', e.message);
+}
+
 // (한글 설명) 전국 17개 시도 코드는 정부에서 정한 고정 번호라서 안전하게 표로 만들어둬요.
 //             benefit.js에서 이미 검증된 표를 그대로 가져왔어요.
 const SIDO_CODES = {
@@ -81,6 +97,11 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // (한글 설명) 로딩시간 최적화: 완전히 같은 검색(같은 주소창 URL)이 10분 안에 또 들어오면,
+  //             정부 API를 다시 호출하지 않고 Vercel이 저장해둔 응답을 바로 돌려줘요.
+  //             10분이 지나도 20분까지는 "일단 예전 답을 보여주고 뒤에서 새로 받아오는" 방식이라
+  //             사용자 입장에서는 거의 항상 빠르게 느껴져요.
+  res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=1200');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -355,18 +376,84 @@ export default async function handler(req, res) {
 
     // ─────────────────────────────────────────
     // 6. 🏥 요양시설찾기
-    // 국민건강보험공단 장기요양기관 정보
-    // 파라미터: emdongNm(읍면동명), pageNo, numOfRows
+    // (한글 설명) [전면 교체] 정부의 "장기요양기관 상세정보조회" API는 기관코드를 이미
+    //             알아야만 조회되는 구조라 지역검색이 아예 불가능했어요(활용가이드 문서로
+    //             확인됨). 그래서 국민건강보험공단이 공개한 "전국 장기요양기관 현황" 파일
+    //             데이터(엑셀)를 미리 data/care-data.json으로 만들어두고, 여기서 바로
+    //             검색해요. 전화번호는 이 파일에 없어서, 화면에 보여줄 결과(최대 10~20건)만
+    //             카카오에 "이 이름 아세요?" 하고 물어봐서 있으면 붙여줘요.
+    // 파라미터: sido(시도명), sigungu(시군구명), dong(읍면동명, 선택), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'care') {
-      url = 'https://apis.data.go.kr/B550928/getLtcInsttDetailInfoService02/getLtcInsttDetailInfo02';
-      queryParams.append('serviceKey', process.env.CARE_API_KEY);
-      queryParams.append('emdongNm', params.emdongNm || '');
-      if (params.siDoNm) queryParams.append('siDoNm', params.siDoNm);
-      if (params.siGunGuNm) queryParams.append('siGunGuNm', params.siGunGuNm);
-      queryParams.append('pageNo', params.pageNo || '1');
-      queryParams.append('numOfRows', params.numOfRows || '10');
-      queryParams.append('type', 'json');
+      const { sido, sigungu, dong } = params;
+      if (!sido || !sigungu) {
+        return res.status(200).json({ items: [], total: 0, hasMore: false, message: '시/도와 시/군/구를 먼저 선택해 주세요.' });
+      }
+      const sidoCd = SIDO_CODES[sido];
+      if (!sidoCd) {
+        return res.status(200).json({ items: [], total: 0, hasMore: false, message: '시/도를 확인할 수 없습니다.' });
+      }
+      const region = await resolveRegionCode(sido, sigungu, process.env.STORE_API_KEY);
+      if (!region || region.divId !== 'signguCd') {
+        return res.status(200).json({ items: [], total: 0, hasMore: false, message: '시/군/구를 확인할 수 없습니다. 지역을 다시 선택해 주세요.' });
+      }
+
+      const regionKey = sidoCd + '_' + region.key;
+      let list = careData[regionKey] || [];
+
+      // 읍/면/동까지 입력했으면 한 번 더 좁혀요. 정확히 일치하는 곳이 없으면
+      // 0건으로 끝내지 않고 시/군/구 전체 결과를 그대로 보여줘요.
+      if (dong) {
+        const norm = (s) => (s || '').replace(/\s/g, '');
+        const filtered = list.filter((it) => norm(it.d) === norm(dong));
+        if (filtered.length > 0) list = filtered;
+      }
+
+      const pageNo = Math.max(parseInt(params.pageNo || '1', 10) || 1, 1);
+      const size = Math.min(parseInt(params.numOfRows || '10', 10) || 10, 20);
+      const start = (pageNo - 1) * size;
+      const pageItems = list.slice(start, start + size);
+      const hasMore = start + size < list.length;
+
+      // (한글 설명) 3만 건 전체가 아니라 "지금 화면에 보여줄 만큼만" 카카오에 물어봐요.
+      //             Promise.all로 한꺼번에 동시에 물어봐서, 10건이든 1건이든 걸리는
+      //             시간은 거의 똑같아요(순서대로 하나씩 기다리지 않음 — 로딩시간 최적화).
+      const kakaoKey = process.env.KAKAO_API_KEY;
+      const enriched = await Promise.all(pageItems.map(async (it) => {
+        let tel = '';
+        let lat = null;
+        let lon = null;
+        try {
+          const kwUrl = `https://dapi.kakao.com/v2/local/search/keyword.json?query=${encodeURIComponent(sigungu + ' ' + it.n)}&size=1`;
+          const kr = await fetch(kwUrl, { headers: { Authorization: `KakaoAK ${kakaoKey}` } });
+          const kd = await kr.json();
+          const doc = kd.documents && kd.documents[0];
+          if (doc) {
+            tel = doc.phone || '';
+            lat = doc.y;
+            lon = doc.x;
+          }
+        } catch (e) {
+          // 카카오가 이 시설을 모르면 조용히 넘어가요 (전화번호 없이 표시)
+        }
+
+        if (!lat) {
+          // 전화번호는 못 찾아도, 주소로 좌표는 구해서 지도·길찾기 버튼은 살려줘요
+          try {
+            const geoUrl = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(it.a)}&size=1`;
+            const gr = await fetch(geoUrl, { headers: { Authorization: `KakaoAK ${kakaoKey}` } });
+            const gd = await gr.json();
+            const gdoc = gd.documents && gd.documents[0];
+            if (gdoc) { lat = gdoc.y; lon = gdoc.x; }
+          } catch (e) {
+            // 좌표도 못 구하면 지도 버튼 없이 이름/주소만 보여줘요
+          }
+        }
+
+        return { name: it.n, addr: it.a, dong: it.d, typeNm: it.t, capacity: it.cap, tel, lat, lon };
+      }));
+
+      return res.status(200).json({ items: enriched, total: list.length, hasMore });
     }
 
     // ─────────────────────────────────────────

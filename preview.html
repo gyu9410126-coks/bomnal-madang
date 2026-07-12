@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🌸 봄날마당 디자인 미리보기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;700;900&family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&family=Noto+Serif+KR:wght@400;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ===================== 컨트롤 패널 ===================== */
+.preview-panel {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: #1a1a2e;
+  color: #fff;
+  z-index: 9999;
+  padding: 10px 14px 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  overflow-y: auto;
+  max-height: 55vh;
+}
+.panel-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.preview-panel-title {
+  font-size: 13px;
+  font-weight: 900;
+  color: #f5821f;
+  font-family: sans-serif;
+}
+.panel-toggle {
+  background: #333;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: sans-serif;
+}
+.panel-body { }
+.preview-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+  flex-wrap: wrap;
+}
+.preview-label {
+  font-size: 11px;
+  color: #bbb;
+  min-width: 72px;
+  font-family: sans-serif;
+  flex-shrink: 0;
+}
+.pv-btn {
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 2px solid #444;
+  background: #2a2a3e;
+  color: #ccc;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: sans-serif;
+  transition: all 0.15s;
+}
+.pv-btn.on {
+  border-color: #f5821f;
+  background: #f5821f;
+  color: #fff;
+}
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.color-row input[type="color"] {
+  width: 30px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+.color-row input[type="text"] {
+  width: 80px;
+  border: 1.5px solid #444;
+  border-radius: 8px;
+  background: #2a2a3e;
+  color: #fff;
+  font-size: 11px;
+  padding: 3px 7px;
+  font-family: monospace;
+}
+.apply-btn {
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: none;
+  background: #2eb230;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: sans-serif;
+  white-space: nowrap;
+}
+.divider {
+  border: none;
+  border-top: 1px solid #333;
+  margin: 6px 0;
+}
+.copy-result {
+  font-size: 11px;
+  color: #f5821f;
+  font-family: monospace;
+  margin-top: 4px;
+  min-height: 16px;
+}
+
+/* ===================== 미리보기 본문 ===================== */
+.preview-body {
+  margin-top: 320px;
+  padding-bottom: 100px;
+}
+
+/* ===================== 앱 스타일 ===================== */
+:root {
+  --main: #2eb230;
+  --point: #f5821f;
+  --bg: #f4f6fb;
+  --card: #ffffff;
+  --text: #2d3748;
+  --text-sub: #555555;
+  --border: #e2e8f0;
+}
+
+body {
+  font-family: 'Noto Sans KR', 'Nanum Gothic', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app-header {
+  background: #ffffff;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.header-left { display:flex; align-items:center; gap:10px; }
+.header-logo { font-size:26px; }
+.logo-senior { color:var(--main); font-family:'Noto Serif KR',serif; font-weight:900; font-size:26px; letter-spacing:-0.5px; }
+.logo-bomnal { color:var(--point); font-family:'Noto Serif KR',serif; font-weight:900; font-size:26px; letter-spacing:-0.5px; }
+.header-date-box { background:#f0f5ff; color:var(--main); font-size:13px; font-weight:700; padding:5px 12px; border-radius:20px; }
+
+.home-greeting { background:linear-gradient(135deg,var(--main),#1a8c1e); border-radius:20px; padding:24px 20px; margin:16px; color:#fff; text-align:center; }
+.home-greeting h2 { font-size:24px; font-weight:900; line-height:1.4; margin-bottom:6px; }
+.home-greeting p { font-size:15px; opacity:0.88; }
+
+.bnr-wrap { width:100%; max-width:480px; margin:0 16px 16px; border-radius:16px; overflow:hidden; position:relative; width:calc(100% - 32px); }
+.bnr-item { display:none; width:100%; height:180px; position:relative; background-size:cover; background-position:center; border-radius:16px; overflow:hidden; }
+.bnr-item.on { display:block; }
+.bnr-box { position:absolute; left:0; top:0; bottom:0; width:42%; display:flex; flex-direction:column; justify-content:center; padding:16px 6px 16px 28px; }
+.bnr-title { font-size:23px; font-weight:900; color:#1a0050; line-height:1.3; margin-bottom:7px; text-shadow:1px 1px 0 #fff,-1px -1px 0 #fff; word-break:keep-all; }
+.bnr-desc { font-size:13px; color:#333; line-height:1.5; margin-bottom:10px; word-break:keep-all; }
+.bnr-btn { display:inline-block; background:linear-gradient(135deg,#fff,#f0f4ff); font-size:13px; font-weight:900; padding:7px 16px; border-radius:20px; white-space:nowrap; box-shadow:0 2px 8px rgba(0,0,0,0.3); color:#333; border:none; cursor:pointer; }
+.bnr-dots { display:flex; justify-content:center; gap:7px; margin-top:8px; }
+.bnr-dot { width:8px; height:8px; border-radius:50%; background:#c7d8f5; border:none; padding:0; cursor:pointer; }
+.bnr-dot.on { background:var(--main); transform:scale(1.35); }
+
+.quick-menu-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin:0 16px 16px; }
+.quick-menu-item { background:var(--card); border-radius:16px; padding:20px 14px; text-align:center; cursor:pointer; border:none; box-shadow:0 2px 10px rgba(0,0,0,0.06); min-height:80px; width:100%; }
+.menu-icon { font-size:32px; display:block; margin-bottom:8px; }
+.menu-name { font-size:15px; font-weight:800; color:var(--text); display:block; }
+.menu-desc { font-size:13px; color:var(--text-sub); margin-top:3px; display:block; }
+
+.card { background:var(--card); border-radius:18px; padding:20px; margin:0 16px 16px; box-shadow:0 2px 10px rgba(0,0,0,0.06); }
+.card-title { font-size:17px; font-weight:900; color:var(--text); margin-bottom:14px; }
+.news-card { background:var(--bg); border-radius:12px; padding:14px; margin-bottom:10px; border-left:4px solid var(--main); }
+.news-category { font-size:11px; font-weight:700; color:var(--main); background:#e8f0fd; display:inline-block; padding:2px 10px; border-radius:10px; margin-bottom:8px; }
+.news-title { font-size:15px; font-weight:800; color:var(--text); line-height:1.5; }
+
+.btn-main { width:100%; background:var(--main); color:#fff; border:none; border-radius:14px; padding:18px; font-size:18px; font-weight:900; cursor:pointer; margin-bottom:10px; }
+.btn-point { width:100%; background:var(--point); color:#fff; border:none; border-radius:14px; padding:18px; font-size:18px; font-weight:900; cursor:pointer; margin-bottom:10px; }
+.btn-kakao { width:100%; background:#FEE500; color:#3A1D1D; border:none; border-radius:14px; padding:18px; font-size:17px; font-weight:900; cursor:pointer; display:block; }
+
+.tab-btn { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:8px 4px 6px; background:none; border:none; cursor:pointer; color:#888; min-height:56px; }
+.tab-btn.active { color:var(--main); }
+.tab-icon { font-size:20px; display:block; margin-bottom:3px; }
+.tab-label { font-size:10px; font-weight:700; white-space:nowrap; }
+
+.section-title {
+  font-size: 12px; font-weight: 900; color: #888;
+  background: #e0e4ee; padding: 7px 16px;
+  margin: 16px 0 12px; letter-spacing: 1px;
+  font-family: sans-serif;
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== 컨트롤 패널 ===================== -->
+<div class="preview-panel" id="panel">
+  <div class="panel-top">
+    <div class="preview-panel-title">🌸 봄날마당 디자인 미리보기 도구</div>
+    <button class="panel-toggle" onclick="togglePanel()">▲ 접기</button>
+  </div>
+  <div class="panel-body" id="panel-body">
+
+    <!-- 폰트 -->
+    <div class="preview-row">
+      <span class="preview-label">🔤 기본폰트</span>
+      <button class="pv-btn" onclick="setFont('A',this)">A. Pretendard</button>
+      <button class="pv-btn" onclick="setFont('B',this)">B. Nanum Gothic</button>
+      <button class="pv-btn on" onclick="setFont('C',this)">C. Noto Sans KR</button>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 메인색 -->
+    <div class="preview-row">
+      <span class="preview-label">🎨 메인색<br><small style="color:#888;font-size:9px;">버튼·탭·링크</small></span>
+      <div class="color-row">
+        <input type="color" id="c-main" value="#2eb230" oninput="liveApply('--main',this.value,'t-main')">
+        <input type="text" id="t-main" value="#2eb230" onchange="textApply('--main',this.value,'c-main')">
+        <button class="apply-btn" onclick="textApply('--main',document.getElementById('t-main').value,'c-main')">적용</button>
+      </div>
+    </div>
+
+    <!-- 포인트색 -->
+    <div class="preview-row">
+      <span class="preview-label">🟠 포인트색<br><small style="color:#888;font-size:9px;">강조버튼·아이콘</small></span>
+      <div class="color-row">
+        <input type="color" id="c-point" value="#f5821f" oninput="liveApply('--point',this.value,'t-point')">
+        <input type="text" id="t-point" value="#f5821f" onchange="textApply('--point',this.value,'c-point')">
+        <button class="apply-btn" onclick="textApply('--point',document.getElementById('t-point').value,'c-point')">적용</button>
+      </div>
+    </div>
+
+    <!-- 배경색 -->
+    <div class="preview-row">
+      <span class="preview-label">🖼️ 배경색<br><small style="color:#888;font-size:9px;">앱 전체 배경</small></span>
+      <div class="color-row">
+        <input type="color" id="c-bg" value="#f4f6fb" oninput="liveApply('--bg',this.value,'t-bg')">
+        <input type="text" id="t-bg" value="#f4f6fb" onchange="textApply('--bg',this.value,'c-bg')">
+        <button class="apply-btn" onclick="textApply('--bg',document.getElementById('t-bg').value,'c-bg')">적용</button>
+      </div>
+    </div>
+
+    <!-- 카드색 -->
+    <div class="preview-row">
+      <span class="preview-label">🃏 카드배경<br><small style="color:#888;font-size:9px;">카드·팝업 배경</small></span>
+      <div class="color-row">
+        <input type="color" id="c-card" value="#ffffff" oninput="liveApply('--card',this.value,'t-card')">
+        <input type="text" id="t-card" value="#ffffff" onchange="textApply('--card',this.value,'c-card')">
+        <button class="apply-btn" onclick="textApply('--card',document.getElementById('t-card').value,'c-card')">적용</button>
+      </div>
+    </div>
+
+    <!-- 본문글자색 -->
+    <div class="preview-row">
+      <span class="preview-label">🖊️ 본문글자<br><small style="color:#888;font-size:9px;">제목·본문</small></span>
+      <div class="color-row">
+        <input type="color" id="c-text" value="#2d3748" oninput="liveApply('--text',this.value,'t-text')">
+        <input type="text" id="t-text" value="#2d3748" onchange="textApply('--text',this.value,'c-text')">
+        <button class="apply-btn" onclick="textApply('--text',document.getElementById('t-text').value,'c-text')">적용</button>
+      </div>
+    </div>
+
+    <!-- 보조글자색 -->
+    <div class="preview-row">
+      <span class="preview-label">✏️ 보조글자<br><small style="color:#888;font-size:9px;">설명·날짜</small></span>
+      <div class="color-row">
+        <input type="color" id="c-sub" value="#555555" oninput="liveApply('--text-sub',this.value,'t-sub')">
+        <input type="text" id="t-sub" value="#555555" onchange="textApply('--text-sub',this.value,'c-sub')">
+        <button class="apply-btn" onclick="textApply('--text-sub',document.getElementById('t-sub').value,'c-sub')">적용</button>
+      </div>
+    </div>
+
+    <!-- 테두리색 -->
+    <div class="preview-row">
+      <span class="preview-label">📐 테두리<br><small style="color:#888;font-size:9px;">카드·입력창</small></span>
+      <div class="color-row">
+        <input type="color" id="c-border" value="#e2e8f0" oninput="liveApply('--border',this.value,'t-border')">
+        <input type="text" id="t-border" value="#e2e8f0" onchange="textApply('--border',this.value,'c-border')">
+        <button class="apply-btn" onclick="textApply('--border',document.getElementById('t-border').value,'c-border')">적용</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 현재 설정 복사 -->
+    <div class="preview-row">
+      <span class="preview-label">📋 설정복사</span>
+      <button class="apply-btn" style="background:#7B3FBE;" onclick="copySettings()">현재 설정값 복사</button>
+      <span class="copy-result" id="copy-result"></span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===================== 미리보기 본문 ===================== -->
+<div class="preview-body" id="preview-body">
+
+  <div class="section-title">▶ 헤더</div>
+  <header class="app-header">
+    <div class="header-left">
+      <span class="header-logo">🌸</span>
+      <div><span class="logo-senior">시니어</span> <span class="logo-bomnal">봄날마당</span></div>
+    </div>
+    <div class="header-date-box">6월 13일 (토)</div>
+  </header>
+
+  <div class="section-title">▶ 인사말 배너</div>
+  <div class="home-greeting">
+    <h2>안녕하세요, 어르신! 🌸</h2>
+    <p>오늘도 건강하고 행복한 하루 되세요!</p>
+  </div>
+
+  <div class="section-title">▶ 배너 슬라이더</div>
+  <div class="bnr-wrap">
+    <div class="bnr-item on" style="background-image:url(banner1.jpg)">
+      <div class="bnr-box">
+        <div class="bnr-title">복지<br>혜택</div>
+        <div class="bnr-desc">내 나이에 맞는<br>혜택 확인!</div>
+        <button class="bnr-btn">바로가기 →</button>
+      </div>
+    </div>
+    <div class="bnr-dots">
+      <button class="bnr-dot on"></button>
+      <button class="bnr-dot"></button>
+      <button class="bnr-dot"></button>
+    </div>
+  </div>
+
+  <div class="section-title">▶ 퀵메뉴</div>
+  <div class="quick-menu-grid">
+    <button class="quick-menu-item"><span class="menu-icon">🔮</span><span class="menu-name">오늘의 운세</span><span class="menu-desc">띠별 운세 확인</span></button>
+    <button class="quick-menu-item"><span class="menu-icon">🧩</span><span class="menu-name">두뇌게임</span><span class="menu-desc">치매예방 게임!</span></button>
+    <button class="quick-menu-item"><span class="menu-icon">💊</span><span class="menu-name">건강정보</span><span class="menu-desc">시니어맞춤정보</span></button>
+    <button class="quick-menu-item"><span class="menu-icon">🏛️</span><span class="menu-name">복지혜택</span><span class="menu-desc">나라지원금 확인</span></button>
+  </div>
+
+  <div class="section-title">▶ 뉴스카드 & 버튼</div>
+  <div class="card">
+    <div class="card-title">📰 시니어 맞춤 복지 뉴스</div>
+    <div class="news-card">
+      <span class="news-category">복지혜택</span>
+      <div class="news-title">2026년 기초연금 수급 기준 33만원으로 인상</div>
+    </div>
+    <div class="news-card">
+      <span class="news-category">건강정보</span>
+      <div class="news-title">노인 무릎 통증에 좋은 운동 3가지</div>
+    </div>
+  </div>
+  <div style="padding:0 16px 16px;">
+    <button class="btn-main">✅ 메인 버튼 (--main 색상)</button>
+    <button class="btn-point">🔥 포인트 버튼 (--point 색상)</button>
+    <button class="btn-kakao">💛 카카오 공유 버튼</button>
+  </div>
+
+  <div class="section-title">▶ 하단 탭바</div>
+  <div style="margin:0 16px 16px; border-radius:16px; overflow:hidden; box-shadow:0 -3px 16px rgba(0,0,0,0.08); background:#fff; border-top:1.5px solid var(--border);">
+    <nav style="display:flex;">
+      <button class="tab-btn active"><span class="tab-icon">🏠</span><span class="tab-label">홈</span></button>
+      <button class="tab-btn"><span class="tab-icon">🔮</span><span class="tab-label">운세</span></button>
+      <button class="tab-btn"><span class="tab-icon">🧩</span><span class="tab-label">게임</span></button>
+      <button class="tab-btn"><span class="tab-icon">💊</span><span class="tab-label">건강</span></button>
+      <button class="tab-btn"><span class="tab-icon">🏛️</span><span class="tab-label">복지</span></button>
+      <button class="tab-btn"><span class="tab-icon">💬</span><span class="tab-label">소통방</span></button>
+      <button class="tab-btn"><span class="tab-icon">🛒</span><span class="tab-label">장터</span></button>
+      <button class="tab-btn"><span class="tab-icon">🎵</span><span class="tab-label">트로트</span></button>
+    </nav>
+  </div>
+
+</div>
+
+<script>
+// ===== 패널 접기/펼치기 =====
+var panelOpen = true;
+function togglePanel() {
+  panelOpen = !panelOpen;
+  document.getElementById('panel-body').style.display = panelOpen ? 'block' : 'none';
+  document.querySelector('.panel-toggle').textContent = panelOpen ? '▲ 접기' : '▼ 펼치기';
+  adjustBodyMargin();
+}
+function adjustBodyMargin() {
+  var h = document.getElementById('panel').offsetHeight;
+  document.getElementById('preview-body').style.marginTop = (h + 8) + 'px';
+}
+window.addEventListener('load', adjustBodyMargin);
+window.addEventListener('resize', adjustBodyMargin);
+
+// ===== 색상 실시간 적용 =====
+function liveApply(varName, hex, textId) {
+  document.documentElement.style.setProperty(varName, hex);
+  document.getElementById(textId).value = hex;
+  // 인사말 배너 그라데이션 업데이트
+  if (varName === '--main') updateGreeting();
+}
+function textApply(varName, val, colorId) {
+  val = val.trim();
+  if (val && !val.startsWith('#')) val = '#' + val;
+  document.documentElement.style.setProperty(varName, val);
+  document.getElementById(colorId).value = val;
+  if (varName === '--main') updateGreeting();
+  adjustBodyMargin();
+}
+function updateGreeting() {
+  var main = getComputedStyle(document.documentElement).getPropertyValue('--main').trim();
+  document.querySelector('.home-greeting').style.background =
+    'linear-gradient(135deg,' + main + ', #1a8c1e)';
+}
+
+// ===== 폰트 전환 =====
+var fonts = {
+  A: "'Pretendard', sans-serif",
+  B: "'Nanum Gothic', sans-serif",
+  C: "'Noto Sans KR', 'Nanum Gothic', sans-serif"
+};
+function setFont(key, btn) {
+  document.body.style.fontFamily = fonts[key];
+  document.querySelectorAll('.pv-btn').forEach(function(b) {
+    if (b.textContent.trim().startsWith(key + '.')) b.classList.add('on');
+    else if (/^[ABC]\./.test(b.textContent.trim())) b.classList.remove('on');
+  });
+}
+
+// ===== 현재 설정값 복사 =====
+function copySettings() {
+  var main   = document.getElementById('t-main').value;
+  var point  = document.getElementById('t-point').value;
+  var bg     = document.getElementById('t-bg').value;
+  var card   = document.getElementById('t-card').value;
+  var text   = document.getElementById('t-text').value;
+  var sub    = document.getElementById('t-sub').value;
+  var border = document.getElementById('t-border').value;
+  var result =
+    '--main: ' + main + ';\n' +
+    '--point: ' + point + ';\n' +
+    '--bg: ' + bg + ';\n' +
+    '--card: ' + card + ';\n' +
+    '--text: ' + text + ';\n' +
+    '--text-sub: ' + sub + ';\n' +
+    '--border: ' + border + ';';
+  navigator.clipboard.writeText(result).then(function() {
+    document.getElementById('copy-result').textContent = '✅ 복사됨! 클로드에게 붙여넣기 하세요';
+  }).catch(function() {
+    document.getElementById('copy-result').textContent = result;
+  });
+}
+</script>
+</body>
+</html>

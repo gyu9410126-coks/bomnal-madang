@@ -1603,31 +1603,40 @@ async function searchHerbal(page) {
 ═══════════════════════════════════════════ */
 var carePage = 1;
 
+// 요양시설 카드 1개를 만들어주는 함수
+// (한글 설명) 전화번호는 카카오가 그 시설을 등록해뒀을 때만 나와요. 없으면
+//             "전화번호 정보없음"이라고 솔직하게 보여주고, 지도·길찾기 버튼은
+//             좌표가 있을 때만 나와요 (buildMapLinks가 알아서 처리해줘요).
+function renderCareCard(it) {
+  var card = document.createElement('div');
+  card.className = 'result-card';
+  card.innerHTML =
+    '<div class="result-card-tag" style="background:#f3e5f5;color:#6a1b9a;">🏥 요양시설</div>' +
+    '<div class="result-card-name">'+(it.name||'기관명 없음')+'</div>' +
+    '<div class="result-card-addr">📍 '+(it.addr||'주소 정보 없음')+'</div>' +
+    (it.typeNm ? '<div class="result-card-desc">유형: '+it.typeNm+(it.capacity ? ' · 정원 '+it.capacity+'명' : '')+'</div>' : '') +
+    (it.tel ? '<div class="result-card-tel">📞 <a href="tel:'+it.tel+'" style="color:#6a1b9a;text-decoration:none;">'+it.tel+'</a></div>' : '<div class="result-card-desc" style="color:#aaa;">전화번호 정보없음</div>') +
+    buildMapLinks(it.name, it.lat, it.lon);
+  return card;
+}
+
 async function searchCare(page) {
   var addr = getAddrVal('care');
-  if(!addr) { alert('동네를 입력하고 선택해주세요.'); return; }
-  var sido = addr.sido; var sigungu = addr.sigungu;
+  if(!addr || !addr.sido || !addr.sigungu) { alert('동네를 입력하고 선택해주세요. (시·군·구까지 필요해요)'); return; }
   carePage = page;
   var el = document.getElementById('care-result');
   if(page===1) el.innerHTML = skeletonHTML(3);
   try {
-    var data = await callHealthAPI({ type:'care', siDoNm:sido, siGunGuNm:sigungu, emdongNm:addr ? addr.eupmyeondong : '', pageNo:page, numOfRows:10 });
-    var items = extractItems(data);
+    var data = await callHealthAPI({ type:'care', sido:addr.sido, sigungu:addr.sigungu, dong:addr.eupmyeondong||'', pageNo:page, numOfRows:10 });
+    var items = (data && data.items) || [];
     if(page===1) el.innerHTML = '';
-    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🏥','검색 결과가 없어요','다른 지역을 선택해 보세요'); return; }
-    items.forEach(function(it){
-      var card = document.createElement('div');
-      card.className = 'result-card';
-      card.innerHTML =
-        '<div class="result-card-tag" style="background:#f3e5f5;color:#6a1b9a;">🏥 요양시설</div>' +
-        '<div class="result-card-name">'+(it.longTermCareNm||it.기관명||'기관명 없음')+'</div>' +
-        '<div class="result-card-addr">📍 '+(it.addr||it.주소||'주소 정보 없음')+'</div>' +
-        (it.telNo ? '<div class="result-card-tel">📞 <a href="tel:'+it.telNo+'" style="color:#6a1b9a;text-decoration:none;">'+it.telNo+'</a></div>' : '') +
-        (it.longTermCareTypeCdNm ? '<div class="result-card-desc">유형: '+it.longTermCareTypeCdNm+'</div>' : '');
-      el.appendChild(card);
-    });
+    if(items.length===0 && page===1) {
+      el.innerHTML = emptyHTML('🏥', data.message || '검색 결과가 없어요', '다른 지역을 선택해 보세요');
+      return;
+    }
+    items.forEach(function(it){ el.appendChild(renderCareCard(it)); });
     el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
-    if(items.length===10){
+    if(data.hasMore){
       var btn = document.createElement('button');
       btn.className = 'more-btn';
       btn.style.background='#f3e5f5'; btn.style.color='#6a1b9a';

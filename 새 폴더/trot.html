@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<!-- 
+  파일명: trot.html
+  역할: 시니어 봄날마당 앱의 "트로트마당" 탭
+  연결: index.html에서 fetch()로 불러옴
+  스타일: style.css 공유 사용
+  작성일: 2026-06-09 (5세션)
+-->
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>트로트마당</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    .trot-wrap { padding: 0 0 80px 0; }
+    .trot-hero { background: linear-gradient(135deg, #1a6fc4 0%, #0d4a8a 100%); padding: 22px 16px 18px; text-align: center; border-radius: 0 0 20px 20px; margin-bottom: 18px; }
+    .trot-hero .hero-icon { font-size: 38px; display: block; margin-bottom: 6px; animation: bounce 1.8s infinite; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    .trot-hero h2 { font-size: 22px; font-weight: 800; color: #fff; margin: 0 0 4px; letter-spacing: -0.5px; }
+    .trot-hero p { font-size: 13px; color: rgba(255,255,255,0.85); margin: 0; }
+    .section-header { display: flex; align-items: center; gap: 8px; padding: 0 16px; margin-bottom: 12px; }
+    .section-header .sec-icon { font-size: 22px; }
+    .section-header h3 { font-size: 17px; font-weight: 700; color: #1a3a5c; margin: 0; }
+    .cat-tabs { display: flex; gap: 8px; padding: 0 16px; margin-bottom: 14px; overflow-x: auto; scrollbar-width: none; }
+    .cat-tabs::-webkit-scrollbar { display: none; }
+    .cat-btn { flex-shrink: 0; padding: 8px 18px; border-radius: 20px; border: 2px solid #1a6fc4; background: #fff; color: #1a6fc4; font-size: 14px; font-weight: 700; font-family: 'Nanum Gothic', sans-serif; cursor: pointer; transition: all 0.2s; }
+    .cat-btn.active, .cat-btn:hover { background: #1a6fc4; color: #fff; }
+    .song-list { padding: 0 16px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+    .song-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 10px rgba(26,111,196,0.10); padding: 14px 16px; display: flex; align-items: center; gap: 14px; border: 1px solid #e8f0fb; transition: transform 0.15s, box-shadow 0.15s; }
+    .song-card:active { transform: scale(0.98); box-shadow: 0 1px 4px rgba(26,111,196,0.10); }
+    .song-rank { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #1a6fc4, #0d4a8a); color: #fff; font-size: 15px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .song-rank.rank-1 { background: linear-gradient(135deg, #f5a623, #e8891a); }
+    .song-rank.rank-2 { background: linear-gradient(135deg, #9e9e9e, #757575); }
+    .song-rank.rank-3 { background: linear-gradient(135deg, #cd7f32, #a0522d); }
+    .song-info { flex: 1; min-width: 0; }
+    .song-title { font-size: 15px; font-weight: 700; color: #1a3a5c; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .song-artist { font-size: 13px; color: #6b7f99; }
+    .song-btn { flex-shrink: 0; display: flex; align-items: center; gap: 5px; background: #ff0000; color: #fff; border: none; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 700; font-family: 'Nanum Gothic', sans-serif; cursor: pointer; text-decoration: none; white-space: nowrap; }
+    .song-btn:hover { background: #cc0000; }
+    .quiz-wrap { margin: 0 16px 28px; background: linear-gradient(135deg, #eaf3ff 0%, #f0f7ff 100%); border-radius: 16px; padding: 18px 16px; border: 1px solid #c8dff8; }
+    .quiz-progress-bar-wrap { background: #d0e5fa; border-radius: 6px; height: 8px; margin-bottom: 14px; overflow: hidden; }
+    .quiz-progress-bar { height: 100%; background: linear-gradient(90deg, #1a6fc4, #38a0f7); border-radius: 6px; transition: width 0.4s ease; width: 20%; }
+    .quiz-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .quiz-num { font-size: 13px; color: #1a6fc4; font-weight: 700; }
+    .quiz-score { font-size: 13px; color: #e67e22; font-weight: 700; }
+    .quiz-lyrics { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px; border-left: 4px solid #1a6fc4; font-size: 15px; color: #2c3e50; line-height: 1.6; font-style: italic; }
+    .quiz-lyrics .hint-label { font-size: 11px; color: #1a6fc4; font-weight: 700; font-style: normal; display: block; margin-bottom: 6px; }
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .quiz-opt-btn { background: #fff; border: 2px solid #c8dff8; border-radius: 10px; padding: 12px 8px; font-size: 14px; font-weight: 700; color: #1a3a5c; font-family: 'Nanum Gothic', sans-serif; cursor: pointer; text-align: center; transition: all 0.2s; }
+    .quiz-opt-btn:hover { border-color: #1a6fc4; background: #eaf3ff; }
+    .quiz-opt-btn.correct { background: #e8f8e8; border-color: #27ae60; color: #27ae60; }
+    .quiz-opt-btn.wrong { background: #fde8e8; border-color: #e74c3c; color: #e74c3c; }
+    .quiz-result-msg { text-align: center; font-size: 15px; font-weight: 700; min-height: 24px; margin-bottom: 10px; }
+    .quiz-result-msg.correct { color: #27ae60; }
+    .quiz-result-msg.wrong { color: #e74c3c; }
+    .quiz-next-btn { width: 100%; background: #1a6fc4; color: #fff; border: none; border-radius: 10px; padding: 13px; font-size: 15px; font-weight: 700; font-family: 'Nanum Gothic', sans-serif; cursor: pointer; display: none; }
+    .quiz-next-btn.show { display: block; }
+    .quiz-next-btn:hover { background: #155da0; }
+    .quiz-done { text-align: center; display: none; }
+    .quiz-done.show { display: block; }
+    .quiz-done .done-emoji { font-size: 48px; display: block; margin-bottom: 10px; }
+    .quiz-done .done-title { font-size: 20px; font-weight: 800; color: #1a3a5c; margin-bottom: 6px; }
+    .quiz-done .done-score { font-size: 28px; font-weight: 800; color: #e67e22; margin-bottom: 14px; }
+    .quiz-retry-btn { background: #1a6fc4; color: #fff; border: none; border-radius: 10px; padding: 13px 28px; font-size: 15px; font-weight: 700; font-family: 'Nanum Gothic', sans-serif; cursor: pointer; }
+    .quiz-retry-btn:hover { background: #155da0; }
+    .daily-wrap { margin: 0 16px 20px; background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%); border-radius: 16px; padding: 18px 16px; border: 1px solid #ffe082; text-align: center; }
+    .daily-quote { font-size: 17px; font-weight: 700; color: #5d4037; line-height: 1.6; margin-bottom: 8px; font-style: italic; }
+    .daily-from { font-size: 13px; color: #8d6e63; }
+    .daily-refresh-btn { margin-top: 12px; background: #f5a623; color: #fff; border: none; border-radius: 8px; padding: 9px 20px; font-size: 14px; font-weight: 700; font-family: 'Nanum Gothic', sans-serif; cursor: pointer; }
+    .daily-refresh-btn:hover { background: #e8891a; }
+
+    /* ── 돋보기 큰글씨 모드 ── */
+    body.big-font .trot-hero h2       { font-size: 28px !important; }
+    body.big-font .trot-hero p        { font-size: 18px !important; }
+    body.big-font .section-header h3  { font-size: 22px !important; }
+    body.big-font .cat-btn            { font-size: 19px !important; }
+    body.big-font .song-title         { font-size: 20px !important; }
+    body.big-font .song-artist        { font-size: 18px !important; }
+    body.big-font .song-btn           { font-size: 18px !important; }
+    body.big-font .song-rank          { font-size: 20px !important; }
+    body.big-font .quiz-num           { font-size: 18px !important; }
+    body.big-font .quiz-score         { font-size: 18px !important; }
+    body.big-font .quiz-lyrics        { font-size: 20px !important; }
+    body.big-font .quiz-opt-btn       { font-size: 19px !important; }
+    body.big-font .quiz-result-msg    { font-size: 20px !important; }
+    body.big-font .quiz-next-btn      { font-size: 20px !important; }
+    body.big-font .done-title         { font-size: 26px !important; }
+    body.big-font .done-score         { font-size: 34px !important; }
+    body.big-font .quiz-retry-btn     { font-size: 20px !important; }
+    body.big-font .daily-quote        { font-size: 22px !important; }
+    body.big-font .daily-from         { font-size: 18px !important; }
+    body.big-font .daily-refresh-btn  { font-size: 19px !important; }
+  </style>
+</head>
+
+<body>
+<div class="trot-wrap">
+
+  <div class="trot-hero">
+    <span class="hero-icon">🎵</span>
+    <h2>트로트마당</h2>
+    <p>어르신들이 사랑하는 트로트 한자리에!</p>
+  </div>
+
+  <div class="section-header">
+    <span class="sec-icon">🎤</span>
+    <h3>인기 트로트 노래방</h3>
+  </div>
+
+  <div class="cat-tabs" role="tablist" aria-label="곡 분류 선택">
+    <button class="cat-btn active" onclick="showCategory('recent', this)" aria-selected="true">최신곡</button>
+    <button class="cat-btn"        onclick="showCategory('classic', this)">명곡</button>
+    <button class="cat-btn"        onclick="showCategory('oldies', this)">추억의노래</button>
+  </div>
+
+  <div class="song-list" id="list-recent">
+    <div class="song-card">
+      <div class="song-rank rank-1">1</div>
+      <div class="song-info"><div class="song-title">별빛 같은 나의 사랑아</div><div class="song-artist">🎙️ 임영웅</div></div>
+      <a class="song-btn" href="https://www.youtube.com/watch?v=9_33DJ4sAkQ" target="_blank" rel="noopener noreferrer" aria-label="별빛 같은 나의 사랑아 유튜브에서 보기">▶ 감상</a>
+    </div>
+    <div class="song-card">
+      <div class="song-rank rank-2">2</div>
+      <div class="song-info"><div class="song-title">편의점</div><div class="song-artist">🎙️ 이찬원</div></div>
+      <a class="song-btn" href="https://www.youtube.com/watch?v=m3O0DNtdmS8" target="_blank" rel="noopener noreferrer" aria-label="편의점 유튜브에서 보기">▶ 감상</a>
+    </div>
+    <div class="song-card">
+      <div class="song-rank rank-3">3</div>
+      <div class="song-info"><div class="song-title">가인이어라</div><div class="song-artist">🎙️ 송가인</div></div>
+      <a class="song-btn" href="https://www.youtube.com/watch?v=cnvujl7eXLo" target="_blank" rel="noopener noreferrer" aria-label="가인이어라 유튜브에서 보기">▶ 감상</a>
+    </div>
+    <div class="song-card">
+      <div class="song-rank">4</div>
+      <div class="song-info"><div class="song-title">막걸리 한잔</div><div class="song-artist">🎙️ 영탁</div></div>
+      <a class="song-btn" href="https://www.youtube.com/watch?v=npXaoOA2yS0" target="_blank" rel="noopener noreferrer" aria-label="막걸리 한잔 유튜브에서 보기">▶ 감상</a>
+    </div>
+    <div class="song-card">
+      <div class="song-rank">5</div>
+      <div class="song-info"><div class="song-title">테스형!</div><div class="song-artist">🎙️ 나훈아</div></div>
+      <a class="song-btn" href="https://www.youtube.com/watch?v=8cNz9awcVqg" target="_blank" rel="noopener noreferrer" aria-label="테스형 유튜브에서 보기">▶ 감상</a>
+    </div>
+  </div>
+
+  <div class="song-list" id="list-classic" style="display:none;">
+    <div class="song-card">
+      <div class="song-rank rank-1">1</div>
+      <div class="song-info"><div class="song-title">어머나</div><div class="song-artist">🎙️ 장윤정</div></div>
+      <a class="song-btn" href="https://www.youtube.com/watch?v=P3Gde3RwTzA" target="_blank" rel="noopener noreferrer" aria-label="어머나 유튜브에서 보기">▶ 감상</a>
+    </div>
+    <div class="song-card">
+      <div class="song-rank rank-2">2</div>
+      <div class="song-info"><div class="song-title">동백아가씨</div><div class="song-artist">🎙️ 이미자</div></div>
+      <a class="song-btn" href="https://www.youtube.com/results?search_query=이미자+동백아가씨" target="_blank" rel="noopener noreferrer" aria-label="동백아가씨 유튜브 검색">▶ 감상</a>
+    </div>
+    <div class="song-card">
+      <div class="song-rank rank-3">3</div>
+      <div class="song-info"><div class="song-title">안동역에서</div><div class="song-artist">🎙️ 진성</div></div>
+      <a class="song-btn" href="https://www.youtube.com/results?search_query=진성+안동역에서+MV" target="_blank" rel="noopener noreferrer" aria-label="안동역에서 유튜브 검색">▶ 감상</a>
+    </div>
+    <div class="song-card">
+      <div class="song-rank">4</div>
+      <div class="song-info"><div class="song-title">불효자는 웁니다</div><div class="song-artist">🎙️ 설운도</div></div>
+      <a class="song-btn" href="https://www.youtube.com/results?search_query=설운도+불효자는웁니다" target="_blank" rel="noopener noreferrer" aria-label="불효자는 웁니다 유튜브 검색">▶ 감상</a>
+    </div>
+    <div class="song-card">
+      <div class="song-rank">5</div>
+      <div class="song-info"><div class="song-title">내 나이가 어때서</div><div class="song-artist">🎙️ 오승근</div></div>
+      <a class="song-btn" href="https://www.youtube.com/results?search_query=오승근+내나이가어때서" target="_blank" rel="noopener noreferrer" aria-label="내 나이가 어때서 유튜브 검색">▶ 감상</a>
+    </div>
+  </div>
+
+  <div class="song-list" id="list-oldies" style="display:none;">
+    <div class="song-card">
+      <div class="song-rank rank-1">1</div>
+      <div class="song-info"><div class="song-title">목포의 눈물</div><div class="song-artist">🎙️ 이난영</div></div>
+      <a class="song-btn" href="https://www.youtube.com/results?search_query=목포의눈물+이난영" target="_blank" rel="noopener noreferrer" aria-label="목포의 눈물 유튜브 검색">▶ 감상</a>
+    </div>
+    <div class="song-card">
+      <div class="song-rank rank-2">2</div>
+      <div class="song-info"><div class="song-title">보리밭</div><div class="song-artist">🎙️ 박재란</div></div>
+      <a class="song-btn" href="https://www.youtube.com/results?search_query=박재란+보리밭+트로트" target="_blank" rel="noopener noreferrer" aria-label="보리밭 유튜브 검색">▶ 감상</a>
+    </div>
+    <div class="song-card">
+      <div class="song-rank rank-3">3</div>
+      <div class="song-info"><div class="song-title">가슴 아프게</div><div class="song-artist">🎙️ 남진</div></div>
+      <a class="song-btn" href="https://www.youtube.com/results?search_query=남진+가슴아프게" target="_blank" rel="noopener noreferrer" aria-label="가슴 아프게 유튜브 검색">▶ 감상</a>
+    </div>
+    <div class="song-card">
+      <div class="song-rank">4</div>
+      <div class="song-info"><div class="song-title">물레방아 도는데</div><div class="song-artist">🎙️ 나훈아</div></div>
+      <a class="song-btn" href="https://www.youtube.com/results?search_query=나훈아+물레방아도는데" target="_blank" rel="noopener noreferrer" aria-label="물레방아 도는데 유튜브 검색">▶ 감상</a>
+    </div>
+    <div class="song-card">
+      <div class="song-rank">5</div>
+      <div class="song-info"><div class="song-title">서울의 달</div><div class="song-artist">🎙️ 조용필</div></div>
+      <a class="song-btn" href="https://www.youtube.com/results?search_query=조용필+서울의달" target="_blank" rel="noopener noreferrer" aria-label="서울의 달 유튜브 검색">▶ 감상</a>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <span class="sec-icon">🧩</span>
+    <h3>트로트 가사 맞히기 퀴즈</h3>
+  </div>
+
+  <div class="quiz-wrap">
+    <div class="quiz-progress-bar-wrap">
+      <div class="quiz-progress-bar" id="quizBar"></div>
+    </div>
+    <div id="quizGame">
+      <div class="quiz-meta">
+        <span class="quiz-num" id="quizNum">1 / 5 문제</span>
+        <span class="quiz-score" id="quizScore">점수: 0점</span>
+      </div>
+      <div class="quiz-lyrics" id="quizLyrics">
+        <span class="hint-label">🎵 이 가사의 노래 제목은?</span>
+        <span id="quizLyricsText"></span>
+      </div>
+      <div class="quiz-options" id="quizOptions"></div>
+      <div class="quiz-result-msg" id="quizMsg"></div>
+      <button class="quiz-next-btn" id="quizNextBtn" onclick="nextQuestion()">다음 문제 →</button>
+    </div>
+    <div class="quiz-done" id="quizDone">
+      <span class="done-emoji" id="doneEmoji">🏆</span>
+      <div class="done-title">퀴즈 완료!</div>
+      <div class="done-score" id="doneScore">5문제 중 0개 정답</div>
+      <button class="quiz-retry-btn" onclick="resetQuiz()">🔄 다시 풀기</button>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <span class="sec-icon">💌</span>
+    <h3>오늘의 트로트 한마디</h3>
+  </div>
+
+  <div class="daily-wrap">
+    <div class="daily-quote" id="dailyQuote"></div>
+    <div class="daily-from"  id="dailyFrom"></div>
+    <button class="daily-refresh-btn" onclick="refreshDaily()">🎲 다른 문구 보기</button>
+  </div>
+
+</div>
+
+<script>
+function showCategory(id, el) {
+  ['recent','classic','oldies'].forEach(function(cat) {
+    document.getElementById('list-' + cat).style.display = 'none';
+  });
+  document.getElementById('list-' + id).style.display = 'flex';
+  document.querySelectorAll('.cat-btn').forEach(function(btn) {
+    btn.classList.remove('active');
+    btn.setAttribute('aria-selected', 'false');
+  });
+  el.classList.add('active');
+  el.setAttribute('aria-selected', 'true');
+}
+
+var quizData = [
+  { lyrics: '별빛처럼 아름다운 / 나의 소중한 사랑아 / 언제나 내 곁에 있어줘', answer: '별빛 같은 나의 사랑아', options: ['별빛 같은 나의 사랑아', '사랑의 향기', '보고 싶다', '그리운 사람아'] },
+  { lyrics: '어머나 어머나 이러지 마세요 / 여자의 마음은 갈대랍니다', answer: '어머나', options: ['어머나', '사랑아', '오빠', '아모르파티'] },
+  { lyrics: '소크라테스 형! 세상이 왜 이래 / 왜 이렇게 힘들어!', answer: '테스형!', options: ['테스형!', '철학자', '세월이 가면', '인생이란'] },
+  { lyrics: '막걸리 한잔에 / 시름을 달래며 / 오늘도 살아가네', answer: '막걸리 한잔', options: ['막걸리 한잔', '소주 한 잔', '인생 한 잔', '술이야'] },
+  { lyrics: '편의점 불빛 아래 / 혼자서 서 있는 나 / 오늘도 수고했어', answer: '편의점', options: ['편의점', '골목길', '가로등', '혼자서'] }
+];
+
+var currentQ = 0, score = 0, answered = false;
+
+function renderQuestion() {
+  var q = quizData[currentQ];
+  document.getElementById('quizBar').style.width = (currentQ / quizData.length * 100) + '%';
+  document.getElementById('quizNum').textContent = (currentQ + 1) + ' / ' + quizData.length + ' 문제';
+  document.getElementById('quizScore').textContent = '점수: ' + score + '점';
+  document.getElementById('quizLyricsText').textContent = q.lyrics;
+  var optEl = document.getElementById('quizOptions');
+  optEl.innerHTML = '';
+  q.options.forEach(function(opt) {
+    var btn = document.createElement('button');
+    btn.className = 'quiz-opt-btn';
+    btn.textContent = opt;
+    btn.onclick = function() { selectAnswer(opt, btn); };
+    optEl.appendChild(btn);
+  });
+  document.getElementById('quizMsg').textContent = '';
+  document.getElementById('quizMsg').className = 'quiz-result-msg';
+  document.getElementById('quizNextBtn').className = 'quiz-next-btn';
+  answered = false;
+}
+
+function selectAnswer(chosen, btn) {
+  if (answered) return;
+  answered = true;
+  var q = quizData[currentQ];
+  var msgEl = document.getElementById('quizMsg');
+  if (chosen === q.answer) {
+    score++;
+    btn.classList.add('correct');
+    msgEl.textContent = '🎉 정답입니다! 맞아요~';
+    msgEl.className = 'quiz-result-msg correct';
+    document.getElementById('quizScore').textContent = '점수: ' + score + '점';
+    if (window.showToast) window.showToast('정답! 🎵 +1점');
+  } else {
+    btn.classList.add('wrong');
+    msgEl.textContent = '😢 틀렸어요. 정답은 "' + q.answer + '"';
+    msgEl.className = 'quiz-result-msg wrong';
+    document.querySelectorAll('.quiz-opt-btn').forEach(function(b) {
+      if (b.textContent === q.answer) b.classList.add('correct');
+    });
+  }
+  document.getElementById('quizNextBtn').className = 'quiz-next-btn show';
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= quizData.length) { showResult(); } else { renderQuestion(); }
+}
+
+function showResult() {
+  document.getElementById('quizBar').style.width = '100%';
+  document.getElementById('quizGame').style.display = 'none';
+  document.getElementById('quizDone').className = 'quiz-done show';
+  var emoji = score === 5 ? '🏆' : score >= 4 ? '🎉' : score >= 3 ? '😊' : score >= 1 ? '💪' : '😅';
+  document.getElementById('doneEmoji').textContent = emoji;
+  document.getElementById('doneScore').textContent = quizData.length + '문제 중 ' + score + '개 정답!';
+}
+
+function resetQuiz() {
+  currentQ = 0; score = 0; answered = false;
+  document.getElementById('quizGame').style.display = 'block';
+  document.getElementById('quizDone').className = 'quiz-done';
+  renderQuestion();
+}
+
+var dailyList = [
+  { quote: '세월이 약이겠지요, 그래도 그리워요.', from: '— 세월이 약이겠지 / 남진' },
+  { quote: '사랑은 눈물의 씨앗, 기쁨의 꽃이라네.', from: '— 트로트 인생 格言' },
+  { quote: '살다 보면 또 좋은 날도 오겠지, 힘내세요.', from: '— 트로트 인생 格言' },
+  { quote: '꽃이 지면 또 피고, 사랑도 다시 온다오.', from: '— 꽃타령 / 이미자' },
+  { quote: '산다는 건 참 아름다운 일이잖아요.', from: '— 홍진영 格言' },
+  { quote: '눈물 한 방울에 인생이 담겨있다네.', from: '— 진성 格言' },
+  { quote: '그래도 우리는 살아야지, 노래하며 살아야지.', from: '— 트로트 인생 格言' },
+  { quote: '어제보다 오늘이 더 좋은 하루가 되기를.', from: '— 봄날마당 응원 메시지' },
+  { quote: '막걸리 한잔에 시름을 녹이고, 내일을 노래하세.', from: '— 트로트 인생 格言' },
+  { quote: '인생은 짧고 노래는 길다, 오늘도 노래하세요.', from: '— 봄날마당 응원 메시지' }
+];
+var lastDailyIdx = -1;
+
+function refreshDaily() {
+  var idx;
+  do { idx = Math.floor(Math.random() * dailyList.length); } while (idx === lastDailyIdx);
+  lastDailyIdx = idx;
+  var item = dailyList[idx];
+  document.getElementById('dailyQuote').textContent = '"' + item.quote + '"';
+  document.getElementById('dailyFrom').textContent = item.from;
+}
+
+(function init() { renderQuestion(); refreshDaily(); })();
+</script>
+</body>
+</html>

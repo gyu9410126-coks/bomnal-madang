@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>배너 테스트 v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Nanum Gothic', sans-serif; background: #f4f6fb; padding: 20px; }
+
+.banner-slider-wrap {
+  max-width: 448px;
+  margin: 0 auto 20px;
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+}
+.banner-rail {
+  display: flex;
+  transition: transform 0.4s ease;
+}
+
+/* 배너 카드: 높이 고정, overflow:hidden 으로 이미지 삐져나온 부분 자름 */
+.banner-card {
+  min-width: 100%;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.bc1 { background: linear-gradient(135deg, #4f46e5, #7c3aed); }
+.bc2 { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+.bc3 { background: linear-gradient(135deg, #059669, #10b981); }
+.bc4 { background: linear-gradient(135deg, #dc2626, #f43f5e); }
+.bc5 { background: linear-gradient(135deg, #d97706, #f59e0b); }
+
+/* 왼쪽 텍스트: absolute로 왼쪽에 고정 */
+.banner-text {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 55%;
+  z-index: 2;
+  padding: 22px 0 22px 22px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+.banner-title {
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+  line-height: 1.3;
+}
+.banner-desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.92);
+  line-height: 1.6;
+}
+.banner-btn {
+  margin-top: 4px;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: 'Nanum Gothic', sans-serif;
+  border: 1.5px solid rgba(255,255,255,0.55);
+  border-radius: 22px;
+  padding: 8px 16px;
+  cursor: pointer;
+  width: fit-content;
+  -webkit-tap-highlight-color: transparent;
+}
+.banner-btn:active { background: rgba(255,255,255,0.38); }
+
+/* 오른쪽 이미지: 배너 높이보다 크게(120%) 키워서 아래에 딱 붙임 */
+.banner-img-wrap {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 52%;
+  height: 120%;  /* 배너보다 크게 → 아래 붙으면서 위로 삐져나옴 */
+  z-index: 1;
+  pointer-events: none;
+}
+.banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: right bottom; /* 오른쪽 아래 기준으로 정렬 */
+}
+
+/* 도트: 왼쪽 아래 (이로움돌봄 스타일) */
+.banner-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 20px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+.banner-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.38);
+  cursor: pointer;
+  transition: all 0.25s;
+  border: none;
+  padding: 0;
+}
+.banner-dot.active {
+  background: #fff;
+  width: 20px;
+  border-radius: 4px;
+}
+
+/* 화살표 */
+.banner-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background: rgba(0,0,0,0.18);
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.banner-arrow.prev { left: 8px; }
+.banner-arrow.next { right: 8px; }
+
+.result-box {
+  max-width: 448px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a6fc4;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+</style>
+</head>
+<body>
+
+<div class="banner-slider-wrap" id="bannerWrap">
+  <div class="banner-rail" id="bannerRail">
+
+    <div class="banner-card bc1" data-tab="benefit">
+      <div class="banner-text">
+        <div class="banner-title">복지혜택 한눈에</div>
+        <div class="banner-desc">내가 받을 수 있는<br>혜택 바로 확인!</div>
+        <button class="banner-btn" onclick="event.stopPropagation();go('benefit')">혜택 보러가기 →</button>
+      </div>
+      <div class="banner-img-wrap">
+        <img class="banner-img" src="banner1.jpg" alt="복지혜택" onerror="this.style.display='none'">
+      </div>
+    </div>
+
+    <div class="banner-card bc2" data-tab="fortune">
+      <div class="banner-text">
+        <div class="banner-title">오늘의 운세</div>
+        <div class="banner-desc">띠별 맞춤 운세<br>바로 보기</div>
+        <button class="banner-btn" onclick="event.stopPropagation();go('fortune')">운세 보러가기 →</button>
+      </div>
+      <div class="banner-img-wrap">
+        <img class="banner-img" src="banner2.jpg" alt="운세" onerror="this.style.display='none'">
+      </div>
+    </div>
+
+    <div class="banner-card bc3" data-tab="health">
+      <div class="banner-text">
+        <div class="banner-title">건강 관리</div>
+        <div class="banner-desc">만보기·약 알림<br>건강정보</div>
+        <button class="banner-btn" onclick="event.stopPropagation();go('health')">건강 보러가기 →</button>
+      </div>
+      <div class="banner-img-wrap">
+        <img class="banner-img" src="banner3.jpg" alt="건강" onerror="this.style.display='none'">
+      </div>
+    </div>
+
+    <div class="banner-card bc4" data-tab="trot">
+      <div class="banner-text">
+        <div class="banner-title">트로트 봄날마당</div>
+        <div class="banner-desc">좋아하는 트로트<br>바로 듣기</div>
+        <button class="banner-btn" onclick="event.stopPropagation();go('trot')">트로트 듣기 →</button>
+      </div>
+      <div class="banner-img-wrap">
+        <img class="banner-img" src="banner4.jpg" alt="트로트" onerror="this.style.display='none'">
+      </div>
+    </div>
+
+    <div class="banner-card bc5" data-tab="market">
+      <div class="banner-text">
+        <div class="banner-title">시니어 쇼핑</div>
+        <div class="banner-desc">어르신 맞춤<br>추천 상품</div>
+        <button class="banner-btn" onclick="event.stopPropagation();go('market')">쇼핑 보러가기 →</button>
+      </div>
+      <div class="banner-img-wrap">
+        <img class="banner-img" src="banner5.jpg" alt="쇼핑" onerror="this.style.display='none'">
+      </div>
+    </div>
+
+  </div>
+  <div class="banner-dots" id="bannerDots"></div>
+  <button class="banner-arrow prev" onclick="bannerMove(-1)">&#8249;</button>
+  <button class="banner-arrow next" onclick="bannerMove(1)">&#8250;</button>
+</div>
+
+<div class="result-box" id="resultBox">배너를 클릭하거나 좌우로 밀어보세요</div>
+
+<script>
+var cur = 0, total = 5, tmr = null, tx = 0;
+var names = {benefit:'복지혜택', fortune:'운세', health:'건강', trot:'트로트', market:'시니어쇼핑'};
+
+// 도트 생성
+var dotsWrap = document.getElementById('bannerDots');
+for (var i = 0; i < total; i++) {
+  var d = document.createElement('button');
+  d.className = 'banner-dot';
+  d.onclick = (function(n){ return function(){ goTo(n); reset(); }; })(i);
+  dotsWrap.appendChild(d);
+}
+
+// 카드 클릭
+document.querySelectorAll('.banner-card').forEach(function(c) {
+  c.addEventListener('click', function(e) {
+    if (e.target.classList.contains('banner-btn')) return;
+    go(c.getAttribute('data-tab'));
+  });
+});
+
+function goTo(n) {
+  cur = (n + total) % total;
+  document.getElementById('bannerRail').style.transform = 'translateX(-' + (cur * 100) + '%)';
+  document.querySelectorAll('.banner-dot').forEach(function(d, i) {
+    d.classList.toggle('active', i === cur);
+  });
+}
+function bannerMove(dir) { goTo(cur + dir); reset(); }
+function reset() {
+  if (tmr) clearInterval(tmr);
+  tmr = setInterval(function() { goTo(cur + 1); }, 3000);
+}
+function go(tab) {
+  document.getElementById('resultBox').textContent = '✅ ' + names[tab] + ' 탭 이동 — 클릭 정상!';
+}
+
+// 스와이프
+var wrap = document.getElementById('bannerWrap');
+wrap.addEventListener('touchstart', function(e) { tx = e.touches[0].clientX; }, {passive:true});
+wrap.addEventListener('touchend', function(e) {
+  var diff = tx - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 40) bannerMove(diff > 0 ? 1 : -1);
+}, {passive:true});
+
+goTo(0);
+reset();
+</script>
+</body>
+</html>
