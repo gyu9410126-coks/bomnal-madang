@@ -610,6 +610,21 @@ export default async function handler(req, res) {
     // JSON 응답인 경우
     if (contentType.includes('json')) {
       const data = await response.json();
+      // (한글 설명) [신규] 병원찾기 GPS 검색은 정부 API가 "반경 안의 병원"은 걸러주지만
+      //             "가까운 순 정렬"까지는 안 해줘서(실제 테스트로 확인됨), 여기서 직접
+      //             거리(distance) 값 기준으로 오름차순 정렬해줘요(품질기준 11번: 거리순 기본).
+      if (type === 'hospital' && params.lat && params.lng) {
+        try {
+          const itemsWrap = data.response && data.response.body && data.response.body.items;
+          if (itemsWrap && itemsWrap.item) {
+            const arr = Array.isArray(itemsWrap.item) ? itemsWrap.item : [itemsWrap.item];
+            arr.sort((a, b) => parseFloat(a.distance || 0) - parseFloat(b.distance || 0));
+            itemsWrap.item = arr;
+          }
+        } catch (e) {
+          // 정렬 실패해도 결과 자체는 그대로 보여줘요(정렬만 안 될 뿐 검색은 되게)
+        }
+      }
       return res.status(200).json(data);
     }
 
