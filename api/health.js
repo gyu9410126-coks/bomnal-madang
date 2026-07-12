@@ -32,6 +32,18 @@ const SIDO_SHORT = {
   '제주특별자치도':'제주'
 };
 
+// (한글 설명) [버그 수정] 성남시·안양시·고양시는 코드표에 "시 전체"를 뜻하는 통합 코드가
+//             없고, "성남수정구/성남중원구/성남분당구"처럼 구 단위로만 나뉘어 있어요(수원시
+//             등은 통합 코드가 따로 있어서 문제없음). 화면 드롭다운엔 "성남시" 하나만 있으니,
+//             이 3곳은 구 코드 여러 개를 한꺼번에 찾아서 합쳐야 해요.
+const MULTI_SGGU = {
+  '경기도': {
+    '성남시': ['310401', '310402', '310403'],
+    '안양시': ['310701', '310702'],
+    '고양시': ['311901', '311902', '311903'],
+  },
+};
+
 // (한글 설명) 전국 17개 시도 코드는 정부에서 정한 고정 번호라서 안전하게 표로 만들어둬요.
 //             benefit.js에서 이미 검증된 표를 그대로 가져왔어요.
 const SIDO_CODES = {
@@ -129,8 +141,17 @@ async function resolveAdongCode(signguCd, dongName, rawServiceKey) {
 function resolveHospitalRegion(sido, sigungu) {
   const entry = hospitalSigunguCodes[sido];
   if (!entry) return null; // 시/도 이름 자체를 못 찾으면 검색 불가
-  const result = { sidoCd: entry.sidoCd, sgguCd: null, sigunguMatched: true };
+  const result = { sidoCd: entry.sidoCd, sgguCd: null, sgguCds: null, sigunguMatched: true };
   if (!sigungu) { result.sigunguMatched = false; return result; }
+
+  // (한글 설명) [버그 수정] 성남시/안양시/고양시처럼 통합코드가 없는 도시는 구 코드 여러 개를
+  //             한꺼번에 돌려줘요. 이 경우는 sgguCds(배열)로 표시하고, 호출하는 쪽에서
+  //             여러 번 조회해서 합쳐야 해요.
+  if (MULTI_SGGU[sido] && MULTI_SGGU[sido][sigungu]) {
+    result.sgguCds = MULTI_SGGU[sido][sigungu];
+    return result;
+  }
+
   const norm = (s) => (s || '').replace(/\s/g, '');
   const keys = Object.keys(entry.sigungu || {});
   let key = keys.find((name) => norm(name) === norm(sigungu));
@@ -576,6 +597,46 @@ export default async function handler(req, res) {
         if (!region) {
           return res.status(200).json({ response: { body: { items: {}, totalCount: 0 } }, message: '시/도를 확인할 수 없습니다.' });
         }
+
+        // (한글 설명) [버그 수정] 성남시/안양시/고양시처럼 구 코드가 여러 개인 경우,
+        //             각 구를 전부 조회해서 합친 다음, 우리가 직접 페이지를 나눠줘요.
+        //             (공용 처리부의 "한 번만 fetch" 흐름을 못 쓰기 때문에 여기서 바로 응답해요.)
+        if (region.sgguCds) {
+          const pageNo = Math.max(parseInt(params.pageNo || '1', 10) || 1, 1);
+          const numOfRows = Math.min(parseInt(params.numOfRows || '10', 10) || 10, 20);
+          const subResults = await Promise.all(region.sgguCds.map(async (code) => {
+            const qp = new URLSearchParams();
+            qp.append('serviceKey', process.env.HOSPITAL_API_KEY);
+            qp.append('_type', 'json');
+            qp.append('pageNo', '1');
+            qp.append('numOfRows', '100'); // 구 하나당 최대 100건이면 충분해요
+            qp.append('sidoCd', region.sidoCd);
+            qp.append('sgguCd', code);
+            if (dong) qp.append('emdongNm', dong);
+            if (clCd) qp.append('clCd', clCd);
+            if (dgsbjtCd) qp.append('dgsbjtCd', dgsbjtCd);
+            try {
+              const r = await fetch(`https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList?${qp.toString()}`);
+              if (!r.ok) return [];
+              const d = await r.json();
+              const itemsWrap = d.response && d.response.body && d.response.body.items;
+              if (!itemsWrap || !itemsWrap.item) return [];
+              return Array.isArray(itemsWrap.item) ? itemsWrap.item : [itemsWrap.item];
+            } catch (e) {
+              return [];
+            }
+          }));
+          const merged = [].concat(...subResults);
+          const start = (pageNo - 1) * numOfRows;
+          const pageItems = merged.slice(start, start + numOfRows);
+          return res.status(200).json({
+            response: {
+              header: { resultCode: '00', resultMsg: 'NORMAL SERVICE.' },
+              body: { items: { item: pageItems }, numOfRows, pageNo, totalCount: merged.length },
+            },
+          });
+        }
+
         queryParams.append('sidoCd', region.sidoCd);
         if (region.sgguCd) queryParams.append('sgguCd', region.sgguCd);
         if (dong) queryParams.append('emdongNm', dong); // 텍스트로 직접 필터(코드 아님)
