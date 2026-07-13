@@ -764,6 +764,11 @@ export default async function handler(req, res) {
       url = 'https://apis.data.go.kr/1471000/FoodNtrCpntDbInfo02/getFoodNtrCpntDbInq02';
       queryParams.append('serviceKey', process.env.FOOD_NUTRITION_API_KEY);
       queryParams.append('FOOD_NM_KR', params.FOOD_NM_KR || '');
+      // (한글 설명) [수정] 이 DB엔 "사과"만 검색해도 특정 회사의 사과파이·사과와플 같은
+      //             상용제품까지 수천 건씩 섞여 나와요. DB_CLASS_NM=품목대표로 필터를 걸면
+      //             일반적인 식재료·음식(브랜드 없는 대표값)만 나와서 시니어분들이 찾는
+      //             "그냥 사과 자체의 영양정보"에 훨씬 가까워져요.
+      queryParams.append('DB_CLASS_NM', '품목대표');
       queryParams.append('pageNo', params.pageNo || '1');
       queryParams.append('numOfRows', params.numOfRows || '10');
       queryParams.append('type', 'json');
