@@ -544,16 +544,35 @@ export default async function handler(req, res) {
     }
 
     // ─────────────────────────────────────────
-    // 5. 🌿 한방약재사전
-    // 식품의약품안전처 한약재 품질규격 정보
-    // 파라미터: itemName(약재명), pageNo, numOfRows
+    // 5. 🌿 한방약재사전 (목록 검색)
+    // 특허청 한국전통지식포털 - 약재정보 서비스(MatInfoService)
+    // (한글 설명) [수정] 예전엔 이 가이드에 존재하지도 않는 오퍼레이션(getMatInfoList)을
+    //             쓰고 있어서 항상 실패했을 거예요(주소 자체가 없는 페이지였음). 공식
+    //             가이드(특허청_전통지식정보 활용가이드)에 있는 진짜 오퍼레이션인
+    //             "약재 자유검색"(getMatFreeSearch)으로 교체했어요.
+    // 파라미터: freeQuery(검색어), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'herbal') {
-      url = 'https://apis.data.go.kr/1430000/MatInfoService/getMatInfoList';
+      url = 'https://apis.data.go.kr/1430000/MatInfoService/getMatFreeSearch';
       queryParams.append('serviceKey', process.env.HERBAL_API_KEY);
-      queryParams.append('itemName', params.itemName || '');
+      queryParams.append('freeQuery', params.freeQuery || '');
       queryParams.append('pageNo', params.pageNo || '1');
       queryParams.append('numOfRows', params.numOfRows || '10');
+      queryParams.append('type', 'json');
+    }
+
+    // ─────────────────────────────────────────
+    // 5-1. 🌿 한방약재사전 상세정보 (목록에서 카드를 눌렀을 때만 호출)
+    // 특허청 한국전통지식포털 - 약재 상세정보 조회(getMatDetailInfo)
+    // (한글 설명) [신규] 목록 검색(자유검색)은 이름·학명 정도만 나와서, 효능·주치병증·
+    //             성미·금기 같은 자세한 정보는 이 상세조회를 약재코드(medCd)로 한 번 더
+    //             불러야 나와요. 화면에서 카드를 누른 그 순간에만 호출해서 속도를 지켜요.
+    // 파라미터: medCd(약재코드, 목록 검색 결과에서 받음)
+    // ─────────────────────────────────────────
+    else if (type === 'herbalDetail') {
+      url = 'https://apis.data.go.kr/1430000/MatInfoService/getMatDetailInfo';
+      queryParams.append('serviceKey', process.env.HERBAL_API_KEY);
+      queryParams.append('medCd', params.medCd || '');
       queryParams.append('type', 'json');
     }
 
