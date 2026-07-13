@@ -21,11 +21,15 @@ function parseXmlItems(xml, itemTag) {
 
 // (한글 설명) 전국 17개 시도 코드는 정부에서 정한 고정 번호라서 안전하게 표로 만들어둬요.
 // health.js에서 이미 검증된 표를 그대로 가져왔어요.
+// (한글 설명) [수정] 강원도는 2023.6 "강원특별자치도"로, 전라북도는 2024.1 "전북특별자치도"로
+//             개편되면서 행정안전부 법정동코드도 각각 42→51, 45→52로 바뀌었어요(health.js에서
+//             이미 확인·수정된 내용을 그대로 반영). 옛날 번호를 쓰고 있어서 이 두 지역만
+//             시·군·구 목록이 항상 빈 목록으로 나오던 버그였어요.
 const SIDO_CODES = {
   '서울특별시': '11', '부산광역시': '26', '대구광역시': '27', '인천광역시': '28',
   '광주광역시': '29', '대전광역시': '30', '울산광역시': '31', '세종특별자치시': '36',
-  '경기도': '41', '강원도': '42', '충청북도': '43', '충청남도': '44',
-  '전라북도': '45', '전라남도': '46', '경상북도': '47', '경상남도': '48',
+  '경기도': '41', '강원도': '51', '충청북도': '43', '충청남도': '44',
+  '전라북도': '52', '전라남도': '46', '경상북도': '47', '경상남도': '48',
   '제주특별자치도': '50'
 };
 
@@ -114,6 +118,7 @@ export default async function handler(req, res) {
     //   (이 API는 "동" 단위 필터는 지원하지 않아요 - 시/군/구까지만 가능해요)
     if (type === 'welfare') {
       const { sido, sigungu, facilityType, lat, lng } = req.query;
+      const pageNo = parseInt(req.query.pageNo || '1', 10) || 1;
 
       let regionSido = sido;
       let regionSigungu = sigungu;
@@ -137,13 +142,15 @@ export default async function handler(req, res) {
           jrsdSggCd = region.key + '00000';
         }
       }
-      // (한글 설명) 시/군/구까지 정확히 알면 조금만 받고, 못 정했으면 넉넉히 받아서 뒤에서 걸러내요.
-      const fetchCount = jrsdSggCd ? 15 : 50;
+      // (한글 설명) [수정] "더보기" 지원을 위해, 시/군/구를 정확히 알 때는 화면에 보여줄 만큼(10개)만
+      //             딱 맞춰 요청해서 페이지 번호가 그대로 맞아떨어지게 했어요. 시/도만 골랐을 때는
+      //             여전히 넉넉히(50개) 받아서 뒤에서 이름으로 걸러내요.
+      const fetchCount = jrsdSggCd ? 10 : 50;
 
       const listKey = encodeURIComponent(process.env.WELFARE_API_KEY);
       const listUrl = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getFcltListInfoInqire`
         + `?serviceKey=${listKey}`
-        + `&numOfRows=${fetchCount}&pageNo=1`
+        + `&numOfRows=${fetchCount}&pageNo=${pageNo}`
         + (jrsdSggCd    ? `&jrsdSggCd=${encodeURIComponent(jrsdSggCd)}`   : '')
         + (facilityType ? `&fcltKindNm=${encodeURIComponent(facilityType)}` : '');
 
@@ -156,17 +163,23 @@ export default async function handler(req, res) {
         return res.status(200).send(listXml);
       }
 
-      let listItems = parseXmlItems(listXml, 'item');
+      let allItems = parseXmlItems(listXml, 'item');
+      const rawCount = allItems.length;
 
       // (한글 설명) 시/군/구 코드를 못 정했을 때(=시/도만 골랐을 때)는, 결과 중에서
       //             시/도 이름으로 시작하는 것만 한 번 더 걸러줘요.
       if (regionSido && !jrsdSggCd) {
         const norm = (s) => (s || '').replace(/\s/g, '');
-        listItems = listItems.filter((it) => norm(it.jrsdSggNm || '').startsWith(norm(regionSido)));
+        allItems = allItems.filter((it) => norm(it.jrsdSggNm || '').startsWith(norm(regionSido)));
       }
 
-      // (한글 설명) 화면엔 최대 10개만 보여주니까, 상세조회도 딱 그만큼만 해요 (불필요한 API 호출 절약)
-      const topItems = listItems.slice(0, 10);
+      // (한글 설명) [신규] "더보기" 판단: 이번에 정부서버가 준 원본 개수가 요청한 개수와 같으면
+      //             다음 페이지에도 더 있을 가능성이 있다고 봐요(다른 카테고리와 동일한 방식).
+      const hasMore = rawCount === fetchCount;
+
+      // (한글 설명) 시/군/구를 알 때는 이미 정확히 10개만 받아오니 그대로 쓰고,
+      //             시/도만 알 때는 걸러낸 것 중 앞 10개만 화면에 보여줘요.
+      const topItems = jrsdSggCd ? allItems : allItems.slice(0, 10);
       const detailKey = encodeURIComponent(process.env.WELFARE_API_KEY);
       const kakaoKey = process.env.KAKAO_API_KEY;
 
@@ -214,7 +227,7 @@ export default async function handler(req, res) {
         return Object.assign({}, it, detail, { lat: itemLat, lon: itemLon, fullAddr });
       }));
 
-      return res.status(200).json({ items: enriched });
+      return res.status(200).json({ items: enriched, hasMore, pageNo });
     }
 
     // ── 1-1. 시설종류 목록 조회 (신규) ───────────────────────────────
@@ -338,7 +351,9 @@ export default async function handler(req, res) {
       // sido/sigungu = 지역 이름 글자 (예: "부산광역시", "기장군")
       // dong = 읍/면/동 이름 (지역 선택 드롭다운에서 직접 고른 경우)
       // lat/lng = GPS 좌표(선택), 있으면 dong 파라미터보다 우선 사용
+      // pageNo = 더보기 페이지 번호(선택, 기본 1)
       const { keyword, sido, sigungu, lat, lng, dong } = req.query;
+      const pageNo = parseInt(req.query.pageNo || '1', 10) || 1;
       const rawKey = process.env.STORE_API_KEY;
       const serviceKey = encodeURIComponent(rawKey);
 
@@ -383,7 +398,7 @@ export default async function handler(req, res) {
       const url = `https://apis.data.go.kr/B553077/api/open/sdsc2/storeListInDong`
         + `?serviceKey=${serviceKey}`
         + `&divId=${finalDivId}&key=${finalKey}`
-        + `&numOfRows=20&pageNo=1&type=json`
+        + `&numOfRows=20&pageNo=${pageNo}&type=json`
         + indsParam;
 
       const r = await fetch(url);
@@ -396,7 +411,11 @@ export default async function handler(req, res) {
       }
 
       const data = await r.json();
-      return res.status(200).json(data);
+      // (한글 설명) [신규] "더보기" 판단: 이번에 받아온 개수가 요청한 20개와 같으면
+      //             다음 페이지에도 더 있을 가능성이 있다고 봐요.
+      const dataItems = (data.body && data.body.items) || [];
+      const hasMore = (Array.isArray(dataItems) ? dataItems.length : (dataItems ? 1 : 0)) === 20;
+      return res.status(200).json(Object.assign({}, data, { hasMore, pageNo }));
     }
 
     return res.status(400).json({ error: 'type 파라미터가 필요합니다 (welfare/welfareKinds/benefit/lawyer/finance/dongList/store)' });
