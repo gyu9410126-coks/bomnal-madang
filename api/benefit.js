@@ -28,17 +28,26 @@ function parseXmlItems(xml, itemTag) {
 const SIDO_CODES = {
   '서울특별시': '11', '부산광역시': '26', '대구광역시': '27', '인천광역시': '28',
   '광주광역시': '29', '대전광역시': '30', '울산광역시': '31', '세종특별자치시': '36',
-  '경기도': '41', '강원도': '51', '충청북도': '43', '충청남도': '44',
-  '전라북도': '52', '전라남도': '46', '경상북도': '47', '경상남도': '48',
+  '경기도': '41', '강원특별자치도': '51', '충청북도': '43', '충청남도': '44',
+  '전북특별자치도': '52', '전라남도': '46', '경상북도': '47', '경상남도': '48',
   '제주특별자치도': '50'
 };
+
+// (한글 설명) [신규] 옛날 이름(강원도/전라북도)으로 요청이 들어와도 최신 이름으로 바꿔서
+//             처리해요. 캐시된 화면이나 PWA가 아직 옛날 드롭다운 값을 들고 있을 수 있어서 안전장치로 둬요.
+const SIDO_ALIAS = { '강원도': '강원특별자치도', '전라북도': '전북특별자치도' };
+function normalizeSido(s) {
+  if (!s) return s;
+  return SIDO_ALIAS[s] || s;
+}
 
 // (한글 설명) 시/군/구는 250개 가까이 되서 표로 다 외우지 않고, 그때그때 정부서버에
 //             "이 시/도 안에 있는 시/군/구 목록 좀 줘"라고 물어봐서 정확한 코드를 찾아요.
 //             (health.js와 동일한 검증된 로직)
 async function resolveRegionCode(sido, sigungu, rawServiceKey) {
-  if (!sido || !SIDO_CODES[sido]) return null;
-  const ctprvnCd = SIDO_CODES[sido];
+  const sidoFull = normalizeSido(sido);
+  if (!sidoFull || !SIDO_CODES[sidoFull]) return null;
+  const ctprvnCd = SIDO_CODES[sidoFull];
   if (!sigungu) return { divId: 'ctprvnCd', key: ctprvnCd };
 
   const key = encodeURIComponent(rawServiceKey);
@@ -135,20 +144,23 @@ export default async function handler(req, res) {
         }
       }
 
-      // (한글 설명) [수정] 글자 이름(jrsdSggNm)으로 필터링하면 정부 서버가 제대로 못 걸러내는 것 같아서,
-      //             더 확실한 숫자 코드(jrsdSggCd) 방식으로 바꿨어요. 이미 전통시장에서 검증된
-      //             "시/군/구 이름 → 정확한 코드" 변환 기능(resolveRegionCode)을 그대로 재사용해요.
-      //             예: 서울 중랑구 코드 "11260" + "00000" = "1126000000" (문서 예시와 정확히 일치)
+      // (한글 설명) [버그 수정] 시/도만 고르고 시/군/구를 안 골랐을 때, 예전엔 지역 필터를 아예
+      //             안 걸고 전국에서 무작위로 50개만 받아온 다음 이름으로 걸러냈어요. 그 50개 안에
+      //             하필 그 시/도 시설이 거의 없으면 결과가 0~2개만 나오는 버그였어요(전 지역에서
+      //             재현 가능). resolveRegionCode가 시/군/구를 못 찾아도 시/도 코드(ctprvnCd)는
+      //             돌려주므로, 그 코드로 "시/도 전체"를 정확히 필터링해서 요청하도록 고쳤어요.
       let jrsdSggCd = '';
-      if (regionSido && regionSigungu) {
+      if (regionSido) {
         const region = await resolveRegionCode(regionSido, regionSigungu, process.env.STORE_API_KEY);
         if (region && region.divId === 'signguCd') {
-          jrsdSggCd = region.key + '00000';
+          jrsdSggCd = region.key + '00000';       // 시/군/구 단위 (5자리 + 00000)
+        } else if (region && region.divId === 'ctprvnCd') {
+          jrsdSggCd = region.key + '00000000';    // 시/도 전체 단위 (2자리 + 00000000)
         }
       }
-      // (한글 설명) [수정] "더보기" 지원을 위해, 시/군/구를 정확히 알 때는 화면에 보여줄 만큼(10개)만
-      //             딱 맞춰 요청해서 페이지 번호가 그대로 맞아떨어지게 했어요. 시/도만 골랐을 때는
-      //             여전히 넉넉히(50개) 받아서 뒤에서 이름으로 걸러내요.
+      // (한글 설명) [수정] "더보기" 지원을 위해, 지역 코드를 확보했을 때는 화면에 보여줄 만큼(10개)만
+      //             딱 맞춰 요청해서 페이지 번호가 그대로 맞아떨어지게 했어요. 코드를 전혀 못 구했을
+      //             때만(예: 지원하지 않는 지역명) 예외적으로 넉넉히(50개) 받아서 이름으로 걸러내요.
       const fetchCount = jrsdSggCd ? 10 : 50;
 
       const listKey = encodeURIComponent(process.env.WELFARE_API_KEY);
@@ -170,11 +182,13 @@ export default async function handler(req, res) {
       let allItems = parseXmlItems(listXml, 'item');
       const rawCount = allItems.length;
 
-      // (한글 설명) 시/군/구 코드를 못 정했을 때(=시/도만 골랐을 때)는, 결과 중에서
-      //             시/도 이름으로 시작하는 것만 한 번 더 걸러줘요.
+      // (한글 설명) [수정] 이제 시/도 코드까지 확보되면 서버가 이미 정확히 걸러줘서 이 필터는
+      //             필요 없어요. 코드를 아예 못 구했을 때만(예외 상황) 안전장치로 이름으로 걸러요.
+      //             옛 지역명(강원도/전라북도)이 섞여 들어와도 놓치지 않도록 normalizeSido로 맞춰요.
       if (regionSido && !jrsdSggCd) {
         const norm = (s) => (s || '').replace(/\s/g, '');
-        allItems = allItems.filter((it) => norm(it.jrsdSggNm || '').startsWith(norm(regionSido)));
+        const sidoNorm = norm(normalizeSido(regionSido));
+        allItems = allItems.filter((it) => norm(it.jrsdSggNm || '').startsWith(sidoNorm));
       }
 
       // (한글 설명) [신규] "더보기" 판단: 이번에 정부서버가 준 원본 개수가 요청한 개수와 같으면
