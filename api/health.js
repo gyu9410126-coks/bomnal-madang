@@ -438,20 +438,49 @@ export default async function handler(req, res) {
         );
       }
 
-      const region = await resolveRegionCode(sido, sigungu, rawKey);
-      if (!region || region.divId !== 'signguCd') {
+      const sidoFull = normalizeSido(sido);
+      if (!sidoFull || !SIDO_CODES[sidoFull]) {
+        return res.status(200).json({ items: [] });
+      }
+      const ctprvnCd = SIDO_CODES[sidoFull];
+      const key = encodeURIComponent(rawKey);
+
+      // (한글 설명) [버그 수정] 성남시/고양시/수원시/부천시/안산시/안양시/용인시처럼 "구가 있는
+      //             시"는 이 시스템에서도 "성남시 분당구"처럼 구 단위로만 나뉘어 있고 "성남시"
+      //             자체는 목록에 없어요(실제 원본 응답으로 확인함). 그래서 이름이 정확히
+      //             일치하는 게 없으면, "OO시 "로 시작하는 구들을 전부 찾아서 각 구의 동 목록을
+      //             합쳐줘요. (병원찾기의 성남/안양/고양 코드 병합과 같은 원리예요.)
+      const ctyUrl = `https://apis.data.go.kr/B553077/api/open/sdsc2/baroApi`
+        + `?resId=dong&catId=cty&ctprvnCd=${ctprvnCd}&type=json&ServiceKey=${key}`;
+      let signguCds = [];
+      try {
+        const cr = await fetch(ctyUrl);
+        const cdata = await cr.json();
+        const ctyItems = (cdata.body && cdata.body.items) || [];
+        const norm = (s) => (s || '').replace(/\s/g, '');
+        let matches = ctyItems.filter((it) => norm(it.signguNm) === norm(sigungu));
+        if (matches.length === 0) {
+          matches = ctyItems.filter((it) => norm(it.signguNm).startsWith(norm(sigungu)));
+        }
+        signguCds = matches.map((it) => it.signguCd);
+      } catch (e) {
         return res.status(200).json({ items: [] });
       }
 
-      const key = encodeURIComponent(rawKey);
-      const dongUrl = `https://apis.data.go.kr/B553077/api/open/sdsc2/baroApi`
-        + `?resId=dong&catId=admi&signguCd=${region.key}&type=json&ServiceKey=${key}`;
+      if (signguCds.length === 0) {
+        return res.status(200).json({ items: [] });
+      }
 
       try {
-        const r = await fetch(dongUrl);
-        const data = await r.json();
-        const rawItems = (data.body && data.body.items) || [];
-        const items = rawItems.map((it) => ({ adongCd: it.adongCd, adongNm: it.adongNm }));
+        const results = await Promise.all(signguCds.map(async (signguCd) => {
+          const dongUrl = `https://apis.data.go.kr/B553077/api/open/sdsc2/baroApi`
+            + `?resId=dong&catId=admi&signguCd=${signguCd}&type=json&ServiceKey=${key}`;
+          const r = await fetch(dongUrl);
+          const data = await r.json();
+          const rawItems = (data.body && data.body.items) || [];
+          return rawItems.map((it) => ({ adongCd: it.adongCd, adongNm: it.adongNm }));
+        }));
+        const items = [].concat(...results);
         return res.status(200).json({ items });
       } catch (e) {
         return res.status(200).json({ items: [] });
