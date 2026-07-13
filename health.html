@@ -1448,6 +1448,17 @@ async function searchEmergency(page) {
 var medPage = 1;
 var medKeyword = '';
 
+// (한글 설명) [수정] 이 API는 다른 건강 API들과 달리 data.response.body.items.item이 아니라
+//             data.body.items(배열) 형태로 바로 와요 (건강매장찾기 API와 같은 패턴). 예전엔
+//             이 차이를 놓쳐서 실제로는 결과가 있는데도 항상 "검색 결과가 없어요"로 나왔어요.
+function extractMedicineItems(data) {
+  try {
+    if (data && data.header && data.header.resultCode && data.header.resultCode !== '00') return [];
+    var items = (data && data.body && data.body.items) || [];
+    return Array.isArray(items) ? items : [items];
+  } catch(e) { return []; }
+}
+
 async function searchMedicine(page) {
   var kw = document.getElementById('med-input').value.trim();
   if(!kw) { alert('약품명을 입력해주세요.'); return; }
@@ -1457,7 +1468,7 @@ async function searchMedicine(page) {
   if(page===1) el.innerHTML = skeletonHTML(3);
   try {
     var data = await callHealthAPI({ type:'medicine', itemName:kw, pageNo:page, numOfRows:10 });
-    var items = extractItems(data);
+    var items = extractMedicineItems(data);
     if(page===1) el.innerHTML = '';
     if(items.length===0 && page===1) { el.innerHTML = emptyHTML('📖','검색 결과가 없어요','다른 약품명으로 검색해 보세요'); return; }
     items.forEach(function(it){
@@ -2135,7 +2146,7 @@ async function secSearchMedicine() {
   el.innerHTML = skeletonHTML(3);
   try {
     var data = await callHealthAPI({ type: 'medicine', itemName: kw, pageNo: 1, numOfRows: 5 });
-    var items = extractItems(data);
+    var items = extractMedicineItems(data);
     el.innerHTML = '';
     if (items.length === 0) {
       el.innerHTML = emptyHTML('📖', '검색 결과가 없어요', '다른 약품명으로 검색해 보세요');
