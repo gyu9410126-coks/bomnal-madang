@@ -299,6 +299,13 @@ export default async function handler(req, res) {
         const geo = await reverseGeocodeSidoSigungu(emLat, emLng, process.env.KAKAO_API_KEY);
         if (geo) { emq0 = geo.sido; emq1 = geo.sigungu; }
       }
+      // (한글 설명) [버그 수정] 이 응급실 API는 시/도 "이름"을 텍스트로 직접 비교해요.
+      //             강원도→강원특별자치도(2023.6), 전라북도→전북특별자치도(2024.1)로 개편된
+      //             뒤로는 옛 이름을 보내면 0건이 나와요(실제 테스트로 확인함). 화면 드롭다운
+      //             이름은 다른 카테고리들도 같이 쓰기 때문에 그대로 두고, 이 API로 보내기
+      //             직전에만 새 이름으로 살짝 바꿔줘요.
+      const EMERGENCY_SIDO_RENAME = { '강원도': '강원특별자치도', '전라북도': '전북특별자치도' };
+      if (EMERGENCY_SIDO_RENAME[emq0]) emq0 = EMERGENCY_SIDO_RENAME[emq0];
       const emergencyUrl = 'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytListInfoInqire';
       const emergencyParams = new URLSearchParams();
       emergencyParams.append('serviceKey', process.env.EMERGENCY_API_KEY);
