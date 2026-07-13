@@ -101,6 +101,7 @@
 .med-symptom-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 8px; }
 .med-symptom-btn { padding: 11px 6px; background: #fff; color: #1565c0; border: 1.5px solid #bbdefb; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
 .med-symptom-btn.active { background: #1565c0; color: #fff; border-color: #1565c0; }
+.med-symptom-btn.active[id^="herb-symptom-"] { background: #558b2f; border-color: #558b2f; }
 .med-chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
 .med-chip { padding: 7px 14px; background: #e3f2fd; color: #1565c0; border: none; border-radius: 16px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
 
@@ -570,6 +571,18 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
         <div class="page-box-title" style="color:#558b2f;">🌿 한방약재 사전</div>
       </div>
       <div class="page-box-body">
+        <div class="med-hint-box" style="display:flex;align-items:center;gap:8px;background:#f1f8e9;border:1.5px solid #c5e1a5;border-radius:10px;padding:10px 12px;margin:2px 0 12px;font-size:14px;font-weight:600;color:#33691e;">
+          <span style="font-size:18px;">💡</span>
+          <span>결과를 누르면 효능·주치병증 같은 자세한 정보가 펼쳐져요</span>
+        </div>
+        <div class="page-label" style="margin-top:0;">🔎 어떤 게 궁금하세요? 눌러보세요</div>
+        <div class="med-symptom-grid">
+          <button type="button" class="med-symptom-btn" id="herb-symptom-cold" style="color:#558b2f;border-color:#c5e1a5;" onclick="showHerbSymptom('cold')">🤒 감기·몸살</button>
+          <button type="button" class="med-symptom-btn" id="herb-symptom-stomach" style="color:#558b2f;border-color:#c5e1a5;" onclick="showHerbSymptom('stomach')">🤢 소화·위장</button>
+          <button type="button" class="med-symptom-btn" id="herb-symptom-joint" style="color:#558b2f;border-color:#c5e1a5;" onclick="showHerbSymptom('joint')">🦴 관절·근육</button>
+          <button type="button" class="med-symptom-btn" id="herb-symptom-tired" style="color:#558b2f;border-color:#c5e1a5;" onclick="showHerbSymptom('tired')">😪 피로·기력</button>
+        </div>
+        <div class="med-chip-row" id="herb-chip-row" style="display:none;"></div>
         <div class="search-row">
           <input type="text" id="herb-input" placeholder="약재명을 입력하세요 (예: 인삼, 당귀)" />
           <button class="search-btn" style="background:#558b2f;" onclick="searchHerbal(1)">검색</button>
@@ -974,6 +987,11 @@ function resetHealthPage(name) {
     hideEl('med-chip-row');
     clearHtml('med-chip-row');
     document.querySelectorAll('.med-symptom-btn.active').forEach(function(b){ b.classList.remove('active'); });
+  }
+  if (name === 'herbal') {
+    hideEl('herb-chip-row');
+    clearHtml('herb-chip-row');
+    document.querySelectorAll('#page-herbal .med-symptom-btn.active').forEach(function(b){ b.classList.remove('active'); });
   }
 
   // (한글 설명) [수정] 병원찾기만 되어있던 드롭다운 초기화를, 드롭다운을 쓰는 5개
@@ -1790,6 +1808,39 @@ async function searchStore() {
 var herbPage = 1;
 var herbKeyword = '';
 
+// (한글 설명) 약효능·복용법과 같은 이유로, 이름을 몰라도 증상으로 대표적인 약재를
+// 찾아볼 수 있게 미리 정리해둔 목록이에요(정부 API가 아닌 자체 큐레이션).
+var HERB_SYMPTOM_MAP = {
+  cold:    ['갈근', '생강', '계피'],
+  stomach: ['진피', '산사', '생강'],
+  joint:   ['우슬', '두충', '강황'],
+  tired:   ['인삼', '황기', '당귀']
+};
+
+function showHerbSymptom(key) {
+  document.querySelectorAll('#page-herbal .med-symptom-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('herb-symptom-'+key).classList.add('active');
+
+  var row = document.getElementById('herb-chip-row');
+  row.innerHTML = '';
+  (HERB_SYMPTOM_MAP[key] || []).forEach(function(name){
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'med-chip';
+    chip.style.background = '#f1f8e9';
+    chip.style.color = '#558b2f';
+    chip.textContent = name;
+    chip.onclick = function(){ selectHerbChip(name); };
+    row.appendChild(chip);
+  });
+  row.style.display = 'flex';
+}
+
+function selectHerbChip(name) {
+  document.getElementById('herb-input').value = name;
+  searchHerbal(1);
+}
+
 async function searchHerbal(page) {
   var kw = document.getElementById('herb-input').value.trim();
   if(!kw) { alert('약재명을 입력해주세요.'); return; }
@@ -1798,8 +1849,8 @@ async function searchHerbal(page) {
   var el = document.getElementById('herb-result');
   if(page===1) el.innerHTML = skeletonHTML(3);
   try {
-    var data = await callHealthAPI({ type:'herbal', itemName:kw, pageNo:page, numOfRows:10 });
-    var items = extractItems(data);
+    var data = await callHealthAPI({ type:'herbal', freeQuery:kw, pageNo:page, numOfRows:10 });
+    var items = (data && data.items) || [];
     if(page===1) el.innerHTML = '';
     if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🌿','검색 결과가 없어요','다른 약재명으로 검색해 보세요'); return; }
     items.forEach(function(it){
@@ -1807,16 +1858,18 @@ async function searchHerbal(page) {
       card.className = 'result-card';
       card.innerHTML =
         '<div class="result-card-tag" style="background:#f1f8e9;color:#558b2f;">🌿 한방약재</div>' +
-        '<div class="result-card-name">'+(it.itemName||it.한약재명||'약재명 없음')+'</div>' +
-        (it.itemEngName ? '<div class="result-card-addr" style="color:#777;">영문명: '+it.itemEngName+'</div>' : '') +
-        (it.medicinalPart ? '<div class="result-card-desc"><b>약용부위:</b> '+it.medicinalPart+'</div>' : '') +
-        (it.efficacy ? '<div class="result-card-desc" style="margin-top:4px;"><b>효능:</b> '+it.efficacy+'</div>' : '');
+        '<div class="result-card-name">'+(it.medNm||'약재명 없음')+'</div>' +
+        (it.scinNm ? '<div class="result-card-addr" style="color:#777;">학명: '+it.scinNm+'</div>' : '') +
+        (it.famNm ? '<div class="result-card-desc">과명: '+it.famNm+'</div>' : '') +
+        '<button type="button" class="more-btn" style="background:#f1f8e9;color:#558b2f;margin-top:6px;" onclick="toggleHerbDetail(\''+(it.medCd||'')+'\', this)">자세히 보기 ▼</button>' +
+        '<div class="herb-detail-body" style="display:none;margin-top:6px;"></div>';
       el.appendChild(card);
     });
-    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
-    if(items.length===10){
+    el.querySelectorAll('.load-more-btn').forEach(function(b){ b.remove(); });
+    var hasMore = data && (data.pageNo * data.numOfRows) < data.totalCount;
+    if(hasMore){
       var btn = document.createElement('button');
-      btn.className = 'more-btn';
+      btn.className = 'more-btn load-more-btn';
       btn.style.background='#f1f8e9'; btn.style.color='#558b2f';
       btn.textContent = '더보기 ▼';
       btn.onclick = function(){ searchHerbal(herbPage+1); };
@@ -1824,6 +1877,41 @@ async function searchHerbal(page) {
     }
   } catch(e) {
     el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
+  }
+}
+
+// 결과 카드의 "자세히 보기"를 누르면 그 자리에서 펼쳐지며 상세정보를 불러와요.
+// 한 번 불러온 뒤에는 다시 누를 때 새로 불러오지 않고 그대로 접었다 펼쳐요(속도 최적화).
+async function toggleHerbDetail(medCd, btnEl) {
+  var detailEl = btnEl.nextElementSibling;
+  if (detailEl.style.display === 'block') {
+    detailEl.style.display = 'none';
+    btnEl.textContent = '자세히 보기 ▼';
+    return;
+  }
+  detailEl.style.display = 'block';
+  btnEl.textContent = '접기 ▲';
+  if (detailEl.dataset.loaded === '1') return;
+  if (!medCd) { detailEl.innerHTML = '<div class="result-card-desc" style="color:#c62828;">약재 코드가 없어 상세정보를 불러올 수 없어요</div>'; return; }
+  detailEl.innerHTML = skeletonHTML(1);
+  try {
+    var data = await callHealthAPI({ type:'herbalDetail', medCd:medCd });
+    var it = (data && data.item) || {};
+    detailEl.innerHTML =
+      (it.medEft ? '<div class="result-card-desc"><b>효능:</b> '+it.medEft+'</div>' : '') +
+      (it.medDis ? '<div class="result-card-desc" style="margin-top:4px;"><b>주치병증:</b> '+it.medDis+'</div>' : '') +
+      (it.tmprmnt ? '<div class="result-card-desc" style="margin-top:4px;"><b>성미:</b> '+it.tmprmnt+'</div>' : '') +
+      (it.actPart ? '<div class="result-card-desc" style="margin-top:4px;"><b>작용부위:</b> '+it.actPart+'</div>' : '') +
+      (it.useTgt ? '<div class="result-card-desc" style="margin-top:4px;"><b>약용부위:</b> '+it.useTgt+'</div>' : '') +
+      (it.medCtrd ? '<div class="result-card-desc" style="margin-top:4px;color:#c62828;"><b>⚠️ 금기:</b> '+it.medCtrd+'</div>' : '') +
+      (it.medPre ? '<div class="result-card-desc" style="margin-top:4px;"><b>포함처방:</b> '+it.medPre+'</div>' : '') +
+      (it.medAlisNm ? '<div class="result-card-desc" style="margin-top:4px;color:#777;"><b>이명:</b> '+it.medAlisNm+'</div>' : '');
+    if (!detailEl.innerHTML) { detailEl.innerHTML = '<div class="result-card-desc" style="color:#999;">추가 정보가 없어요</div>'; }
+    detailEl.dataset.loaded = '1';
+  } catch(e) {
+    detailEl.innerHTML = '<div class="result-card-desc" style="color:#c62828;">불러오기 실패, 다시 눌러주세요</div>';
+    btnEl.textContent = '자세히 보기 ▼';
+    detailEl.style.display = 'none';
   }
 }
 
