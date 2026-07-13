@@ -419,6 +419,29 @@ export default async function handler(req, res) {
       const { sido, sigungu } = params;
       const rawKey = process.env.STORE_API_KEY;
 
+      // (한글 설명) [신규] debugAll=1 을 붙이면, 17개 시/도 전체의 시/군/구 원본 목록을
+      //             한꺼번에 가져와서 보여줘요. 경아오빠가 지역마다 하나씩 테스트 안 해도
+      //             되도록, 한 번 호출로 전체를 점검할 수 있게 만든 진단 통로예요.
+      if (params.debugAll === '1') {
+        const dkey = encodeURIComponent(rawKey);
+        const allSido = Object.keys(SIDO_CODES);
+        const results = await Promise.all(allSido.map(async (sName) => {
+          const ctprvnCd = SIDO_CODES[sName];
+          const ctyUrl = `https://apis.data.go.kr/B553077/api/open/sdsc2/baroApi`
+            + `?resId=dong&catId=cty&ctprvnCd=${ctprvnCd}&type=json&ServiceKey=${dkey}`;
+          try {
+            const cr = await fetch(ctyUrl);
+            const cdata = await cr.json();
+            const items = (cdata.body && cdata.body.items) || [];
+            return { sido: sName, ctprvnCd, count: items.length, names: items.map((it) => it.signguNm) };
+          } catch (e) {
+            return { sido: sName, ctprvnCd, error: String(e) };
+          }
+        }));
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        return res.status(200).json(results);
+      }
+
       // (한글 설명) [신규] debug=1 을 붙이면, 시/군/구 이름을 찾는 원본 목록 전체와
       //             우리가 무엇을 찾으려 했는지를 그대로 보여줘요. 성남시/고양시처럼
       //             "구가 있는 시"가 이 목록에 어떤 이름으로 들어있는지 확인하기 위한 통로예요.
