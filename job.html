@@ -650,14 +650,16 @@ body.big-font .tsz-36 { font-size: 46px !important; }
   </div>
   <div class="job-page-inner">
     <div class="job-notice-box" style="margin-bottom:14px;">💡 한국노인인력개발원에서 실시간으로 올라온 공고입니다. 공고를 누르면 상세정보를 볼 수 있어요.</div>
-    <div id="job-api-list2">
-      <div style="text-align:center;padding:30px;color:#666;">공고를 불러오는 중이에요...</div>
+    <div class="card" style="margin:0;padding:14px;">
+      <div id="job-api-list2">
+        <div style="text-align:center;padding:30px;color:#666;">공고를 불러오는 중이에요...</div>
+      </div>
+      <button class="job-more-btn" id="job-more-btn2" style="display:none;margin-top:12px;" onclick="loadMoreJobApi2()">더보기 ▼</button>
+      <div class="job-btn-desc" id="job-more-desc2" style="display:none;">받아둔 공고 중에서 다음 공고를 보여드려요</div>
+      <button class="job-refresh-btn" onclick="searchNewJobApi2()" style="margin-top:12px;">🔄 다른 공고 검색하기</button>
+      <div class="job-btn-desc">완전히 새로운 공고로 다시 불러와요 (인터넷 필요)</div>
+      <div class="source-notice">출처: 한국노인인력개발원</div>
     </div>
-    <button class="job-more-btn" id="job-more-btn2" style="display:none;margin-top:12px;" onclick="loadMoreJobApi2()">더보기 ▼</button>
-    <div class="job-btn-desc" id="job-more-desc2" style="display:none;">받아둔 공고 중에서 다음 공고를 보여드려요</div>
-    <button class="job-refresh-btn" onclick="searchNewJobApi2()" style="margin-top:12px;">🔄 다른 공고 검색하기</button>
-    <div class="job-btn-desc">완전히 새로운 공고로 다시 불러와요 (인터넷 필요)</div>
-    <div class="source-notice">출처: 한국노인인력개발원</div>
 
     <div class="card" style="margin:20px 0 0;">
       <div class="card-title" style="font-size:18px;margin-bottom:10px;">🔗 다른 채용 사이트</div>
