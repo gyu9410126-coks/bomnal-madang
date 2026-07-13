@@ -40,6 +40,20 @@ function xmlItems(str) {
   while ((m = re.exec(str))) items.push(m[1]);
   return items;
 }
+// (한글 설명) [신규] 효능(medEft)·주치병증(medDis)·포함처방(medPre)은 다른 항목과 달리
+//             "목록 안에 여러 개"가 들어있는 구조예요(예: <medEftInfos><medEftInfo><eftName>
+//             안태</eftName></medEftInfo>...</medEftInfos>). xmlTag 하나로는 못 꺼내서,
+//             wrapperTag 안의 itemTag들을 찾아 nameTag 값만 콤마로 이어붙여요.
+function xmlNameList(str, itemTag, nameTag) {
+  const names = [];
+  const re = new RegExp(`<${itemTag}>([\\s\\S]*?)<\\/${itemTag}>`, 'g');
+  let m;
+  while ((m = re.exec(str))) {
+    const name = xmlTag(m[1], nameTag);
+    if (name) names.push(name);
+  }
+  return names.join(', ');
+}
 // 약재 목록 검색(자유검색) 결과에 들어있는 항목들
 const HERBAL_LIST_FIELDS = ['medCd', 'medNm', 'scinNm', 'pplrNm', 'ltnNm', 'famNm'];
 // 약재 상세정보 조회 결과에 들어있는 항목들 (시니어분들께 의미 있는 항목만 추림 —
@@ -638,6 +652,11 @@ export default async function handler(req, res) {
       const bodyXml = bodyMatch ? bodyMatch[1] : hdxml;
       const hdItem = {};
       HERBAL_DETAIL_FIELDS.forEach((f) => { hdItem[f] = xmlTag(bodyXml, f); });
+      // (한글 설명) 위 forEach는 medEft/medDis/medPre를 못 찾아서 빈 값으로 채웠을 거예요
+      // (목록 안에 목록 구조라서). 여기서 진짜 값으로 덮어써요.
+      hdItem.medEft = xmlNameList(bodyXml, 'medEftInfo', 'eftName');
+      hdItem.medDis = xmlNameList(bodyXml, 'medDisInfo', 'disName');
+      hdItem.medPre = xmlNameList(bodyXml, 'medPreInfo', 'preName');
       return res.status(200).json({ item: hdItem });
     }
 
