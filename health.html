@@ -146,23 +146,16 @@
 /* ── 출처표시 (병원찾기 전용) ── */
 .source-notice { font-size: 11px; color: #999; text-align: right; margin-top: 8px; }
 
-/* ── 메인 섹션 (약국·약효능 미리보기) ── */
-.hlth-sec { background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 5px rgba(0,0,0,0.07); margin: 20px 14px 0; }
-.hlth-sec-header { background: #e8f5e9; display: flex; align-items: center; justify-content: space-between; padding: 13px 14px 12px; border-bottom: 1px solid #c8e6c9; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-.hlth-sec-header:active { opacity: 0.85; }
-.hlth-sec-title { font-size: 19px; font-weight: 700; color: #2e7d32; }
-.hlth-sec-badge { font-size: 13px; font-weight: 600; color: #2e7d32; background: #c8e6c9; padding: 3px 10px; border-radius: 8px; }
-.hlth-sec-body { padding: 14px; }
-/* 섹션 결과카드 — 메인용 (약간 작게) */
-.sec-result-card { background: #f7f8fa; border-radius: 11px; padding: 11px 13px; margin-bottom: 8px; }
-.sec-result-card:last-child { margin-bottom: 0; }
-.sec-result-name { font-size: 15px; font-weight: 800; color: #1a1a1a; margin-bottom: 4px; word-break: keep-all; }
-.sec-result-addr { font-size: 12px; color: #666; margin-bottom: 3px; line-height: 1.5; }
-.sec-result-tel { font-size: 13px; font-weight: 700; }
-.sec-result-desc { font-size: 12px; color: #444; line-height: 1.6; margin-top: 4px; word-break: keep-all; }
-/* 전체보기 버튼 */
-.sec-more-btn { display: block; width: 100%; margin-top: 12px; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 700; text-align: center; cursor: pointer; background: #e8f5e9; color: #2e7d32; border: none; font-family: inherit; }
-.sec-more-btn:active { opacity: 0.8; }
+/* ── 기능 안내 카드 (아이콘그리드 하단, 9개 카테고리 설명 + 이동) ── */
+.qlink-sec { margin: 20px 14px 0; }
+.qlink-sec-title { font-size: 19px; font-weight: 800; color: #222; margin-bottom: 12px; }
+.qlink-btn { display: flex; align-items: center; gap: 14px; width: 100%; background: #fff; border: none; border-radius: 14px; padding: 14px; margin-bottom: 9px; cursor: pointer; font-family: inherit; text-align: left; box-shadow: 0 1px 5px rgba(0,0,0,0.07); -webkit-tap-highlight-color: transparent; }
+.qlink-btn:active { background: #f7f8fa; }
+.qlink-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+.qlink-text { flex: 1; min-width: 0; }
+.qlink-title { font-size: 16px; font-weight: 800; color: #222; margin-bottom: 3px; }
+.qlink-desc { font-size: 13px; color: #666; line-height: 1.5; word-break: keep-all; }
+.qlink-arrow { font-size: 20px; font-weight: 900; color: #ccc; flex-shrink: 0; }
 
 /* ── 돋보기 버튼 (우하단 고정) ── */
 .zoom-btn { position: fixed; right: 16px; bottom: 24px; width: 54px; height: 54px; border-radius: 50%; background: #fff; border: 2px solid #4A90D9; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.14); -webkit-tap-highlight-color: transparent; gap: 1px; }
@@ -222,13 +215,10 @@ body.big-font .coupang-link-icon { font-size: 30px !important; }
 body.big-font .coupang-link-text { font-size: 18px !important; }
 body.big-font .coupang-link-arrow { font-size: 18px !important; }
 body.big-font .source-notice { font-size: 16px !important; }
-body.big-font .hlth-sec-title { font-size: 25px !important; }
-body.big-font .hlth-sec-badge { font-size: 17px !important; }
-body.big-font .sec-result-name { font-size: 20px !important; }
-body.big-font .sec-result-addr { font-size: 16px !important; }
-body.big-font .sec-result-tel { font-size: 17px !important; }
-body.big-font .sec-result-desc { font-size: 16px !important; }
-body.big-font .sec-more-btn { font-size: 18px !important; }
+body.big-font .qlink-sec-title { font-size: 25px !important; }
+body.big-font .qlink-title { font-size: 21px !important; }
+body.big-font .qlink-desc { font-size: 17px !important; }
+body.big-font .qlink-icon { font-size: 34px !important; width: 60px !important; height: 60px !important; }
 
 /* ── 봄날채팅 바로가기 버튼 (돋보기 버튼 바로 위, 화면 고정) ── */
 .chat-fab { position: fixed; right: 16px; bottom: 86px; width: 58px; height: 58px; border-radius: 50%; background: #fff; border: 2px solid #c4607a; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; z-index: 200; box-shadow: 0 2px 10px rgba(0,0,0,0.14); -webkit-tap-highlight-color: transparent; gap: 1px; }
@@ -302,49 +292,91 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
     </div>
 
   <!-- ═══════════════════════════════════════════
-       섹션1 — 💊 약국 찾기 (미리보기, 결과 5개 고정)
+       기능 안내 카드 — 9개 카테고리 설명 + 이동
   ═══════════════════════════════════════════ -->
-  <div class="hlth-sec" id="sec-pharmacy">
-    <div class="hlth-sec-header" onclick="toggleSec('pharmacy')">
-      <span class="hlth-sec-title">💊 약국 찾기</span>
-      <span class="hlth-sec-badge" id="sec-pharmacy-badge">열기 ▼</span>
-    </div>
-    <div class="hlth-sec-body" id="sec-pharmacy-body" style="display:none;">
-      <div class="addr-wrap">
-        <button class="gps-btn" id="sec-ph-gps-btn" onclick="gpsLocate('sec-ph')">📍 현재 위치로 자동입력</button>
-        <input class="addr-input" id="sec-ph-addr-input" type="text" placeholder="동네 입력 (예: 부산 기장 정관읍)" oninput="addrSearch('sec-ph')" autocomplete="off" />
-        <div class="addr-hint">시·군·구·읍·면·동 단위까지 입력하면 더 정확해요</div>
-        <div class="addr-dropdown" id="sec-ph-addr-dropdown" style="display:none;"></div>
-      </div>
-      <div class="addr-selected" id="sec-ph-addr-selected" style="display:none;">
-        <span class="addr-selected-txt" id="sec-ph-addr-selected-txt"></span>
-        <span class="addr-selected-clear" onclick="addrClear('sec-ph')">✕ 다시선택</span>
-      </div>
-      <div class="search-row" style="margin-bottom:10px;">
-        <button class="search-btn" onclick="secSearchPharmacy()" style="width:100%;background:#2e7d32;">💊 약국 찾기</button>
-      </div>
-      <div id="sec-ph-result"></div>
-      <button class="sec-more-btn" onclick="goPage('pharmacy')">💊 약국찾기 전체보기 ▶</button>
-    </div>
-  </div>
+  <div class="qlink-sec">
+    <div class="qlink-sec-title">📋 건강·약국 기능 안내</div>
 
-  <!-- ═══════════════════════════════════════════
-       섹션2 — 📖 약효능·복용법 (미리보기, 결과 5개 고정)
-  ═══════════════════════════════════════════ -->
-  <div class="hlth-sec" id="sec-medicine">
-    <div class="hlth-sec-header" onclick="toggleSec('medicine')" style="background:#e3f2fd;border-bottom-color:#bbdefb;">
-      <span class="hlth-sec-title" style="color:#1565c0;">📖 약효능·복용법</span>
-      <span class="hlth-sec-badge" id="sec-medicine-badge" style="background:#bbdefb;color:#1565c0;">열기 ▼</span>
-    </div>
-    <div class="hlth-sec-body" id="sec-medicine-body" style="display:none;">
-      <div class="search-row" style="margin-bottom:10px;">
-        <input type="text" id="sec-med-input" placeholder="약품명 입력 (예: 타이레놀)" style="flex:1;padding:10px 12px;border:1.5px solid #ddd;border-radius:10px;font-size:15px;font-family:inherit;" />
-        <button class="search-btn" onclick="secSearchMedicine()" style="background:#1565c0;">검색</button>
+    <button class="qlink-btn" onclick="goPage('emergency')">
+      <div class="qlink-icon" style="background:#ffebee;">🚑</div>
+      <div class="qlink-text">
+        <div class="qlink-title">응급실찾기</div>
+        <div class="qlink-desc">지금 진료 중인 가까운 응급실을 위치로 찾아드려요</div>
       </div>
-      <div id="sec-med-result"></div>
-      <button class="search-btn" style="background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetSecMed()">🔄 검색 초기화</button>
-      <button class="sec-more-btn" onclick="goPage('medicine')" style="background:#e3f2fd;color:#1565c0;">📖 약효능 전체보기 ▶</button>
-    </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
+
+    <button class="qlink-btn" onclick="goPage('pharmacy')">
+      <div class="qlink-icon" style="background:#e8f5e9;">💊</div>
+      <div class="qlink-text">
+        <div class="qlink-title">약국찾기</div>
+        <div class="qlink-desc">지금 문 연 약국을 동네 이름이나 GPS로 찾아드려요</div>
+      </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
+
+    <button class="qlink-btn" onclick="goPage('hospital')">
+      <div class="qlink-icon" style="background:#e8eaf6;">🏨</div>
+      <div class="qlink-text">
+        <div class="qlink-title">병원찾기</div>
+        <div class="qlink-desc">진료과목·지역별로 병원을 검색하고 위치를 확인해요</div>
+      </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
+
+    <button class="qlink-btn" onclick="goPage('care')">
+      <div class="qlink-icon" style="background:#f3e5f5;">🏥</div>
+      <div class="qlink-text">
+        <div class="qlink-title">요양시설찾기</div>
+        <div class="qlink-desc">우리 동네 요양원·요양병원 3만여 곳을 찾아드려요</div>
+      </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
+
+    <button class="qlink-btn" onclick="goPage('store')">
+      <div class="qlink-icon" style="background:#fff3e0;">🏪</div>
+      <div class="qlink-text">
+        <div class="qlink-title">건강매장찾기</div>
+        <div class="qlink-desc">건강식품·의료기기 파는 가까운 매장을 찾아드려요</div>
+      </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
+
+    <button class="qlink-btn" onclick="goPage('medicine')">
+      <div class="qlink-icon" style="background:#e3f2fd;">📖</div>
+      <div class="qlink-text">
+        <div class="qlink-title">약효능·복용법</div>
+        <div class="qlink-desc">약 이름이나 증상으로 효능·복용법을 알려드려요</div>
+      </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
+
+    <button class="qlink-btn" onclick="goPage('nutrition')">
+      <div class="qlink-icon" style="background:#fff8e1;">🥗</div>
+      <div class="qlink-text">
+        <div class="qlink-title">식품영양정보</div>
+        <div class="qlink-desc">음식 재료의 칼로리·영양성분을 찾아봐요</div>
+      </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
+
+    <button class="qlink-btn" onclick="goPage('supplement')">
+      <div class="qlink-icon" style="background:#fce4ec;">💪</div>
+      <div class="qlink-text">
+        <div class="qlink-title">건강기능식품정보</div>
+        <div class="qlink-desc">많이 찾는 영양제부터 직접 검색까지 한 번에 도와드려요</div>
+      </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
+
+    <button class="qlink-btn" onclick="goPage('herbal')">
+      <div class="qlink-icon" style="background:#f1f8e9;">🌿</div>
+      <div class="qlink-text">
+        <div class="qlink-title">한방약재사전</div>
+        <div class="qlink-desc">한약재의 효능·성상·복용법을 사전처럼 찾아봐요</div>
+      </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
   </div>
 
 </div><!-- /main-grid-wrap -->
@@ -1087,7 +1119,7 @@ window.addEventListener('popstate', function(e) {
 /* ═══════════════════════════════════════════
    주소 자동완성 공통 함수
    카카오 주소검색 API → /api/kakao 프록시 경유
-   prefix: 'ph','em','care','sec-ph' (건강매장찾기·병원찾기는 드롭다운 방식으로 전환됨)
+   prefix: 'ph','em','care','hosp'
 ═══════════════════════════════════════════ */
 
 // 각 prefix 별 선택된 주소 저장 (시도명, 시군구명, 읍면동명)
@@ -1237,7 +1269,7 @@ function getAddrVal(prefix) {
 
 // 드롭다운 외부 클릭 시 닫기
 document.addEventListener('click', function(e) {
-  ['ph','em','care','hosp','sec-ph'].forEach(function(p) {
+  ['ph','em','care','hosp'].forEach(function(p) {
     var dd = document.getElementById(p + '-addr-dropdown');
     var inp = document.getElementById(p + '-addr-input');
     if (dd && inp && !inp.contains(e.target) && !dd.contains(e.target)) {
@@ -2298,90 +2330,9 @@ async function searchHospital(page) {
 }
 
 
-/* ═══════════════════════════════════════════
-   메인 섹션 — 아코디언 토글
-═══════════════════════════════════════════ */
-function toggleSec(name) {
-  var body = document.getElementById('sec-' + name + '-body');
-  var badge = document.getElementById('sec-' + name + '-badge');
-  if (body.style.display === 'none') {
-    body.style.display = 'block';
-    badge.textContent = '닫기 ▲';
-
-  } else {
-    body.style.display = 'none';
-    badge.textContent = '열기 ▼';
-  }
-}
-
-/* 섹션 시/도 초기화 함수는 자동완성 방식으로 대체되어 불필요 */
-
-/* ═══════════════════════════════════════════
-   섹션1 — 💊 약국찾기 (결과 5개 고정)
-═══════════════════════════════════════════ */
-async function secSearchPharmacy() {
-  var addr = getAddrVal('sec-ph');
-  if (!addr) { alert('동네를 입력하고 선택해주세요.'); return; }
-  var el = document.getElementById('sec-ph-result');
-  el.innerHTML = skeletonHTML(3);
-  try {
-    var data = await callHealthAPI({ type: 'pharmacy', Q0: addr.sido, Q1: addr.sigungu, QN: addr.eupmyeondong, pageNo: 1, numOfRows: 5 });
-    var items = extractItems(data);
-    el.innerHTML = '';
-    if (items.length === 0) {
-      el.innerHTML = emptyHTML('💊', '검색 결과가 없어요', '다른 지역을 선택해 보세요');
-      return;
-    }
-    items.slice(0, 5).forEach(function(it) {
-      var card = document.createElement('div');
-      card.className = 'sec-result-card';
-      card.innerHTML =
-        '<div class="sec-result-name">💊 ' + (it.dutyName || '약국명 없음') + '</div>' +
-        '<div class="sec-result-addr">📍 ' + (it.dutyAddr || '주소 정보 없음') + '</div>' +
-        (it.dutyTel1 ? '<div class="sec-result-tel"><a href="tel:' + it.dutyTel1 + '" style="color:#2e7d32;text-decoration:none;">📞 ' + it.dutyTel1 + '</a></div>' : '');
-      el.appendChild(card);
-    });
-  } catch(e) {
-    el.innerHTML = emptyHTML('⚠️', '불러오기 실패', '잠시 후 다시 시도해 주세요');
-  }
-}
-
-/* ═══════════════════════════════════════════
-   섹션2 — 📖 약효능·복용법 (결과 5개 고정)
-═══════════════════════════════════════════ */
-async function secSearchMedicine() {
-  var kw = document.getElementById('sec-med-input').value.trim();
-  if (!kw) { alert('약품명을 입력해주세요.'); return; }
-  var el = document.getElementById('sec-med-result');
-  el.innerHTML = skeletonHTML(3);
-  try {
-    var data = await callHealthAPI({ type: 'medicine', itemName: kw, pageNo: 1, numOfRows: 5 });
-    var items = extractMedicineItems(data);
-    el.innerHTML = '';
-    if (items.length === 0) {
-      el.innerHTML = emptyHTML('📖', '검색 결과가 없어요', '다른 약품명으로 검색해 보세요');
-      return;
-    }
-    items.slice(0, 5).forEach(function(it) {
-      var card = document.createElement('div');
-      card.className = 'sec-result-card';
-      card.innerHTML =
-        '<div class="sec-result-name">📖 ' + (it.itemName || '약품명 없음') + '</div>' +
-        '<div class="sec-result-addr" style="color:#777;">제조사: ' + (it.entpName || '-') + '</div>' +
-        (it.efcyQesitm ? '<div class="sec-result-desc"><b>효능:</b> ' + it.efcyQesitm + '</div>' : '') +
-        (it.useMethodQesitm ? '<div class="sec-result-desc"><b>복용법:</b> ' + it.useMethodQesitm + '</div>' : '');
-      el.appendChild(card);
-    });
-  } catch(e) {
-    el.innerHTML = emptyHTML('⚠️', '불러오기 실패', '잠시 후 다시 시도해 주세요');
-  }
-}
-
-// 홈 접이식 약효능·복용법 검색 초기화 (입력값 지우고 결과 비우기)
-function resetSecMed() {
-  document.getElementById('sec-med-input').value = '';
-  document.getElementById('sec-med-result').innerHTML = '';
-}
+/* (한글 설명) [변경] 아이콘그리드 하단 아코디언 섹션(약국찾기·약효능복용법 미리보기)을
+   9개 기능안내 카드로 교체하면서, 이 카드들이 쓰던 toggleSec/secSearchPharmacy/
+   secSearchMedicine/resetSecMed 함수는 더 이상 필요 없어서 삭제했어요. */
 
 /* ═══════════════════════════════════════════
    9. 💪 건강기능식품정보
