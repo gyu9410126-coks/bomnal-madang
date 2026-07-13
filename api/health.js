@@ -19,6 +19,38 @@ import careSigunguCodes from './data/care-sigungu-codes.json';
 //             똑같이 맞도록 "코드표의 2자리 코드 + 0000"으로 미리 계산해 저장해뒀어요.
 import hospitalSigunguCodes from './data/hospital-sigungu-codes.json';
 
+// (한글 설명) [신규] 한방약재사전(특허청 MatInfoService)은 실제 테스트로 확인해보니
+//             JSON을 요청해도 XML로만 응답해요(2026-07-13 debug 테스트로 확인됨). 다른
+//             건강 API들처럼 JSON을 그대로 기다리면 항상 빈 결과가 나오니, 여기서 XML을
+//             직접 읽어서 필요한 항목만 뽑아 JSON으로 바꿔줘요. 이 API의 응답은 태그 안에
+//             태그가 없는 단순한 구조라서(학명의 <i> 기울임 표시만 예외), 가벼운 정규식
+//             파서로 충분해요.
+function xmlTag(str, tag) {
+  const m = str.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`));
+  if (!m) return '';
+  return m[1]
+    .replace(/<[^>]+>/g, '') // <i>학명</i> 처럼 안에 섞인 태그 제거
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+    .trim();
+}
+function xmlItems(str) {
+  const items = [];
+  const re = /<item>([\s\S]*?)<\/item>/g;
+  let m;
+  while ((m = re.exec(str))) items.push(m[1]);
+  return items;
+}
+// 약재 목록 검색(자유검색) 결과에 들어있는 항목들
+const HERBAL_LIST_FIELDS = ['medCd', 'medNm', 'scinNm', 'pplrNm', 'ltnNm', 'famNm'];
+// 약재 상세정보 조회 결과에 들어있는 항목들 (시니어분들께 의미 있는 항목만 추림 —
+// 화합물명·특허(IPC)코드처럼 전문적인 항목은 뺐어요)
+const HERBAL_DETAIL_FIELDS = [
+  'medCd', 'medNm', 'famNm', 'pplrNm', 'ltnNm', 'scinNm', 'medAlisNm',
+  'useTgt', 'tmprmnt', 'actPart', 'medIco',
+  'medEft', 'medEftSrcBook', 'medDis', 'medDisSrcBook',
+  'medCtrd', 'proc', 'procSrcBook', 'medPre',
+];
+
 // (한글 설명) [버그 수정] 부산·대구·인천·광주·대전·울산 6개 광역시는 심평원 코드표 안에서
 //             시/군/구 이름 앞에 도시 짧은이름이 붙어있어요(예: "기장군"이 아니라 "부산기장군").
 //             화면 드롭다운은 "기장군"처럼 정식 법정동 이름만 쓰기 때문에, 그대로 찾으면
@@ -545,35 +577,68 @@ export default async function handler(req, res) {
 
     // ─────────────────────────────────────────
     // 5. 🌿 한방약재사전 (목록 검색)
-    // 특허청 한국전통지식포털 - 약재정보 서비스(MatInfoService)
-    // (한글 설명) [수정] 예전엔 이 가이드에 존재하지도 않는 오퍼레이션(getMatInfoList)을
-    //             쓰고 있어서 항상 실패했을 거예요(주소 자체가 없는 페이지였음). 공식
-    //             가이드(특허청_전통지식정보 활용가이드)에 있는 진짜 오퍼레이션인
-    //             "약재 자유검색"(getMatFreeSearch)으로 교체했어요.
+    // 특허청 한국전통지식포털 - 약재정보 서비스(MatInfoService), 약재 자유검색(getMatFreeSearch)
+    // (한글 설명) [확인됨] JSON을 요청해도 XML로만 응답한다는 걸 실제 테스트로 확인했어요.
+    //             그래서 다른 카테고리들처럼 공용 처리부(맨 아래 fetch)를 거치지 않고,
+    //             여기서 직접 부르고 XML을 JSON으로 바꿔서 화면에 보내요.
     // 파라미터: freeQuery(검색어), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'herbal') {
-      url = 'https://apis.data.go.kr/1430000/MatInfoService/getMatFreeSearch';
-      queryParams.append('serviceKey', process.env.HERBAL_API_KEY);
-      queryParams.append('freeQuery', params.freeQuery || '');
-      queryParams.append('pageNo', params.pageNo || '1');
-      queryParams.append('numOfRows', params.numOfRows || '10');
-      queryParams.append('type', 'json');
+      const hParams = new URLSearchParams();
+      hParams.append('serviceKey', process.env.HERBAL_API_KEY);
+      hParams.append('freeQuery', params.freeQuery || '');
+      const hPageNo = params.pageNo || '1';
+      const hNumOfRows = params.numOfRows || '10';
+      hParams.append('pageNo', hPageNo);
+      hParams.append('numOfRows', hNumOfRows);
+      const hUrl = `https://apis.data.go.kr/1430000/MatInfoService/getMatFreeSearch?${hParams.toString()}`;
+
+      const hr = await fetch(hUrl);
+      const hxml = await hr.text();
+
+      if (params.debug === '1') {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.status(200).send(`[호출한 주소]\n${hUrl}\n\n[원본 응답]\n${hxml}`);
+      }
+
+      const hItems = xmlItems(hxml).map((block) => {
+        const it = {};
+        HERBAL_LIST_FIELDS.forEach((f) => { it[f] = xmlTag(block, f); });
+        return it;
+      });
+      const hTotalCount = parseInt(xmlTag(hxml, 'totalCount'), 10) || hItems.length;
+      return res.status(200).json({
+        items: hItems,
+        totalCount: hTotalCount,
+        pageNo: parseInt(hPageNo, 10),
+        numOfRows: parseInt(hNumOfRows, 10),
+      });
     }
 
     // ─────────────────────────────────────────
     // 5-1. 🌿 한방약재사전 상세정보 (목록에서 카드를 눌렀을 때만 호출)
     // 특허청 한국전통지식포털 - 약재 상세정보 조회(getMatDetailInfo)
-    // (한글 설명) [신규] 목록 검색(자유검색)은 이름·학명 정도만 나와서, 효능·주치병증·
-    //             성미·금기 같은 자세한 정보는 이 상세조회를 약재코드(medCd)로 한 번 더
-    //             불러야 나와요. 화면에서 카드를 누른 그 순간에만 호출해서 속도를 지켜요.
     // 파라미터: medCd(약재코드, 목록 검색 결과에서 받음)
     // ─────────────────────────────────────────
     else if (type === 'herbalDetail') {
-      url = 'https://apis.data.go.kr/1430000/MatInfoService/getMatDetailInfo';
-      queryParams.append('serviceKey', process.env.HERBAL_API_KEY);
-      queryParams.append('medCd', params.medCd || '');
-      queryParams.append('type', 'json');
+      const hdParams = new URLSearchParams();
+      hdParams.append('serviceKey', process.env.HERBAL_API_KEY);
+      hdParams.append('medCd', params.medCd || '');
+      const hdUrl = `https://apis.data.go.kr/1430000/MatInfoService/getMatDetailInfo?${hdParams.toString()}`;
+
+      const hdr = await fetch(hdUrl);
+      const hdxml = await hdr.text();
+
+      if (params.debug === '1') {
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.status(200).send(`[호출한 주소]\n${hdUrl}\n\n[원본 응답]\n${hdxml}`);
+      }
+
+      const bodyMatch = hdxml.match(/<body>([\s\S]*)<\/body>/);
+      const bodyXml = bodyMatch ? bodyMatch[1] : hdxml;
+      const hdItem = {};
+      HERBAL_DETAIL_FIELDS.forEach((f) => { hdItem[f] = xmlTag(bodyXml, f); });
+      return res.status(200).json({ item: hdItem });
     }
 
     // ─────────────────────────────────────────
