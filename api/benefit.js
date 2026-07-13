@@ -396,40 +396,34 @@ export default async function handler(req, res) {
     }
 
     // ── 5-3. [임시/확인용] 복지시설 DB가 실제로 쓰는 지역 코드 확인 ────
-    // (한글 설명) [임시 코드] 방금 sigunguList로 "수원시 영통구"가 행정안전부(도로명주소)
-    //             기준으로는 41117 코드인 걸 확인했는데, 복지시설찾기로 검색하면 결과가
-    //             0개로 나오는 원인을 확인하려는 기능이에요. 복지시설 데이터베이스(사회보장정보원)는
-    //             행정안전부와 다른 기관이라서, 관할시군구 코드/이름을 다르게 쓰고 있을 가능성이
-    //             있어요. 이 기능은 "시/도 전체" 목록을 받아와서, 주소에 특정 글자(예: 수원)가
-    //             들어간 시설만 골라 그 시설이 실제로 어떤 코드/이름으로 등록돼 있는지 보여줘요.
+    // (한글 설명) [임시 코드] "경기도 전체" 코드(4100000000)로 찾아봤더니 도청 직속 기관만
+    //             나오고 개별 시·군 시설은 하나도 없었어요. 그래서 이번엔 지역 코드로 미리
+    //             거르지 않고, 전국 목록을 페이지별로 넘겨가며 주소에 특정 글자(예: 수원)가
+    //             들어간 진짜 시설을 찾아서, 그 시설이 실제로 어떤 코드/이름을 쓰는지 보여줘요.
     //             확인이 끝나면 삭제할 예정이에요.
-    //             사용법: /api/benefit?type=welfareDebugRegion&sido=경기도&keyword=수원
+    //             사용법: /api/benefit?type=welfareDebugRegion&keyword=수원
     if (type === 'welfareDebugRegion') {
-      const { sido, keyword } = req.query;
-      const sidoFull = normalizeSido(sido);
-      if (!sidoFull || !SIDO_CODES[sidoFull]) {
-        return res.status(200).json({ error: '알 수 없는 시·도입니다', sido });
-      }
-      const ctprvnCd = SIDO_CODES[sidoFull];
-      const jrsdSggCd = ctprvnCd + '00000000';
+      const { keyword, maxPages } = req.query;
+      const kw = keyword || '수원';
+      const pages = Math.min(parseInt(maxPages || '10', 10) || 10, 20);
       const listKey = encodeURIComponent(process.env.WELFARE_API_KEY);
-      const listUrl = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getFcltListInfoInqire`
-        + `?serviceKey=${listKey}&numOfRows=200&pageNo=1&jrsdSggCd=${encodeURIComponent(jrsdSggCd)}`;
-      try {
+      const matched = [];
+      let totalFetched = 0;
+      for (let p = 1; p <= pages && matched.length < 10; p += 1) {
+        const listUrl = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getFcltListInfoInqire`
+          + `?serviceKey=${listKey}&numOfRows=100&pageNo=${p}`;
         const r = await fetch(listUrl);
         const xml = await r.text();
         const items = parseXmlItems(xml, 'item');
-        const kw = keyword || '';
-        const matched = kw
-          ? items.filter((it) => (it.fcltAddr || '').includes(kw) || (it.jrsdSggNm || '').includes(kw))
-          : items;
-        const sample = matched.slice(0, 15).map((it) => ({
-          jrsdSggCd: it.jrsdSggCd, jrsdSggNm: it.jrsdSggNm, fcltAddr: it.fcltAddr, fcltNm: it.fcltNm,
-        }));
-        return res.status(200).json({ totalFetched: items.length, matchedCount: matched.length, sample });
-      } catch (e) {
-        return res.status(200).json({ error: '정부 서버 확인 실패', detail: e.message });
+        if (items.length === 0) break; // 더 이상 페이지가 없으면 중단
+        totalFetched += items.length;
+        items.forEach((it) => {
+          if ((it.fcltAddr || '').includes(kw)) {
+            matched.push({ jrsdSggCd: it.jrsdSggCd, jrsdSggNm: it.jrsdSggNm, fcltAddr: it.fcltAddr, fcltNm: it.fcltNm });
+          }
+        });
       }
+      return res.status(200).json({ totalFetched, matchedCount: matched.length, sample: matched.slice(0, 10) });
     }
 
     // ── 6. 소상공인 상가정보 (전통시장·상가) ────────────────────────
