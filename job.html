@@ -80,6 +80,9 @@
 .job-refresh-btn { display: block; width: 100%; margin-top: 12px; padding: 13px; background: #4A90D9; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .job-refresh-btn:active { background: #357abd; }
 
+/* ── 출처표시 (실시간 채용공고 API) ── */
+.source-notice { font-size: 11px; color: #999; text-align: right; margin-top: 8px; }
+
 /* ── 공고 상세 팝업 ── */
 .job-popup-overlay { position:fixed;top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.55); z-index:9000; display:flex;align-items:flex-end; animation:fadeIn 0.2s ease; }
 @keyframes fadeIn { from{opacity:0} to{opacity:1} }
@@ -318,6 +321,7 @@ body.big-font .tsz-36 { font-size: 46px !important; }
       <div class="job-loading">공고를 불러오는 중이에요…</div>
     </div>
     <button class="job-refresh-btn" onclick="loadJobApi(true)">🔄 공고 새로고침</button>
+    <div class="source-notice">출처: 한국노인인력개발원</div>
   </div>
 
   <!-- 시니어 채용공고 바로가기 카드 -->
@@ -643,6 +647,7 @@ body.big-font .tsz-36 { font-size: 46px !important; }
       <div style="text-align:center;padding:30px;color:#666;">공고를 불러오는 중이에요...</div>
     </div>
     <button class="job-refresh-btn" onclick="loadJobApi2(true)" style="margin-top:12px;">🔄 공고 새로고침</button>
+    <div class="source-notice">출처: 한국노인인력개발원</div>
 
     <div class="card" style="margin:20px 0 0;">
       <div class="card-title" style="font-size:18px;margin-bottom:10px;">🔗 다른 채용 사이트</div>
