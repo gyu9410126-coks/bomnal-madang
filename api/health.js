@@ -753,13 +753,17 @@ export default async function handler(req, res) {
 
     // ─────────────────────────────────────────
     // 7. 🥗 식품영양정보
-    // 식품의약품안전처 식품영양성분DB
-    // 파라미터: desc_kor(식품명), pageNo, numOfRows
+    // 식품의약품안전처 식품영양성분DB정보 (FoodNtrCpntDbInfo02)
+    // (한글 설명) [수정] 예전엔 존재하지 않는 오퍼레이션(getFoodNtrCpntDbInAttrbInfo02)과
+    //             틀린 파라미터(desc_kor)를 쓰고 있었어요. data.go.kr 공식 페이지에서
+    //             확인한 진짜 오퍼레이션명(getFoodNtrCpntDbInq02)과 검색 파라미터
+    //             (FOOD_NM_KR)로 교체했어요.
+    // 파라미터: FOOD_NM_KR(식품명), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'nutrition') {
-      url = 'https://apis.data.go.kr/1471000/FoodNtrCpntDbInfo02/getFoodNtrCpntDbInAttrbInfo02';
+      url = 'https://apis.data.go.kr/1471000/FoodNtrCpntDbInfo02/getFoodNtrCpntDbInq02';
       queryParams.append('serviceKey', process.env.FOOD_NUTRITION_API_KEY);
-      queryParams.append('desc_kor', params.desc_kor || '');
+      queryParams.append('FOOD_NM_KR', params.FOOD_NM_KR || '');
       queryParams.append('pageNo', params.pageNo || '1');
       queryParams.append('numOfRows', params.numOfRows || '10');
       queryParams.append('type', 'json');
