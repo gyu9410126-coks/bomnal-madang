@@ -369,6 +369,32 @@ export default async function handler(req, res) {
       }
     }
 
+    // ── 5-2. [임시/확인용] 시·군·구 실제 이름 확인 ───────────────────
+    // (한글 설명) [임시 코드] "구가 있는 시"(수원시·성남시 등) 지역선택 오류의 원인을
+    //             확인하기 위해 만든 확인 전용 기능이에요. 화면(UI)에는 연결하지 않았고,
+    //             주소창에 직접 입력해서 확인할 때만 써요. 확인이 끝나면 삭제할 예정이에요.
+    //             사용법: /api/benefit?type=sigunguList&sido=경기도
+    if (type === 'sigunguList') {
+      const { sido } = req.query;
+      const sidoFull = normalizeSido(sido);
+      if (!sidoFull || !SIDO_CODES[sidoFull]) {
+        return res.status(200).json({ error: '알 수 없는 시·도입니다', sido });
+      }
+      const ctprvnCd = SIDO_CODES[sidoFull];
+      const key = encodeURIComponent(process.env.STORE_API_KEY);
+      const url = `https://apis.data.go.kr/B553077/api/open/sdsc2/baroApi`
+        + `?resId=dong&catId=cty&ctprvnCd=${ctprvnCd}&type=json&ServiceKey=${key}`;
+      try {
+        const r = await fetch(url);
+        const data = await r.json();
+        const items = (data.body && data.body.items) || [];
+        const names = items.map((it) => ({ signguCd: it.signguCd, signguNm: it.signguNm }));
+        return res.status(200).json({ sido: sidoFull, ctprvnCd, count: names.length, names });
+      } catch (e) {
+        return res.status(200).json({ error: '정부 서버 확인 실패', detail: e.message });
+      }
+    }
+
     // ── 6. 소상공인 상가정보 (전통시장·상가) ────────────────────────
     // (한글 설명) 여기부터가 이번에 고친 부분이에요.
     //   - GPS 좌표(lat/lng)가 오면 카카오로 동네 이름을 알아내고
@@ -446,7 +472,7 @@ export default async function handler(req, res) {
       return res.status(200).json(Object.assign({}, data, { hasMore, pageNo }));
     }
 
-    return res.status(400).json({ error: 'type 파라미터가 필요합니다 (welfare/welfareKinds/benefit/lawyer/finance/dongList/store)' });
+    return res.status(400).json({ error: 'type 파라미터가 필요합니다 (welfare/welfareKinds/benefit/lawyer/finance/dongList/sigunguList/store)' });
 
   } catch (err) {
     console.error('[benefit.js error]', err);
