@@ -304,7 +304,10 @@ export default async function handler(req, res) {
       //             뒤로는 옛 이름을 보내면 0건이 나와요(실제 테스트로 확인함). 화면 드롭다운
       //             이름은 다른 카테고리들도 같이 쓰기 때문에 그대로 두고, 이 API로 보내기
       //             직전에만 새 이름으로 살짝 바꿔줘요.
-      const EMERGENCY_SIDO_RENAME = { '강원도': '강원특별자치도', '전라북도': '전북특별자치도' };
+      //             [추가 수정] 2026.7.1에 전라남도가 광주광역시와 통합되어 "전남광주통합
+      //             특별시"로 개편됐어요. "전라남도"로 보내면 0건이지만, 이 API는 아직
+      //             "전남"으로 보내면 정상 검색됨을 실제 테스트로 확인해서 그 값을 씀.
+      const EMERGENCY_SIDO_RENAME = { '강원도': '강원특별자치도', '전라북도': '전북특별자치도', '전라남도': '전남' };
       if (EMERGENCY_SIDO_RENAME[emq0]) emq0 = EMERGENCY_SIDO_RENAME[emq0];
       const emergencyUrl = 'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEgytListInfoInqire';
       const emergencyParams = new URLSearchParams();
