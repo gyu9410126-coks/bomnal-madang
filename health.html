@@ -2351,6 +2351,16 @@ function resetSecMed() {
 var supPage = 1;
 var supKeyword = '';
 
+// (한글 설명) [수정] 이 API는 응답이 body.items 배열 안에 각각 {"item":{...}} 형태로
+// 한 번 더 감싸져 있어요(다른 건강 API들과 다른 특이한 구조, 실제 응답으로 확인함).
+function extractSupplementItems(data) {
+  try {
+    var raw = (data && data.body && data.body.items) || [];
+    if (!Array.isArray(raw)) raw = [raw];
+    return raw.map(function(x){ return (x && x.item) ? x.item : x; });
+  } catch(e) { return []; }
+}
+
 async function searchSupplement(page) {
   var kw = document.getElementById('sup-input').value.trim();
   if(!kw) { alert('제품명을 입력해주세요.'); return; }
@@ -2359,8 +2369,8 @@ async function searchSupplement(page) {
   var el = document.getElementById('sup-result');
   if(page===1) el.innerHTML = skeletonHTML(3);
   try {
-    var data = await callHealthAPI({ type:'supplement', prdlstNm:kw, pageNo:page, numOfRows:10 });
-    var items = extractItems(data);
+    var data = await callHealthAPI({ type:'supplement', PRDUCT:kw, pageNo:page, numOfRows:10 });
+    var items = extractSupplementItems(data);
     if(page===1) el.innerHTML = '';
     if(items.length===0 && page===1) { el.innerHTML = emptyHTML('💪','검색 결과가 없어요','다른 제품명으로 검색해 보세요'); return; }
     items.forEach(function(it){
@@ -2368,10 +2378,14 @@ async function searchSupplement(page) {
       card.className = 'result-card';
       card.innerHTML =
         '<div class="result-card-tag" style="background:#fce4ec;color:#c62828;">💪 건강기능식품</div>' +
-        '<div class="result-card-name">'+(it.prdlstNm||'제품명 없음')+'</div>' +
-        '<div class="result-card-addr" style="color:#777;">제조사: '+(it.bsshNm||'-')+'</div>' +
-        (it.prduct ? '<div class="result-card-desc"><b>기능성:</b> '+it.prduct+'</div>' : '') +
-        (it.intakeMthd ? '<div class="result-card-desc" style="margin-top:4px;"><b>섭취방법:</b> '+it.intakeMthd+'</div>' : '');
+        '<div class="result-card-name">'+(it.PRDUCT||'제품명 없음')+'</div>' +
+        '<div class="result-card-addr" style="color:#777;">제조사: '+(it.ENTRPS||'-')+'</div>' +
+        (it.MAIN_FNCTN ? '<div class="result-card-desc"><b>주요기능:</b> '+it.MAIN_FNCTN+'</div>' : '') +
+        (it.SRV_USE ? '<div class="result-card-desc" style="margin-top:4px;"><b>섭취량·섭취방법:</b> '+it.SRV_USE+'</div>' : '') +
+        (it.INTAKE_HINT1 ? '<div class="result-card-desc" style="margin-top:4px;color:#c62828;"><b>⚠️ 섭취시 주의사항:</b> '+it.INTAKE_HINT1+'</div>' : '') +
+        (it.SUNGSANG ? '<div class="result-card-desc" style="margin-top:4px;"><b>성상:</b> '+it.SUNGSANG+'</div>' : '') +
+        (it.PRSRV_PD ? '<div class="result-card-desc" style="margin-top:4px;"><b>보관법:</b> '+it.PRSRV_PD+'</div>' : '') +
+        (it.DISTB_PD ? '<div class="result-card-desc" style="margin-top:4px;color:#999;font-size:12px;">유통기한: '+it.DISTB_PD+'</div>' : '');
       el.appendChild(card);
     });
     el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
