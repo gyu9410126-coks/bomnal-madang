@@ -2456,9 +2456,12 @@ function searchWelfareGPS() {
   navigator.geolocation.getCurrentPosition(function(pos) {
     var loading = document.getElementById('welfare-loading');
     loading.classList.add('show');
+    // (한글 설명) GPS로 찾을 때도 지역선택 검색과 똑같이 welfareHomeState(현재 검색 상태 상자)를 채워줘요.
+    // 이렇게 해야 renderWelfareCards() 안에서 지역명(areaName)을 제대로 표시하고, "더보기" 버튼도 정상적으로 만들어져요.
+    welfareHomeState = { sido: '', sigungu: '', facilityType: selectedWelfareType, page: 1, areaName: '내 주변' };
     fetch('/api/benefit?type=welfare&lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&facilityType='+encodeURIComponent(selectedWelfareType))
       .then(function(r){ return r.json(); })
-      .then(function(data){ renderWelfareCards(data, '내 주변'); loading.classList.remove('show'); })
+      .then(function(data){ renderWelfareCards(data, false); loading.classList.remove('show'); })
       .catch(function(){ loading.classList.remove('show'); showWelfareEmpty(); });
   }, function(){ alert('위치 정보를 가져오지 못했습니다. 지역을 직접 선택해 주세요.'); });
 }
