@@ -864,23 +864,11 @@ export default async function handler(req, res) {
 
     // ─────────────────────────────────────────
     // 9. 💪 건강기능식품정보
-    // 식품의약품안전처 건강기능식품 영양DB
-    // 파라미터: prdlstNm(제품명), pageNo, numOfRows
+    // (한글 설명) [변경] 정부 API(HtfsInfoService03)에 제품명 검색 기능이
+    // 없는 것으로 확인되어(파라미터가 pageNo/numOfRows/ServiceKey/type뿐),
+    // 이 프록시 분기는 더 이상 쓰지 않아요. 화면(health.html)에서 식품안전
+    // 나라(foodsafetykorea.go.kr)로 바로 연결하는 방식으로 바꿨어요.
     // ─────────────────────────────────────────
-    else if (type === 'supplement') {
-      // (한글 설명) [수정] 예전엔 존재하지 않는 서비스(HealthFoodInfoService)를 쓰고
-      //             있었어요. 경아오빠가 실제 Swagger 화면에서 직접 확인해준 진짜 서비스
-      //             (HtfsInfoService03/getHtfsItem01)로 교체했어요. 검색 파라미터
-      //             PRDUCT(제품명)는 Swagger 문서엔 안 나와있지만, 응답 항목 이름과 같아서
-      //             (다른 식약처 API들도 이런 경우가 많았어요) 시도해보고, 배포 후
-      //             딱 한 번 실제로 검색이 걸러지는지 확인할 거예요.
-      url = 'https://apis.data.go.kr/1471000/HtfsInfoService03/getHtfsItem01';
-      queryParams.append('serviceKey', process.env.HEALTH_FUNC_API_KEY);
-      queryParams.append('PRDUCT', params.PRDUCT || '');
-      queryParams.append('pageNo', params.pageNo || '1');
-      queryParams.append('numOfRows', params.numOfRows || '10');
-      queryParams.append('type', 'json');
-    }
 
     // 알 수 없는 type
     else {

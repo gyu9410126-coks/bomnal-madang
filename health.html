@@ -827,12 +827,18 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
         <div class="page-box-title" style="color:#c62828;">💪 건강기능식품 정보</div>
       </div>
       <div class="page-box-body">
-        <div class="search-row">
-          <input type="text" id="sup-input" placeholder="제품명을 입력하세요 (예: 오메가3, 루테인)" />
-          <button class="search-btn" style="background:#c62828;" onclick="searchSupplement(1)">검색</button>
+        <div class="result-card" style="text-align:center;">
+          <div class="result-card-desc" style="margin-bottom:14px;">
+            제품명, 섭취방법, 주의사항 등 건강기능식품 정보는<br/>
+            식품의약품안전처가 운영하는 <b>식품안전나라</b>에서<br/>
+            바로 검색하실 수 있어요.
+          </div>
+          <a onclick="confirmExternalLink('https://www.foodsafetykorea.go.kr/portal/healthyfoodlife/searchHomeHF.do');return false;" class="coupang-link" href="#" rel="noopener noreferrer nofollow">
+            <span class="coupang-link-icon">🔎</span>
+            <span class="coupang-link-text">식품안전나라에서 검색하기</span>
+            <span class="coupang-link-arrow">▶</span>
+          </a>
         </div>
-        <div id="sup-result" class="result-list"></div>
-        <button class="search-btn" style="background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetHealthPage('supplement')">🔄 검색 초기화</button>
       </div>
     </div>
     <div class="coupang-box">
@@ -971,7 +977,7 @@ function resetHealthPage(name) {
   function hideEl(elId) { var el = document.getElementById(elId); if (el) el.style.display = 'none'; }
 
   var ADDR_PREFIX = { pharmacy:'ph', emergency:'em', store:'st', care:'care', hospital:'hosp' };
-  var TEXT_PREFIX = { medicine:'med', herbal:'herb', nutrition:'nut', supplement:'sup' };
+  var TEXT_PREFIX = { medicine:'med', herbal:'herb', nutrition:'nut' };
 
   if (ADDR_PREFIX[name]) {
     var p = ADDR_PREFIX[name];
@@ -2347,60 +2353,10 @@ function resetSecMed() {
 
 /* ═══════════════════════════════════════════
    9. 💪 건강기능식품정보
+   (한글 설명) [변경] 정부 API에 제품명 검색 기능이 없어서(확인 완료),
+   직접 검색 대신 식품안전나라(식약처 공식 사이트)로 연결하는 방식으로
+   바꿨어요. 그래서 이전에 있던 검색 함수는 삭제했어요.
 ═══════════════════════════════════════════ */
-var supPage = 1;
-var supKeyword = '';
-
-// (한글 설명) [수정] 이 API는 응답이 body.items 배열 안에 각각 {"item":{...}} 형태로
-// 한 번 더 감싸져 있어요(다른 건강 API들과 다른 특이한 구조, 실제 응답으로 확인함).
-function extractSupplementItems(data) {
-  try {
-    var raw = (data && data.body && data.body.items) || [];
-    if (!Array.isArray(raw)) raw = [raw];
-    return raw.map(function(x){ return (x && x.item) ? x.item : x; });
-  } catch(e) { return []; }
-}
-
-async function searchSupplement(page) {
-  var kw = document.getElementById('sup-input').value.trim();
-  if(!kw) { alert('제품명을 입력해주세요.'); return; }
-  supKeyword = kw;
-  supPage = page;
-  var el = document.getElementById('sup-result');
-  if(page===1) el.innerHTML = skeletonHTML(3);
-  try {
-    var data = await callHealthAPI({ type:'supplement', PRDUCT:kw, pageNo:page, numOfRows:10 });
-    var items = extractSupplementItems(data);
-    if(page===1) el.innerHTML = '';
-    if(items.length===0 && page===1) { el.innerHTML = emptyHTML('💪','검색 결과가 없어요','다른 제품명으로 검색해 보세요'); return; }
-    items.forEach(function(it){
-      var card = document.createElement('div');
-      card.className = 'result-card';
-      card.innerHTML =
-        '<div class="result-card-tag" style="background:#fce4ec;color:#c62828;">💪 건강기능식품</div>' +
-        '<div class="result-card-name">'+(it.PRDUCT||'제품명 없음')+'</div>' +
-        '<div class="result-card-addr" style="color:#777;">제조사: '+(it.ENTRPS||'-')+'</div>' +
-        (it.MAIN_FNCTN ? '<div class="result-card-desc"><b>주요기능:</b> '+it.MAIN_FNCTN+'</div>' : '') +
-        (it.SRV_USE ? '<div class="result-card-desc" style="margin-top:4px;"><b>섭취량·섭취방법:</b> '+it.SRV_USE+'</div>' : '') +
-        (it.INTAKE_HINT1 ? '<div class="result-card-desc" style="margin-top:4px;color:#c62828;"><b>⚠️ 섭취시 주의사항:</b> '+it.INTAKE_HINT1+'</div>' : '') +
-        (it.SUNGSANG ? '<div class="result-card-desc" style="margin-top:4px;"><b>성상:</b> '+it.SUNGSANG+'</div>' : '') +
-        (it.PRSRV_PD ? '<div class="result-card-desc" style="margin-top:4px;"><b>보관법:</b> '+it.PRSRV_PD+'</div>' : '') +
-        (it.DISTB_PD ? '<div class="result-card-desc" style="margin-top:4px;color:#999;font-size:12px;">유통기한: '+it.DISTB_PD+'</div>' : '');
-      el.appendChild(card);
-    });
-    el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
-    if(items.length===10){
-      var btn = document.createElement('button');
-      btn.className = 'more-btn';
-      btn.style.background='#fce4ec'; btn.style.color='#c62828';
-      btn.textContent = '더보기 ▼';
-      btn.onclick = function(){ searchSupplement(supPage+1); };
-      el.appendChild(btn);
-    }
-  } catch(e) {
-    el.innerHTML = emptyHTML('⚠️','불러오기 실패','잠시 후 다시 시도해 주세요');
-  }
-}
 
 function confirmExternalLink(url) {
   if (confirm('외부 사이트로 이동합니다.\n봄날마당으로 돌아오려면 휴대폰 뒤로가기를 누르세요.')) {
