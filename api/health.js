@@ -29,8 +29,8 @@ function xmlTag(str, tag) {
   const m = str.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`));
   if (!m) return '';
   return m[1]
-    .replace(/<[^>]+>/g, '') // <i>학명</i> 처럼 안에 섞인 태그 제거
-    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&') // 이스케이프된 문자 먼저 복원
+    .replace(/<[^>]+>/g, '') // 복원된 뒤에 남는 <i>학명</i> 같은 섞인 태그를 제거
     .trim();
 }
 function xmlItems(str) {
