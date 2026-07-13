@@ -153,7 +153,16 @@ export default async function handler(req, res) {
       if (regionSido) {
         const region = await resolveRegionCode(regionSido, regionSigungu, process.env.STORE_API_KEY);
         if (region && region.divId === 'signguCd') {
-          jrsdSggCd = region.key + '00000';       // 시/군/구 단위 (5자리 + 00000)
+          // (한글 설명) [버그 수정] 복지시설 정부 데이터베이스(사회보장정보원)는 아직 "구" 단위로
+          //             안 나뉘어 있고, 예전 방식대로 시/군 전체를 하나의 코드로 관리해요. 그래서
+          //             수원시 영통구(41117)처럼 구 코드를 그대로 보내면 "그런 코드는 없다"며
+          //             결과가 0개로 나와요. 구 코드의 마지막 한 자리를 0으로 바꾸면(41117→41110)
+          //             이 데이터베이스가 쓰는 "시/군 전체" 코드가 돼요(직접 확인한 규칙이에요).
+          //             일반 시·군(구가 없는 곳)은 원래 마지막 자리가 0이라 바꿔도 그대로예요.
+          //             단점: 이 경우 "영통구"만 골라도 수원시 전체 결과가 나와요 — 정부 데이터
+          //             자체가 구 단위로 안 나뉘어 있어서 더 좁힐 방법이 없어요.
+          const cityWideCd = region.key.slice(0, 4) + '0';
+          jrsdSggCd = cityWideCd + '00000';       // 시/군 전체 단위 (5자리 + 00000)
         } else if (region && region.divId === 'ctprvnCd') {
           jrsdSggCd = region.key + '00000000';    // 시/도 전체 단위 (2자리 + 00000000)
         }
