@@ -1737,29 +1737,15 @@ function searchWelfareGPSPage() {
   if (oldBtn) oldBtn.remove(); // (한글 설명) 지역검색에서 남아있던 더보기 버튼이 GPS 결과에 잘못 붙어있지 않도록 정리
   loading.classList.add('show'); result.classList.remove('show');
   navigator.geolocation.getCurrentPosition(function(pos) {
-    fetch('/api/benefit?type=welfare&lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&facilityType='+encodeURIComponent(type))
+    // (한글 설명) [수정] 예전엔 여기서 HTML을 직접 만들어서 더보기 버튼이 아예 안 생겼어요.
+    // 지역선택 검색과 똑같이 pwState를 채우고 renderPwCards()를 써서, hasMore일 때
+    // 더보기 버튼이 정상적으로 생기도록 고쳤어요. lat/lng는 loadMorePw()가 다음 페이지에서도 쓸 수 있게 저장해요.
+    pwState = { sido: '', sigungu: '', type: type, page: 1, lat: pos.coords.latitude, lng: pos.coords.longitude };
+    fetch('/api/benefit?type=welfare&lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&facilityType='+encodeURIComponent(type)+'&pageNo=1')
       .then(function(r){ return r.json(); })
-      .then(function(data){
-        loading.classList.remove('show');
-        var items = [];
-        try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
-        if (items.length === 0) {
-          document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 주변 복지시설이 없습니다.<br>지역 선택으로 검색해 보세요.</div>';
-        } else {
-          document.getElementById('pw-cards').innerHTML = items.map(function(item){
-            return '<div class="welfare-card">'
-              +'<div class="welfare-card-top"><span class="welfare-card-name">'+(item.fcltNm||'시설명 없음')+'</span>'
-              +'<span class="welfare-card-type">'+(item.fcltKindNm||'복지시설')+'</span></div>'
-              +'<div class="welfare-card-addr">📍 '+(item.fullAddr||item.fcltAddr||'주소 없음')+'</div>'
-              +(item.fcltTelNo ? '<a class="welfare-card-tel" href="tel:'+item.fcltTelNo+'">📞 '+item.fcltTelNo+'</a>' : '')
-              +buildWelfareMapLinks(item)
-              +'</div>';
-          }).join('');
-        }
-        result.classList.add('show');
-      })
+      .then(function(data){ loading.classList.remove('show'); renderPwCards(data, false); result.classList.add('show'); })
       .catch(function(){ loading.classList.remove('show'); document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다.</div>'; result.classList.add('show'); });
-  }, function(){ loading.classList.remove('show'); alert('위치 정보를 가져오지 못했습니다.\n지역을 직접 선택해 주세요.'); });
+  }, function(){ loading.classList.remove('show'); alert('위치 정보를 가져오지 못했습니다.\n지역을 직접 선택해 주세요.'); }, { enableHighAccuracy: true, maximumAge: 0 });
 }
 
 /* ══════════════════════════════════════
@@ -1824,29 +1810,14 @@ function searchStoreGPSPage() {
   if (oldBtn) oldBtn.remove(); // (한글 설명) 지역검색에서 남아있던 더보기 버튼이 GPS 결과에 잘못 붙어있지 않도록 정리
   loading.classList.add('show'); result.classList.remove('show');
   navigator.geolocation.getCurrentPosition(function(pos) {
-    fetch('/api/benefit?type=store&lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&keyword='+encodeURIComponent(type))
+    // (한글 설명) [수정] 예전엔 여기서 HTML을 직접 만들어서 더보기 버튼이 아예 안 생겼어요.
+    // 지역선택 검색(searchStore)과 똑같이 psState를 채우고 renderPsCards()를 써서 통일했어요.
+    psState = { sido: '', sigungu: '', dong: '', type: type, page: 1, lat: pos.coords.latitude, lng: pos.coords.longitude };
+    fetch('/api/benefit?type=store&lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&keyword='+encodeURIComponent(type)+'&pageNo=1')
       .then(function(r){ return r.json(); })
-      .then(function(data){
-        loading.classList.remove('show');
-        var items = [];
-        try { items = (data.body && data.body.items) || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
-        if (items.length === 0) {
-          document.getElementById('ps-cards').innerHTML = '<div class="empty-msg">😔 주변 상가가 없습니다.<br>지역 선택으로 검색해 보세요.</div>';
-        } else {
-          document.getElementById('ps-cards').innerHTML = items.map(function(item){
-            return '<div class="store-card">'
-              +'<div class="store-card-name">'+(item.bizesNm||item.bsnNm||'상호명 없음')+'</div>'
-              +'<span class="store-card-type">'+(item.indsSclsNm||item.indsMclsNm||item.indsLclsNm||'상가')+'</span>'
-              +'<div class="store-card-addr">📍 '+(item.rdnmAdr||item.lnoAdr||'주소 없음')+'</div>'
-              +(item.telNo ? '<a class="store-card-tel" href="tel:'+item.telNo+'">📞 '+item.telNo+'</a>' : '')
-              +buildStoreMapLinks(item)
-              +'</div>';
-          }).join('');
-        }
-        result.classList.add('show');
-      })
+      .then(function(data){ loading.classList.remove('show'); renderPsCards(data, false); result.classList.add('show'); })
       .catch(function(){ loading.classList.remove('show'); document.getElementById('ps-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다.</div>'; result.classList.add('show'); });
-  }, function(){ loading.classList.remove('show'); alert('위치 정보를 가져오지 못했습니다.\n지역을 직접 선택해 주세요.'); });
+  }, function(){ loading.classList.remove('show'); alert('위치 정보를 가져오지 못했습니다.\n지역을 직접 선택해 주세요.'); }, { enableHighAccuracy: true, maximumAge: 0 });
 }
 
 /* ══════════════════════════════════════
@@ -2456,23 +2427,23 @@ function searchWelfareGPS() {
   navigator.geolocation.getCurrentPosition(function(pos) {
     var loading = document.getElementById('welfare-loading');
     loading.classList.add('show');
-    // (한글 설명) GPS로 찾을 때도 지역선택 검색과 똑같이 welfareHomeState(현재 검색 상태 상자)를 채워줘요.
-    // 이렇게 해야 renderWelfareCards() 안에서 지역명(areaName)을 제대로 표시하고, "더보기" 버튼도 정상적으로 만들어져요.
-    welfareHomeState = { sido: '', sigungu: '', facilityType: selectedWelfareType, page: 1, areaName: '내 주변' };
-    fetch('/api/benefit?type=welfare&lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&facilityType='+encodeURIComponent(selectedWelfareType))
+    // (한글 설명) [수정] "더보기"를 눌렀을 때도 같은 GPS 위치로 계속 찾을 수 있도록
+    // lat/lng를 welfareHomeState에 같이 저장해요. loadMoreWelfare()가 이 값을 읽어서 씁니다.
+    welfareHomeState = { sido: '', sigungu: '', facilityType: selectedWelfareType, page: 1, areaName: '내 주변', lat: pos.coords.latitude, lng: pos.coords.longitude };
+    fetch('/api/benefit?type=welfare&lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&facilityType='+encodeURIComponent(selectedWelfareType)+'&pageNo=1')
       .then(function(r){ return r.json(); })
       .then(function(data){ renderWelfareCards(data, false); loading.classList.remove('show'); })
       .catch(function(){ loading.classList.remove('show'); showWelfareEmpty(); });
-  }, function(){ alert('위치 정보를 가져오지 못했습니다. 지역을 직접 선택해 주세요.'); });
+  }, function(){ alert('위치 정보를 가져오지 못했습니다. 지역을 직접 선택해 주세요.'); }, { enableHighAccuracy: true, maximumAge: 0 });
 }
 
-var welfareHomeState = { sido: '', sigungu: '', facilityType: '', page: 1, areaName: '' };
+var welfareHomeState = { sido: '', sigungu: '', facilityType: '', page: 1, areaName: '', lat: null, lng: null };
 
 function searchWelfare() {
   var sido    = document.getElementById('welfare-sido').value;
   var sigungu = document.getElementById('welfare-sigungu').value;
   if (!sido) { alert('시·도를 선택해 주세요'); return; }
-  welfareHomeState = { sido: sido, sigungu: sigungu, facilityType: selectedWelfareType, page: 1, areaName: sido+' '+sigungu };
+  welfareHomeState = { sido: sido, sigungu: sigungu, facilityType: selectedWelfareType, page: 1, areaName: sido+' '+sigungu, lat: null, lng: null };
   var loading = document.getElementById('welfare-loading');
   loading.classList.add('show');
   document.getElementById('welfare-result').classList.remove('show');
@@ -2487,7 +2458,11 @@ function loadMoreWelfare() {
   welfareHomeState.page += 1;
   var btn = document.getElementById('welfare-more-btn');
   if (btn) { btn.textContent = '⏳ 불러오는 중...'; btn.disabled = true; }
-  fetch('/api/benefit?type=welfare&sido='+encodeURIComponent(welfareHomeState.sido)+'&sigungu='+encodeURIComponent(welfareHomeState.sigungu)+'&facilityType='+encodeURIComponent(welfareHomeState.facilityType)+'&pageNo='+welfareHomeState.page)
+  var url = '/api/benefit?type=welfare&sido='+encodeURIComponent(welfareHomeState.sido)+'&sigungu='+encodeURIComponent(welfareHomeState.sigungu)+'&facilityType='+encodeURIComponent(welfareHomeState.facilityType)+'&pageNo='+welfareHomeState.page;
+  // (한글 설명) GPS로 찾은 결과라면(lat/lng가 있으면) 더보기에서도 같은 좌표를 계속 보내야
+  // 서버가 같은 위치 기준으로 다음 페이지를 찾아줘요. 안 보내면 위치 정보가 없어져서 엉뚱한 결과가 나와요.
+  if (welfareHomeState.lat && welfareHomeState.lng) { url += '&lat='+welfareHomeState.lat+'&lng='+welfareHomeState.lng; }
+  fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(data){ renderWelfareCards(data, true); })
     .catch(function(){ welfareHomeState.page -= 1; if (btn) { btn.textContent = '더보기 ▼'; btn.disabled = false; } });
@@ -2552,14 +2527,14 @@ function showWelfareEmpty() {
 /* ══════════════════════════════════════
    전환 페이지 — 복지시설 검색
 ══════════════════════════════════════ */
-var pwState = { sido: '', sigungu: '', type: '', page: 1 };
+var pwState = { sido: '', sigungu: '', type: '', page: 1, lat: null, lng: null };
 
 function searchWelfarePage() {
   var sido    = document.getElementById('pw-sido').value;
   var sigungu = document.getElementById('pw-sigungu').value;
   var type    = document.getElementById('pw-type').value;
   if (!sido) { alert('시·도를 선택해 주세요'); return; }
-  pwState = { sido: sido, sigungu: sigungu, type: type, page: 1 };
+  pwState = { sido: sido, sigungu: sigungu, type: type, page: 1, lat: null, lng: null };
   var loading = document.getElementById('pw-loading');
   var result  = document.getElementById('pw-result');
   loading.classList.add('show'); result.classList.remove('show');
@@ -2574,7 +2549,9 @@ function loadMorePw() {
   pwState.page += 1;
   var btn = document.getElementById('pw-more-btn');
   if (btn) { btn.textContent = '⏳ 불러오는 중...'; btn.disabled = true; }
-  fetch('/api/benefit?type=welfare&sido='+encodeURIComponent(pwState.sido)+'&sigungu='+encodeURIComponent(pwState.sigungu)+'&facilityType='+encodeURIComponent(pwState.type)+'&pageNo='+pwState.page)
+  var url = '/api/benefit?type=welfare&sido='+encodeURIComponent(pwState.sido)+'&sigungu='+encodeURIComponent(pwState.sigungu)+'&facilityType='+encodeURIComponent(pwState.type)+'&pageNo='+pwState.page;
+  if (pwState.lat && pwState.lng) { url += '&lat='+pwState.lat+'&lng='+pwState.lng; }
+  fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(data){ renderPwCards(data, true); })
     .catch(function(){ pwState.page -= 1; if (btn) { btn.textContent = '더보기 ▼'; btn.disabled = false; } });
@@ -2689,7 +2666,7 @@ function searchBenefit() {
 /* ══════════════════════════════════════
    전통시장·상가 검색
 ══════════════════════════════════════ */
-var psState = { sido: '', sigungu: '', dong: '', type: '', page: 1 };
+var psState = { sido: '', sigungu: '', dong: '', type: '', page: 1, lat: null, lng: null };
 
 function searchStore() {
   var sido    = document.getElementById('ps-sido').value;
@@ -2697,7 +2674,7 @@ function searchStore() {
   var dong    = document.getElementById('ps-dong').value;
   var type    = document.getElementById('ps-type').value;
   if (!sido) { alert('시·도를 선택해 주세요'); return; }
-  psState = { sido: sido, sigungu: sigungu, dong: dong, type: type, page: 1 };
+  psState = { sido: sido, sigungu: sigungu, dong: dong, type: type, page: 1, lat: null, lng: null };
   var loading = document.getElementById('ps-loading');
   var result  = document.getElementById('ps-result');
   loading.classList.add('show'); result.classList.remove('show');
@@ -2712,7 +2689,9 @@ function loadMorePs() {
   psState.page += 1;
   var btn = document.getElementById('ps-more-btn');
   if (btn) { btn.textContent = '⏳ 불러오는 중...'; btn.disabled = true; }
-  fetch('/api/benefit?type=store&sido='+encodeURIComponent(psState.sido)+'&sigungu='+encodeURIComponent(psState.sigungu)+'&dong='+encodeURIComponent(psState.dong)+'&keyword='+encodeURIComponent(psState.type)+'&pageNo='+psState.page)
+  var url = '/api/benefit?type=store&sido='+encodeURIComponent(psState.sido)+'&sigungu='+encodeURIComponent(psState.sigungu)+'&dong='+encodeURIComponent(psState.dong)+'&keyword='+encodeURIComponent(psState.type)+'&pageNo='+psState.page;
+  if (psState.lat && psState.lng) { url += '&lat='+psState.lat+'&lng='+psState.lng; }
+  fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(data){ renderPsCards(data, true); })
     .catch(function(){ psState.page -= 1; if (btn) { btn.textContent = '더보기 ▼'; btn.disabled = false; } });
