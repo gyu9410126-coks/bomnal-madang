@@ -667,6 +667,10 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
         <div class="page-box-title" style="color:#f57f17;">🥗 식품영양 정보</div>
       </div>
       <div class="page-box-body">
+        <div class="med-hint-box" style="display:flex;align-items:center;gap:8px;background:#fff8e1;border:1.5px solid #ffe082;border-radius:10px;padding:10px 12px;margin:2px 0 12px;font-size:14px;font-weight:600;color:#e65100;">
+          <span style="font-size:18px;">💡</span>
+          <span>정확한 음식 이름을 넣으면 더 잘 나와요 (예: 백미밥, 된장찌개)</span>
+        </div>
         <div class="search-row">
           <input type="text" id="nut-input" placeholder="식품명을 입력하세요 (예: 사과, 된장찌개)" />
           <button class="search-btn" style="background:#f57f17;" onclick="searchNutrition(1)">검색</button>
@@ -2050,6 +2054,15 @@ function searchCareGPS() {
 var nutPage = 1;
 var nutKeyword = '';
 
+// (한글 설명) 이 API는 약효능·복용법(e약은요)과 같은 방식으로 data.body.items가
+// 배열로 바로 와요(response 껍데기 없음). 실제 응답으로 확인했어요.
+function extractNutritionItems(data) {
+  try {
+    var items = (data && data.body && data.body.items) || [];
+    return Array.isArray(items) ? items : [items];
+  } catch(e) { return []; }
+}
+
 async function searchNutrition(page) {
   var kw = document.getElementById('nut-input').value.trim();
   if(!kw) { alert('식품명을 입력해주세요.'); return; }
@@ -2058,28 +2071,34 @@ async function searchNutrition(page) {
   var el = document.getElementById('nut-result');
   if(page===1) el.innerHTML = skeletonHTML(3);
   try {
-    var data = await callHealthAPI({ type:'nutrition', desc_kor:kw, pageNo:page, numOfRows:10 });
-    var items = extractItems(data);
+    var data = await callHealthAPI({ type:'nutrition', FOOD_NM_KR:kw, pageNo:page, numOfRows:10 });
+    var items = extractNutritionItems(data);
     if(page===1) el.innerHTML = '';
     if(items.length===0 && page===1) { el.innerHTML = emptyHTML('🥗','검색 결과가 없어요','다른 식품명으로 검색해 보세요'); return; }
     items.forEach(function(it){
       var card = document.createElement('div');
       card.className = 'result-card';
-      // 칼로리·영양소 표시
-      var kcal = it.AMT_NUM1 || it.enerc || '-';
-      var carb = it.AMT_NUM7 || it.chocdf || '-';
-      var prot = it.AMT_NUM3 || it.prot || '-';
-      var fat  = it.AMT_NUM4 || it.fatce || '-';
+      // (한글 설명) [수정] AMT_NUM6이 탄수화물, AMT_NUM7이 당류예요. 예전 코드는 이 둘을
+      // 헷갈려서 당류 값을 "탄수화물"이라고 잘못 보여주고 있었어요(실제 API로 확인 후 수정).
+      var kcal = it.AMT_NUM1 || '-';
+      var carb = it.AMT_NUM6 || '-';
+      var prot = it.AMT_NUM3 || '-';
+      var fat  = it.AMT_NUM4 || '-';
+      var sodium = it.AMT_NUM13 || '-';
+      var sugar  = it.AMT_NUM7 || '-';
       card.innerHTML =
         '<div class="result-card-tag" style="background:#fff8e1;color:#f57f17;">🥗 식품</div>' +
-        '<div class="result-card-name">'+(it.DESC_KOR||it.FOOD_NM_KR||it.desc_kor||'식품명 없음')+'</div>' +
-        '<div class="result-card-addr" style="color:#777;">분류: '+(it.GROUP_NM||it.FOOD_OR_CD||'-')+'</div>' +
-        '<div class="result-card-row">' +
+        '<div class="result-card-name">'+(it.FOOD_NM_KR||'식품명 없음')+'</div>' +
+        '<div class="result-card-addr" style="color:#777;">'+(it.FOOD_CAT1_NM ? '분류: '+it.FOOD_CAT1_NM : '')+(it.SERVING_SIZE ? ' · 기준량 '+it.SERVING_SIZE : '')+'</div>' +
+        '<div class="result-card-row" style="flex-wrap:wrap;gap:6px;">' +
           '<span style="background:#fff3e0;color:#e65100;padding:3px 8px;border-radius:6px;font-size:13px;font-weight:700;">🔥 '+kcal+' kcal</span>' +
           '<span style="background:#e8f5e9;color:#2e7d32;padding:3px 8px;border-radius:6px;font-size:13px;">탄수화물 '+carb+'g</span>' +
           '<span style="background:#e3f2fd;color:#1565c0;padding:3px 8px;border-radius:6px;font-size:13px;">단백질 '+prot+'g</span>' +
           '<span style="background:#fce4ec;color:#c62828;padding:3px 8px;border-radius:6px;font-size:13px;">지방 '+fat+'g</span>' +
-        '</div>';
+          '<span style="background:#f3e5f5;color:#6a1b9a;padding:3px 8px;border-radius:6px;font-size:13px;">당류 '+sugar+'g</span>' +
+          '<span style="background:#eceff1;color:#455a64;padding:3px 8px;border-radius:6px;font-size:13px;">나트륨 '+sodium+'mg</span>' +
+        '</div>' +
+        (it.SUB_REF_NAME ? '<div class="result-card-desc" style="margin-top:4px;color:#999;font-size:12px;">출처: '+it.SUB_REF_NAME+(it.MAKER_NM ? ' · '+it.MAKER_NM : '')+'</div>' : '');
       el.appendChild(card);
     });
     el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
