@@ -422,22 +422,40 @@ export default async function handler(req, res) {
       // (한글 설명) [신규] debugAll=1 을 붙이면, 17개 시/도 전체의 시/군/구 원본 목록을
       //             한꺼번에 가져와서 보여줘요. 경아오빠가 지역마다 하나씩 테스트 안 해도
       //             되도록, 한 번 호출로 전체를 점검할 수 있게 만든 진단 통로예요.
+      //             [수정] 처음엔 17개를 한꺼번에(동시에) 불렀더니 정부 서버가 "너무 빨리
+      //             여러 번 부른다"며 일부를 막아서(API 토큰 에러), 3개씩 나눠서 순서대로
+      //             부르도록 바꿨어요. 또한 에러가 나면 원본 텍스트도 그대로 보여주게 했어요.
       if (params.debugAll === '1') {
         const dkey = encodeURIComponent(rawKey);
         const allSido = Object.keys(SIDO_CODES);
-        const results = await Promise.all(allSido.map(async (sName) => {
-          const ctprvnCd = SIDO_CODES[sName];
-          const ctyUrl = `https://apis.data.go.kr/B553077/api/open/sdsc2/baroApi`
-            + `?resId=dong&catId=cty&ctprvnCd=${ctprvnCd}&type=json&ServiceKey=${dkey}`;
-          try {
-            const cr = await fetch(ctyUrl);
-            const cdata = await cr.json();
-            const items = (cdata.body && cdata.body.items) || [];
-            return { sido: sName, ctprvnCd, count: items.length, names: items.map((it) => it.signguNm) };
-          } catch (e) {
-            return { sido: sName, ctprvnCd, error: String(e) };
+        const results = [];
+        const chunkSize = 3;
+        for (let i = 0; i < allSido.length; i += chunkSize) {
+          const chunk = allSido.slice(i, i + chunkSize);
+          const chunkResults = await Promise.all(chunk.map(async (sName) => {
+            const ctprvnCd = SIDO_CODES[sName];
+            const ctyUrl = `https://apis.data.go.kr/B553077/api/open/sdsc2/baroApi`
+              + `?resId=dong&catId=cty&ctprvnCd=${ctprvnCd}&type=json&ServiceKey=${dkey}`;
+            try {
+              const cr = await fetch(ctyUrl);
+              const raw = await cr.text();
+              try {
+                const cdata = JSON.parse(raw);
+                const items = (cdata.body && cdata.body.items) || [];
+                return { sido: sName, ctprvnCd, count: items.length, names: items.map((it) => it.signguNm) };
+              } catch (parseErr) {
+                return { sido: sName, ctprvnCd, error: '응답이 JSON이 아님', rawPreview: raw.slice(0, 200) };
+              }
+            } catch (e) {
+              return { sido: sName, ctprvnCd, error: String(e) };
+            }
+          }));
+          results.push(...chunkResults);
+          // (한글 설명) 다음 묶음 부르기 전에 살짝 쉬어서(300ms) 서버 부담을 줄여요.
+          if (i + chunkSize < allSido.length) {
+            await new Promise((resolve) => setTimeout(resolve, 300));
           }
-        }));
+        }
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
         return res.status(200).json(results);
       }
