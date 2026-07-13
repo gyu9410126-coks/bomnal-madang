@@ -419,6 +419,25 @@ export default async function handler(req, res) {
       const { sido, sigungu } = params;
       const rawKey = process.env.STORE_API_KEY;
 
+      // (한글 설명) [신규] debug=1 을 붙이면, 시/군/구 이름을 찾는 원본 목록 전체와
+      //             우리가 무엇을 찾으려 했는지를 그대로 보여줘요. 성남시/고양시처럼
+      //             "구가 있는 시"가 이 목록에 어떤 이름으로 들어있는지 확인하기 위한 통로예요.
+      if (params.debug === '1') {
+        const sidoFull = normalizeSido(sido);
+        const ctprvnCd = SIDO_CODES[sidoFull];
+        const dkey = encodeURIComponent(rawKey);
+        const ctyUrl = `https://apis.data.go.kr/B553077/api/open/sdsc2/baroApi`
+          + `?resId=dong&catId=cty&ctprvnCd=${ctprvnCd}&type=json&ServiceKey=${dkey}`;
+        const cr = await fetch(ctyUrl);
+        const cdata = await cr.json();
+        const items = (cdata.body && cdata.body.items) || [];
+        const names = items.map((it) => it.signguNm);
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        return res.status(200).send(
+          `[찾으려는 시/군/구] ${sigungu}\n\n[호출한 주소]\n${ctyUrl}\n\n[이 시/도의 전체 시/군/구 목록 (${names.length}개)]\n${names.join(', ')}`
+        );
+      }
+
       const region = await resolveRegionCode(sido, sigungu, rawKey);
       if (!region || region.divId !== 'signguCd') {
         return res.status(200).json({ items: [] });
