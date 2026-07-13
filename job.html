@@ -79,6 +79,10 @@
 .job-api-error { background: #fff3f3; border-left: 3px solid #e53935; border-radius: 10px; padding: 14px; font-size: 14px; color: #c00; line-height: 1.6; }
 .job-refresh-btn { display: block; width: 100%; margin-top: 12px; padding: 13px; background: #4A90D9; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .job-refresh-btn:active { background: #357abd; }
+.job-more-btn { display: block; width: 100%; margin-top: 12px; padding: 13px; background: #fff; color: #4A90D9; border: 2px solid #4A90D9; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.job-more-btn:active { background: #eef2f8; }
+.job-more-btn:disabled { opacity: 0.6; }
+.job-btn-desc { font-size: 12px; color: #888; text-align: center; margin-top: 6px; line-height: 1.5; }
 
 /* ── 출처표시 (실시간 채용공고 API) ── */
 .source-notice { font-size: 11px; color: #999; text-align: right; margin-top: 8px; }
@@ -320,7 +324,10 @@ body.big-font .tsz-36 { font-size: 46px !important; }
     <div id="job-api-list">
       <div class="job-loading">공고를 불러오는 중이에요…</div>
     </div>
-    <button class="job-refresh-btn" onclick="loadJobApi(true)">🔄 공고 새로고침</button>
+    <button class="job-more-btn" id="job-more-btn" style="display:none;" onclick="loadMoreJobApi()">더보기 ▼</button>
+    <div class="job-btn-desc" id="job-more-desc" style="display:none;">받아둔 공고 중에서 다음 공고를 보여드려요</div>
+    <button class="job-refresh-btn" onclick="searchNewJobApi()">🔄 다른 공고 검색하기</button>
+    <div class="job-btn-desc">완전히 새로운 공고로 다시 불러와요 (인터넷 필요)</div>
     <div class="source-notice">출처: 한국노인인력개발원</div>
   </div>
 
@@ -646,7 +653,10 @@ body.big-font .tsz-36 { font-size: 46px !important; }
     <div id="job-api-list2">
       <div style="text-align:center;padding:30px;color:#666;">공고를 불러오는 중이에요...</div>
     </div>
-    <button class="job-refresh-btn" onclick="loadJobApi2(true)" style="margin-top:12px;">🔄 공고 새로고침</button>
+    <button class="job-more-btn" id="job-more-btn2" style="display:none;margin-top:12px;" onclick="loadMoreJobApi2()">더보기 ▼</button>
+    <div class="job-btn-desc" id="job-more-desc2" style="display:none;">받아둔 공고 중에서 다음 공고를 보여드려요</div>
+    <button class="job-refresh-btn" onclick="searchNewJobApi2()" style="margin-top:12px;">🔄 다른 공고 검색하기</button>
+    <div class="job-btn-desc">완전히 새로운 공고로 다시 불러와요 (인터넷 필요)</div>
     <div class="source-notice">출처: 한국노인인력개발원</div>
 
     <div class="card" style="margin:20px 0 0;">
@@ -2011,17 +2021,24 @@ function resetCalc3(){
 }
 
 /* ── 채용공고 API (메인 카드 + 검색페이지 공통 로직) ── */
-// (한글 설명) 예전에는 10개만 받아서, 새로고침 누르면 서버에 매번 다시 물어봤어요.
-//             지금은 처음에 30개를 한 번에 받아두고(장보기), 새로고침 누를 때마다
-//             냉장고에서 10개씩 꺼내 보여줘요(순환) → 버튼 누르면 "즉시" 화면이 바뀝니다.
-//             30개를 다 보여주고 나면, 그때만 서버에 새로 30개를 요청합니다.
-var JOB_CACHE_TTL=5*60*1000;   // 한 번 받아온 30개를 5분간 유효한 것으로 봄
-var JOB_BATCH_SIZE=30;         // 서버에서 한 번에 받아오는 공고 개수
-var JOB_PAGE_SIZE=10;          // 화면에 한 번에 보여주는 개수
+// (한글 설명) [변경] 예전에는 화면에 10개만 보여주면서도 뒤에서는 30개를 다 받을 때까지
+//             기다렸다가 화면에 뿌렸어요. 그래서 실제로 보이는 건 10개인데 로딩은 30개만큼 걸렸어요.
+//             지금은 ① 10개만 먼저 빠르게 받아서 바로 보여드리고,
+//                   ② 나머지 20개는 화면 뒤에서 조용히 마저 받아둬요(백그라운드).
+//             "더보기"를 누르면 이미 받아둔 걸 이어붙이기만 해서 기다림 없이 바로 나와요.
+//             "다른 공고 검색하기"를 누르면 그때 서버에 진짜 새로운 30개를 요청해요.
+var JOB_CACHE_TTL=5*60*1000;   // 한 번 받아온 목록을 5분간 유효한 것으로 봄 (재방문 시 재사용)
+var JOB_BATCH_SIZE=30;         // 뒤에서 미리 받아두는 전체 개수
+var JOB_PAGE_SIZE=10;          // 화면에 한 번에 보여주는(추가하는) 개수
 
 // 메인화면 카드용 상태, 검색페이지용 상태를 각각 따로 기억
-var jobState=Object.create(null);  jobState.cache=null;  jobState.time=0;  jobState.offset=0;
-var jobState2=Object.create(null); jobState2.cache=null; jobState2.time=0; jobState2.offset=0;
+// cache: 받아둔 공고 배열 / offset: 지금까지 화면에 보여준 개수
+// pageNo: "다른 공고 검색하기"를 누를 때마다 새 묶음을 받아오기 위한 페이지 번호
+// bgPromise: 뒤에서 나머지 20개를 받는 중인 약속(Promise). 더보기를 누를 때 이 작업이 끝났는지 확인
+var jobState=Object.create(null);
+jobState.cache=null; jobState.time=0; jobState.offset=0; jobState.pageNo=1; jobState.bgPromise=null;
+var jobState2=Object.create(null);
+jobState2.cache=null; jobState2.time=0; jobState2.offset=0; jobState2.pageNo=1; jobState2.bgPromise=null;
 
 function getJobSkeletonHTML(){
   var card='<div class="skel-job-item"><div class="skel skel-job-title"></div><div class="skel skel-job-line"></div><div class="skel skel-job-line2"></div><div class="skel skel-job-line3"></div></div>';
@@ -2050,47 +2067,113 @@ function renderJobItems(items){
   return html;
 }
 
-// (한글 설명) state = 어떤 화면의 데이터인지(메인/검색페이지), listElId = 그 화면의 목록 영역 id,
-//             nextPage = true면 "새로고침 버튼 클릭"이라는 뜻 → 다음 10개로 이동
-async function loadJobList(state,listElId,nextPage){
+// (한글 설명) 서버에 numOfRows개 만큼, pageNo번째 묶음을 요청하는 함수
+async function fetchJobBatch(numOfRows,pageNo){
+  var res=await fetch('/api/jobs?numOfRows='+numOfRows+'&pageNo='+pageNo);
+  return await res.json();
+}
+
+// (한글 설명) 더보기 버튼 / 설명글을 보이거나 숨기는 함수
+function updateJobMoreUI(moreBtnId,descId,show){
+  var moreBtn=document.getElementById(moreBtnId);
+  var desc=document.getElementById(descId);
+  if(moreBtn) moreBtn.style.display=show?'block':'none';
+  if(desc) desc.style.display=show?'block':'none';
+}
+
+// (한글 설명) 화면 최초 진입(또는 재방문) 시 실행되는 함수
+// state = 어떤 화면의 데이터인지(메인/검색페이지), listElId = 목록 영역 id
+async function loadJobList(state,listElId,moreBtnId,descId){
   var listEl=document.getElementById(listElId);
   if(!listEl)return;
   var now=Date.now();
-  var cacheValid=state.cache&&(now-state.time)<JOB_CACHE_TTL;
 
-  if(nextPage&&cacheValid){
-    var nextOffset=state.offset+JOB_PAGE_SIZE;
-    if(nextOffset<state.cache.length){
-      // 이미 받아둔 30개 안에서 다음 10개가 남아있음 → 서버 요청 없이 즉시 전환
-      state.offset=nextOffset;
-      listEl.innerHTML=renderJobItems(state.cache.slice(state.offset,state.offset+JOB_PAGE_SIZE));
-      return;
-    }
-    // 30개를 다 보여줬음 → 이때만 서버에 새로 30개 요청
-    state.cache=null;
-    cacheValid=false;
-  }
-
-  if(cacheValid){
-    // 일반 진입(자동로드/재방문): 마지막으로 보던 10개 그대로 표시
-    listEl.innerHTML=renderJobItems(state.cache.slice(state.offset,state.offset+JOB_PAGE_SIZE));
+  // 5분 안에 재방문한 경우 → 서버에 다시 안 물어보고 보던 목록 그대로 보여줌
+  if(state.cache&&(now-state.time)<JOB_CACHE_TTL){
+    listEl.innerHTML=renderJobItems(state.cache.slice(0,state.offset||JOB_PAGE_SIZE));
+    updateJobMoreUI(moreBtnId,descId,(state.offset||JOB_PAGE_SIZE)<state.cache.length);
     return;
   }
 
   listEl.innerHTML=getJobSkeletonHTML();
+  updateJobMoreUI(moreBtnId,descId,false);
   try{
-    var res=await fetch('/api/jobs?numOfRows='+JOB_BATCH_SIZE+'&pageNo=1');
-    var data=await res.json();
-    if(!data.ok||!data.items||data.items.length===0){listEl.innerHTML='<div class="job-api-error">⚠️ 지금은 공고를 불러올 수 없어요.<br>'+(data.message||'잠시 후 새로고침을 눌러주세요.')+'</div>';return;}
-    state.cache=data.items;state.time=Date.now();state.offset=0;
-    listEl.innerHTML=renderJobItems(state.cache.slice(0,JOB_PAGE_SIZE));
+    // ① 10개만 먼저 빠르게 받아서 바로 화면에 보여주기
+    var first=await fetchJobBatch(JOB_PAGE_SIZE,1);
+    if(!first.ok||!first.items||first.items.length===0){
+      listEl.innerHTML='<div class="job-api-error">⚠️ 지금은 공고를 불러올 수 없어요.<br>'+(first.message||'잠시 후 다시 시도해 주세요.')+'</div>';
+      return;
+    }
+    state.cache=first.items; state.time=now; state.offset=first.items.length; state.pageNo=1;
+    listEl.innerHTML=renderJobItems(state.cache);
+
+    // ② 뒤에서 조용히 나머지(전체 30개)를 마저 받아두기 (화면은 그대로 둔 채)
+    state.bgPromise=fetchJobBatch(JOB_BATCH_SIZE,1).then(function(full){
+      if(full.ok&&full.items&&full.items.length>state.cache.length){
+        state.cache=full.items; state.time=Date.now();
+      }
+      updateJobMoreUI(moreBtnId,descId,state.offset<state.cache.length);
+      state.bgPromise=null;
+    }).catch(function(){ state.bgPromise=null; });
   }catch(err){
     listEl.innerHTML='<div class="job-api-error">⚠️ 인터넷 연결을 확인해 주세요.<br>('+err.message+')</div>';
   }
 }
 
-function loadJobApi(nextPage){ return loadJobList(jobState,'job-api-list',nextPage); }
-function loadJobApi2(nextPage){ return loadJobList(jobState2,'job-api-list2',nextPage); }
+// (한글 설명) "더보기" 버튼 — 이미 받아둔 공고 중 다음 10개를 아래에 이어붙임 (대부분 서버요청 없이 즉시)
+async function loadMoreJobs(state,listElId,moreBtnId,descId){
+  var listEl=document.getElementById(listElId);
+  if(!listEl||!state.cache)return;
+  var moreBtn=document.getElementById(moreBtnId);
+
+  // 뒤에서 20개를 아직 받는 중이면, 다 받을 때까지 버튼에 "불러오는 중" 표시 후 잠깐 기다림
+  if(state.bgPromise){
+    if(moreBtn){ moreBtn.disabled=true; moreBtn.textContent='⏳ 불러오는 중...'; }
+    await state.bgPromise;
+    if(moreBtn){ moreBtn.disabled=false; moreBtn.textContent='더보기 ▼'; }
+  }
+
+  var nextOffset=Math.min(state.offset+JOB_PAGE_SIZE,state.cache.length);
+  var newItems=state.cache.slice(state.offset,nextOffset);
+  listEl.insertAdjacentHTML('beforeend',renderJobItems(newItems));
+  state.offset=nextOffset;
+  updateJobMoreUI(moreBtnId,descId,state.offset<state.cache.length);
+}
+
+// (한글 설명) "다른 공고 검색하기" 버튼 — 서버에 진짜 새로운 30개 묶음을 요청 (인터넷 필요)
+async function searchNewJobs(state,listElId,moreBtnId,descId){
+  var listEl=document.getElementById(listElId);
+  if(!listEl)return;
+  listEl.innerHTML=getJobSkeletonHTML();
+  updateJobMoreUI(moreBtnId,descId,false);
+
+  var nextPageNo=(state.pageNo||1)+1;
+  try{
+    var data=await fetchJobBatch(JOB_BATCH_SIZE,nextPageNo);
+    if(!data.ok||!data.items||data.items.length===0){
+      // 더 이상 새 공고 묶음이 없으면 → 처음(1페이지) 묶음으로 되돌아감
+      nextPageNo=1;
+      data=await fetchJobBatch(JOB_BATCH_SIZE,1);
+      if(!data.ok||!data.items||data.items.length===0){
+        listEl.innerHTML='<div class="job-api-error">⚠️ 지금은 공고를 불러올 수 없어요.<br>'+(data.message||'잠시 후 다시 시도해 주세요.')+'</div>';
+        return;
+      }
+    }
+    state.pageNo=nextPageNo; state.cache=data.items; state.time=Date.now();
+    state.offset=Math.min(JOB_PAGE_SIZE,state.cache.length); state.bgPromise=null;
+    listEl.innerHTML=renderJobItems(state.cache.slice(0,state.offset));
+    updateJobMoreUI(moreBtnId,descId,state.offset<state.cache.length);
+  }catch(err){
+    listEl.innerHTML='<div class="job-api-error">⚠️ 인터넷 연결을 확인해 주세요.<br>('+err.message+')</div>';
+  }
+}
+
+function loadJobApi(){ return loadJobList(jobState,'job-api-list','job-more-btn','job-more-desc'); }
+function loadJobApi2(){ return loadJobList(jobState2,'job-api-list2','job-more-btn2','job-more-desc2'); }
+function loadMoreJobApi(){ return loadMoreJobs(jobState,'job-api-list','job-more-btn','job-more-desc'); }
+function loadMoreJobApi2(){ return loadMoreJobs(jobState2,'job-api-list2','job-more-btn2','job-more-desc2'); }
+function searchNewJobApi(){ return searchNewJobs(jobState,'job-api-list','job-more-btn','job-more-desc'); }
+function searchNewJobApi2(){ return searchNewJobs(jobState2,'job-api-list2','job-more-btn2','job-more-desc2'); }
 
 loadJobApi();
 
