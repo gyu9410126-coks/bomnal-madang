@@ -946,11 +946,19 @@ function resetHealthPage(name) {
     clearHtml(t+'-result');
   }
 
-  // (한글 설명) [신규] 병원찾기는 드롭다운 5개(시도/시군구/읍면동/종별/진료과목)를 쓰는데,
-  //             결과창(hosp-result)은 위 ADDR_PREFIX 로직으로 지워지지만 드롭다운 선택은
-  //             그대로 남아있던 문제가 있었어요. 재방문 시 전부 첫 번째 옵션으로 되돌려요.
-  if (name === 'hospital') {
-    ['hosp-sido','hosp-sigungu','hosp-dong','hosp-cl','hosp-dgsbjt'].forEach(function(id){
+  // (한글 설명) [수정] 병원찾기만 되어있던 드롭다운 초기화를, 드롭다운을 쓰는 5개
+  //             카테고리(약국·응급실·건강매장·요양시설·병원) 전체로 넓혔어요. 결과창은
+  //             위 ADDR_PREFIX 로직으로 지워지지만, 드롭다운 선택(시도/시군구/읍면동 등)은
+  //             그대로 남아있던 문제가 전부 있었어요. 재방문 시 전부 첫 번째 옵션으로 되돌려요.
+  var SELECT_IDS = {
+    pharmacy: ['ph-sido','ph-sigungu','ph-dong'],
+    emergency: ['em-sido','em-sigungu'],
+    store: ['st-sido','st-sigungu','st-dong','st-type'],
+    care: ['care-sido','care-sigungu','care-dong'],
+    hospital: ['hosp-sido','hosp-sigungu','hosp-dong','hosp-cl','hosp-dgsbjt'],
+  };
+  if (SELECT_IDS[name]) {
+    SELECT_IDS[name].forEach(function(id){
       var el = document.getElementById(id);
       if (el) el.selectedIndex = 0;
     });
