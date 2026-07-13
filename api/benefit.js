@@ -101,6 +101,10 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  // (한글 설명) 로딩시간 최적화: 완전히 같은 검색(같은 주소창 URL)이 10분 안에 또 들어오면,
+  //             정부 API를 다시 호출하지 않고 Vercel이 저장해둔 응답을 바로 돌려줘요.
+  //             health.js에서 이미 검증된 방식을 그대로 가져왔어요.
+  res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=1200');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -181,13 +185,13 @@ export default async function handler(req, res) {
       //             시/도만 알 때는 걸러낸 것 중 앞 10개만 화면에 보여줘요.
       const topItems = jrsdSggCd ? allItems : allItems.slice(0, 10);
       const detailKey = encodeURIComponent(process.env.WELFARE_API_KEY);
-      const kakaoKey = process.env.KAKAO_API_KEY;
 
-      // (한글 설명) [신규] 시설 10개의 "상세정보 조회 + 주소→좌표 변환"을 Promise.all로 한꺼번에 실행해요.
-      //             하나씩 순서대로 하면 10개면 10배 느려지는데, 동시에 하면 제일 느린 것 1개만큼만 걸려요.
-      // (한글 설명) [수정] 상세조회를 fcltCd(시설코드) 하나만 보내면 정부 서버가 제대로 못 찾는 것 같아서,
-      //             공식 예시 문서와 똑같이 jrsdSggCd(시군구코드)·fcltKindCd(시설종류코드)도 같이 보내요.
-      //             이 값들은 이미 1단계 목록조회에서 같이 받아둔 값이라 새로 조회할 필요 없어요.
+      // (한글 설명) [수정] 로딩시간 최적화: 예전엔 검색할 때마다 시설 10개 전부 미리
+      //             카카오로 좌표 변환까지 끝내고 나서야 결과를 보여줬어요. 이게 제일 느린
+      //             부분이었는데, 사용자가 "지도로 보기"를 누를지 안 누를지도 모르는 채로
+      //             매번 10번씩 미리 해두던 거였어요. 이제 좌표 변환은 빼고 주소·전화번호만
+      //             바로 돌려주고, 좌표는 사용자가 지도 버튼을 실제로 눌렀을 때(geocode
+      //             타입) 그 시설 하나만 그때 변환해요.
       const enriched = await Promise.all(topItems.map(async (it) => {
         let detail = {};
         try {
@@ -209,25 +213,35 @@ export default async function handler(req, res) {
           // 상세정보 조회가 실패해도 목록 정보(이름·종류)라도 보여줘요
         }
 
-        // (한글 설명) 주소를 카카오 주소검색으로 좌표(위도/경도)로 바꿔서, 지도/길찾기 버튼에 써요.
-        let itemLat = null, itemLon = null;
         const fullAddr = ((detail.fcltAddr || '') + ' ' + (detail.fcltDtl_1Addr || '')).trim();
-        if (fullAddr && kakaoKey) {
-          try {
-            const geoUrl = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(fullAddr)}`;
-            const geoRes = await fetch(geoUrl, { headers: { Authorization: `KakaoAK ${kakaoKey}` } });
-            const geoData = await geoRes.json();
-            const doc = geoData.documents && geoData.documents[0];
-            if (doc) { itemLat = doc.y; itemLon = doc.x; } // 카카오는 x=경도, y=위도예요
-          } catch (e) {
-            // 좌표 변환이 실패해도 주소·전화번호는 그대로 보여줘요
-          }
-        }
-
-        return Object.assign({}, it, detail, { lat: itemLat, lon: itemLon, fullAddr });
+        return Object.assign({}, it, detail, { fullAddr });
       }));
 
       return res.status(200).json({ items: enriched, hasMore, pageNo });
+    }
+
+    // ── 1-2. 주소 → 좌표 변환 (신규, 지도 버튼을 눌렀을 때만 호출) ─────
+    // (한글 설명) 복지시설찾기의 "지도로 보기"/"길찾기" 버튼을 누른 그 순간에만 호출해서,
+    //             그 시설 하나만 좌표로 바꿔요. 검색할 때 10개를 전부 미리 바꾸지 않아서
+    //             검색 자체가 훨씬 빨라져요.
+    if (type === 'geocode') {
+      const addr = req.query.addr || '';
+      const kakaoKey = process.env.KAKAO_API_KEY;
+      if (!addr || !kakaoKey) {
+        return res.status(200).json({ lat: null, lon: null });
+      }
+      try {
+        const geoUrl = `https://dapi.kakao.com/v2/local/search/address.json?query=${encodeURIComponent(addr)}`;
+        const geoRes = await fetch(geoUrl, { headers: { Authorization: `KakaoAK ${kakaoKey}` } });
+        const geoData = await geoRes.json();
+        const doc = geoData.documents && geoData.documents[0];
+        if (doc) {
+          return res.status(200).json({ lat: doc.y, lon: doc.x }); // 카카오는 x=경도, y=위도예요
+        }
+      } catch (e) {
+        // 실패하면 아래에서 null로 응답
+      }
+      return res.status(200).json({ lat: null, lon: null });
     }
 
     // ── 1-1. 시설종류 목록 조회 (신규) ───────────────────────────────

@@ -210,6 +210,10 @@
 .search-btn { padding: 12px 16px; background: #2e7d32; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
 .search-btn:active { background: #1b5e20; }
 
+/* 더보기 버튼 (복지시설찾기·전통시장상가 공용) */
+.more-btn { display: block; width: 100%; margin-top: 10px; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 700; text-align: center; cursor: pointer; background: #e8f0fb; color: #1a5fa0; border: none; font-family: inherit; }
+.more-btn:active { background: #d3e3f8; }
+
 /* 마을변호사 카드 */
 .lawyer-card { background: #fff; border-radius: 14px; padding: 16px; margin-bottom: 10px; border: 1.5px solid #d1c4e9; }
 .lawyer-card-name { font-size: 17px; font-weight: 700; color: #4527a0; margin-bottom: 4px; }
@@ -326,6 +330,7 @@ body.big-font .amount-sub { font-size: 17px !important; }
 body.big-font .notice-box { font-size: 16px !important; }
 body.big-font .search-input { font-size: 21px !important; }
 body.big-font .search-btn { font-size: 20px !important; }
+body.big-font .more-btn { font-size: 20px !important; }
 body.big-font .finance-card-title { font-size: 21px !important; }
 body.big-font .finance-card-desc { font-size: 17px !important; }
 body.big-font .finance-card-link { font-size: 18px !important; }
@@ -1728,6 +1733,8 @@ function searchWelfareGPSPage() {
   var type    = document.getElementById('pw-type').value;
   var loading = document.getElementById('pw-loading');
   var result  = document.getElementById('pw-result');
+  var oldBtn  = document.getElementById('pw-more-btn');
+  if (oldBtn) oldBtn.remove(); // (한글 설명) 지역검색에서 남아있던 더보기 버튼이 GPS 결과에 잘못 붙어있지 않도록 정리
   loading.classList.add('show'); result.classList.remove('show');
   navigator.geolocation.getCurrentPosition(function(pos) {
     fetch('/api/benefit?type=welfare&lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&facilityType='+encodeURIComponent(type))
@@ -1777,9 +1784,35 @@ function buildStoreMapLinks(item) {
   return buildMapLinks(name, item.lat, item.lon);
 }
 
-// (한글 설명) 복지시설 카드용: 서버에서 이미 카카오로 좌표 변환까지 끝내서 lat/lon으로 내려줘요.
+// (한글 설명) [수정] 로딩시간 최적화로 복지시설찾기는 이제 검색할 때 좌표를 미리 안 받아와요.
+//             그래서 좌표가 없어도(주소만 있어도) 버튼은 보여주고, 실제로 눌렀을 때만
+//             그 시설 하나만 좌표로 바꿔서 지도를 열어요.
 function buildWelfareMapLinks(item) {
-  return buildMapLinks(item.fcltNm || '복지시설', item.lat, item.lon);
+  var addr = item.fullAddr || item.fcltAddr || '';
+  if (!addr) return '';
+  var name = item.fcltNm || '복지시설';
+  var addrJs = addr.replace(/'/g, "\\'");
+  var nameJs = name.replace(/'/g, "\\'");
+  return '<div class="store-card-actions">'
+    + '<a class="store-card-map-btn" href="#" onclick="openWelfareMap(\'' + nameJs + '\',\'' + addrJs + '\',\'map\');return false;" rel="noopener">🗺️ 지도로 보기</a>'
+    + '<a class="store-card-way-btn" href="#" onclick="openWelfareMap(\'' + nameJs + '\',\'' + addrJs + '\',\'way\');return false;" rel="noopener">🚗 길찾기</a>'
+    + '</div>';
+}
+
+// (한글 설명) [신규] 복지시설 지도/길찾기 버튼을 누른 그 순간에만 주소를 좌표로 바꾸고
+//             카카오맵을 열어요. 검색할 때 10개를 전부 미리 바꾸지 않아서 검색이 훨씬 빨라져요.
+function openWelfareMap(name, addr, mode) {
+  fetch('/api/benefit?type=geocode&addr=' + encodeURIComponent(addr))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data.lat || !data.lon) { alert('이 시설의 위치 정보를 찾을 수 없어요.'); return; }
+      var n = encodeURIComponent(name || '위치');
+      var url = mode === 'way'
+        ? 'https://map.kakao.com/link/to/' + n + ',' + data.lat + ',' + data.lon
+        : 'https://map.kakao.com/link/map/' + n + ',' + data.lat + ',' + data.lon;
+      confirmExternalLink(url);
+    })
+    .catch(function(){ alert('위치 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.'); });
 }
 
 function searchStoreGPSPage() {
@@ -1787,6 +1820,8 @@ function searchStoreGPSPage() {
   var type    = document.getElementById('ps-type').value;
   var loading = document.getElementById('ps-loading');
   var result  = document.getElementById('ps-result');
+  var oldBtn  = document.getElementById('ps-more-btn');
+  if (oldBtn) oldBtn.remove(); // (한글 설명) 지역검색에서 남아있던 더보기 버튼이 GPS 결과에 잘못 붙어있지 않도록 정리
   loading.classList.add('show'); result.classList.remove('show');
   navigator.geolocation.getCurrentPosition(function(pos) {
     fetch('/api/benefit?type=store&lat='+pos.coords.latitude+'&lng='+pos.coords.longitude+'&keyword='+encodeURIComponent(type))
@@ -2096,6 +2131,7 @@ function resetPage(id) {
     document.getElementById('pw-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
     removeShow('pw-loading'); removeShow('pw-result');
     document.getElementById('pw-cards').innerHTML = '';
+    var pwBtn = document.getElementById('pw-more-btn'); if (pwBtn) pwBtn.remove();
   }
 
   else if (id === 'page-longterm') {
@@ -2128,6 +2164,7 @@ function resetPage(id) {
     resetVal('ps-type', '전통시장');
     removeShow('ps-loading'); removeShow('ps-result');
     document.getElementById('ps-cards').innerHTML = '';
+    var psBtn = document.getElementById('ps-more-btn'); if (psBtn) psBtn.remove();
   }
 }
 
@@ -2426,17 +2463,31 @@ function searchWelfareGPS() {
   }, function(){ alert('위치 정보를 가져오지 못했습니다. 지역을 직접 선택해 주세요.'); });
 }
 
+var welfareHomeState = { sido: '', sigungu: '', facilityType: '', page: 1, areaName: '' };
+
 function searchWelfare() {
   var sido    = document.getElementById('welfare-sido').value;
   var sigungu = document.getElementById('welfare-sigungu').value;
   if (!sido) { alert('시·도를 선택해 주세요'); return; }
+  welfareHomeState = { sido: sido, sigungu: sigungu, facilityType: selectedWelfareType, page: 1, areaName: sido+' '+sigungu };
   var loading = document.getElementById('welfare-loading');
   loading.classList.add('show');
   document.getElementById('welfare-result').classList.remove('show');
-  fetch('/api/benefit?type=welfare&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&facilityType='+encodeURIComponent(selectedWelfareType))
+  fetch('/api/benefit?type=welfare&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&facilityType='+encodeURIComponent(selectedWelfareType)+'&pageNo=1')
     .then(function(r){ return r.json(); })
-    .then(function(data){ renderWelfareCards(data, sido+' '+sigungu); loading.classList.remove('show'); })
+    .then(function(data){ renderWelfareCards(data, false); loading.classList.remove('show'); })
     .catch(function(){ loading.classList.remove('show'); showWelfareEmpty(); });
+}
+
+// (한글 설명) [신규] "더보기" 버튼을 누르면 다음 페이지를 이어서 불러와요.
+function loadMoreWelfare() {
+  welfareHomeState.page += 1;
+  var btn = document.getElementById('welfare-more-btn');
+  if (btn) { btn.textContent = '⏳ 불러오는 중...'; btn.disabled = true; }
+  fetch('/api/benefit?type=welfare&sido='+encodeURIComponent(welfareHomeState.sido)+'&sigungu='+encodeURIComponent(welfareHomeState.sigungu)+'&facilityType='+encodeURIComponent(welfareHomeState.facilityType)+'&pageNo='+welfareHomeState.page)
+    .then(function(r){ return r.json(); })
+    .then(function(data){ renderWelfareCards(data, true); })
+    .catch(function(){ welfareHomeState.page -= 1; if (btn) { btn.textContent = '더보기 ▼'; btn.disabled = false; } });
 }
 
 // 홈 화면 복지시설찾기 초기화 (지역·시설종류 되돌리고 결과 숨기기)
@@ -2448,17 +2499,18 @@ function resetHomeWelfare() {
   selectedWelfareType = '';
   document.getElementById('welfare-result').classList.remove('show');
   document.getElementById('welfare-cards').innerHTML = '';
+  var homeBtn = document.getElementById('welfare-more-btn'); if (homeBtn) homeBtn.remove();
   document.querySelector('.welfare-sec').scrollIntoView({ behavior: 'smooth' });
 }
 
-function renderWelfareCards(data, areaName) {
+function renderWelfareCards(data, append) {
   var cards = document.getElementById('welfare-cards');
   var header = document.getElementById('welfare-result-header');
   var items = [];
   try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
-  header.textContent = '📍 ' + areaName + ' 복지시설 ' + items.length + '개';
-  if (items.length === 0) { showWelfareEmpty(); return; }
-  cards.innerHTML = items.map(function(item){
+  if (!append && items.length === 0) { showWelfareEmpty(); return; }
+
+  var html = items.map(function(item){
     return '<div class="welfare-card">'
       +'<div class="welfare-card-top"><span class="welfare-card-name">'+(item.fcltNm||'시설명 없음')+'</span>'
       +'<span class="welfare-card-type">'+(item.fcltKindNm||'복지시설')+'</span></div>'
@@ -2467,6 +2519,26 @@ function renderWelfareCards(data, areaName) {
       +buildWelfareMapLinks(item)
       +'</div>';
   }).join('');
+
+  // (한글 설명) 기존 더보기 버튼은 지우고 새로 만들어요(중복 방지)
+  var existingBtn = document.getElementById('welfare-more-btn');
+  if (existingBtn) existingBtn.remove();
+
+  if (append) { cards.insertAdjacentHTML('beforeend', html); }
+  else { cards.innerHTML = html; }
+
+  var shownCount = cards.querySelectorAll('.welfare-card').length;
+  header.textContent = '📍 ' + welfareHomeState.areaName + ' 복지시설 ' + shownCount + '개';
+
+  if (data.hasMore) {
+    var btn = document.createElement('button');
+    btn.id = 'welfare-more-btn';
+    btn.className = 'more-btn';
+    btn.textContent = '더보기 ▼';
+    btn.onclick = loadMoreWelfare;
+    cards.parentNode.appendChild(btn);
+  }
+
   document.getElementById('welfare-result').classList.add('show');
 }
 function showWelfareEmpty() {
@@ -2477,36 +2549,68 @@ function showWelfareEmpty() {
 /* ══════════════════════════════════════
    전환 페이지 — 복지시설 검색
 ══════════════════════════════════════ */
+var pwState = { sido: '', sigungu: '', type: '', page: 1 };
+
 function searchWelfarePage() {
   var sido    = document.getElementById('pw-sido').value;
   var sigungu = document.getElementById('pw-sigungu').value;
   var type    = document.getElementById('pw-type').value;
   if (!sido) { alert('시·도를 선택해 주세요'); return; }
+  pwState = { sido: sido, sigungu: sigungu, type: type, page: 1 };
   var loading = document.getElementById('pw-loading');
   var result  = document.getElementById('pw-result');
   loading.classList.add('show'); result.classList.remove('show');
-  fetch('/api/benefit?type=welfare&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&facilityType='+encodeURIComponent(type))
+  fetch('/api/benefit?type=welfare&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&facilityType='+encodeURIComponent(type)+'&pageNo=1')
     .then(function(r){ return r.json(); })
-    .then(function(data){
-      loading.classList.remove('show');
-      var items = [];
-      try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
-      if (items.length === 0) {
-        document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 검색 결과가 없습니다.<br>다른 조건으로 검색해 보세요.</div>';
-      } else {
-        document.getElementById('pw-cards').innerHTML = items.map(function(item){
-          return '<div class="welfare-card">'
-            +'<div class="welfare-card-top"><span class="welfare-card-name">'+(item.fcltNm||'시설명 없음')+'</span>'
-            +'<span class="welfare-card-type">'+(item.fcltKindNm||'복지시설')+'</span></div>'
-            +'<div class="welfare-card-addr">📍 '+(item.fullAddr||item.fcltAddr||'주소 없음')+'</div>'
-            +(item.fcltTelNo ? '<a class="welfare-card-tel" href="tel:'+item.fcltTelNo+'">📞 '+item.fcltTelNo+'</a>' : '')
-            +buildWelfareMapLinks(item)
-            +'</div>';
-        }).join('');
-      }
-      result.classList.add('show');
-    })
+    .then(function(data){ loading.classList.remove('show'); renderPwCards(data, false); result.classList.add('show'); })
     .catch(function(){ loading.classList.remove('show'); document.getElementById('pw-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.</div>'; result.classList.add('show'); });
+}
+
+// (한글 설명) [신규] 더보기 버튼을 누르면 다음 페이지를 이어서 불러와요.
+function loadMorePw() {
+  pwState.page += 1;
+  var btn = document.getElementById('pw-more-btn');
+  if (btn) { btn.textContent = '⏳ 불러오는 중...'; btn.disabled = true; }
+  fetch('/api/benefit?type=welfare&sido='+encodeURIComponent(pwState.sido)+'&sigungu='+encodeURIComponent(pwState.sigungu)+'&facilityType='+encodeURIComponent(pwState.type)+'&pageNo='+pwState.page)
+    .then(function(r){ return r.json(); })
+    .then(function(data){ renderPwCards(data, true); })
+    .catch(function(){ pwState.page -= 1; if (btn) { btn.textContent = '더보기 ▼'; btn.disabled = false; } });
+}
+
+function renderPwCards(data, append) {
+  var cardsEl = document.getElementById('pw-cards');
+  var items = [];
+  try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+
+  var existingBtn = document.getElementById('pw-more-btn');
+  if (existingBtn) existingBtn.remove();
+
+  if (!append && items.length === 0) {
+    cardsEl.innerHTML = '<div class="empty-msg">😔 검색 결과가 없습니다.<br>다른 조건으로 검색해 보세요.</div>';
+    return;
+  }
+
+  var html = items.map(function(item){
+    return '<div class="welfare-card">'
+      +'<div class="welfare-card-top"><span class="welfare-card-name">'+(item.fcltNm||'시설명 없음')+'</span>'
+      +'<span class="welfare-card-type">'+(item.fcltKindNm||'복지시설')+'</span></div>'
+      +'<div class="welfare-card-addr">📍 '+(item.fullAddr||item.fcltAddr||'주소 없음')+'</div>'
+      +(item.fcltTelNo ? '<a class="welfare-card-tel" href="tel:'+item.fcltTelNo+'">📞 '+item.fcltTelNo+'</a>' : '')
+      +buildWelfareMapLinks(item)
+      +'</div>';
+  }).join('');
+
+  if (append) { cardsEl.insertAdjacentHTML('beforeend', html); }
+  else { cardsEl.innerHTML = html; }
+
+  if (data.hasMore) {
+    var btn = document.createElement('button');
+    btn.id = 'pw-more-btn';
+    btn.className = 'more-btn';
+    btn.textContent = '더보기 ▼';
+    btn.onclick = loadMorePw;
+    cardsEl.parentNode.appendChild(btn);
+  }
 }
 
 /* ══════════════════════════════════════
@@ -2582,37 +2686,69 @@ function searchBenefit() {
 /* ══════════════════════════════════════
    전통시장·상가 검색
 ══════════════════════════════════════ */
+var psState = { sido: '', sigungu: '', dong: '', type: '', page: 1 };
+
 function searchStore() {
   var sido    = document.getElementById('ps-sido').value;
   var sigungu = document.getElementById('ps-sigungu').value;
   var dong    = document.getElementById('ps-dong').value;
   var type    = document.getElementById('ps-type').value;
   if (!sido) { alert('시·도를 선택해 주세요'); return; }
+  psState = { sido: sido, sigungu: sigungu, dong: dong, type: type, page: 1 };
   var loading = document.getElementById('ps-loading');
   var result  = document.getElementById('ps-result');
   loading.classList.add('show'); result.classList.remove('show');
-  fetch('/api/benefit?type=store&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&dong='+encodeURIComponent(dong)+'&keyword='+encodeURIComponent(type))
+  fetch('/api/benefit?type=store&sido='+encodeURIComponent(sido)+'&sigungu='+encodeURIComponent(sigungu)+'&dong='+encodeURIComponent(dong)+'&keyword='+encodeURIComponent(type)+'&pageNo=1')
     .then(function(r){ return r.json(); })
-    .then(function(data){
-      loading.classList.remove('show');
-      var items = [];
-      try { items = (data.body && data.body.items) || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
-      if (items.length === 0) {
-        document.getElementById('ps-cards').innerHTML = '<div class="empty-msg">😔 검색 결과가 없습니다.<br>다른 지역이나 업종으로 검색해 보세요.</div>';
-      } else {
-        document.getElementById('ps-cards').innerHTML = items.map(function(item){
-          return '<div class="store-card">'
-            +'<div class="store-card-name">'+(item.bizesNm||item.bsnNm||item.upjongNm||'상호명 없음')+'</div>'
-            +'<span class="store-card-type">'+(item.indsSclsNm||item.indsMclsNm||item.indsLclsNm||'상가')+'</span>'
-            +'<div class="store-card-addr">📍 '+(item.rdnmAdr||item.lnoAdr||'주소 없음')+'</div>'
-            +(item.telNo ? '<a class="store-card-tel" href="tel:'+item.telNo+'">📞 '+item.telNo+'</a>' : '')
-            +buildStoreMapLinks(item)
-            +'</div>';
-        }).join('');
-      }
-      result.classList.add('show');
-    })
+    .then(function(data){ loading.classList.remove('show'); renderPsCards(data, false); result.classList.add('show'); })
     .catch(function(){ loading.classList.remove('show'); document.getElementById('ps-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.</div>'; result.classList.add('show'); });
+}
+
+// (한글 설명) [신규] 더보기 버튼을 누르면 다음 페이지를 이어서 불러와요.
+function loadMorePs() {
+  psState.page += 1;
+  var btn = document.getElementById('ps-more-btn');
+  if (btn) { btn.textContent = '⏳ 불러오는 중...'; btn.disabled = true; }
+  fetch('/api/benefit?type=store&sido='+encodeURIComponent(psState.sido)+'&sigungu='+encodeURIComponent(psState.sigungu)+'&dong='+encodeURIComponent(psState.dong)+'&keyword='+encodeURIComponent(psState.type)+'&pageNo='+psState.page)
+    .then(function(r){ return r.json(); })
+    .then(function(data){ renderPsCards(data, true); })
+    .catch(function(){ psState.page -= 1; if (btn) { btn.textContent = '더보기 ▼'; btn.disabled = false; } });
+}
+
+function renderPsCards(data, append) {
+  var cardsEl = document.getElementById('ps-cards');
+  var items = [];
+  try { items = (data.body && data.body.items) || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
+
+  var existingBtn = document.getElementById('ps-more-btn');
+  if (existingBtn) existingBtn.remove();
+
+  if (!append && items.length === 0) {
+    cardsEl.innerHTML = '<div class="empty-msg">😔 검색 결과가 없습니다.<br>다른 지역이나 업종으로 검색해 보세요.</div>';
+    return;
+  }
+
+  var html = items.map(function(item){
+    return '<div class="store-card">'
+      +'<div class="store-card-name">'+(item.bizesNm||item.bsnNm||item.upjongNm||'상호명 없음')+'</div>'
+      +'<span class="store-card-type">'+(item.indsSclsNm||item.indsMclsNm||item.indsLclsNm||'상가')+'</span>'
+      +'<div class="store-card-addr">📍 '+(item.rdnmAdr||item.lnoAdr||'주소 없음')+'</div>'
+      +(item.telNo ? '<a class="store-card-tel" href="tel:'+item.telNo+'">📞 '+item.telNo+'</a>' : '')
+      +buildStoreMapLinks(item)
+      +'</div>';
+  }).join('');
+
+  if (append) { cardsEl.insertAdjacentHTML('beforeend', html); }
+  else { cardsEl.innerHTML = html; }
+
+  if (data.hasMore) {
+    var btn = document.createElement('button');
+    btn.id = 'ps-more-btn';
+    btn.className = 'more-btn';
+    btn.textContent = '더보기 ▼';
+    btn.onclick = loadMorePs;
+    cardsEl.parentNode.appendChild(btn);
+  }
 }
 
 /* ══════════════════════════════════════
