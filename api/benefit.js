@@ -395,6 +395,43 @@ export default async function handler(req, res) {
       }
     }
 
+    // ── 5-3. [임시/확인용] 복지시설 DB가 실제로 쓰는 지역 코드 확인 ────
+    // (한글 설명) [임시 코드] 방금 sigunguList로 "수원시 영통구"가 행정안전부(도로명주소)
+    //             기준으로는 41117 코드인 걸 확인했는데, 복지시설찾기로 검색하면 결과가
+    //             0개로 나오는 원인을 확인하려는 기능이에요. 복지시설 데이터베이스(사회보장정보원)는
+    //             행정안전부와 다른 기관이라서, 관할시군구 코드/이름을 다르게 쓰고 있을 가능성이
+    //             있어요. 이 기능은 "시/도 전체" 목록을 받아와서, 주소에 특정 글자(예: 수원)가
+    //             들어간 시설만 골라 그 시설이 실제로 어떤 코드/이름으로 등록돼 있는지 보여줘요.
+    //             확인이 끝나면 삭제할 예정이에요.
+    //             사용법: /api/benefit?type=welfareDebugRegion&sido=경기도&keyword=수원
+    if (type === 'welfareDebugRegion') {
+      const { sido, keyword } = req.query;
+      const sidoFull = normalizeSido(sido);
+      if (!sidoFull || !SIDO_CODES[sidoFull]) {
+        return res.status(200).json({ error: '알 수 없는 시·도입니다', sido });
+      }
+      const ctprvnCd = SIDO_CODES[sidoFull];
+      const jrsdSggCd = ctprvnCd + '00000000';
+      const listKey = encodeURIComponent(process.env.WELFARE_API_KEY);
+      const listUrl = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getFcltListInfoInqire`
+        + `?serviceKey=${listKey}&numOfRows=200&pageNo=1&jrsdSggCd=${encodeURIComponent(jrsdSggCd)}`;
+      try {
+        const r = await fetch(listUrl);
+        const xml = await r.text();
+        const items = parseXmlItems(xml, 'item');
+        const kw = keyword || '';
+        const matched = kw
+          ? items.filter((it) => (it.fcltAddr || '').includes(kw) || (it.jrsdSggNm || '').includes(kw))
+          : items;
+        const sample = matched.slice(0, 15).map((it) => ({
+          jrsdSggCd: it.jrsdSggCd, jrsdSggNm: it.jrsdSggNm, fcltAddr: it.fcltAddr, fcltNm: it.fcltNm,
+        }));
+        return res.status(200).json({ totalFetched: items.length, matchedCount: matched.length, sample });
+      } catch (e) {
+        return res.status(200).json({ error: '정부 서버 확인 실패', detail: e.message });
+      }
+    }
+
     // ── 6. 소상공인 상가정보 (전통시장·상가) ────────────────────────
     // (한글 설명) 여기부터가 이번에 고친 부분이에요.
     //   - GPS 좌표(lat/lng)가 오면 카카오로 동네 이름을 알아내고
