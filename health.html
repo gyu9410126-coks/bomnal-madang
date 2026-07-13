@@ -1463,13 +1463,27 @@ async function searchMedicine(page) {
     items.forEach(function(it){
       var card = document.createElement('div');
       card.className = 'result-card';
+      // (한글 설명) itemSeq(품목기준코드)가 있으면, 식약처 e약은요 공식 상세페이지로 바로 갈 수 있는
+      //             원문 링크를 만들어요. itemSeq가 없는 경우엔 링크를 아예 안 보여줘요(깨진 링크 방지).
+      var detailUrl = it.itemSeq ? 'https://nedrug.mfds.go.kr/pbp/CCBBB01/getItemDetail?itemSeq='+it.itemSeq : '';
       card.innerHTML =
         '<div class="result-card-tag" style="background:#e3f2fd;color:#1565c0;">📖 의약품</div>' +
+        // (한글 설명) 알약 실제 사진이 있으면 카드 맨 위에 보여줘요. 사진이 없는 약도 많아서,
+        //             있을 때만 보여주고 없으면 그냥 생략해요. 이미지 주소가 깨져있어도
+        //             onerror로 조용히 숨겨서 빈 액자가 보이지 않게 했어요.
+        (it.itemImage ? '<img src="'+it.itemImage+'" alt="'+(it.itemName||'약품')+' 낱알 이미지" style="width:100%;max-width:220px;display:block;margin:2px auto 8px;border-radius:10px;border:1px solid #eee;" loading="lazy" onerror="this.style.display=\'none\'">' : '') +
         '<div class="result-card-name">'+(it.itemName||'약품명 없음')+'</div>' +
         '<div class="result-card-addr" style="color:#777;">제조사: '+(it.entpName||'-')+'</div>' +
         (it.efcyQesitm ? '<div class="result-card-desc"><b>효능:</b> '+it.efcyQesitm+'</div>' : '') +
         (it.useMethodQesitm ? '<div class="result-card-desc" style="margin-top:4px;"><b>복용법:</b> '+it.useMethodQesitm+'</div>' : '') +
-        (it.atpnWarnQesitm ? '<div class="result-card-desc" style="margin-top:4px;color:#c62828;"><b>⚠️ 주의:</b> '+it.atpnWarnQesitm+'</div>' : '');
+        (it.atpnWarnQesitm ? '<div class="result-card-desc" style="margin-top:4px;color:#c62828;"><b>⚠️ 경고:</b> '+it.atpnWarnQesitm+'</div>' : '') +
+        (it.atpnQesitm ? '<div class="result-card-desc" style="margin-top:4px;color:#c62828;"><b>⚠️ 주의사항:</b> '+it.atpnQesitm+'</div>' : '') +
+        (it.intrcQesitm ? '<div class="result-card-desc" style="margin-top:4px;"><b>🔄 함께 먹으면 안 되는 약·음식:</b> '+it.intrcQesitm+'</div>' : '') +
+        (it.seQesitm ? '<div class="result-card-desc" style="margin-top:4px;"><b>😵 부작용:</b> '+it.seQesitm+'</div>' : '') +
+        (it.depositMethodQesitm ? '<div class="result-card-desc" style="margin-top:4px;"><b>📦 보관법:</b> '+it.depositMethodQesitm+'</div>' : '') +
+        // (한글 설명) 품질기준카드 6번(외부이동 확인팝업)을 지키기 위해, 다른 외부링크와 똑같이
+        //             confirmExternalLink()를 거쳐서 "이동할까요?" 확인 후 새 창으로 열려요.
+        (detailUrl ? '<div class="result-card-row" style="margin-top:8px;"><a href="#" style="font-size:13px;color:#1565c0;text-decoration:underline;" onclick="confirmExternalLink(\''+detailUrl+'\');return false;">🔗 식약처 e약은요 원문보기</a></div>' : '');
       el.appendChild(card);
     });
     el.querySelectorAll('.more-btn').forEach(function(b){ b.remove(); });
