@@ -395,35 +395,34 @@ export default async function handler(req, res) {
       }
     }
 
-    // ── 5-3. [임시/확인용] 복지시설 DB가 실제로 쓰는 지역 코드 확인 ────
-    // (한글 설명) [임시 코드] "경기도 전체" 코드(4100000000)로 찾아봤더니 도청 직속 기관만
-    //             나오고 개별 시·군 시설은 하나도 없었어요. 그래서 이번엔 지역 코드로 미리
-    //             거르지 않고, 전국 목록을 페이지별로 넘겨가며 주소에 특정 글자(예: 수원)가
-    //             들어간 진짜 시설을 찾아서, 그 시설이 실제로 어떤 코드/이름을 쓰는지 보여줘요.
+    // ── 5-3. [임시/확인용] 복지시설 DB의 원본 데이터 구조 확인 ────────
+    // (한글 설명) [임시 코드] 주소로 "수원"을 찾아봤더니 1,000개 중 하나도 없었어요.
+    //             그래서 이번엔 글자를 찾는 대신, 시설 하나의 정보를 통째로 그대로 보여주고
+    //             (어떤 항목들이 들어있는지 확인), 1,000개 안에서 jrsdSggCd(관할코드)가
+    //             실제로 어떤 값들로, 몇 개씩 나오는지 통계를 내서 보여줘요.
     //             확인이 끝나면 삭제할 예정이에요.
-    //             사용법: /api/benefit?type=welfareDebugRegion&keyword=수원
+    //             사용법: /api/benefit?type=welfareDebugRegion
     if (type === 'welfareDebugRegion') {
-      const { keyword, maxPages } = req.query;
-      const kw = keyword || '수원';
-      const pages = Math.min(parseInt(maxPages || '10', 10) || 10, 20);
+      const { maxPages } = req.query;
+      const pages = Math.min(parseInt(maxPages || '10', 10) || 10, 30);
       const listKey = encodeURIComponent(process.env.WELFARE_API_KEY);
-      const matched = [];
-      let totalFetched = 0;
-      for (let p = 1; p <= pages && matched.length < 10; p += 1) {
+      const all = [];
+      for (let p = 1; p <= pages; p += 1) {
         const listUrl = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getFcltListInfoInqire`
           + `?serviceKey=${listKey}&numOfRows=100&pageNo=${p}`;
         const r = await fetch(listUrl);
         const xml = await r.text();
         const items = parseXmlItems(xml, 'item');
-        if (items.length === 0) break; // 더 이상 페이지가 없으면 중단
-        totalFetched += items.length;
-        items.forEach((it) => {
-          if ((it.fcltAddr || '').includes(kw)) {
-            matched.push({ jrsdSggCd: it.jrsdSggCd, jrsdSggNm: it.jrsdSggNm, fcltAddr: it.fcltAddr, fcltNm: it.fcltNm });
-          }
-        });
+        if (items.length === 0) break;
+        all.push(...items);
       }
-      return res.status(200).json({ totalFetched, matchedCount: matched.length, sample: matched.slice(0, 10) });
+      const codeCount = {};
+      all.forEach((it) => {
+        const c = it.jrsdSggCd || '(코드없음)';
+        codeCount[c] = (codeCount[c] || 0) + 1;
+      });
+      const topCodes = Object.entries(codeCount).sort((a, b) => b[1] - a[1]).slice(0, 20);
+      return res.status(200).json({ totalFetched: all.length, sampleRawItem: all[0], topCodes });
     }
 
     // ── 6. 소상공인 상가정보 (전통시장·상가) ────────────────────────
