@@ -97,6 +97,13 @@
 .page-select { width: 100%; border: 1.5px solid #ddd; border-radius: 10px; padding: 11px 12px; font-size: 15px; font-weight: 600; font-family: inherit; color: #222; background: #fff; outline: none; margin-bottom: 8px; }
 .page-select:focus { border-color: #e65100; }
 
+/* ── 약효능·복용법: 증상별 추천 버튼 · 칩 (약 이름을 몰라도 검색할 수 있게 도와주는 UI, 정부 API가 아닌 자체 큐레이션) ── */
+.med-symptom-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 8px; }
+.med-symptom-btn { padding: 11px 6px; background: #fff; color: #1565c0; border: 1.5px solid #bbdefb; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.med-symptom-btn.active { background: #1565c0; color: #fff; border-color: #1565c0; }
+.med-chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+.med-chip { padding: 7px 14px; background: #e3f2fd; color: #1565c0; border: none; border-radius: 16px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+
 /* ── 결과 카드 ── */
 .result-list { margin-top: 4px; }
 .result-card { background: #f7f8fa; border-radius: 12px; padding: 13px 14px; margin-bottom: 10px; }
@@ -197,6 +204,8 @@ body.big-font .addr-selected-clear { font-size: 17px !important; }
 body.big-font .gps-btn { font-size: 20px !important; }
 body.big-font .page-label { font-size: 18px !important; }
 body.big-font .page-select { font-size: 19px !important; }
+body.big-font .med-symptom-btn { font-size: 18px !important; }
+body.big-font .med-chip { font-size: 18px !important; }
 body.big-font .result-card-name { font-size: 21px !important; }
 body.big-font .result-card-addr { font-size: 17px !important; }
 body.big-font .result-card-tel { font-size: 18px !important; }
@@ -451,6 +460,18 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
         <div class="page-box-title" style="color:#1565c0;">📖 약효능·복용법</div>
       </div>
       <div class="page-box-body">
+        <div style="display:flex;align-items:center;gap:8px;background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:10px;padding:10px 12px;margin:2px 0 12px;font-size:14px;font-weight:600;color:#2e7d32;">
+          <span style="font-size:18px;">💡</span>
+          <span>약국에서 산 <b>약 봉투나 약에 적힌 이름</b>을 그대로 입력하면 더 정확해요</span>
+        </div>
+        <div class="page-label" style="margin-top:0;">🔎 어떤 증상이세요? 눌러보세요</div>
+        <div class="med-symptom-grid">
+          <button type="button" class="med-symptom-btn" id="med-symptom-cold" onclick="showMedSymptom('cold')">🤒 감기·몸살</button>
+          <button type="button" class="med-symptom-btn" id="med-symptom-stomach" onclick="showMedSymptom('stomach')">🤢 소화·위장</button>
+          <button type="button" class="med-symptom-btn" id="med-symptom-pain" onclick="showMedSymptom('pain')">🤕 두통·근육통</button>
+          <button type="button" class="med-symptom-btn" id="med-symptom-patch" onclick="showMedSymptom('patch')">🩹 파스·외용</button>
+        </div>
+        <div class="med-chip-row" id="med-chip-row" style="display:none;"></div>
         <div class="search-row">
           <input type="text" id="med-input" placeholder="약품명을 입력하세요 (예: 타이레놀)" oninput="clearIfEmpty('med')" />
           <button class="search-btn" style="background:#1565c0;" onclick="searchMedicine(1)">검색</button>
@@ -944,6 +965,14 @@ function resetHealthPage(name) {
     var t = TEXT_PREFIX[name];
     resetVal(t+'-input');
     clearHtml(t+'-result');
+  }
+
+  // (한글 설명) 약효능·복용법 재방문 시, 이전에 눌러뒀던 증상 버튼 강조 표시와
+  //             칩 목록도 같이 지워서 깨끗한 상태로 보이게 해요.
+  if (name === 'medicine') {
+    hideEl('med-chip-row');
+    clearHtml('med-chip-row');
+    document.querySelectorAll('.med-symptom-btn.active').forEach(function(b){ b.classList.remove('active'); });
   }
 
   // (한글 설명) [수정] 병원찾기만 되어있던 드롭다운 초기화를, 드롭다운을 쓰는 5개
@@ -1457,6 +1486,41 @@ function extractMedicineItems(data) {
     var items = (data && data.body && data.body.items) || [];
     return Array.isArray(items) ? items : [items];
   } catch(e) { return []; }
+}
+
+// (한글 설명) 증상 이름만 알고 정확한 약 이름은 모르는 시니어분들을 위한 검색 도우미예요.
+//             정부 API는 "효능"으로 검색하는 기능이 없어서(제품명으로만 검색 가능), 자주 찾는
+//             증상별로 대표적인 약 이름을 미리 정리해뒀어요. 의학적 추천이 아니라 "이 이름으로
+//             검색해보세요"라는 검색 힌트예요.
+var MED_SYMPTOM_MAP = {
+  cold:    ['타이레놀', '판콜에이', '판피린'],
+  stomach: ['베아제', '훼스탈', '알마겔'],
+  pain:    ['타이레놀', '게보린', '이지엔6'],
+  patch:   ['케토톱', '신신파스']
+};
+
+// 증상 버튼을 누르면 그 증상의 대표 약 이름 칩들을 보여줘요
+function showMedSymptom(key) {
+  document.querySelectorAll('.med-symptom-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.getElementById('med-symptom-'+key).classList.add('active');
+
+  var row = document.getElementById('med-chip-row');
+  row.innerHTML = '';
+  (MED_SYMPTOM_MAP[key] || []).forEach(function(name){
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'med-chip';
+    chip.textContent = name;
+    chip.onclick = function(){ selectMedChip(name); };
+    row.appendChild(chip);
+  });
+  row.style.display = 'flex';
+}
+
+// 칩(약 이름)을 누르면 검색창에 채우고 바로 검색해요
+function selectMedChip(name) {
+  document.getElementById('med-input').value = name;
+  searchMedicine(1);
 }
 
 async function searchMedicine(page) {
