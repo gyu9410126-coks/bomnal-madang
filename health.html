@@ -827,11 +827,27 @@ body.big-font .sec-more-btn { font-size: 18px !important; }
         <div class="page-box-title" style="color:#c62828;">💪 건강기능식품 정보</div>
       </div>
       <div class="page-box-body">
+        <div class="result-card" style="background:#fff5f7;">
+          <div class="result-card-desc">
+            <b>💡 건강기능식품 고르는 법</b><br/>
+            · '건강기능식품' 인증마크가 있는지 확인하세요<br/>
+            · 표시된 섭취량을 꼭 지켜서 드세요<br/>
+            · 드시는 약이 있다면 의사·약사와 먼저 상담하세요<br/>
+            · 유통기한을 확인하고 서늘한 곳에 보관하세요
+          </div>
+        </div>
         <div class="result-card" style="text-align:center;">
           <div class="result-card-desc" style="margin-bottom:14px;">
             제품명, 섭취방법, 주의사항 등 건강기능식품 정보는<br/>
             식품의약품안전처가 운영하는 <b>식품안전나라</b>에서<br/>
             바로 검색하실 수 있어요.
+          </div>
+          <div class="med-chip-row" style="display:flex;justify-content:center;margin-bottom:14px;">
+            <button type="button" class="med-symptom-btn" style="color:#c62828;border-color:#f8bbd0;" onclick="openSupplementSearch('오메가3')">오메가3</button>
+            <button type="button" class="med-symptom-btn" style="color:#c62828;border-color:#f8bbd0;" onclick="openSupplementSearch('루테인')">루테인</button>
+            <button type="button" class="med-symptom-btn" style="color:#c62828;border-color:#f8bbd0;" onclick="openSupplementSearch('홍삼')">홍삼</button>
+            <button type="button" class="med-symptom-btn" style="color:#c62828;border-color:#f8bbd0;" onclick="openSupplementSearch('유산균')">유산균</button>
+            <button type="button" class="med-symptom-btn" style="color:#c62828;border-color:#f8bbd0;" onclick="openSupplementSearch('비타민D')">비타민D</button>
           </div>
           <a onclick="confirmExternalLink('https://www.foodsafetykorea.go.kr/portal/healthyfoodlife/searchHomeHF.do');return false;" class="coupang-link" href="#" rel="noopener noreferrer nofollow">
             <span class="coupang-link-icon">🔎</span>
@@ -2357,6 +2373,24 @@ function resetSecMed() {
    직접 검색 대신 식품안전나라(식약처 공식 사이트)로 연결하는 방식으로
    바꿨어요. 그래서 이전에 있던 검색 함수는 삭제했어요.
 ═══════════════════════════════════════════ */
+
+// (한글 설명) [신규] "인기 검색어" 버튼용 함수예요. 식품안전나라 사이트가
+// 주소 뒤에 검색어를 붙이는 방식을 지원하는지 확인이 안 돼서(사이트가
+// 자동 접속을 막아둬서 직접 확인 불가), 대신 검색어를 클립보드에 복사해두고
+// 사이트를 열어서 시니어분이 검색창에 붙여넣기만 하면 되도록 했어요.
+function openSupplementSearch(keyword) {
+  var url = 'https://www.foodsafetykorea.go.kr/portal/healthyfoodlife/searchHomeHF.do';
+  function goOpen() {
+    if (confirm('"' + keyword + '"이(가) 복사됐어요.\n\n식품안전나라로 이동한 뒤, 검색창을 꾹 눌러서 "붙여넣기"를 선택해 주세요.\n\n이동할까요?')) {
+      window.open(url, '_blank');
+    }
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(keyword).then(goOpen).catch(goOpen);
+  } else {
+    goOpen();
+  }
+}
 
 function confirmExternalLink(url) {
   if (confirm('외부 사이트로 이동합니다.\n봄날마당으로 돌아오려면 휴대폰 뒤로가기를 누르세요.')) {
