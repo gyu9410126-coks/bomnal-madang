@@ -466,7 +466,92 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok:true, type:'festivalTour', totalCount: items.length, items });
     }
 
-    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour' });
+    // ════════════════════════════════════════════════════
+    // [K] 문화시설 안내 - 박물관·미술관 / 문화원·도서관 (한국관광공사 TourAPI)
+    //     (한글 설명) [J]번 축제 사진 기능과 같은 TOURAPI_KEY를 재사용해요(새 키 필요없음).
+    //     신분류체계(lclsSystm) 코드로 필터링: VE07=박물관·미술관, VE09=도서관·문화원
+    //     ⚠️ areaBasedList2 라는 주소가 맞는지 아직 실제로 테스트 전이에요.
+    //        &debug=1을 붙이면 정부 서버가 실제로 보내주는 원본 데이터를 그대로 보여줘요.
+    //        이 debug 모드로 먼저 확인한 다음에만 화면(culture.html)에 정식으로 붙일 거예요.
+    // ════════════════════════════════════════════════════
+    if (type === 'facilityTour') {
+      const apiKey = process.env.TOURAPI_KEY;
+      if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
+
+      // category: 'museum'(박물관·미술관) 또는 'center'(문화원·도서관)
+      const category = req.query.category || '';
+      const LCLS_MAP = { museum: 'VE07', center: 'VE09' };
+      const lclsSystm2 = LCLS_MAP[category];
+      if (!lclsSystm2) {
+        return res.status(400).json({ ok:false, message:'category 파라미터가 필요해요 (museum 또는 center)' });
+      }
+
+      const region = req.query.region || '';
+      const rows   = parseInt(req.query.rows) || 15;
+      const debug  = req.query.debug === '1';
+      const keyEnc = encodeURIComponent(apiKey);
+
+      // (한글 설명) festivalTour와 완전히 같은 법정동코드 표예요(health.js SIDO_CODES와 동일 체계).
+      const SIDO_CODES = {
+        '서울특별시': '11', '부산광역시': '26', '대구광역시': '27', '인천광역시': '28',
+        '광주광역시': '29', '대전광역시': '30', '울산광역시': '31', '세종특별자치시': '36',
+        '경기도': '41', '강원특별자치도': '51', '충청북도': '43', '충청남도': '44',
+        '전북특별자치도': '52', '전라남도': '46', '경상북도': '47', '경상남도': '48',
+        '제주특별자치도': '50',
+      };
+      const lDongRegnCd = region ? (SIDO_CODES[region] || '') : '';
+
+      let url = `https://apis.data.go.kr/B551011/KorService2/areaBasedList2`
+        + `?serviceKey=${keyEnc}&numOfRows=${rows}&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
+        + `&_type=json&arrange=O`
+        + `&lclsSystm1=VE&lclsSystm2=${lclsSystm2}`;
+      if (lDongRegnCd) url += `&lDongRegnCd=${lDongRegnCd}`;
+
+      let json;
+      try {
+        const r = await fetch(url);
+        const text = await r.text();
+        json = JSON.parse(text);
+      } catch (e) {
+        return res.status(200).json({ ok:true, type:'facilityTour', totalCount:0, items:[], warning:'정부 서버 응답을 받지 못했거나 JSON이 아니었어요: ' + e.message });
+      }
+
+      const header = json && json.response && json.response.header;
+      const body   = json && json.response && json.response.body;
+      const rawItems = (body && body.items && (Array.isArray(body.items.item) ? body.items.item : (body.items.item ? [body.items.item] : []))) || [];
+
+      // (한글 설명) &debug=1 이면 여기서 멈추고, 가공하기 전 원본 데이터를 그대로 보여줘요.
+      //             정식 필드명·데이터 개수를 눈으로 직접 확인하는 용도예요(평소엔 실행 안 됨).
+      if (debug) {
+        return res.status(200).json({
+          ok: true,
+          debug: true,
+          requestUrl   : url.replace(keyEnc, '(서비스키-숨김)'),
+          resultCode   : header ? header.resultCode : null,
+          resultMsg    : header ? header.resultMsg  : null,
+          totalCount   : body ? body.totalCount : 0,
+          totalRawCount: rawItems.length,
+          sample       : rawItems.slice(0, 5),
+        });
+      }
+
+      const items = rawItems.map(function(it){
+        return {
+          title  : it.title      || '',
+          address: it.addr1      || '',
+          place  : it.addr2      || '',
+          tel    : it.tel        || '',
+          photo  : it.firstimage || '',
+          lat    : it.mapy       || '',
+          lon    : it.mapx       || '',
+        };
+      });
+
+      res.setHeader('Cache-Control', 's-maxage=43200'); // 12시간 캐시
+      return res.status(200).json({ ok:true, type:'facilityTour', totalCount: (body ? body.totalCount : items.length), items });
+    }
+
+    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour' });
 
   } catch (err) {
     return res.status(500).json({ ok:false, message:'서버 오류: '+err.message });
