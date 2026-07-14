@@ -392,6 +392,8 @@ export default async function handler(req, res) {
 
       const region = req.query.region || '';
       const debug = req.query.debug === '1';
+      // (한글 설명) 테스트 단계에서만 쓰는 파라미터예요. 안 넘기면 기본값 O(사진 있는 것만).
+      const arrange = req.query.arrange || 'O';
       const keyEnc = encodeURIComponent(apiKey);
 
       // (한글 설명) health.js의 SIDO_CODES와 완전히 같은 표예요(법정동코드 체계).
@@ -417,7 +419,7 @@ export default async function handler(req, res) {
       //             lclsSystm1=EV & lclsSystm2=EV01 → 공연·전시 말고 "축제"만
       let url = `https://apis.data.go.kr/B551011/KorService2/searchFestival2`
         + `?serviceKey=${keyEnc}&numOfRows=90&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
-        + `&_type=json&arrange=O&eventStartDate=${today}&eventEndDate=${oneYearLater}`
+        + `&_type=json&arrange=${arrange}&eventStartDate=${today}&eventEndDate=${oneYearLater}`
         + `&lclsSystm1=EV&lclsSystm2=EV01`;
       if (lDongRegnCd) url += `&lDongRegnCd=${lDongRegnCd}`;
 
