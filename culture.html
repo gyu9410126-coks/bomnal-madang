@@ -674,6 +674,10 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <div id="festival-photo-list"></div>
           <div style="font-size:11px;color:#aaa;text-align:right;margin-top:2px;">사진 자료: 한국관광공사</div>
         </div>
+        <div id="festival-nearby-wrap" style="display:none;margin-top:14px;background:#fff8f3;border:1px solid #ffd9b8;border-radius:12px;padding:14px;">
+          <div style="font-size:13.5px;color:#7a4a1e;font-weight:700;margin-bottom:10px;line-height:1.5;" id="festival-nearby-msg"></div>
+          <div id="festival-nearby-btns" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+        </div>
         <div class="cult-coupon-wrap" style="margin-top:16px;">
           <div class="cult-coupon-label">🛍️ 축제 나들이 준비 추천</div>
           <a onclick="confirmExternalLink('https://link.coupang.com/a/epr05XTGAS');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
@@ -1372,6 +1376,7 @@ function loadFestival(region) {
   document.getElementById('festival-error').classList.remove('show');
   document.getElementById('festival-list').innerHTML = '';
   document.getElementById('festival-more-wrap').style.display = 'none';
+  document.getElementById('festival-nearby-wrap').style.display = 'none';
 
   var url = '/api/culture?type=festival';
   if (region) url += '&region=' + encodeURIComponent(region);
@@ -1382,10 +1387,12 @@ function loadFestival(region) {
       document.getElementById('festival-loading').classList.remove('show');
       if(!data.ok || !data.items || data.items.length === 0){
         document.getElementById('festival-list').innerHTML = '<div class="event-empty">😊 현재 등록된 축제 정보가 없어요.</div>';
+        showNearbyRegions(region);
         return;
       }
       festivalItems = data.items;
       renderMoreFestival();
+      showNearbyRegions(region);
     })
     .catch(function(){
       document.getElementById('festival-loading').classList.remove('show');
@@ -1409,6 +1416,56 @@ function resetFestival() {
   // (한글 설명) 사진 보너스 섹션도 같이 초기화해요.
   document.getElementById('festival-photo-list').innerHTML = '';
   document.getElementById('festival-photo-wrap').style.display = 'none';
+  document.getElementById('festival-nearby-wrap').style.display = 'none';
+}
+
+// (한글 설명) 17개 시/도의 "지리적으로 붙어있는 이웃 지역" 표예요. 실제 지도상
+//             인접 관계라 자주 안 바뀌는 고정 정보라서 표로 미리 만들어둬요.
+var ADJACENT_SIDO = {
+  '서울특별시': ['경기도', '인천광역시'],
+  '부산광역시': ['경상남도', '울산광역시'],
+  '대구광역시': ['경상북도', '경상남도'],
+  '인천광역시': ['경기도', '서울특별시'],
+  '광주광역시': ['전라남도', '전북특별자치도'],
+  '대전광역시': ['충청남도', '충청북도', '세종특별자치시'],
+  '울산광역시': ['경상남도', '부산광역시'],
+  '세종특별자치시': ['대전광역시', '충청남도', '충청북도'],
+  '경기도': ['서울특별시', '인천광역시', '충청남도', '충청북도', '강원특별자치도'],
+  '강원특별자치도': ['경기도', '충청북도', '경상북도'],
+  '충청북도': ['충청남도', '대전광역시', '세종특별자치시', '경기도', '강원특별자치도', '경상북도', '전북특별자치도'],
+  '충청남도': ['대전광역시', '세종특별자치시', '경기도', '충청북도', '전북특별자치도'],
+  '전북특별자치도': ['충청남도', '충청북도', '전라남도', '경상남도'],
+  '전라남도': ['광주광역시', '전북특별자치도', '경상남도'],
+  '경상북도': ['강원특별자치도', '충청북도', '경상남도', '대구광역시'],
+  '경상남도': ['부산광역시', '울산광역시', '경상북도', '전라남도', '전북특별자치도'],
+  '제주특별자치도': [],
+};
+
+// (한글 설명) 검색 결과(festivalItems)가 3개 미만이고, 지역을 특정해서 검색한
+//             경우에만(전체보기는 대상 아님) 이웃 지역 안내를 보여줘요. 버튼을
+//             누르면 드롭다운도 같이 바뀌면서 그 지역으로 바로 재검색돼요.
+function showNearbyRegions(region) {
+  var wrap = document.getElementById('festival-nearby-wrap');
+  if (!region || festivalItems.length >= 3) {
+    wrap.style.display = 'none';
+    return;
+  }
+  var neighbors = ADJACENT_SIDO[region] || [];
+  if (neighbors.length === 0) {
+    wrap.style.display = 'none';
+    return;
+  }
+  document.getElementById('festival-nearby-msg').textContent =
+    '지금은 ' + region + '에 등록된 축제가 많지 않아요. 이웃한 지역도 함께 확인해보세요.';
+
+  var btnHtml = '';
+  neighbors.forEach(function(n){
+    btnHtml += '<button onclick="document.getElementById(\'festival-sido\').value=\''+n+'\'; loadFestival(\''+n+'\'); loadFestivalTour(\''+n+'\');" '
+      + 'style="padding:9px 14px;background:#fff;border:1.5px solid #e65100;border-radius:20px;color:#e65100;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">'
+      + n.replace('특별자치도','').replace('특별자치시','').replace('광역시','').replace('특별시','') + '</button>';
+  });
+  document.getElementById('festival-nearby-btns').innerHTML = btnHtml;
+  wrap.style.display = 'block';
 }
 
 // (한글 설명) "사진으로 보는 축제" 보너스 섹션이에요. 기존 축제 목록(loadFestival)과
