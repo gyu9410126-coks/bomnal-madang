@@ -194,6 +194,7 @@
 ════════════════════════════════════════ */
 .page-label { font-size: 15px; font-weight: 700; color: #444; margin: 12px 0 6px; display: block; }
 .page-select { width: 100%; border: 1.5px solid #ddd; border-radius: 10px; padding: 11px 12px; font-size: 15px; font-weight: 600; font-family: inherit; color: #222; background: #fff; outline: none; margin-bottom: 8px; }
+.search-btn { padding: 10px 18px; background: #4A90D9; color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
 .result-card-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
 
 /* ── 돋보기 버튼 (우하단 고정) ── */
@@ -269,6 +270,7 @@ body.big-font .facility-addr { font-size: 16px !important; }
 body.big-font .facility-num { font-size: 22px !important; }
 body.big-font .page-label { font-size: 20px !important; }
 body.big-font .page-select { font-size: 21px !important; }
+body.big-font .search-btn { font-size: 20px !important; }
 
 /* ── API로 불러온 목록 글자 (메인 미리보기 + 상세페이지 공통) ── */
 body.big-font .dyn-section-title { font-size: 24px !important; }
@@ -613,7 +615,7 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
       </div>
       <div class="page-box-body">
         <div class="page-label" style="margin-top:0;">📍 지역 선택</div>
-        <select class="page-select" id="festival-sido" onchange="loadFestival(this.value)">
+        <select class="page-select" id="festival-sido">
           <option value="">전체보기</option>
           <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
           <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
@@ -622,6 +624,10 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <option>전북특별자치도</option><option>전라남도</option><option>경상북도</option>
           <option>경상남도</option><option>제주특별자치도</option>
         </select>
+        <button class="search-btn" style="width:100%;background:#e65100;" onclick="loadFestival(document.getElementById('festival-sido').value)">🔍 축제 검색</button>
+        <div id="festival-hint" style="text-align:center;padding:26px 10px;color:#999;font-size:14px;">
+          지역을 선택하고 <b>축제 검색</b> 버튼을 눌러주세요.
+        </div>
         <div class="cult-loading" id="festival-loading">
           <span class="cult-loading-icon">🎉</span>
           <div class="cult-loading-txt">축제 정보를 불러오는 중...</div>
@@ -630,7 +636,7 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
         <div class="cult-error" id="festival-error">
           <div class="cult-error-icon">😥</div>
           <div class="cult-error-txt">축제 정보를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>
-          <button class="cult-retry-btn" onclick="loadFestival('',null)">다시 시도</button>
+          <button class="cult-retry-btn" onclick="loadFestival(document.getElementById('festival-sido').value)">다시 시도</button>
         </div>
         <div id="festival-list"></div>
         <div id="festival-more-wrap" style="display:none;margin-top:10px;">
@@ -944,7 +950,6 @@ function goPage(name) {
   if(name==='heritage'&& !heritageLoaded) loadHeritage('11', document.querySelector('.heritage-type-btn'));
   if(name==='quiz'    && !quizStarted)    startQuiz();
   if(name==='facility'&& !facilityLoaded) showFacility('museum', document.querySelector('.facility-tab'));
-  if(name==='festival'   && !festivalLoaded)    loadFestival('');
   if(name==='perf2'      && !perf2Loaded)       loadKcisa('perf2',   document.querySelector('.perf2-tab'));
   if(name==='exhi'       && !exhiLoaded)        loadKcisa('exhi',    document.querySelector('.exhi-tab'));
   if(name==='museum'     && !museumLoaded)      loadKcisa('museum',  null);
@@ -971,6 +976,10 @@ function goBack() {
     festivalShown  = 0;
     var sel = document.getElementById('festival-sido');
     if (sel) sel.value = '';
+    document.getElementById('festival-list').innerHTML = '';
+    document.getElementById('festival-more-wrap').style.display = 'none';
+    document.getElementById('festival-error').classList.remove('show');
+    document.getElementById('festival-hint').style.display = 'block';
   }
 }
 
@@ -996,7 +1005,6 @@ window.addEventListener('popstate', function(e) {
   if(name==='heritage'&& !heritageLoaded) loadHeritage('11', document.querySelector('.heritage-type-btn'));
   if(name==='quiz'    && !quizStarted)    startQuiz();
   if(name==='facility'&& !facilityLoaded) showFacility('museum', document.querySelector('.facility-tab'));
-  if(name==='festival'   && !festivalLoaded)    loadFestival('');
   if(name==='perf2'      && !perf2Loaded)       loadKcisa('perf2',   document.querySelector('.perf2-tab'));
   if(name==='exhi'       && !exhiLoaded)        loadKcisa('exhi',    document.querySelector('.exhi-tab'));
   if(name==='museum'     && !museumLoaded)      loadKcisa('museum',  null);
@@ -1358,6 +1366,7 @@ function loadFestival(region) {
   festivalItems  = [];
   festivalShown  = 0;
 
+  document.getElementById('festival-hint').style.display = 'none';
   document.getElementById('festival-loading').classList.add('show');
   document.getElementById('festival-error').classList.remove('show');
   document.getElementById('festival-list').innerHTML = '';
