@@ -568,10 +568,14 @@ export default async function handler(req, res) {
       const debug  = req.query.debug === '1';
       const keyEnc = encodeURIComponent(apiKey);
 
+      // (한글 설명) 처음엔 addrinfoYN 등 세부 파라미터를 다 넣었다가 정부 서버가
+      //             "INVALID_REQUEST_PARAMETER_ERROR(addrinfoYN)" 오류를 냈어요(실제 테스트로 확인).
+      //             전화번호·홈페이지는 defaultYN=Y(기본정보조회) 하나로 이미 다 오기 때문에,
+      //             꼭 필요한 defaultYN·overviewYN만 남기고 나머지는 뺐어요.
       const url = `https://apis.data.go.kr/B551011/KorService2/detailCommon2`
         + `?serviceKey=${keyEnc}&contentId=${encodeURIComponent(contentId)}&contentTypeId=14`
         + `&MobileOS=ETC&MobileApp=BomnalMadang&_type=json`
-        + `&defaultYN=Y&firstImageYN=N&areacodeYN=N&catcodeYN=N&addrinfoYN=N&mapinfoYN=N&overviewYN=Y`;
+        + `&defaultYN=Y&overviewYN=Y`;
 
       let json;
       try {
