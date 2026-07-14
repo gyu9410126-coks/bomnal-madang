@@ -595,6 +595,9 @@ export default async function handler(req, res) {
           resultCode: header ? header.resultCode : null,
           resultMsg : header ? header.resultMsg  : null,
           sample    : it,
+          // (한글 설명) 위 sample이 비어있을 때 원인을 눈으로 확인하기 위해
+          //             정부 서버가 보낸 원본 응답을 가공 없이 통째로 같이 보여줘요.
+          rawJson   : json,
         });
       }
 
