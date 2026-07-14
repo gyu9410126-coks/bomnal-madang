@@ -260,34 +260,104 @@ export default async function handler(req, res) {
     }
 
     // ════════════════════════════════
-    // [I] 지역축제 정보 (api.kcisa.kr — meta4/getKCPG0504)
+    // [I] 전국 지역축제 (전국문화축제표준데이터, data.go.kr)
     // ════════════════════════════════
     if (type === 'festival') {
-      const apiKey = process.env.CULTURE_FESTIVAL_KEY;
-      if (!apiKey) return res.status(500).json({ ok:false, message:'CULTURE_FESTIVAL_KEY 없음' });
-      const numOfRows = req.query.rows    || '10';
-      const pageNo    = req.query.cPage   || '1';
-      const keyword   = req.query.keyword || '';
-      const url = `https://api.kcisa.kr/openapi/service/rest/meta4/getKCPG0504`
-        + `?serviceKey=${encodeURIComponent(apiKey)}`
-        + `&numOfRows=${numOfRows}&pageNo=${pageNo}`
-        + `&keyword=${encodeURIComponent(keyword)}`;
-      const xmlText = await (await fetch(url)).text();
-      const items = parseItems(xmlText,'item').map(function(x){
+      const apiKey = process.env.FESTIVAL_STD_API_KEY;
+      if (!apiKey) return res.status(500).json({ ok:false, message:'FESTIVAL_STD_API_KEY 없음' });
+
+      const region = req.query.region || '';
+      // (한글 설명) 화면에 최종적으로 내려줄 개수예요. 홈 미리보기는 rows=5로 부르고,
+      //             전체 페이지는 안 넘기면 90개까지 넉넉히 내려줘요.
+      const rows = parseInt(req.query.rows) || 90;
+
+      const endpoint = 'https://api.data.go.kr/openapi/tn_pubr_public_cltur_fstvl_api';
+      const keyEnc = encodeURIComponent(apiKey);
+
+      // (한글 설명) 시/도 이름이 정식명칭 변경(강원특별자치도·전북특별자치도) 및
+      //             2026.7.1 전남·광주 통합으로 옛 이름/새 이름이 섞여 있을 수 있어서,
+      //             주소가 시작할 수 있는 후보 이름들을 같이 확인해요.
+      const REGION_VARIANTS = {
+        '강원특별자치도': ['강원특별자치도', '강원도'],
+        '전북특별자치도': ['전북특별자치도', '전라북도'],
+        '전라남도'      : ['전라남도', '전남광주통합특별시'],
+        '광주광역시'    : ['광주광역시', '전남광주통합특별시'],
+      };
+      const variants = region ? (REGION_VARIANTS[region] || [region]) : null;
+
+      // (한글 설명) 정부 서버에서 축제 데이터 한 페이지를 받아오는 공통 함수예요.
+      //             extraQuery엔 rdnmadr 같은 추가 검색조건을 넣을 수 있어요.
+      async function fetchFestivalPage(pageNo, extraQuery) {
+        const url = `${endpoint}?serviceKey=${keyEnc}&pageNo=${pageNo}&numOfRows=1000&type=json${extraQuery || ''}`;
+        let json;
+        try {
+          const r = await fetch(url);
+          const text = await r.text();
+          json = JSON.parse(text);
+        } catch (e) {
+          return []; // 응답이 JSON이 아니거나 통신 실패면 빈 배열로 처리(에러 대신 "데이터 없음"으로 보여줌)
+        }
+        const body = json && json.response && json.response.body;
+        if (!body || !body.items || typeof body.items === 'string' || !body.items.item) return [];
+        const item = body.items.item;
+        return Array.isArray(item) ? item : [item];
+      }
+
+      function matchesRegion(it) {
+        if (!variants) return true;
+        const addr = it.rdnmadr || '';
+        return variants.some(function(v){ return addr.indexOf(v) === 0; });
+      }
+
+      let rawItems = [];
+
+      if (variants) {
+        // [1차 시도] 정부 서버가 rdnmadr 파라미터로 직접 걸러주는지 시도해봐요.
+        const filtered = await fetchFestivalPage(1, `&rdnmadr=${encodeURIComponent(region)}`);
+        const matchCount = filtered.filter(matchesRegion).length;
+
+        if (filtered.length > 0 && matchCount === filtered.length) {
+          // 정부 서버가 정확히 걸러서 보내준 것으로 확인됨 → 그대로 사용 (빠르고 가벼움)
+          rawItems = filtered;
+        } else {
+          // [자동 전환] 안 걸러졌음 → 여러 페이지를 동시에(병렬로) 받아서 우리가 직접 필터링
+          //             안전장치: 시간초과 방지를 위해 최대 5페이지(5000건)까지만 시도
+          const pages = await Promise.all([1, 2, 3, 4, 5].map(function(p){ return fetchFestivalPage(p, ''); }));
+          rawItems = [].concat.apply([], pages).filter(matchesRegion);
+        }
+      } else {
+        // 전체보기 — 한 페이지만 넉넉히 받아옴
+        rawItems = await fetchFestivalPage(1, '');
+      }
+
+      // 오늘 이후에 끝나는 축제만 남기기 (이미 끝난 축제는 어르신께 혼란만 드려요)
+      const now = new Date();
+      const todayDash = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+      let items = rawItems.filter(function(it){
+        return !it.fstvlEndDate || it.fstvlEndDate >= todayDash;
+      });
+
+      // 축제 시작일이 가까운 순으로 정렬
+      items.sort(function(a, b){
+        return (a.fstvlStartDate || '').localeCompare(b.fstvlStartDate || '');
+      });
+
+      items = items.slice(0, rows).map(function(it){
         return {
-          title      : getVal(x,'TITLE'),            // 축제명
-          period     : getVal(x,'PERIOD'),           // 기간
-          place      : getVal(x,'EVENT_SITE'),       // 장소
-          region     : getVal(x,'SPATIAL_COVERAGE'), // 지역
-          thumbnail  : getVal(x,'THUMBNAIL'),        // 이미지
-          url        : getVal(x,'URL'),              // 상세링크
-          charge     : getVal(x,'CHARGE'),           // 요금
-          description: getVal(x,'DESCRIPTION'),     // 설명
+          title  : it.fstvlNm || '',
+          place  : it.opar || '',
+          period : (it.fstvlStartDate && it.fstvlEndDate) ? (it.fstvlStartDate + ' ~ ' + it.fstvlEndDate) : (it.fstvlStartDate || ''),
+          region : it.rdnmadr ? it.rdnmadr.split(' ')[0] : '',
+          address: it.rdnmadr || '',
+          lat    : it.latitude  || '',
+          lon    : it.longitude || '',
+          url    : it.homepageUrl || '',
+          phone  : it.phoneNumber || '',
         };
       });
-      const totalCount = getVal(xmlText,'totalCount') || '0';
-      res.setHeader('Cache-Control','s-maxage=3600');
-      return res.status(200).json({ ok:true, type:'festival', totalCount, items });
+
+      res.setHeader('Cache-Control', 's-maxage=43200'); // 12시간 캐시 (분기별 갱신 데이터라 넉넉히 늘림)
+      return res.status(200).json({ ok:true, type:'festival', totalCount: items.length, items });
     }
 
     return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival' });
