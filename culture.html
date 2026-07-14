@@ -952,6 +952,11 @@ function goPage(name) {
 }
 
 function goBack() {
+  /* (한글 설명) 지역축제 페이지에서 나가는 거라면, 다음에 다시 들어왔을 때
+     "전체보기"부터 새로 시작하도록 검색 상태를 미리 초기화해둬요.
+     (다른 카테고리는 "한 번 불러오면 다시 안 불러오기" 방식을 그대로 유지 — 여기만 다름) */
+  var wasFestivalPage = document.getElementById('page-festival').classList.contains('active');
+
   PAGES.forEach(function(p){
     document.getElementById('page-'+p).classList.remove('active');
   });
@@ -959,6 +964,14 @@ function goBack() {
   window.scrollTo(0,0);
   /* 퀴즈는 다시 들어올 때 처음부터 새로 시작하도록 리셋 */
   quizStarted = false;
+
+  if (wasFestivalPage) {
+    festivalLoaded = false;
+    festivalItems  = [];
+    festivalShown  = 0;
+    var sel = document.getElementById('festival-sido');
+    if (sel) sel.value = '';
+  }
 }
 
 window.addEventListener('popstate', function(e) {
