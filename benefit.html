@@ -546,52 +546,6 @@ body.big-font .source-notice { font-size: 14px !important; }
       </div>
     </div>
 
-    <!-- 긴급전화 -->
-    <div class="tel-sec">
-      <div class="tel-card">
-        <div class="tel-card-title">📞 어르신 긴급 전화</div>
-        <a class="tel-card-item" href="tel:129">
-          <div class="tel-card-icon">🏛</div>
-          <div class="tel-text">
-            <div class="tel-name">보건복지상담센터</div>
-            <div class="tel-desc">복지·의료 상담 (24시간)</div>
-          </div>
-          <span class="tel-num">129</span>
-        </a>
-        <div class="tel-divider"></div>
-        <a class="tel-card-item" href="tel:1355">
-          <div class="tel-card-icon">💰</div>
-          <div class="tel-text">
-            <div class="tel-name">국민연금공단</div>
-            <div class="tel-desc">연금 상담·신청</div>
-          </div>
-          <span class="tel-num">1355</span>
-        </a>
-        <div class="tel-divider"></div>
-        <a class="tel-card-item" href="tel:1393">
-          <div class="tel-card-icon">👴</div>
-          <div class="tel-text">
-            <div class="tel-name">노인학대신고센터</div>
-            <div class="tel-desc">노인 보호·신고 (24시간)</div>
-          </div>
-          <span class="tel-num">1393</span>
-        </a>
-        <div class="tel-divider"></div>
-        <a class="tel-card-item" href="tel:1688-0120">
-          <div class="tel-card-icon">📚</div>
-          <div class="tel-text">
-            <div class="tel-name">서민금융진흥원</div>
-            <div class="tel-desc">서민금융·교육 상담</div>
-          </div>
-          <span class="tel-num">1688-0120</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- 카카오 공유 / PWA -->
-    <button class="btn-kakao-main" onclick="shareKakao()">💛 카카오톡 친구에게 공유하기</button>
-    <button class="btn-pwa-main" onclick="savePWA()">📲 봄날마당 홈화면에 저장하기</button>
-
     <!-- 제휴 고지 -->
     <div class="affiliate-notice-box">
       ※ 이 웹앱은 쿠팡파트너스의 제휴마케팅 프로그램에 참여하고 있습니다.<br>
@@ -1061,7 +1015,7 @@ body.big-font .source-notice { font-size: 14px !important; }
       <div class="info-card">
         <div class="info-card-q">🤝 노인학대 — 신고하면 어떻게 되나요?</div>
         <div class="info-card-a">
-          노인학대신고센터 ☎ 1393 (24시간 무료)<br>
+          노인학대신고센터 ☎ 1577-1389 (24시간 무료)<br>
           신고 시 전담공무원이 현장 출동해 즉시 조사합니다.<br>
           신고자 신분은 절대 보호됩니다.
         </div>
@@ -1696,6 +1650,55 @@ body.big-font .source-notice { font-size: 14px !important; }
 
     </div>
   </div>
+
+  <!-- ══════════════════════════════════════
+       공통 하단 영역 — 긴급전화 / 카카오공유 / PWA저장
+       (main-view, 모든 page-view 세부페이지에서 항상 보임)
+  ══════════════════════════════════════ -->
+  <div class="tel-sec">
+    <div class="tel-card">
+      <div class="tel-card-title">📞 어르신 긴급 전화</div>
+      <a class="tel-card-item" href="tel:129">
+        <div class="tel-card-icon">🏛</div>
+        <div class="tel-text">
+          <div class="tel-name">보건복지상담센터</div>
+          <div class="tel-desc">복지·의료 상담 (24시간)</div>
+        </div>
+        <span class="tel-num">129</span>
+      </a>
+      <div class="tel-divider"></div>
+      <a class="tel-card-item" href="tel:1355">
+        <div class="tel-card-icon">💰</div>
+        <div class="tel-text">
+          <div class="tel-name">국민연금공단</div>
+          <div class="tel-desc">연금 상담·신청</div>
+        </div>
+        <span class="tel-num">1355</span>
+      </a>
+      <div class="tel-divider"></div>
+      <a class="tel-card-item" href="tel:1577-1389">
+        <div class="tel-card-icon">👴</div>
+        <div class="tel-text">
+          <div class="tel-name">노인학대신고센터</div>
+          <div class="tel-desc">노인 보호·신고 (24시간)</div>
+        </div>
+        <span class="tel-num">1577-1389</span>
+      </a>
+      <div class="tel-divider"></div>
+      <a class="tel-card-item" href="tel:1688-0120">
+        <div class="tel-card-icon">📚</div>
+        <div class="tel-text">
+          <div class="tel-name">서민금융진흥원</div>
+          <div class="tel-desc">서민금융·교육 상담</div>
+        </div>
+        <span class="tel-num">1688-0120</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 카카오 공유 / PWA -->
+  <button class="btn-kakao-main" onclick="shareKakao()">💛 카카오톡 친구에게 공유하기</button>
+  <button class="btn-pwa-main" onclick="installPWA()">📲 봄날마당 홈화면에 저장하기</button>
 
 </div><!-- /wrap -->
 
@@ -2752,8 +2755,102 @@ function renderPsCards(data, append) {
 /* ══════════════════════════════════════
    카카오 공유 / PWA
 ══════════════════════════════════════ */
-function shareKakao() { alert('카카오 공유 기능은 index.html에서 SDK 연동 후 활성화됩니다.'); }
-function savePWA() { alert('홈화면 저장: 브라우저 하단 공유 버튼 → 홈 화면에 추가를 눌러주세요!'); }
+/* ══════════════════════════════════════
+   카카오 공유 (index.html 검증된 코드 재사용)
+   - 카카오톡 자체 SDK가 아니라, 휴대폰의 "공유하기" 기능을 이용해요.
+   - 공유 기능이 없는 구형 브라우저는 클립보드로 복사해줘요.
+══════════════════════════════════════ */
+function shareKakao() {
+  var text = '[시니어 봄날마당] 🌸\n\n50~70대 시니어를 위한 맞춤형 정보 봄날마당!\n\n✅ 오늘의 운세\n🎮 두뇌게임·퀴즈\n💊 건강정보·약국찾기\n🎁 노인복지·보조금 정보\n🛒 시니어쇼핑\n🎵 트로트봄날마당\n\n🔗 https://bomnal-madang.vercel.app';
+  if (navigator.share) {
+    navigator.share({ title: '시니어 봄날마당', text: text });
+  } else {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('✅ 공유 내용 복사 완료! 카카오톡 채팅창에 붙여넣기 해주세요 📱');
+    }).catch(function() { alert(text); });
+  }
+}
+
+/* ══════════════════════════════════════
+   PWA 홈화면 저장 (index.html 검증된 코드 재사용)
+   - PWA(Progressive Web App) = 앱처럼 홈화면에 아이콘을 깔아두는 기능이에요.
+   - 브라우저가 자동으로 설치를 지원하면 바로 설치 팝업이 뜨고,
+     지원하지 않으면(예: 아이폰) 손으로 따라 하는 안내창을 보여줘요.
+══════════════════════════════════════ */
+var deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(result) {
+      if (result.outcome === 'accepted') {
+        showToast('🎉 봄날마당이 홈화면에 저장되었습니다!');
+      }
+      deferredPrompt = null;
+    });
+    return;
+  }
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (isIOS) {
+    showInstallGuide('📱 아이폰 홈화면 저장 방법', [
+      '① 아래 공유 버튼(□↑)을 누르세요',
+      '② 스크롤 내려서 "홈 화면에 추가"를 누르세요',
+      '③ 오른쪽 위 "추가"를 누르면 완료! 🎉'
+    ]);
+  } else {
+    showInstallGuide('📱 홈화면 저장 방법', [
+      '① 오른쪽 위 점 세 개(⋮)를 누르세요',
+      '② "앱 설치" 또는 "홈 화면에 추가"를 누르세요',
+      '③ "설치"를 누르면 완료! 🎉'
+    ]);
+  }
+}
+
+function showInstallGuide(title, steps) {
+  var old = document.getElementById('install-guide-popup');
+  if (old) old.remove();
+  var popup = document.createElement('div');
+  popup.id = 'install-guide-popup';
+  popup.style.cssText =
+    'position:fixed;left:50%;bottom:110px;transform:translateX(-50%);' +
+    'background:#fff;border-radius:20px;padding:24px 20px;' +
+    'width:88%;max-width:360px;box-sizing:border-box;' +
+    'box-shadow:0 8px 32px rgba(0,0,0,0.22);z-index:9999;' +
+    'border:2px solid #1a6fc4;';
+  var stepsHtml = '';
+  steps.forEach(function(step) {
+    stepsHtml += '<div style="background:#f0f6ff;border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.8;color:#333;margin-bottom:8px;">' + step + '</div>';
+  });
+  popup.innerHTML =
+    '<div style="font-size:18px;font-weight:900;color:#1a6fc4;margin-bottom:14px;text-align:center;">' + title + '</div>' +
+    stepsHtml +
+    '<button onclick="document.getElementById(\'install-guide-popup\').remove()" style="margin-top:10px;width:100%;background:#1a6fc4;color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;">확인 ✓</button>' +
+    '<p style="font-size:12px;color:#999;text-align:center;margin:10px 0 0;">10초 후 자동으로 닫힙니다</p>';
+  document.body.appendChild(popup);
+  setTimeout(function() { var p = document.getElementById('install-guide-popup'); if (p) p.remove(); }, 10000);
+}
+
+/* ══════════════════════════════════════
+   토스트 알림 (작은 안내 팝업)
+   - #toast 같은 별도 HTML 없이, 필요할 때 스스로 만들어서 보여주는 방식이에요.
+══════════════════════════════════════ */
+function showToast(msg) {
+  var t = document.getElementById('toast-msg');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast-msg';
+    t.style.cssText = 'position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.82);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:700;z-index:9999;text-align:center;max-width:85%;line-height:1.6;word-break:keep-all;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function() { t.style.display = 'none'; }, 3500);
+}
 
 function confirmExternalLink(url) {
   if (confirm('외부 사이트로 이동합니다.\n봄날마당으로 돌아오려면 휴대폰 뒤로가기를 누르세요.')) {
