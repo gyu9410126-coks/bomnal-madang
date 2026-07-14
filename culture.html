@@ -611,12 +611,46 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
       </div>
       <div class="page-box-body">
         <div class="facility-tab-wrap">
-          <button class="facility-tab active" onclick="showFacility('museum',this)">🏛️ 국립박물관</button>
+          <button class="facility-tab active" onclick="showFacility('museum',this)">🏛️ 박물관·미술관</button>
           <button class="facility-tab" onclick="showFacility('palace',this)">🏯 궁궐·유적</button>
           <button class="facility-tab" onclick="showFacility('center',this)">🎭 문화원</button>
           <button class="facility-tab" onclick="showFacility('library',this)">📚 도서관</button>
         </div>
+
+        <!-- 박물관·미술관 / 문화원 전용 — 지역검색 UI (한국관광공사 TourAPI) -->
+        <div id="facility-search-wrap" style="display:none;">
+          <div class="page-label" style="margin-top:0;">📍 지역 선택</div>
+          <select class="page-select" id="facility-sido">
+            <option value="">전체보기</option>
+            <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
+            <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
+            <option>울산광역시</option><option>세종특별자치시</option><option>경기도</option>
+            <option>강원특별자치도</option><option>충청북도</option><option>충청남도</option>
+            <option>전북특별자치도</option><option>전라남도</option><option>경상북도</option>
+            <option>경상남도</option><option>제주특별자치도</option>
+          </select>
+          <button class="search-btn" style="width:100%;background:#2e7d32;" onclick="searchFacilityTour()">🔍 시설 검색</button>
+          <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetFacilityTour()">🔄 검색 초기화</button>
+          <div id="facility-hint" style="text-align:center;padding:26px 10px;color:#999;font-size:14px;">
+            지역을 선택하고 <b>시설 검색</b> 버튼을 눌러주세요.<br>(선택 안 하면 전국 목록이 나와요)
+          </div>
+          <div class="cult-loading" id="facility-loading">
+            <span class="cult-loading-icon">📍</span>
+            <div class="cult-loading-txt">시설 정보를 불러오는 중...</div>
+            <div class="cult-loading-sub">한국관광공사 데이터를 확인하고 있어요</div>
+          </div>
+          <div class="cult-error" id="facility-error">
+            <div class="cult-error-icon">😥</div>
+            <div class="cult-error-txt">시설 정보를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>
+            <button class="cult-retry-btn" onclick="searchFacilityTour()">다시 시도</button>
+          </div>
+          <div id="facility-tour-list"></div>
+          <div id="facility-tour-source" style="display:none;font-size:11px;color:#aaa;text-align:right;margin-top:6px;">사진·정보 출처: 한국관광공사</div>
+        </div>
+
+        <!-- 궁궐·유적 / 도서관 전용 — 기존 고정 목록 -->
         <div id="facility-list"></div>
+
         <div class="cult-coupon-wrap" style="margin-top:14px;">
           <div class="cult-coupon-label">🛍️ 나들이 준비 추천</div>
           <a onclick="confirmExternalLink('https://link.coupang.com/a/eprPjdkp2W');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
@@ -1291,19 +1325,16 @@ function showQuizFinal(){
 
 /* ════════════════════════════════════════════
    페이지4 — 문화시설 안내
+   (한글 설명) museum(박물관·미술관)·center(문화원)는 한국관광공사 TourAPI로
+   실시간 검색해요. palace(궁궐·유적)·library(도서관)는 API 대안이 마땅치 않거나
+   아직 전용 키 발급 전이라, 예전처럼 고정 목록을 그대로 보여줘요.
 ════════════════════════════════════════════ */
 var facilityLoaded = false;
+var facilityTourCategory = 'museum'; // 'museum' 또는 'center' — 지금 보고 있는 탭
+var facilityTourItems = [];          // 방금 검색된 결과 (자세히보기에서 재사용)
+var facilityDetailCache = {};        // contentid별 상세정보 캐시 (같은 곳 두 번 안 물어봄)
+
 var FACILITY_DATA = {
-  museum:[
-    {icon:'🏛️',name:'국립중앙박물관',addr:'서울 용산구 서빙고로 137',tel:'02-2077-9000'},
-    {icon:'🏺',name:'국립민속박물관',addr:'서울 종로구 삼청로 37',tel:'02-3704-3114'},
-    {icon:'🎨',name:'국립현대미술관(서울)',addr:'서울 종로구 삼청로 30',tel:'02-3701-9500'},
-    {icon:'🏺',name:'국립경주박물관',addr:'경북 경주시 일정로 186',tel:'054-740-7500'},
-    {icon:'🏛️',name:'국립전주박물관',addr:'전북 전주시 완산구 쑥고개로 249',tel:'063-223-5651'},
-    {icon:'🏺',name:'국립광주박물관',addr:'광주 북구 하서로 110',tel:'062-570-7000'},
-    {icon:'🏛️',name:'국립부여박물관',addr:'충남 부여군 부여읍 금성로 5',tel:'041-833-8562'},
-    {icon:'🎭',name:'국립무형유산원',addr:'전북 전주시 완산구 서학로 95',tel:'063-280-1400'},
-  ],
   palace:[
     {icon:'🏯',name:'경복궁 관리소',addr:'서울 종로구 사직로 161',tel:'02-3700-3900'},
     {icon:'🏯',name:'창덕궁 관리소',addr:'서울 종로구 율곡로 99',tel:'02-3668-2300'},
@@ -1313,16 +1344,6 @@ var FACILITY_DATA = {
     {icon:'⛩️',name:'종묘 관리소',addr:'서울 종로구 종로 157',tel:'02-765-0195'},
     {icon:'🌿',name:'수원화성 관리소',addr:'경기 수원시 팔달구 행궁로 11',tel:'031-290-3600'},
     {icon:'🗺️',name:'불국사·석굴암',addr:'경북 경주시 불국로 385',tel:'054-746-9913'},
-  ],
-  center:[
-    {icon:'🎭',name:'한국문화예술회관연합회',addr:'서울 중구 퇴계로 36길',tel:'02-708-2100'},
-    {icon:'🎨',name:'서울문화재단',addr:'서울 중구 세종대로 135',tel:'02-3290-7000'},
-    {icon:'🎭',name:'경기문화재단',addr:'경기 수원시 팔달구 인계로 178',tel:'031-231-7200'},
-    {icon:'🎨',name:'부산문화재단',addr:'부산 연제구 중앙대로 1001',tel:'051-745-7200'},
-    {icon:'🎭',name:'대구문화예술진흥원',addr:'대구 중구 공평로 88',tel:'053-430-1300'},
-    {icon:'🎨',name:'인천문화재단',addr:'인천 남동구 정각로 9',tel:'032-455-7300'},
-    {icon:'🎭',name:'광주문화재단',addr:'광주 동구 예술길 35',tel:'062-670-7300'},
-    {icon:'🎨',name:'전북문화관광재단',addr:'전북 전주시 완산구 홍산로 111',tel:'063-230-5900'},
   ],
   library:[
     {icon:'📚',name:'국립중앙도서관',addr:'서울 서초구 반포대로 201',tel:'02-535-4142'},
@@ -1336,22 +1357,144 @@ var FACILITY_DATA = {
   ]
 };
 
-function showFacility(type,btnEl){
-  facilityLoaded=true;
-  document.querySelectorAll('.facility-tab').forEach(function(b){ b.classList.remove('active'); });
-  if(btnEl) btnEl.classList.add('active');
-  var items=FACILITY_DATA[type]||[];
-  var html='';
-  items.forEach(function(item){
-    html+='<a class="facility-card" href="tel:'+item.tel+'">'
-      +'<div class="facility-icon">'+item.icon+'</div>'
-      +'<div class="facility-info">'
-      +'<div class="facility-name">'+item.name+'</div>'
-      +'<div class="facility-addr">'+item.addr+'</div>'
-      +'<div class="facility-num">📞 '+item.tel+'</div>'
-      +'</div></a>';
-  });
-  document.getElementById('facility-list').innerHTML=html;
+function showFacility(type, btnEl){
+  facilityLoaded = true;
+  document.querySelectorAll('#page-facility .facility-tab').forEach(function(b){ b.classList.remove('active'); });
+  if (btnEl) btnEl.classList.add('active');
+
+  if (type === 'museum' || type === 'center') {
+    // ── TourAPI 실시간 검색 탭 ──
+    facilityTourCategory = type;
+    document.getElementById('facility-search-wrap').style.display = 'block';
+    document.getElementById('facility-list').style.display = 'none';
+    document.getElementById('facility-tour-list').innerHTML = '';
+    document.getElementById('facility-tour-source').style.display = 'none';
+    document.getElementById('facility-hint').style.display = 'block';
+    document.getElementById('facility-error').classList.remove('show');
+    document.getElementById('facility-sido').value = '';
+  } else {
+    // ── 고정 목록 탭 (궁궐·유적 / 도서관) ──
+    document.getElementById('facility-search-wrap').style.display = 'none';
+    document.getElementById('facility-list').style.display = 'block';
+    var items = FACILITY_DATA[type] || [];
+    var html = '';
+    items.forEach(function(item){
+      html += '<a class="facility-card" href="tel:'+item.tel+'">'
+        + '<div class="facility-icon">'+item.icon+'</div>'
+        + '<div class="facility-info">'
+        + '<div class="facility-name">'+item.name+'</div>'
+        + '<div class="facility-addr">'+item.addr+'</div>'
+        + '<div class="facility-num">📞 '+item.tel+'</div>'
+        + '</div></a>';
+    });
+    document.getElementById('facility-list').innerHTML = html;
+  }
+}
+
+// (한글 설명) "시설 검색" 버튼을 누르면 실행돼요. api/culture.js의 facilityTour를 호출해요.
+function searchFacilityTour(){
+  var region = document.getElementById('facility-sido').value;
+  document.getElementById('facility-hint').style.display = 'none';
+  document.getElementById('facility-error').classList.remove('show');
+  document.getElementById('facility-tour-source').style.display = 'none';
+  document.getElementById('facility-tour-list').innerHTML = '';
+  document.getElementById('facility-loading').classList.add('show');
+
+  var url = '/api/culture?type=facilityTour&category='+facilityTourCategory+'&rows=15'
+    + (region ? '&region='+encodeURIComponent(region) : '');
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      document.getElementById('facility-loading').classList.remove('show');
+      facilityTourItems = (data && data.items) || [];
+      if (facilityTourItems.length === 0) {
+        document.getElementById('facility-tour-list').innerHTML =
+          '<div style="text-align:center;padding:26px 10px;color:#999;font-size:14px;">검색 결과가 없어요.<br>다른 지역으로 찾아보세요.</div>';
+        return;
+      }
+      var html = '';
+      facilityTourItems.forEach(function(item, idx){ html += renderFacilityTourCard(item, idx); });
+      document.getElementById('facility-tour-list').innerHTML = html;
+      document.getElementById('facility-tour-source').style.display = 'block';
+    })
+    .catch(function(){
+      document.getElementById('facility-loading').classList.remove('show');
+      document.getElementById('facility-error').classList.add('show');
+    });
+}
+
+function resetFacilityTour(){
+  document.getElementById('facility-sido').value = '';
+  document.getElementById('facility-tour-list').innerHTML = '';
+  document.getElementById('facility-tour-source').style.display = 'none';
+  document.getElementById('facility-error').classList.remove('show');
+  document.getElementById('facility-hint').style.display = 'block';
+}
+
+// (한글 설명) 시설 카드 하나의 HTML을 만들어요. 사진·주소·지도버튼·자세히보기버튼 포함.
+function renderFacilityTourCard(item, idx){
+  var imgHtml = item.photo
+    ? '<img src="'+item.photo+'" style="width:100%;height:150px;object-fit:cover;border-radius:14px 14px 0 0;display:block;" onerror="this.style.display=\'none\'">'
+    : '';
+  return '<div style="background:#fff9fa;border:1.5px solid #c8e6c9;border-radius:14px;overflow:hidden;margin-bottom:12px;">'
+    + imgHtml
+    + '<div style="padding:14px;">'
+    + '<div style="font-size:16px;font-weight:800;color:#1a1a1a;margin-bottom:5px;word-break:keep-all;">'+item.title+'</div>'
+    + (item.address ? '<div style="font-size:13px;color:#666;margin-bottom:8px;">📍 '+item.address+'</div>' : '')
+    + buildMapLinks(item.title, item.lat, item.lon)
+    + (item.contentid
+        ? '<button onclick="toggleFacilityDetail(\''+item.contentid+'\','+idx+',this)" style="width:100%;margin-top:8px;padding:10px;background:#e8f5e9;color:#2e7d32;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">🔍 자세히 보기</button>'
+        + '<div id="facility-detail-'+idx+'" style="display:none;margin-top:8px;"></div>'
+        : '')
+    + '</div></div>';
+}
+
+// (한글 설명) "자세히 보기"를 누르면, 그때 딱 한 번만 api/culture.js의 facilityDetail을
+//             불러서 전화번호·홈페이지·소개글을 펼쳐 보여줘요(느린 전체 로딩 방지).
+function toggleFacilityDetail(contentid, idx, btnEl){
+  var box = document.getElementById('facility-detail-'+idx);
+  if (!box) return;
+  var opened = box.style.display !== 'none';
+  if (opened) {
+    box.style.display = 'none';
+    btnEl.textContent = '🔍 자세히 보기';
+    return;
+  }
+  box.style.display = 'block';
+  btnEl.textContent = '🔼 접기';
+
+  if (facilityDetailCache[contentid]) {
+    renderFacilityDetailBox(box, facilityDetailCache[contentid]);
+    return;
+  }
+  box.innerHTML = '<div style="text-align:center;padding:14px;color:#999;font-size:13px;">불러오는 중...</div>';
+  fetch('/api/culture?type=facilityDetail&contentid='+encodeURIComponent(contentid))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      facilityDetailCache[contentid] = data;
+      renderFacilityDetailBox(box, data);
+    })
+    .catch(function(){
+      box.innerHTML = '<div style="text-align:center;padding:14px;color:#c62828;font-size:13px;">정보를 불러오지 못했어요.</div>';
+    });
+}
+
+function renderFacilityDetailBox(box, data){
+  var html = '';
+  if (data && data.tel) {
+    html += '<a href="tel:'+data.tel+'" style="display:block;text-align:center;font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:#e8f5e9;color:#2e7d32;margin-bottom:8px;">📞 '+data.tel+'</a>';
+  }
+  if (data && data.homepage) {
+    html += '<a href="#" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;margin-bottom:8px;">🔗 홈페이지 방문</a>';
+  }
+  if (data && data.overview) {
+    html += '<div style="font-size:13px;color:#444;line-height:1.7;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+data.overview+'</div>';
+  }
+  if (!html) {
+    html = '<div style="text-align:center;padding:10px;color:#999;font-size:13px;">추가로 확인된 정보가 없어요.</div>';
+  }
+  box.innerHTML = html;
 }
 
 /* ════════════════════════════════════════════

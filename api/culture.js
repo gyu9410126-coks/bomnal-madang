@@ -537,13 +537,14 @@ export default async function handler(req, res) {
 
       const items = rawItems.map(function(it){
         return {
-          title  : it.title      || '',
-          address: it.addr1      || '',
-          place  : it.addr2      || '',
-          tel    : it.tel        || '',
-          photo  : it.firstimage || '',
-          lat    : it.mapy       || '',
-          lon    : it.mapx       || '',
+          contentid: it.contentid    || '',
+          title    : it.title       || '',
+          address  : it.addr1       || '',
+          place    : it.addr2       || '',
+          tel      : it.tel         || '',
+          photo    : it.firstimage  || '',
+          lat      : it.mapy        || '',
+          lon      : it.mapx        || '',
         };
       });
 
