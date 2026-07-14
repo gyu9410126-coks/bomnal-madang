@@ -270,6 +270,10 @@ export default async function handler(req, res) {
       // (한글 설명) 화면에 최종적으로 내려줄 개수예요. 홈 미리보기는 rows=5로 부르고,
       //             전체 페이지는 안 넘기면 90개까지 넉넉히 내려줘요.
       const rows = parseInt(req.query.rows) || 90;
+      // (한글 설명) &debug=1을 붙이면, 우리가 가공하기 전에 정부 서버가 실제로
+      //             보내주는 원본 데이터(영문 필드명 그대로)를 3개만 화면에 찍어줘요.
+      //             새 필드(축제내용 등)를 추가하기 전에 진짜 필드명을 확인하는 용도예요.
+      const debug = req.query.debug === '1';
 
       const endpoint = 'https://api.data.go.kr/openapi/tn_pubr_public_cltur_fstvl_api';
       const keyEnc = encodeURIComponent(apiKey);
@@ -331,6 +335,17 @@ export default async function handler(req, res) {
       } else {
         // 전체보기 — 한 페이지만 넉넉히 받아옴
         rawItems = await fetchFestivalPage(1, '');
+      }
+
+      // (한글 설명) debug=1이면 여기서 멈추고, 정부 서버 원본 데이터 3개를
+      //             가공 없이 그대로 보여줘요. (필드명 확인용, 평소엔 절대 실행 안 됨)
+      if (debug) {
+        return res.status(200).json({
+          ok: true,
+          debug: true,
+          totalRawCount: rawItems.length,
+          sample: rawItems.slice(0, 3),
+        });
       }
 
       // 오늘 이후에 끝나는 축제만 남기기 (이미 끝난 축제는 어르신께 혼란만 드려요)
