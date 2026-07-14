@@ -650,7 +650,7 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <option>전북특별자치도</option><option>전라남도</option><option>경상북도</option>
           <option>경상남도</option><option>제주특별자치도</option>
         </select>
-        <button class="search-btn" style="width:100%;background:#e65100;" onclick="loadFestival(document.getElementById('festival-sido').value)">🔍 축제 검색</button>
+        <button class="search-btn" style="width:100%;background:#e65100;" onclick="loadFestival(document.getElementById('festival-sido').value); loadFestivalTour(document.getElementById('festival-sido').value);">🔍 축제 검색</button>
         <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetFestival()">🔄 검색 초기화</button>
         <div id="festival-hint" style="text-align:center;padding:26px 10px;color:#999;font-size:14px;">
           지역을 선택하고 <b>축제 검색</b> 버튼을 눌러주세요.
@@ -668,6 +668,11 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
         <div id="festival-list"></div>
         <div id="festival-more-wrap" style="display:none;margin-top:10px;">
           <button class="dyn-more-btn" onclick="loadMoreFestival()" style="width:100%;padding:12px;background:#fff0e6;color:#e65100;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+        </div>
+        <div id="festival-photo-wrap" style="display:none;margin-top:16px;">
+          <div class="page-label" style="margin-top:0;">📸 사진으로 보는 축제</div>
+          <div id="festival-photo-list"></div>
+          <div style="font-size:11px;color:#aaa;text-align:right;margin-top:2px;">사진 자료: 한국관광공사</div>
         </div>
         <div class="cult-coupon-wrap" style="margin-top:16px;">
           <div class="cult-coupon-label">🛍️ 축제 나들이 준비 추천</div>
@@ -1401,6 +1406,52 @@ function resetFestival() {
   document.getElementById('festival-loading').classList.remove('show');
   document.getElementById('festival-error').classList.remove('show');
   document.getElementById('festival-hint').style.display = 'block';
+  // (한글 설명) 사진 보너스 섹션도 같이 초기화해요.
+  document.getElementById('festival-photo-list').innerHTML = '';
+  document.getElementById('festival-photo-wrap').style.display = 'none';
+}
+
+// (한글 설명) "사진으로 보는 축제" 보너스 섹션이에요. 기존 축제 목록(loadFestival)과
+//             완전히 독립적으로 작동해요 — 이게 실패하거나 결과가 없어도 기존 목록엔
+//             전혀 영향 없어요. 결과가 없으면 섹션 자체를 조용히 숨겨요.
+function loadFestivalTour(region) {
+  var url = '/api/culture?type=festivalTour';
+  if (region) url += '&region=' + encodeURIComponent(region);
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var wrap = document.getElementById('festival-photo-wrap');
+      var list = document.getElementById('festival-photo-list');
+      if (!data.ok || !data.items || data.items.length === 0) {
+        wrap.style.display = 'none';
+        list.innerHTML = '';
+        return;
+      }
+      var html = '';
+      data.items.forEach(function(item){
+        html += renderFestivalTourCard(item);
+      });
+      list.innerHTML = html;
+      wrap.style.display = 'block';
+    })
+    .catch(function(){
+      // (한글 설명) 실패해도 조용히 숨기기만 해요. 기존 목록엔 영향 없어요.
+      document.getElementById('festival-photo-wrap').style.display = 'none';
+    });
+}
+
+function renderFestivalTourCard(item) {
+  return '<div style="background:#fff;border:1.5px solid #ffccbc;border-radius:14px;overflow:hidden;margin-bottom:10px;">'
+    + '<img src="'+item.photo+'" alt="'+item.title+'" style="width:100%;height:160px;object-fit:cover;display:block;" loading="lazy" onerror="this.parentElement.style.display=\'none\';">'
+    + '<div style="padding:12px;">'
+    + '<div class="dyn-title" style="font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.4;margin-bottom:6px;word-break:keep-all;">'+item.title+'</div>'
+    + (item.period  ? '<div class="dyn-meta" style="font-size:12px;color:#888;margin-bottom:3px;">📅 '+item.period+'</div>' : '')
+    + (item.address ? '<div class="dyn-meta" style="font-size:12px;color:#888;margin-bottom:3px;">📍 '+item.address+'</div>' : '')
+    + buildMapLinks(item.title, item.lat, item.lon)
+    + (item.phone ? '<a href="tel:'+item.phone+'" style="display:block;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:9px 6px;border-radius:8px;background:#e8f5e9;color:#2e7d32;margin-top:8px;">📞 전화 문의 ('+item.phone+')</a>' : '')
+    + '</div>'
+    + '</div>';
 }
 
 // (한글 설명) "더보기"는 서버에 다시 안 물어보고, 이미 받아둔 festivalItems 안에서

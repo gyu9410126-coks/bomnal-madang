@@ -380,11 +380,11 @@ export default async function handler(req, res) {
     }
 
     // ════════════════════════════════════════════════════
-    // [J] 전국 지역축제 - TourAPI 사진 테스트용 (한국관광공사)
-    //     (한글 설명) 오늘은 이 API가 실제로 어떤 이름으로 데이터를
-    //     보내주는지 눈으로 확인하는 단계예요. 기존 festival 기능은
-    //     이 블록과 완전히 분리되어 있어서 여기서 뭘 하든 위쪽
-    //     [I]번 축제 기능엔 전혀 영향 없어요.
+    // [J] 전국 지역축제 - "사진으로 보는 축제" 보너스 섹션 (한국관광공사 TourAPI)
+    //     (한글 설명) [I]번 기존 축제 목록과는 완전히 별도로, 사진이 등록된
+    //     축제 몇 개만 추가로 보여주는 보너스 섹션이에요. 이 지역에 TourAPI
+    //     데이터가 없으면 화면(culture.html)에서 그냥 섹션 자체를 숨겨요.
+    //     기존 [I]번 축제 목록은 이 블록과 무관하게 그대로 유지돼요.
     // ════════════════════════════════════════════════════
     if (type === 'festivalTour') {
       const apiKey = process.env.TOURAPI_KEY;
@@ -392,8 +392,6 @@ export default async function handler(req, res) {
 
       const region = req.query.region || '';
       const debug = req.query.debug === '1';
-      // (한글 설명) 테스트 단계에서만 쓰는 파라미터예요. 안 넘기면 기본값 O(사진 있는 것만).
-      const arrange = req.query.arrange || 'O';
       const keyEnc = encodeURIComponent(apiKey);
 
       // (한글 설명) health.js의 SIDO_CODES와 완전히 같은 표예요(법정동코드 체계).
@@ -415,11 +413,12 @@ export default async function handler(req, res) {
         return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
       })();
 
-      // (한글 설명) arrange=O → "대표이미지가 있는 것만" 우선 정렬(활용매뉴얼 확인됨)
-      //             lclsSystm1=EV & lclsSystm2=EV01 → 공연·전시 말고 "축제"만
+      // (한글 설명) arrange=O → "대표이미지가 반드시 있는 것만" 정렬(활용매뉴얼로 확인됨).
+      //             lclsSystm1=EV & lclsSystm2=EV01 → 공연·전시 말고 "축제"만.
+      //             보너스 섹션이라 numOfRows는 10개면 충분해요.
       let url = `https://apis.data.go.kr/B551011/KorService2/searchFestival2`
-        + `?serviceKey=${keyEnc}&numOfRows=90&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
-        + `&_type=json&arrange=${arrange}&eventStartDate=${today}&eventEndDate=${oneYearLater}`
+        + `?serviceKey=${keyEnc}&numOfRows=10&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
+        + `&_type=json&arrange=O&eventStartDate=${today}&eventEndDate=${oneYearLater}`
         + `&lclsSystm1=EV&lclsSystm2=EV01`;
       if (lDongRegnCd) url += `&lDongRegnCd=${lDongRegnCd}`;
 
@@ -429,22 +428,42 @@ export default async function handler(req, res) {
         const text = await r.text();
         json = JSON.parse(text);
       } catch (e) {
-        return res.status(200).json({ ok:false, message:'TourAPI 응답 오류: ' + e.message });
+        // (한글 설명) 보너스 섹션이라, 실패해도 에러 대신 "빈 목록"으로 조용히 처리해요.
+        //             기존 축제 목록([I]번)은 이 실패와 무관하게 정상 작동해요.
+        return res.status(200).json({ ok:true, type:'festivalTour', totalCount:0, items:[] });
       }
 
       const body = json && json.response && json.response.body;
       const rawItems = (body && body.items && (Array.isArray(body.items.item) ? body.items.item : (body.items.item ? [body.items.item] : []))) || [];
 
-      // (한글 설명) 오늘은 raw 데이터를 그대로 확인하는 단계라, debug 여부와 상관없이
-      //             일단 원본을 그대로 보여줘요. (다음 단계에서 화면용으로 가공할 예정)
-      return res.status(200).json({
-        ok: true,
-        type: 'festivalTour',
-        requestedUrl: url.replace(keyEnc, '(키가려짐)'),
-        totalCount: (body && body.totalCount) || 0,
-        sampleCount: rawItems.length,
-        sample: rawItems.slice(0, 5),
-      });
+      if (debug) {
+        return res.status(200).json({ ok:true, debug:true, totalRawCount: rawItems.length, sample: rawItems.slice(0, 5) });
+      }
+
+      // (한글 설명) YYYYMMDD → YYYY-MM-DD로 보기 좋게 바꿔주는 작은 함수예요.
+      function fmtYmd(s) {
+        if (!s || s.length !== 8) return '';
+        return s.slice(0,4) + '-' + s.slice(4,6) + '-' + s.slice(6,8);
+      }
+
+      const items = rawItems
+        .filter(function(it){ return !!it.firstimage; }) // 혹시 몰라 사진 없는 건 한 번 더 방어
+        .slice(0, 5)
+        .map(function(it){
+          return {
+            title  : it.title || '',
+            address: it.addr1 || '',
+            place  : it.addr2 || '',
+            period : (it.eventstartdate && it.eventenddate) ? (fmtYmd(it.eventstartdate) + ' ~ ' + fmtYmd(it.eventenddate)) : '',
+            phone  : it.tel || '',
+            photo  : it.firstimage,
+            lat    : it.mapy || '',
+            lon    : it.mapx || '',
+          };
+        });
+
+      res.setHeader('Cache-Control', 's-maxage=43200'); // 12시간 캐시
+      return res.status(200).json({ ok:true, type:'festivalTour', totalCount: items.length, items });
     }
 
     return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour' });
