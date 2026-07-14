@@ -371,6 +371,7 @@ export default async function handler(req, res) {
           lon    : it.longitude || '',
           url    : it.homepageUrl || '',
           phone  : it.phoneNumber || '',
+          content: it.fstvlCo || '', // 축제 소개글 (자세히 보기에서 사용)
         };
       });
 
@@ -378,7 +379,73 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok:true, type:'festival', totalCount: items.length, items });
     }
 
-    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival' });
+    // ════════════════════════════════════════════════════
+    // [J] 전국 지역축제 - TourAPI 사진 테스트용 (한국관광공사)
+    //     (한글 설명) 오늘은 이 API가 실제로 어떤 이름으로 데이터를
+    //     보내주는지 눈으로 확인하는 단계예요. 기존 festival 기능은
+    //     이 블록과 완전히 분리되어 있어서 여기서 뭘 하든 위쪽
+    //     [I]번 축제 기능엔 전혀 영향 없어요.
+    // ════════════════════════════════════════════════════
+    if (type === 'festivalTour') {
+      const apiKey = process.env.TOURAPI_KEY;
+      if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
+
+      const region = req.query.region || '';
+      const debug = req.query.debug === '1';
+      const keyEnc = encodeURIComponent(apiKey);
+
+      // (한글 설명) health.js의 SIDO_CODES와 완전히 같은 표예요(법정동코드 체계).
+      //             이미 검증된 표를 그대로 재사용해요.
+      const SIDO_CODES = {
+        '서울특별시': '11', '부산광역시': '26', '대구광역시': '27', '인천광역시': '28',
+        '광주광역시': '29', '대전광역시': '30', '울산광역시': '31', '세종특별자치시': '36',
+        '경기도': '41', '강원특별자치도': '51', '충청북도': '43', '충청남도': '44',
+        '전북특별자치도': '52', '전라남도': '46', '경상북도': '47', '경상남도': '48',
+        '제주특별자치도': '50',
+      };
+      const lDongRegnCd = region ? (SIDO_CODES[region] || '') : '';
+
+      const today = getTodayStr();
+      // (한글 설명) 오늘부터 1년 뒤까지의 축제를 넉넉히 찾아봐요.
+      const oneYearLater = (function(){
+        const d = new Date();
+        d.setFullYear(d.getFullYear() + 1);
+        return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+      })();
+
+      // (한글 설명) arrange=O → "대표이미지가 있는 것만" 우선 정렬(활용매뉴얼 확인됨)
+      //             lclsSystm1=EV & lclsSystm2=EV01 → 공연·전시 말고 "축제"만
+      let url = `https://apis.data.go.kr/B551011/KorService2/searchFestival2`
+        + `?serviceKey=${keyEnc}&numOfRows=90&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
+        + `&_type=json&arrange=O&eventStartDate=${today}&eventEndDate=${oneYearLater}`
+        + `&lclsSystm1=EV&lclsSystm2=EV01`;
+      if (lDongRegnCd) url += `&lDongRegnCd=${lDongRegnCd}`;
+
+      let json;
+      try {
+        const r = await fetch(url);
+        const text = await r.text();
+        json = JSON.parse(text);
+      } catch (e) {
+        return res.status(200).json({ ok:false, message:'TourAPI 응답 오류: ' + e.message });
+      }
+
+      const body = json && json.response && json.response.body;
+      const rawItems = (body && body.items && (Array.isArray(body.items.item) ? body.items.item : (body.items.item ? [body.items.item] : []))) || [];
+
+      // (한글 설명) 오늘은 raw 데이터를 그대로 확인하는 단계라, debug 여부와 상관없이
+      //             일단 원본을 그대로 보여줘요. (다음 단계에서 화면용으로 가공할 예정)
+      return res.status(200).json({
+        ok: true,
+        type: 'festivalTour',
+        requestedUrl: url.replace(keyEnc, '(키가려짐)'),
+        totalCount: (body && body.totalCount) || 0,
+        sampleCount: rawItems.length,
+        sample: rawItems.slice(0, 5),
+      });
+    }
+
+    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour' });
 
   } catch (err) {
     return res.status(500).json({ ok:false, message:'서버 오류: '+err.message });
