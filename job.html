@@ -6,6 +6,7 @@
 <title>일자리 - 시니어 봄날마당</title>
 <meta name="description" content="노인일자리 공고, 채용정보 검색, 이력서 작성, 취업상담 등 시니어를 위한 일자리 정보를 한눈에 확인하세요.">
 <link rel="canonical" href="https://bomnal-madang.vercel.app/job.html">
+<link rel="manifest" href="manifest.json">
 </head>
 <body>
 <style>
@@ -133,6 +134,8 @@
 .job-step-list li:last-child { border-bottom:none; }
 .job-step-num { background:#f57f17;color:#fff;font-size:12px;font-weight:900;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px; }
 .site-footer { margin:16px 14px 0;text-align:center;padding-bottom:8px; }
+.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.78); color: #fff; padding: 12px 24px; border-radius: 24px; font-size: 15px; font-weight: 700; z-index: 500; white-space: nowrap; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; }
 .footer-row { display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:4px; }
 .footer-link { font-size:11px;color:#999;text-decoration:none; }
 .footer-dot { font-size:11px;color:#ccc; }
@@ -375,61 +378,6 @@ body.big-font .tsz-36 { font-size: 46px !important; }
       <p class="tsz-13" style="font-size:13px;color:#7a5c00;line-height:1.6;">📌 버튼을 누르면 해당 채용 사이트로 이동해요.<br>실제 공고를 직접 확인하고 지원하실 수 있어요.</p>
     </div>
   </div>
-
-  <div class="tel-sec">
-    <div class="tel-card">
-      <div class="tel-card-title">📞 어르신 긴급 전화</div>
-      <a class="tel-card-item" href="tel:1355">
-        <span class="tel-card-icon">🏛</span>
-        <div class="tel-text">
-          <div class="tel-name">국민연금공단</div>
-          <div class="tel-desc">연금 상담·신청</div>
-        </div>
-        <span class="tel-num">1355</span>
-      </a>
-      <div class="tel-divider"></div>
-      <a class="tel-card-item" href="tel:129">
-        <span class="tel-card-icon">🏥</span>
-        <div class="tel-text">
-          <div class="tel-name">보건복지상담센터</div>
-          <div class="tel-desc">복지·의료 상담</div>
-        </div>
-        <span class="tel-num">129</span>
-      </a>
-      <div class="tel-divider"></div>
-      <a class="tel-card-item" href="tel:1577-1389">
-        <span class="tel-card-icon">🛡️</span>
-        <div class="tel-text">
-          <div class="tel-name">노인학대 신고센터</div>
-          <div class="tel-desc">24시간 신고·상담</div>
-        </div>
-        <span class="tel-num">1577-1389</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="affiliate-notice-box">
-    ※ 이 웹앱은 쿠팡파트너스의 제휴마케팅 프로그램에 참여하고 있습니다.<br>
-    이 링크를 통해 구매 시 봄날마당이 일정액의 수수료를 받을 수 있으며, 구매자분께 추가 비용은 없습니다.
-  </div>
-
-  <button class="btn-kakao-main">💛 카카오톡 친구에게 공유하기</button>
-  <button class="btn-pwa-main">📲 봄날마당 홈화면에 저장하기</button>
-
-  <footer class="site-footer">
-    <div class="footer-row">
-      <a class="footer-link" href="privacy.html">개인정보처리방침</a>
-      <span class="footer-dot">·</span>
-      <a class="footer-link" href="privacy.html">이용약관</a>
-      <span class="footer-dot">·</span>
-      <a class="footer-link" href="privacy.html">제휴 공개</a>
-    </div>
-    <div class="footer-row">
-      <a class="footer-link" href="contact.html">문의하기</a>
-      <span class="footer-dot">·</span>
-      <a class="footer-link" href="about.html">봄날마당 소개</a>
-    </div>
-  </footer>
 
 </div><!-- /main-view -->
 
@@ -1770,6 +1718,72 @@ body.big-font .tsz-36 { font-size: 46px !important; }
   </div>
 </div>
 
+<!-- ─── 공통 하단 영역 (카테고리메인 + 모든 세부페이지에서 공통으로 보임) ─── -->
+<div class="tel-sec">
+  <div class="tel-card">
+    <div class="tel-card-title">📞 어르신 긴급 전화</div>
+    <a class="tel-card-item" href="tel:1350">
+      <span class="tel-card-icon">💼</span>
+      <div class="tel-text">
+        <div class="tel-name">고용노동부 고객상담센터</div>
+        <div class="tel-desc">고용·노동 상담</div>
+      </div>
+      <span class="tel-num">1350</span>
+    </a>
+    <div class="tel-divider"></div>
+    <a class="tel-card-item" href="tel:1566-0151">
+      <span class="tel-card-icon">👵</span>
+      <div class="tel-text">
+        <div class="tel-name">한국노인인력개발원</div>
+        <div class="tel-desc">노인일자리 상담</div>
+      </div>
+      <span class="tel-num">1566-0151</span>
+    </a>
+    <div class="tel-divider"></div>
+    <a class="tel-card-item" href="tel:129">
+      <span class="tel-card-icon">🏥</span>
+      <div class="tel-text">
+        <div class="tel-name">보건복지상담센터</div>
+        <div class="tel-desc">복지·의료 상담</div>
+      </div>
+      <span class="tel-num">129</span>
+    </a>
+    <div class="tel-divider"></div>
+    <a class="tel-card-item" href="tel:1577-1389">
+      <span class="tel-card-icon">🛡️</span>
+      <div class="tel-text">
+        <div class="tel-name">노인학대 신고센터</div>
+        <div class="tel-desc">24시간 신고·상담</div>
+      </div>
+      <span class="tel-num">1577-1389</span>
+    </a>
+  </div>
+</div>
+
+<div class="affiliate-notice-box">
+  ※ 이 웹앱은 쿠팡파트너스의 제휴마케팅 프로그램에 참여하고 있습니다.<br>
+  이 링크를 통해 구매 시 봄날마당이 일정액의 수수료를 받을 수 있으며, 구매자분께 추가 비용은 없습니다.
+</div>
+
+<button class="btn-kakao-main" onclick="shareKakao()">💛 카카오톡 친구에게 공유하기</button>
+<button class="btn-pwa-main" id="btn-pwa-install" onclick="installPWA()">📲 봄날마당 홈화면에 저장하기</button>
+<div class="toast" id="toast"></div>
+
+<footer class="site-footer">
+  <div class="footer-row">
+    <a class="footer-link" href="privacy.html">개인정보처리방침</a>
+    <span class="footer-dot">·</span>
+    <a class="footer-link" href="privacy.html">이용약관</a>
+    <span class="footer-dot">·</span>
+    <a class="footer-link" href="privacy.html">제휴 공개</a>
+  </div>
+  <div class="footer-row">
+    <a class="footer-link" href="contact.html">문의하기</a>
+    <span class="footer-dot">·</span>
+    <a class="footer-link" href="about.html">봄날마당 소개</a>
+  </div>
+</footer>
+
 <script>
 var d = new Date();
 var days = ['일','월','화','수','목','금','토'];
@@ -2234,6 +2248,101 @@ function toggleBigFont() {
   isBigFont = !isBigFont;
   document.body.classList.toggle('big-font', isBigFont);
   document.getElementById('zoom-label').textContent = isBigFont ? '크게' : '기본';
+}
+
+/* ════════════════════════════════
+   토스트 메시지 (index.html과 동일한 검증된 코드)
+════════════════════════════════ */
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2200);
+}
+
+/* ════════════════════════════════
+   카카오톡 공유 (index.html과 동일한 검증된 코드)
+════════════════════════════════ */
+function shareKakao() {
+  var text = '[시니어 봄날마당] 🌸\n\n50~70대 시니어를 위한 맞춤형 정보 봄날마당!\n\n✅ 오늘의 운세\n🎮 두뇌게임·퀴즈\n💊 건강정보·약국찾기\n🎁 노인복지·보조금 정보\n🛒 시니어쇼핑\n🎵 트로트봄날마당\n\n🔗 https://bomnal-madang.vercel.app';
+  if (navigator.share) {
+    navigator.share({ title: '시니어 봄날마당', text: text });
+  } else {
+    navigator.clipboard.writeText(text).then(function() {
+      showToast('✅ 공유 내용 복사 완료! 카카오톡 채팅창에 붙여넣기 해주세요 📱');
+    }).catch(function() { alert(text); });
+  }
+}
+
+/* ════════════════════════════════
+   PWA 홈화면 저장 (index.html과 동일한 검증된 코드)
+════════════════════════════════ */
+var deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+function installPWA() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(result) {
+      if (result.outcome === 'accepted') {
+        showToast('🎉 봄날마당이 홈화면에 저장되었습니다!');
+      }
+      deferredPrompt = null;
+    });
+    return;
+  }
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if (isIOS) {
+    showInstallGuide('📱 아이폰 홈화면 저장 방법', [
+      '① 아래 공유 버튼(□↑)을 누르세요',
+      '② 스크롤 내려서 "홈 화면에 추가"를 누르세요',
+      '③ 오른쪽 위 "추가"를 누르면 완료! 🎉'
+    ]);
+  } else {
+    showInstallGuide('📱 홈화면 저장 방법', [
+      '① 오른쪽 위 점 세 개(⋮)를 누르세요',
+      '② "앱 설치" 또는 "홈 화면에 추가"를 누르세요',
+      '③ "설치"를 누르면 완료! 🎉'
+    ]);
+  }
+}
+
+function showInstallGuide(title, steps) {
+  var old = document.getElementById('install-guide-popup');
+  if (old) old.remove();
+  var popup = document.createElement('div');
+  popup.id = 'install-guide-popup';
+  popup.style.cssText =
+    'position:fixed;left:50%;bottom:110px;transform:translateX(-50%);' +
+    'background:#fff;border-radius:20px;padding:24px 20px;' +
+    'width:88%;max-width:360px;box-sizing:border-box;' +
+    'box-shadow:0 8px 32px rgba(0,0,0,0.22);z-index:9999;' +
+    'border:2px solid #1a6fc4;';
+  var stepsHtml = '';
+  steps.forEach(function(step) {
+    stepsHtml += '<div style="background:#f0f6ff;border-radius:12px;padding:12px 14px;font-size:15px;line-height:1.8;color:#333;margin-bottom:8px;">' + step + '</div>';
+  });
+  popup.innerHTML =
+    '<div style="font-size:18px;font-weight:900;color:#1a6fc4;margin-bottom:14px;text-align:center;">' + title + '</div>' +
+    stepsHtml +
+    '<button onclick="document.getElementById(\'install-guide-popup\').remove()" style="margin-top:10px;width:100%;background:#1a6fc4;color:#fff;border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:900;cursor:pointer;">확인 ✓</button>' +
+    '<p style="font-size:12px;color:#999;text-align:center;margin:10px 0 0;">10초 후 자동으로 닫힙니다</p>';
+  document.body.appendChild(popup);
+  setTimeout(function() { var p = document.getElementById('install-guide-popup'); if (p) p.remove(); }, 10000);
+}
+</script>
+
+<!-- ✅ PWA 서비스워커 등록 (index.html과 동일) -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js')
+      .then(function(reg) { console.log('✅ 서비스워커 등록 성공:', reg.scope); })
+      .catch(function(err) { console.log('❌ 서비스워커 등록 실패:', err); });
+  });
 }
 </script>
 </body>
