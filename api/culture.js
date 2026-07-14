@@ -568,13 +568,15 @@ export default async function handler(req, res) {
       const debug  = req.query.debug === '1';
       const keyEnc = encodeURIComponent(apiKey);
 
-      // (한글 설명) addrinfoYN만 빼고, 문서 예제에 나온 다른 YN 파라미터들은 그대로
-      //             다 채워서(N이라도) 보내봐요. KorService2는 이 값들이 다 있어야
-      //             검증을 통과하는 것 같아요(실제 테스트로 원인 찾는 중).
+      // (한글 설명) 한국관광공사 공식 활용매뉴얼(v4.4) 표28로 확인했어요.
+      //             detailCommon2가 실제로 받는 파라미터는 이게 전부예요:
+      //             serviceKey·MobileOS·MobileApp·_type·numOfRows·pageNo·contentId
+      //             (defaultYN·firstImageYN·areacodeYN·addrinfoYN·contentTypeId 등은
+      //              이 API엔 아예 없는 파라미터였어요 — 넣으면 오류남, 실제 테스트로 확인)
+      //             tel·telname·homepage·overview는 파라미터 없이 항상 기본으로 같이 와요.
       const url = `https://apis.data.go.kr/B551011/KorService2/detailCommon2`
-        + `?serviceKey=${keyEnc}&contentId=${encodeURIComponent(contentId)}&contentTypeId=14`
-        + `&MobileOS=ETC&MobileApp=BomnalMadang&_type=json`
-        + `&defaultYN=Y&firstImageYN=N&areacodeYN=N&catcodeYN=N&mapinfoYN=N&overviewYN=Y&transGuideYN=N`;
+        + `?serviceKey=${keyEnc}&contentId=${encodeURIComponent(contentId)}`
+        + `&MobileOS=ETC&MobileApp=BomnalMadang&_type=json&numOfRows=1&pageNo=1`;
 
       let json;
       try {
