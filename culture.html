@@ -625,6 +625,7 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <option>경상남도</option><option>제주특별자치도</option>
         </select>
         <button class="search-btn" style="width:100%;background:#e65100;" onclick="loadFestival(document.getElementById('festival-sido').value)">🔍 축제 검색</button>
+        <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetFestival()">🔄 검색 초기화</button>
         <div id="festival-hint" style="text-align:center;padding:26px 10px;color:#999;font-size:14px;">
           지역을 선택하고 <b>축제 검색</b> 버튼을 눌러주세요.
         </div>
@@ -971,15 +972,7 @@ function goBack() {
   quizStarted = false;
 
   if (wasFestivalPage) {
-    festivalLoaded = false;
-    festivalItems  = [];
-    festivalShown  = 0;
-    var sel = document.getElementById('festival-sido');
-    if (sel) sel.value = '';
-    document.getElementById('festival-list').innerHTML = '';
-    document.getElementById('festival-more-wrap').style.display = 'none';
-    document.getElementById('festival-error').classList.remove('show');
-    document.getElementById('festival-hint').style.display = 'block';
+    resetFestival();
   }
 }
 
@@ -1390,6 +1383,21 @@ function loadFestival(region) {
       document.getElementById('festival-loading').classList.remove('show');
       document.getElementById('festival-error').classList.add('show');
     });
+}
+
+// (한글 설명) "🔄 검색 초기화" 버튼용 함수예요. 지역 선택을 "전체보기"로 되돌리고,
+//             목록·상태를 모두 지워서 안내문구부터 다시 시작하게 해줘요.
+function resetFestival() {
+  festivalLoaded = false;
+  festivalItems  = [];
+  festivalShown  = 0;
+  var sel = document.getElementById('festival-sido');
+  if (sel) sel.value = '';
+  document.getElementById('festival-list').innerHTML = '';
+  document.getElementById('festival-more-wrap').style.display = 'none';
+  document.getElementById('festival-loading').classList.remove('show');
+  document.getElementById('festival-error').classList.remove('show');
+  document.getElementById('festival-hint').style.display = 'block';
 }
 
 // (한글 설명) "더보기"는 서버에 다시 안 물어보고, 이미 받아둔 festivalItems 안에서
