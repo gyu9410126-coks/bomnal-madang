@@ -551,7 +551,70 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok:true, type:'facilityTour', totalCount: (body ? body.totalCount : items.length), items });
     }
 
-    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour' });
+    // ════════════════════════════════════════════════════
+    // [L] 문화시설 자세히보기 - 전화번호·홈페이지 (한국관광공사 TourAPI, detailCommon2)
+    //     (한글 설명) [K]번 목록에는 전화번호가 안 들어있어서, "자세히보기"를
+    //     눌렀을 때만 딱 한 번 더 불러오는 지연호출(lazy call)이에요.
+    //     처음부터 다 불러오면 느리고 트래픽도 낭비되니까, 필요할 때만 호출해요.
+    //     ⚠️ 이것도 debug=1로 먼저 실제 응답을 확인해야 해요.
+    // ════════════════════════════════════════════════════
+    if (type === 'facilityDetail') {
+      const apiKey = process.env.TOURAPI_KEY;
+      if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
+
+      const contentId = req.query.contentid || '';
+      if (!contentId) return res.status(400).json({ ok:false, message:'contentid 파라미터가 필요해요' });
+
+      const debug  = req.query.debug === '1';
+      const keyEnc = encodeURIComponent(apiKey);
+
+      const url = `https://apis.data.go.kr/B551011/KorService2/detailCommon2`
+        + `?serviceKey=${keyEnc}&contentId=${encodeURIComponent(contentId)}&contentTypeId=14`
+        + `&MobileOS=ETC&MobileApp=BomnalMadang&_type=json`
+        + `&defaultYN=Y&firstImageYN=N&areacodeYN=N&catcodeYN=N&addrinfoYN=N&mapinfoYN=N&overviewYN=Y`;
+
+      let json;
+      try {
+        const r = await fetch(url);
+        const text = await r.text();
+        json = JSON.parse(text);
+      } catch (e) {
+        return res.status(200).json({ ok:true, type:'facilityDetail', tel:'', homepage:'', overview:'', warning:'상세정보를 받지 못했어요' });
+      }
+
+      const header = json && json.response && json.response.header;
+      const body   = json && json.response && json.response.body;
+      const rawItems = (body && body.items && (Array.isArray(body.items.item) ? body.items.item : (body.items.item ? [body.items.item] : []))) || [];
+      const it = rawItems[0] || {};
+
+      if (debug) {
+        return res.status(200).json({
+          ok: true,
+          debug: true,
+          requestUrl: url.replace(keyEnc, '(서비스키-숨김)'),
+          resultCode: header ? header.resultCode : null,
+          resultMsg : header ? header.resultMsg  : null,
+          sample    : it,
+        });
+      }
+
+      // (한글 설명) homepage 필드는 <a href="주소">글자</a> 형태의 HTML로 오는 경우가 많아서,
+      //             href 안의 순수 주소만 뽑아내요.
+      const homepageRaw = it.homepage || '';
+      const hrefMatch = homepageRaw.match(/href="([^"]+)"/);
+      const homepage = hrefMatch ? hrefMatch[1] : (homepageRaw.indexOf('http') === 0 ? homepageRaw : '');
+
+      res.setHeader('Cache-Control', 's-maxage=86400'); // 24시간 캐시 (전화번호는 자주 안 바뀜)
+      return res.status(200).json({
+        ok: true,
+        type: 'facilityDetail',
+        tel     : it.tel      || '',
+        homepage: homepage,
+        overview: it.overview || '',
+      });
+    }
+
+    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail' });
 
   } catch (err) {
     return res.status(500).json({ ok:false, message:'서버 오류: '+err.message });
