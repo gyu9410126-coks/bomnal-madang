@@ -1421,14 +1421,50 @@ function renderMoreFestival() {
     (festivalShown < festivalItems.length) ? 'block' : 'none';
 }
 
+// (한글 설명) 카드마다 "자세히 보기"를 구분하기 위한 고유 번호예요.
+var festivalCardSeq = 0;
+
 function renderFestivalCard(item) {
+  festivalCardSeq++;
+  var idx = festivalCardSeq;
+
+  // (한글 설명) 자세히 보기에 넣을 정보가 하나라도 있어야 "자세히 보기" 버튼을 만들어요.
+  //             아무 정보도 없는데 버튼만 있으면 눌렀을 때 빈 화면이라 혼란스러우니까요.
+  var hasDetail = !!(item.content || item.address || item.phone || item.url);
+
+  var detailHtml = '';
+  if (hasDetail) {
+    detailHtml = '<div id="festival-detail-'+idx+'" style="display:none;margin-top:8px;padding-top:10px;border-top:1px dashed #ffccbc;">'
+      + (item.content ? '<div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:10px;">📝 '+item.content+'</div>' : '')
+      + (item.address ? '<div style="font-size:13px;color:#555;margin-bottom:10px;">📍 '+item.address+'</div>' : '')
+      + (item.phone ? '<a href="tel:'+item.phone+'" style="display:block;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:9px 6px;border-radius:8px;background:#e8f5e9;color:#2e7d32;margin-bottom:6px;">📞 전화 문의 ('+item.phone+')</a>' : '')
+      + (item.url ? '<a href="#" onclick="confirmExternalLink(\''+item.url+'\');return false;" style="display:block;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:9px 6px;border-radius:8px;background:#e3f2fd;color:#1565c0;" rel="noopener">🔗 홈페이지 바로가기</a>' : '')
+      + '</div>';
+  }
+
+  var toggleBtn = hasDetail
+    ? '<button onclick="toggleFestivalDetail('+idx+', this)" style="width:100%;margin-top:6px;padding:9px;background:#fff;border:1px solid #ffccbc;border-radius:8px;color:#e65100;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">🔍 자세히 보기</button>'
+    : '';
+
   return '<div style="background:#fffaf7;border:1.5px solid #ffccbc;border-radius:14px;padding:14px;margin-bottom:10px;">'
     + '<div class="dyn-title" style="font-size:15px;font-weight:800;color:#1a1a1a;line-height:1.4;margin-bottom:6px;word-break:keep-all;">'+item.title+'</div>'
     + (item.region ? '<div class="dyn-meta" style="font-size:12px;color:#e65100;font-weight:600;margin-bottom:3px;">📍 '+item.region+'</div>' : '')
     + (item.period ? '<div class="dyn-meta" style="font-size:12px;color:#888;margin-bottom:3px;">📅 '+item.period+'</div>' : '')
     + (item.place  ? '<div class="dyn-meta" style="font-size:12px;color:#888;margin-bottom:3px;">🏟️ '+item.place+'</div>'  : '')
     + buildMapLinks(item.title, item.lat, item.lon)
+    + toggleBtn
+    + detailHtml
     + '</div>';
+}
+
+// (한글 설명) "자세히 보기" 버튼을 누르면 숨겨져 있던 상세정보를 펼치고,
+//             버튼 글자도 "🔼 접기"로 바뀌어요. 다시 누르면 원래대로 접혀요.
+function toggleFestivalDetail(idx, btn) {
+  var el = document.getElementById('festival-detail-'+idx);
+  if (!el) return;
+  var opened = el.style.display !== 'none';
+  el.style.display = opened ? 'none' : 'block';
+  btn.textContent = opened ? '🔍 자세히 보기' : '🔼 접기';
 }
 
 // (한글 설명) "지도로 보기"/"길찾기" 버튼 HTML을 만드는 공통 함수예요
