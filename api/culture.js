@@ -274,6 +274,29 @@ export default async function handler(req, res) {
       const endpoint = 'https://api.data.go.kr/openapi/tn_pubr_public_cltur_fstvl_api';
       const keyEnc = encodeURIComponent(apiKey);
 
+      // (한글 설명) [임시 진단 모드] ?debug=1 을 붙이면, 정부 서버가 실제로 뭐라고
+      //             응답하는지 그대로 보여줘요. "축제정보가 없어요" 문제의 진짜 원인을
+      //             추측하지 않고 눈으로 직접 확인하기 위한 용도예요. (인증키 자체는
+      //             절대 화면에 보이지 않도록 가려서 응답해요)
+      if (req.query.debug === '1') {
+        const debugUrl = `${endpoint}?serviceKey=${keyEnc}&pageNo=1&numOfRows=3&type=json`;
+        let rawText = '', fetchError = '';
+        try {
+          const r = await fetch(debugUrl);
+          rawText = await r.text();
+        } catch (e) {
+          fetchError = e.message;
+        }
+        return res.status(200).json({
+          ok: true,
+          debug: true,
+          keyLength: apiKey.length,
+          keyLooksAlreadyEncoded: apiKey.indexOf('%') !== -1, // 키 안에 %가 있으면 "인코딩된 키"일 가능성이 커요
+          fetchError,
+          rawResponsePreview: rawText.slice(0, 1500),
+        });
+      }
+
       // (한글 설명) 시/도 이름이 정식명칭 변경(강원특별자치도·전북특별자치도) 및
       //             2026.7.1 전남·광주 통합으로 옛 이름/새 이름이 섞여 있을 수 있어서,
       //             주소가 시작할 수 있는 후보 이름들을 같이 확인해요.
