@@ -6,6 +6,7 @@
 <title>복지·혜택 - 시니어 봄날마당</title>
 <meta name="description" content="기초연금, 장기요양보험, 복지혜택 계산기, 무료법률상담 등 시니어를 위한 복지 정보를 한눈에 확인하세요.">
 <link rel="canonical" href="https://bomnal-madang.vercel.app/benefit.html">
+<link rel="manifest" href="manifest.json">
 </head>
 <body>
 <style>
@@ -545,28 +546,6 @@ body.big-font .source-notice { font-size: 14px !important; }
         </div>
       </div>
     </div>
-
-    <!-- 제휴 고지 -->
-    <div class="affiliate-notice-box">
-      ※ 이 웹앱은 쿠팡파트너스의 제휴마케팅 프로그램에 참여하고 있습니다.<br>
-      이 링크를 통해 구매 시 봄날마당이 일정액의 수수료를 받을 수 있으며, 구매자분께 추가 비용은 없습니다.
-    </div>
-
-    <!-- 푸터 -->
-    <footer class="site-footer">
-      <div class="footer-row">
-        <a class="footer-link" href="privacy.html">개인정보처리방침</a>
-        <span class="footer-dot">·</span>
-        <a class="footer-link" href="privacy.html">이용약관</a>
-        <span class="footer-dot">·</span>
-        <a class="footer-link" href="privacy.html">제휴 공개</a>
-      </div>
-      <div class="footer-row">
-        <a class="footer-link" href="contact.html">문의하기</a>
-        <span class="footer-dot">·</span>
-        <a class="footer-link" href="about.html">봄날마당 소개</a>
-      </div>
-    </footer>
 
   </div><!-- /main-view -->
 
@@ -1658,6 +1637,24 @@ body.big-font .source-notice { font-size: 14px !important; }
   <div class="tel-sec">
     <div class="tel-card">
       <div class="tel-card-title">📞 어르신 긴급 전화</div>
+      <a class="tel-card-item" href="tel:132">
+        <div class="tel-card-icon">⚖️</div>
+        <div class="tel-text">
+          <div class="tel-name">대한법률구조공단</div>
+          <div class="tel-desc">무료 법률상담</div>
+        </div>
+        <span class="tel-num">132</span>
+      </a>
+      <div class="tel-divider"></div>
+      <a class="tel-card-item" href="tel:1397">
+        <div class="tel-card-icon">💰</div>
+        <div class="tel-text">
+          <div class="tel-name">서민금융진흥원</div>
+          <div class="tel-desc">서민금융·교육 상담</div>
+        </div>
+        <span class="tel-num">1397</span>
+      </a>
+      <div class="tel-divider"></div>
       <a class="tel-card-item" href="tel:129">
         <div class="tel-card-icon">🏛</div>
         <div class="tel-text">
@@ -1665,15 +1662,6 @@ body.big-font .source-notice { font-size: 14px !important; }
           <div class="tel-desc">복지·의료 상담 (24시간)</div>
         </div>
         <span class="tel-num">129</span>
-      </a>
-      <div class="tel-divider"></div>
-      <a class="tel-card-item" href="tel:1355">
-        <div class="tel-card-icon">💰</div>
-        <div class="tel-text">
-          <div class="tel-name">국민연금공단</div>
-          <div class="tel-desc">연금 상담·신청</div>
-        </div>
-        <span class="tel-num">1355</span>
       </a>
       <div class="tel-divider"></div>
       <a class="tel-card-item" href="tel:1577-1389">
@@ -1684,21 +1672,31 @@ body.big-font .source-notice { font-size: 14px !important; }
         </div>
         <span class="tel-num">1577-1389</span>
       </a>
-      <div class="tel-divider"></div>
-      <a class="tel-card-item" href="tel:1688-0120">
-        <div class="tel-card-icon">📚</div>
-        <div class="tel-text">
-          <div class="tel-name">서민금융진흥원</div>
-          <div class="tel-desc">서민금융·교육 상담</div>
-        </div>
-        <span class="tel-num">1688-0120</span>
-      </a>
     </div>
   </div>
 
   <!-- 카카오 공유 / PWA -->
+  <div class="affiliate-notice-box">
+    ※ 이 웹앱은 쿠팡파트너스의 제휴마케팅 프로그램에 참여하고 있습니다.<br>
+    이 링크를 통해 구매 시 봄날마당이 일정액의 수수료를 받을 수 있으며, 구매자분께 추가 비용은 없습니다.
+  </div>
   <button class="btn-kakao-main" onclick="shareKakao()">💛 카카오톡 친구에게 공유하기</button>
   <button class="btn-pwa-main" onclick="installPWA()">📲 봄날마당 홈화면에 저장하기</button>
+
+  <footer class="site-footer">
+    <div class="footer-row">
+      <a class="footer-link" href="privacy.html">개인정보처리방침</a>
+      <span class="footer-dot">·</span>
+      <a class="footer-link" href="privacy.html">이용약관</a>
+      <span class="footer-dot">·</span>
+      <a class="footer-link" href="privacy.html">제휴 공개</a>
+    </div>
+    <div class="footer-row">
+      <a class="footer-link" href="contact.html">문의하기</a>
+      <span class="footer-dot">·</span>
+      <a class="footer-link" href="about.html">봄날마당 소개</a>
+    </div>
+  </footer>
 
 </div><!-- /wrap -->
 
@@ -2866,6 +2864,17 @@ function toggleBigFont() {
   isBigFont = !isBigFont;
   document.body.classList.toggle('big-font', isBigFont);
   document.getElementById('zoom-label').textContent = isBigFont ? '크게' : '기본';
+}
+</script>
+
+<!-- ✅ PWA 서비스워커 등록 (index.html과 동일) -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js')
+      .then(function(reg) { console.log('✅ 서비스워커 등록 성공:', reg.scope); })
+      .catch(function(err) { console.log('❌ 서비스워커 등록 실패:', err); });
+  });
 }
 </script>
 </body>
