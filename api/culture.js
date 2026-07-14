@@ -606,11 +606,22 @@ export default async function handler(req, res) {
         });
       }
 
-      // (한글 설명) homepage 필드는 <a href="주소">글자</a> 형태의 HTML로 오는 경우가 많아서,
-      //             href 안의 순수 주소만 뽑아내요.
-      const homepageRaw = it.homepage || '';
+      // (한글 설명) homepage 필드는 3가지 형태로 올 수 있어요(실제 테스트로 확인됨):
+      //             ① <a href="주소">글자</a> 형태의 HTML
+      //             ② https://... 처럼 http로 시작하는 순수 주소
+      //             ③ www.sgnc.or.kr 처럼 http:// 없이 도메인만 오는 경우
+      //             세 경우 다 놓치지 않고 "누르면 바로 열리는" 완전한 주소로 만들어줘요.
+      const homepageRaw = (it.homepage || '').trim();
       const hrefMatch = homepageRaw.match(/href="([^"]+)"/);
-      const homepage = hrefMatch ? hrefMatch[1] : (homepageRaw.indexOf('http') === 0 ? homepageRaw : '');
+      let homepage = '';
+      if (hrefMatch) {
+        homepage = hrefMatch[1];
+      } else if (homepageRaw.indexOf('http') === 0) {
+        homepage = homepageRaw;
+      } else if (homepageRaw && homepageRaw.indexOf('<') === -1) {
+        // HTML 태그가 안 섞인 순수 텍스트인데 http로 시작 안 하면, 도메인만 온 것으로 보고 https:// 붙여줘요.
+        homepage = 'https://' + homepageRaw;
+      }
 
       res.setHeader('Cache-Control', 's-maxage=86400'); // 24시간 캐시 (전화번호는 자주 안 바뀜)
       return res.status(200).json({
