@@ -595,7 +595,7 @@ export default async function handler(req, res) {
             return {
               contentid: it.contentid, title: it.title, addr1: it.addr1,
               firstimage: it.firstimage, mapx: it.mapx, mapy: it.mapy,
-              contenttypeid: it.contenttypeid,
+              contenttypeid: it.contenttypeid, lDongRegnCd: it.lDongRegnCd,
             };
           });
         } catch (e) {
