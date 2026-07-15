@@ -220,8 +220,13 @@ export default async function handler(req, res) {
           .replace(/\n{3,}/g, '\n\n')
           .trim();
 
+        // (한글 설명) og태그에는 전화번호가 없어서, 페이지 본문 전체에서 전화번호
+        //             패턴("02-1234-5678"류)이 혹시 있는지도 찾아봐요.
+        const phoneMatch = html.match(/0\d{1,2}-\d{3,4}-\d{4}/);
+        const phone = phoneMatch ? phoneMatch[0] : '';
+
         res.setHeader('Cache-Control','s-maxage=2592000'); // 문화재 설명은 거의 안 바뀌니 30일 캐시
-        return res.status(200).json({ ok:true, overview: ogDesc, imgUrl: ogImage });
+        return res.status(200).json({ ok:true, overview: ogDesc, imgUrl: ogImage, phone });
       } catch (e) {
         return res.status(200).json({ ok:true, overview:'', imgUrl:'' });
       }

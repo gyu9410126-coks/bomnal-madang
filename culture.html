@@ -141,12 +141,12 @@
 /* ════════════════════════════════════════
    페이지2 — 오늘의 문화재
 ════════════════════════════════════════ */
-.heritage-type-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; margin-bottom: 14px; }
-.heritage-type-btn { padding: 8px 2px; border: 2px solid #f8bbd0; border-radius: 10px; background: #fff; font-size: 12px; font-weight: 600; color: #c62828; cursor: pointer; font-family: inherit; text-align: center; }
+.heritage-type-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 14px; }
+.heritage-type-btn { padding: 10px 6px; border: 2px solid #f8bbd0; border-radius: 12px; background: #fff; font-size: 15px; font-weight: 600; color: #c62828; cursor: pointer; font-family: inherit; text-align: center; }
 .heritage-type-btn.active { background: #c62828; color: #fff; border-color: #c62828; }
 .heritage-card { background: #fff9fa; border: 1.5px solid #f8bbd0; border-radius: 14px; overflow: hidden; margin-bottom: 10px; }
-.heritage-card-img { width: 100%; height: 220px; background: #fce4ec; display: flex; align-items: center; justify-content: center; font-size: 48px; overflow: hidden; }
-.heritage-card-img img { width: 100%; height: 220px; object-fit: contain; }
+.heritage-card-img { width: 100%; height: 180px; background: #fce4ec; display: flex; align-items: center; justify-content: center; font-size: 48px; overflow: hidden; }
+.heritage-card-img img { width: 100%; height: 180px; object-fit: cover; }
 .heritage-card-body { padding: 14px; }
 .heritage-card-badge { display: inline-block; background: #fce4ec; color: #c62828; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 8px; margin-bottom: 8px; }
 .heritage-card-name { font-size: 18px; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; line-height: 1.4; }
@@ -273,7 +273,7 @@ body.big-font .event-card-place { font-size: 18px !important; }
 body.big-font .event-card-date { font-size: 16px !important; }
 body.big-font .event-card-link { font-size: 19px !important; }
 body.big-font .event-empty { font-size: 20px !important; }
-body.big-font .heritage-type-btn { font-size: 16px !important; }
+body.big-font .heritage-type-btn { font-size: 19px !important; }
 body.big-font .heritage-card-img { font-size: 62px !important; }
 body.big-font .heritage-card-badge { font-size: 16px !important; }
 body.big-font .heritage-card-name { font-size: 24px !important; }
@@ -567,13 +567,13 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
       </div>
       <div class="page-box-body">
         <div class="heritage-type-grid">
-          <button class="heritage-type-btn active" onclick="loadHeritage('11',this)">🏆 국보</button>
-          <button class="heritage-type-btn" onclick="loadHeritage('12',this)">💎 보물</button>
-          <button class="heritage-type-btn" onclick="loadHeritage('13',this)">🗺️ 사적</button>
-          <button class="heritage-type-btn" onclick="loadHeritage('15',this)">🌿 천연기념물</button>
+          <button class="heritage-type-btn active" onclick="selectHeritageType('11',this)">🏆 국보</button>
+          <button class="heritage-type-btn" onclick="selectHeritageType('12',this)">💎 보물</button>
+          <button class="heritage-type-btn" onclick="selectHeritageType('13',this)">🗺️ 사적</button>
+          <button class="heritage-type-btn" onclick="selectHeritageType('15',this)">🌿 천연기념물</button>
         </div>
         <div class="page-label" style="margin-top:10px;">📍 지역 선택</div>
-        <select class="page-select" id="heritage-sido" onchange="loadHeritage(currentHeritageType,null)">
+        <select class="page-select" id="heritage-sido">
           <option value="">전체보기</option>
           <option value="11">서울특별시</option><option value="21">부산광역시</option>
           <option value="22">대구광역시</option><option value="23">인천광역시</option>
@@ -585,6 +585,11 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <option value="37">경상북도</option><option value="38">경상남도</option>
           <option value="39">제주특별자치도</option>
         </select>
+        <button class="search-btn" style="width:100%;background:#1565c0;" onclick="searchHeritage()">🔍 문화재 검색</button>
+        <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetHeritageSearch()">🔄 검색 초기화</button>
+        <div id="heritage-hint" class="facility-hint-txt" style="text-align:center;padding:26px 10px;color:#999;">
+          종류·지역을 선택하고 <b>문화재 검색</b> 버튼을 눌러주세요.
+        </div>
         <div class="cult-loading" id="heritage-loading">
           <span class="cult-loading-icon">🏛️</span>
           <div class="cult-loading-txt">문화재 정보를 불러오는 중...</div>
@@ -593,9 +598,12 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
         <div class="cult-error" id="heritage-error">
           <div class="cult-error-icon">😥</div>
           <div class="cult-error-txt">문화재 정보를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>
-          <button class="cult-retry-btn" onclick="loadHeritage(currentHeritageType,null)">다시 시도</button>
+          <button class="cult-retry-btn" onclick="searchHeritage()">다시 시도</button>
         </div>
-        <div id="heritage-card-wrap"></div>
+        <div id="heritage-list"></div>
+        <div id="heritage-more-wrap" style="display:none;margin-top:10px;">
+          <button class="facility-more-btn" onclick="loadMoreHeritage()" style="width:100%;padding:12px;background:#e3f2fd;color:#1565c0;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+        </div>
         <div class="cult-coupon-wrap" style="margin-top:16px;">
           <div class="cult-coupon-label">🛍️ 역사 공부 추천</div>
           <a onclick="confirmExternalLink('https://link.coupang.com/a/eprrnP9xhQ');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
@@ -1068,7 +1076,6 @@ function goPage(name) {
   history.pushState({ page: name }, '', '');
 
   /* 첫 진입 시 데이터 로드 */
-  if(name==='heritage'&& !heritageLoaded) loadHeritage('11', document.querySelector('.heritage-type-btn'));
   if(name==='quiz'    && !quizStarted)    startQuiz();
   if(name==='facility'&& !facilityLoaded) showFacility('museum', document.querySelector('.facility-tab'));
   if(name==='perf2'      && !perf2Loaded)       loadKcisa('perf2',   document.querySelector('.perf2-tab'));
@@ -1084,6 +1091,7 @@ function goBack() {
   var wasFestivalPage = document.getElementById('page-festival').classList.contains('active');
   var wasFacilityPage = document.getElementById('page-facility').classList.contains('active');
   var wasEventPage    = document.getElementById('page-event').classList.contains('active');
+  var wasHeritagePage = document.getElementById('page-heritage').classList.contains('active');
 
   PAGES.forEach(function(p){
     document.getElementById('page-'+p).classList.remove('active');
@@ -1103,6 +1111,10 @@ function goBack() {
   if (wasEventPage) {
     resetEvents();
     eventLoaded = false;
+  }
+  if (wasHeritagePage) {
+    resetHeritageSearch();
+    heritageLoaded = false;
   }
 }
 
@@ -1124,7 +1136,6 @@ window.addEventListener('popstate', function(e) {
   history.replaceState({ page: st.page }, '', '');
 
   var name = st.page;
-  if(name==='heritage'&& !heritageLoaded) loadHeritage('11', document.querySelector('.heritage-type-btn'));
   if(name==='quiz'    && !quizStarted)    startQuiz();
   if(name==='facility'&& !facilityLoaded) showFacility('museum', document.querySelector('.facility-tab'));
   if(name==='perf2'      && !perf2Loaded)       loadKcisa('perf2',   document.querySelector('.perf2-tab'));
@@ -1343,23 +1354,34 @@ function toggleEventDetail(idx, btnEl){
 var heritageLoaded = false;
 var currentHeritageType = '11';
 var heritageItems = [];
-var heritageIndex = 0;
 var heritageImgCache = {};
 var heritagePageIndex = 1;
 var heritageTotalCnt = 0;
 
-function loadHeritage(kdcd, btnEl) {
+// (한글 설명) 탭은 이제 "선택"만 해요. 실제 검색은 검색 버튼을 눌러야 실행돼요
+//             (다른 탭들과 통일된 방식).
+function selectHeritageType(kdcd, btnEl){
   currentHeritageType = kdcd;
-  heritageLoaded = true;
-  heritageIndex = 0;
-  heritageItems = [];
-  heritagePageIndex = 1;
-  heritageTotalCnt = 0;
   document.querySelectorAll('.heritage-type-btn').forEach(function(b){ b.classList.remove('active'); });
-  if(btnEl) btnEl.classList.add('active');
-  document.getElementById('heritage-loading').classList.add('show');
+  if (btnEl) btnEl.classList.add('active');
+}
+
+function searchHeritage(){
+  heritageLoaded = true;
+  heritagePageIndex = 1;
+  heritageItems = [];
+  document.getElementById('heritage-hint').style.display = 'none';
   document.getElementById('heritage-error').classList.remove('show');
-  document.getElementById('heritage-card-wrap').innerHTML = '';
+  document.getElementById('heritage-list').innerHTML = '';
+  document.getElementById('heritage-more-wrap').style.display = 'none';
+  document.getElementById('heritage-loading').classList.add('show');
+  fetchHeritagePage();
+}
+
+function loadMoreHeritage(){
+  heritagePageIndex++;
+  document.getElementById('heritage-more-wrap').style.display = 'none';
+  document.getElementById('heritage-loading').classList.add('show');
   fetchHeritagePage();
 }
 
@@ -1367,17 +1389,25 @@ function fetchHeritagePage(){
   var ctcd = document.getElementById('heritage-sido').value;
   var url = '/api/culture?type=list&ccbaKdcd='+currentHeritageType+'&pageUnit=10&pageIndex='+heritagePageIndex
     + (ctcd ? '&ccbaCtcd='+ctcd : '');
-  return fetch(url)
+  fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(data){
       document.getElementById('heritage-loading').classList.remove('show');
       var newItems = (data && data.items) || [];
       heritageTotalCnt = (data && data.totalCnt) || 0;
       if (heritageItems.length===0 && newItems.length===0) {
-        document.getElementById('heritage-error').classList.add('show'); return;
+        document.getElementById('heritage-list').innerHTML =
+          '<div class="facility-hint-txt" style="text-align:center;padding:26px 10px;color:#999;">검색 결과가 없어요.<br>다른 종류나 지역으로 찾아보세요.</div>';
+        return;
       }
+      var startIdx = heritageItems.length;
       heritageItems = heritageItems.concat(newItems);
-      renderHeritageCard(heritageIndex);
+      var html = '';
+      newItems.forEach(function(item, i){ html += renderHeritageCard(item, startIdx+i); });
+      document.getElementById('heritage-list').innerHTML += html;
+      newItems.forEach(function(item, i){ loadHeritageImg(item, startIdx+i); });
+      document.getElementById('heritage-more-wrap').style.display =
+        (heritageItems.length < heritageTotalCnt) ? 'block' : 'none';
     })
     .catch(function(){
       document.getElementById('heritage-loading').classList.remove('show');
@@ -1385,14 +1415,25 @@ function fetchHeritagePage(){
     });
 }
 
-function renderHeritageCard(idx) {
-  var item = heritageItems[idx];
-  if(!item) return;
+function resetHeritageSearch(){
+  document.getElementById('heritage-sido').value = '';
+  heritageItems = [];
+  heritagePageIndex = 1;
+  heritageTotalCnt = 0;
+  document.getElementById('heritage-list').innerHTML = '';
+  document.getElementById('heritage-more-wrap').style.display = 'none';
+  document.getElementById('heritage-error').classList.remove('show');
+  document.getElementById('heritage-hint').style.display = 'block';
+}
+
+// (한글 설명) 문화시설안내 카드와 같은 방식으로 목록 카드 하나를 만들어요.
+//             사진은 원래 방식(사진이 있는 만큼만 꽉 차게 보여주는 방식)으로 되돌렸어요.
+function renderHeritageCard(item, idx){
   var typeNames = {'11':'국보','12':'보물','13':'사적','14':'명승','15':'천연기념물'};
   var typeName = typeNames[currentHeritageType]||'문화재';
   var locStr = [item.sido, item.gugun].filter(Boolean).join(' ');
   var hasCoord = item.lat && item.lon && item.lat!=='0' && item.lon!=='0';
-  var html = '<div class="heritage-card">'
+  return '<div class="heritage-card">'
     +'<div class="heritage-card-img" id="h-img-'+idx+'"><span style="font-size:48px;">🏛️</span></div>'
     +'<div class="heritage-card-body">'
     +'<span class="heritage-card-badge">'+typeName+' '+item.ccbaCpno+'</span>'
@@ -1405,34 +1446,29 @@ function renderHeritageCard(idx) {
     +(hasCoord?buildMapLinks(item.name, item.lat, item.lon):'')
     +'<button class="facility-detail-btn" onclick="toggleHeritageDetail('+idx+',this)" style="width:100%;margin-top:8px;padding:10px;background:#fce4ec;color:#c62828;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">🔍 자세히 보기</button>'
     +'<div id="heritage-detail-'+idx+'" style="display:none;margin-top:8px;"></div>'
-    +'<div class="heritage-nav">'
-    +'<button class="heritage-nav-btn" onclick="changeHeritage(-1)" '+(idx===0?'disabled':'')+'">◀ 이전</button>'
-    +'<span class="heritage-nav-count">'+(idx+1)+' / '+heritageTotalCnt+'</span>'
-    +'<button class="heritage-nav-btn" onclick="changeHeritage(1)" '+((idx>=heritageItems.length-1 && idx>=heritageTotalCnt-1)?'disabled':'')+'">다음 ▶</button>'
-    +'</div></div></div>';
-  document.getElementById('heritage-card-wrap').innerHTML = html;
+    +'</div></div>';
+}
 
-  /* 이미지 로드 */
-  if(item.ccbaAsno&&item.ccbaCtcd){
-    var cKey = currentHeritageType+'_'+item.ccbaAsno;
-    if(heritageImgCache[cKey]){
-      setHImg(idx, heritageImgCache[cKey]);
-    } else {
-      fetch('/api/culture?type=image&ccbaKdcd='+currentHeritageType+'&ccbaAsno='+item.ccbaAsno+'&ccbaCtcd='+item.ccbaCtcd)
-        .then(function(r){ return r.json(); })
-        .then(function(d){
-          if(d.ok&&d.images&&d.images.length>0){
-            heritageImgCache[cKey]=d.images[0];
-            setHImg(idx,d.images[0]);
-          }
-        }).catch(function(){});
-    }
+function loadHeritageImg(item, idx){
+  if(!(item.ccbaAsno&&item.ccbaCtcd)) return;
+  var cKey = currentHeritageType+'_'+item.ccbaAsno;
+  if(heritageImgCache[cKey]){
+    setHImg(idx, heritageImgCache[cKey]);
+  } else {
+    fetch('/api/culture?type=image&ccbaKdcd='+currentHeritageType+'&ccbaAsno='+item.ccbaAsno+'&ccbaCtcd='+item.ccbaCtcd)
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d.ok&&d.images&&d.images.length>0){
+          heritageImgCache[cKey]=d.images[0];
+          setHImg(idx,d.images[0]);
+        }
+      }).catch(function(){});
   }
 }
 
 function setHImg(idx, url){
   var el = document.getElementById('h-img-'+idx);
-  if(el) el.innerHTML='<img src="'+url+'" style="width:100%;height:220px;object-fit:contain;" onerror="this.parentElement.innerHTML=\'<span style=font-size:48px>🏛️</span>\'">';
+  if(el) el.innerHTML='<img src="'+url+'" style="width:100%;height:180px;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<span style=font-size:48px>🏛️</span>\'">';
 }
 
 // (한글 설명) "자세히 보기"를 누르면, 국가유산포털에서 설명글을 가져와서 펼쳐 보여줘요.
@@ -1470,6 +1506,9 @@ function toggleHeritageDetail(idx, btnEl){
 
 function renderHeritageDetailBox(box, data){
   var html = '';
+  if (data && data.phone) {
+    html += '<a href="tel:'+data.phone+'" class="facility-tel-btn" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e8f5e9;color:#2e7d32;font-weight:700;margin-bottom:8px;">📞 '+data.phone+'</a>';
+  }
   if (data && data.overview) {
     html += '<div class="facility-overview-txt" style="color:#444;line-height:1.8;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;white-space:pre-line;">'+data.overview+'</div>';
   }
@@ -1478,25 +1517,6 @@ function renderHeritageDetailBox(box, data){
   }
   html += '<div class="facility-source-note" style="color:#aaa;text-align:right;margin-top:6px;">출처: 국가유산포털(heritage.go.kr)</div>';
   box.innerHTML = html;
-}
-
-// (한글 설명) "다음"을 눌렀을 때, 이미 불러온 데이터 안이면 그냥 넘기고,
-//             다 봤는데 더 있으면(totalCnt가 더 크면) 다음 페이지를 자동으로 이어서 불러와요.
-function changeHeritage(offset){
-  var n = heritageIndex + offset;
-  if(n<0) return;
-  if(n>=heritageItems.length){
-    if(heritageItems.length>=heritageTotalCnt) return; // 더 이상 없음
-    heritagePageIndex++;
-    document.getElementById('heritage-loading').classList.add('show');
-    fetchHeritagePage().then(function(){
-      heritageIndex = n;
-      renderHeritageCard(heritageIndex);
-    });
-    return;
-  }
-  heritageIndex = n;
-  renderHeritageCard(heritageIndex);
 }
 
 /* ════════════════════════════════════════════
