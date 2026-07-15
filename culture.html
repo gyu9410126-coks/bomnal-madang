@@ -617,7 +617,16 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <button class="facility-tab" onclick="showFacility('library',this)">📚 도서관</button>
         </div>
 
-        <!-- 박물관·미술관 / 문화원 전용 — 지역검색 UI (한국관광공사 TourAPI) -->
+        <!-- 궁궐·유적 전용 — 직접 확인한 대표 궁궐 고정 목록 -->
+        <div id="facility-list"></div>
+
+        <!-- 궁궐·유적 탭에서만 보이는 구분선 (다른 탭은 바로 검색 UI로 시작) -->
+        <div id="facility-heritage-heading" style="display:none;text-align:center;margin:18px 0 12px;font-size:14px;font-weight:700;color:#888;">
+          ─── 🗺️ 다른 지역 유적지도 찾아보기 ───<br>
+          <span style="font-weight:400;font-size:12px;color:#aaa;">성곽·고택·사적지·고분 등</span>
+        </div>
+
+        <!-- 박물관·미술관 / 문화원 / 도서관 / 유적지(궁궐탭 하단) 공용 — 지역검색 UI (한국관광공사 TourAPI) -->
         <div id="facility-search-wrap" style="display:none;">
           <div class="page-label" style="margin-top:0;">📍 지역 선택</div>
           <select class="page-select" id="facility-sido">
@@ -650,9 +659,6 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           </div>
           <div id="facility-tour-source" style="display:none;font-size:11px;color:#aaa;text-align:right;margin-top:6px;">사진·정보 출처: 한국관광공사</div>
         </div>
-
-        <!-- 궁궐·유적 / 도서관 전용 — 기존 고정 목록 -->
-        <div id="facility-list"></div>
 
         <div class="cult-coupon-wrap" style="margin-top:14px;">
           <div class="cult-coupon-label">🛍️ 나들이 준비 추천</div>
@@ -1346,29 +1352,29 @@ var facilityTourRegion = '';         // 지금 검색 중인 지역
 var facilityDetailCache = {};        // contentid별 상세정보 캐시 (같은 곳 두 번 안 물어봄)
 
 var FACILITY_DATA = {
-  // (한글 설명) 궁궐·유적은 구글맵으로 정확한 좌표를 하나씩 확인했고,
-  //             홈페이지도 각 공식 사이트를 검색해서 확인한 주소예요(추측 아님).
+  // (한글 설명) 궁궐·유적은 구글맵으로 정확한 좌표를 하나씩 확인했고, 홈페이지도
+  //             각 공식 사이트를 검색해서 확인한 주소예요. 사진은 한국관광공사
+  //             TourAPI에서 각 궁궐 이름으로 검색해서 정확히 일치하는 걸 하나씩
+  //             확인해서 넣었어요(출처표시 조건으로 사용 가능한 공식 허가 사진).
   //             경복궁·창덕궁·덕수궁·창경궁·경희궁·종묘는 모두 국가유산청
   //             궁능유적본부(royal.khs.go.kr)가 통합 운영해요.
   palace:[
-    {icon:'🏯',name:'경복궁 관리소',addr:'서울 종로구 사직로 161',tel:'02-3700-3900',lat:37.579617,lon:126.977041,homepage:'https://royal.khs.go.kr'},
-    {icon:'🏯',name:'창덕궁 관리소',addr:'서울 종로구 율곡로 99',tel:'02-3668-2300',lat:37.5794309,lon:126.9910426,homepage:'https://royal.khs.go.kr'},
-    {icon:'🏯',name:'덕수궁 관리소',addr:'서울 중구 세종대로 99',tel:'02-771-9951',lat:37.5658862,lon:126.9749017,homepage:'https://royal.khs.go.kr'},
-    {icon:'🏯',name:'창경궁 관리소',addr:'서울 종로구 창경궁로 185',tel:'02-762-4868',lat:37.5788149,lon:126.9949298,homepage:'https://royal.khs.go.kr'},
-    {icon:'🏯',name:'경희궁 관리소',addr:'서울 종로구 새문안로 45',tel:'02-724-0274',lat:37.5712378,lon:126.9681688,homepage:'https://royal.khs.go.kr'},
-    {icon:'⛩️',name:'종묘 관리소',addr:'서울 종로구 종로 157',tel:'02-765-0195',lat:37.5746313,lon:126.9938158,homepage:'https://royal.khs.go.kr'},
-    {icon:'🌿',name:'수원화성 관리소',addr:'경기 수원시 팔달구 행궁로 11',tel:'031-290-3600',lat:37.2819666,lon:127.0137270,homepage:'https://www.visitsuwon.or.kr'},
-    {icon:'🗺️',name:'불국사·석굴암',addr:'경북 경주시 불국로 385',tel:'054-746-9913',lat:35.7898804,lon:129.3318909,homepage:'http://www.bulguksa.or.kr'},
-  ],
-  library:[
-    {icon:'📚',name:'국립중앙도서관',addr:'서울 서초구 반포대로 201',tel:'02-535-4142'},
-    {icon:'📖',name:'국립어린이청소년도서관',addr:'서울 강남구 테헤란로 133',tel:'02-3413-4800'},
-    {icon:'📚',name:'국립세종도서관',addr:'세종 다솜로 477',tel:'044-900-9100'},
-    {icon:'📖',name:'국립장애인도서관',addr:'서울 서초구 반포대로 201',tel:'02-590-0900'},
-    {icon:'📚',name:'서울도서관',addr:'서울 중구 세종대로 110',tel:'02-2133-0300'},
-    {icon:'📖',name:'경기도사이버도서관',addr:'경기 수원시 영통구 도청로 30',tel:'031-888-5095'},
-    {icon:'📚',name:'국립공주도서관',addr:'충남 공주시 웅진로 103',tel:'041-850-9700'},
-    {icon:'📖',name:'부산시립시민도서관',addr:'부산 부산진구 시민공원로 73',tel:'051-810-8300'},
+    {icon:'🏯',name:'경복궁 관리소',addr:'서울 종로구 사직로 161',tel:'02-3700-3900',lat:37.579617,lon:126.977041,homepage:'https://royal.khs.go.kr',
+      photo:'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'},
+    {icon:'🏯',name:'창덕궁 관리소',addr:'서울 종로구 율곡로 99',tel:'02-3668-2300',lat:37.5794309,lon:126.9910426,homepage:'https://royal.khs.go.kr',
+      photo:'http://tong.visitkorea.or.kr/cms/resource/78/3384878_image2_1.JPG'},
+    {icon:'🏯',name:'덕수궁 관리소',addr:'서울 중구 세종대로 99',tel:'02-771-9951',lat:37.5658862,lon:126.9749017,homepage:'https://royal.khs.go.kr',
+      photo:'https://tong.visitkorea.or.kr/cms/resource/44/3584644_image2_1.jpg'},
+    {icon:'🏯',name:'창경궁 관리소',addr:'서울 종로구 창경궁로 185',tel:'02-762-4868',lat:37.5788149,lon:126.9949298,homepage:'https://royal.khs.go.kr',
+      photo:'http://tong.visitkorea.or.kr/cms/resource/94/3536794_image2_1.jpg'},
+    {icon:'🏯',name:'경희궁 관리소',addr:'서울 종로구 새문안로 45',tel:'02-724-0274',lat:37.5712378,lon:126.9681688,homepage:'https://royal.khs.go.kr',
+      photo:'https://tong.visitkorea.or.kr/cms/resource/37/3482237_image2_1.jpg'},
+    {icon:'⛩️',name:'종묘 관리소',addr:'서울 종로구 종로 157',tel:'02-765-0195',lat:37.5746313,lon:126.9938158,homepage:'https://royal.khs.go.kr',
+      photo:'https://tong.visitkorea.or.kr/cms/resource_photo/57/4063057_image2_1.jpg'},
+    {icon:'🌿',name:'수원화성 관리소',addr:'경기 수원시 팔달구 행궁로 11',tel:'031-290-3600',lat:37.2819666,lon:127.0137270,homepage:'https://www.visitsuwon.or.kr',
+      photo:'https://tong.visitkorea.or.kr/cms/resource/62/4078262_image2_1.jpg'},
+    {icon:'🗺️',name:'불국사·석굴암',addr:'경북 경주시 불국로 385',tel:'054-746-9913',lat:35.7898804,lon:129.3318909,homepage:'http://www.bulguksa.or.kr',
+      photo:'https://tong.visitkorea.or.kr/cms/resource/70/3506170_image2_1.jpg'},
   ]
 };
 
@@ -1377,45 +1383,50 @@ function showFacility(type, btnEl){
   document.querySelectorAll('#page-facility .facility-tab').forEach(function(b){ b.classList.remove('active'); });
   if (btnEl) btnEl.classList.add('active');
 
-  if (type === 'museum' || type === 'center') {
-    // ── TourAPI 실시간 검색 탭 ──
-    facilityTourCategory = type;
+  var heritageHeading = document.getElementById('facility-heritage-heading');
+
+  if (type === 'palace') {
+    // ── 궁궐·유적 탭: 대표 궁궐 고정목록(위) + 다른 지역 유적지 검색(아래) 같이 보여줘요 ──
+    document.getElementById('facility-list').style.display = 'block';
+    document.getElementById('facility-list').innerHTML = renderPalaceList();
+    heritageHeading.style.display = 'block';
     document.getElementById('facility-search-wrap').style.display = 'block';
-    document.getElementById('facility-list').style.display = 'none';
+    facilityTourCategory = 'heritage';
     resetFacilityTour();
   } else {
-    // ── 고정 목록 탭 (궁궐·유적 / 도서관) ──
-    document.getElementById('facility-search-wrap').style.display = 'none';
-    document.getElementById('facility-list').style.display = 'block';
-    var items = FACILITY_DATA[type] || [];
-    var html = '';
-    items.forEach(function(item){
-      if (item.lat && item.lon) {
-        // ── 궁궐·유적: 지도로 보기·길찾기·홈페이지까지 풍성하게 ──
-        html += '<div style="background:#fff9fa;border:1.5px solid #f8bbd0;border-radius:14px;padding:14px;margin-bottom:10px;">'
-          + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">'
-          + '<div class="facility-icon">'+item.icon+'</div>'
-          + '<div class="facility-info">'
-          + '<div class="facility-name">'+item.name+'</div>'
-          + '<div class="facility-addr">'+item.addr+'</div>'
-          + '</div></div>'
-          + '<a href="tel:'+item.tel+'" style="display:block;text-align:center;padding:10px;border-radius:8px;background:#e8f5e9;color:#2e7d32;text-decoration:none;font-weight:700;font-size:14px;margin-bottom:8px;">📞 '+item.tel+'</a>'
-          + buildMapLinks(item.name, item.lat, item.lon)
-          + (item.homepage ? '<a href="#" onclick="confirmExternalLink(\''+item.homepage+'\');return false;" style="display:block;text-align:center;margin-top:8px;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;text-decoration:none;font-weight:700;font-size:13px;">🔗 홈페이지 방문</a>' : '')
-          + '</div>';
-      } else {
-        // ── 도서관: 기존 방식 그대로 ──
-        html += '<a class="facility-card" href="tel:'+item.tel+'">'
-          + '<div class="facility-icon">'+item.icon+'</div>'
-          + '<div class="facility-info">'
-          + '<div class="facility-name">'+item.name+'</div>'
-          + '<div class="facility-addr">'+item.addr+'</div>'
-          + '<div class="facility-num">📞 '+item.tel+'</div>'
-          + '</div></a>';
-      }
-    });
-    document.getElementById('facility-list').innerHTML = html;
+    // ── 박물관·미술관 / 문화원 / 도서관: 지역검색만 보여줘요 ──
+    document.getElementById('facility-list').style.display = 'none';
+    heritageHeading.style.display = 'none';
+    document.getElementById('facility-search-wrap').style.display = 'block';
+    facilityTourCategory = type; // 'museum' | 'center' | 'library'
+    resetFacilityTour();
   }
+}
+
+// (한글 설명) 궁궐·유적 대표 8곳 고정 카드를 만들어요. 사진·전화·지도·홈페이지 다 포함.
+function renderPalaceList(){
+  var items = FACILITY_DATA.palace || [];
+  var html = '';
+  items.forEach(function(item){
+    var imgHtml = item.photo
+      ? '<img src="'+item.photo+'" style="width:100%;height:150px;object-fit:cover;border-radius:14px 14px 0 0;display:block;" onerror="this.style.display=\'none\'">'
+      : '';
+    html += '<div style="background:#fff9fa;border:1.5px solid #f8bbd0;border-radius:14px;overflow:hidden;margin-bottom:10px;">'
+      + imgHtml
+      + '<div style="padding:14px;">'
+      + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+      + '<div class="facility-icon">'+item.icon+'</div>'
+      + '<div class="facility-info">'
+      + '<div class="facility-name">'+item.name+'</div>'
+      + '<div class="facility-addr">'+item.addr+'</div>'
+      + '</div></div>'
+      + '<a href="tel:'+item.tel+'" style="display:block;text-align:center;padding:10px;border-radius:8px;background:#e8f5e9;color:#2e7d32;text-decoration:none;font-weight:700;font-size:14px;margin-bottom:8px;">📞 '+item.tel+'</a>'
+      + buildMapLinks(item.name, item.lat, item.lon)
+      + (item.homepage ? '<a href="#" onclick="confirmExternalLink(\''+item.homepage+'\');return false;" style="display:block;text-align:center;margin-top:8px;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;text-decoration:none;font-weight:700;font-size:13px;">🔗 홈페이지 방문</a>' : '')
+      + '</div></div>';
+  });
+  html += '<div style="font-size:11px;color:#aaa;text-align:right;margin:2px 0 4px;">사진 출처: 한국관광공사</div>';
+  return html;
 }
 
 // (한글 설명) "시설 검색" 버튼을 누르면 실행돼요. 1페이지부터 새로 시작해요.
