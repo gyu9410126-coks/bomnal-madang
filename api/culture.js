@@ -467,27 +467,32 @@ export default async function handler(req, res) {
     }
 
     // ════════════════════════════════════════════════════
-    // [K] 문화시설 안내 - 박물관·미술관 / 문화원·도서관 (한국관광공사 TourAPI)
+    // [K] 문화시설 안내 - 박물관·미술관 / 문화원 (한국관광공사 TourAPI)
     //     (한글 설명) [J]번 축제 사진 기능과 같은 TOURAPI_KEY를 재사용해요(새 키 필요없음).
     //     신분류체계(lclsSystm) 코드로 필터링: VE07=박물관·미술관, VE09=도서관·문화원
-    //     ⚠️ areaBasedList2 라는 주소가 맞는지 아직 실제로 테스트 전이에요.
-    //        &debug=1을 붙이면 정부 서버가 실제로 보내주는 원본 데이터를 그대로 보여줘요.
-    //        이 debug 모드로 먼저 확인한 다음에만 화면(culture.html)에 정식으로 붙일 거예요.
+    //     ※ VE09는 문화원·도서관이 섞여나와서, lclsSystm3=VE090100(문화원)으로
+    //        한 번 더 걸러서 문화원만 나오게 했어요(실제 테스트로 문화원/도서관을
+    //        구분하는 세부코드가 있는 걸 확인함). 도서관은 나중에 전용 API로 별도 작업 예정.
+    //     areaBasedList2 엔드포인트, 공식 활용매뉴얼(v4.4) 표8로 파라미터 확인 완료.
     // ════════════════════════════════════════════════════
     if (type === 'facilityTour') {
       const apiKey = process.env.TOURAPI_KEY;
       if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
 
-      // category: 'museum'(박물관·미술관) 또는 'center'(문화원·도서관)
+      // category: 'museum'(박물관·미술관) 또는 'center'(문화원)
       const category = req.query.category || '';
       const LCLS_MAP = { museum: 'VE07', center: 'VE09' };
       const lclsSystm2 = LCLS_MAP[category];
       if (!lclsSystm2) {
         return res.status(400).json({ ok:false, message:'category 파라미터가 필요해요 (museum 또는 center)' });
       }
+      // (한글 설명) center(문화원)일 때만 VE090100(문화원)으로 한 번 더 좁혀요.
+      //             museum은 세부 구분 없이 VE07 전체(박물관·미술관·화랑 등)를 그대로 보여줘요.
+      const lclsSystm3 = (category === 'center') ? 'VE090100' : '';
 
       const region = req.query.region || '';
-      const rows   = parseInt(req.query.rows) || 15;
+      const rows   = parseInt(req.query.rows)   || 10;
+      const pageNo = parseInt(req.query.pageNo) || 1;
       const debug  = req.query.debug === '1';
       const keyEnc = encodeURIComponent(apiKey);
 
@@ -502,9 +507,10 @@ export default async function handler(req, res) {
       const lDongRegnCd = region ? (SIDO_CODES[region] || '') : '';
 
       let url = `https://apis.data.go.kr/B551011/KorService2/areaBasedList2`
-        + `?serviceKey=${keyEnc}&numOfRows=${rows}&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
+        + `?serviceKey=${keyEnc}&numOfRows=${rows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=BomnalMadang`
         + `&_type=json&arrange=O`
         + `&lclsSystm1=VE&lclsSystm2=${lclsSystm2}`;
+      if (lclsSystm3)  url += `&lclsSystm3=${lclsSystm3}`;
       if (lDongRegnCd) url += `&lDongRegnCd=${lDongRegnCd}`;
 
       let json;
@@ -549,7 +555,7 @@ export default async function handler(req, res) {
       });
 
       res.setHeader('Cache-Control', 's-maxage=43200'); // 12시간 캐시
-      return res.status(200).json({ ok:true, type:'facilityTour', totalCount: (body ? body.totalCount : items.length), items });
+      return res.status(200).json({ ok:true, type:'facilityTour', totalCount: (body ? body.totalCount : items.length), pageNo, items });
     }
 
     // ════════════════════════════════════════════════════

@@ -645,6 +645,9 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
             <button class="cult-retry-btn" onclick="searchFacilityTour()">다시 시도</button>
           </div>
           <div id="facility-tour-list"></div>
+          <div id="facility-tour-more-wrap" style="display:none;margin-top:10px;">
+            <button onclick="loadMoreFacilityTour()" style="width:100%;padding:12px;background:#e8f5e9;color:#2e7d32;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+          </div>
           <div id="facility-tour-source" style="display:none;font-size:11px;color:#aaa;text-align:right;margin-top:6px;">사진·정보 출처: 한국관광공사</div>
         </div>
 
@@ -1004,10 +1007,11 @@ function goPage(name) {
 }
 
 function goBack() {
-  /* (한글 설명) 지역축제 페이지에서 나가는 거라면, 다음에 다시 들어왔을 때
-     "전체보기"부터 새로 시작하도록 검색 상태를 미리 초기화해둬요.
+  /* (한글 설명) 지역축제·문화시설 페이지에서 나가는 거라면, 다음에 다시 들어왔을 때
+     검색 상태를 미리 초기화해둬요.
      (다른 카테고리는 "한 번 불러오면 다시 안 불러오기" 방식을 그대로 유지 — 여기만 다름) */
   var wasFestivalPage = document.getElementById('page-festival').classList.contains('active');
+  var wasFacilityPage = document.getElementById('page-facility').classList.contains('active');
 
   PAGES.forEach(function(p){
     document.getElementById('page-'+p).classList.remove('active');
@@ -1019,6 +1023,10 @@ function goBack() {
 
   if (wasFestivalPage) {
     resetFestival();
+  }
+  if (wasFacilityPage) {
+    resetFacilityTour();
+    facilityLoaded = false; // 다음에 들어오면 박물관·미술관 탭부터 새로 시작
   }
 }
 
@@ -1331,19 +1339,26 @@ function showQuizFinal(){
 ════════════════════════════════════════════ */
 var facilityLoaded = false;
 var facilityTourCategory = 'museum'; // 'museum' 또는 'center' — 지금 보고 있는 탭
-var facilityTourItems = [];          // 방금 검색된 결과 (자세히보기에서 재사용)
+var facilityTourItems = [];          // 지금까지 불러온 결과 전부 (더보기로 계속 쌓여요)
+var facilityTourPage = 1;            // 지금 몇 페이지까지 불러왔는지
+var facilityTourTotal = 0;           // 정부 서버가 알려준 전체 결과 수
+var facilityTourRegion = '';         // 지금 검색 중인 지역
 var facilityDetailCache = {};        // contentid별 상세정보 캐시 (같은 곳 두 번 안 물어봄)
 
 var FACILITY_DATA = {
+  // (한글 설명) 궁궐·유적은 구글맵으로 정확한 좌표를 하나씩 확인했고,
+  //             홈페이지도 각 공식 사이트를 검색해서 확인한 주소예요(추측 아님).
+  //             경복궁·창덕궁·덕수궁·창경궁·경희궁·종묘는 모두 국가유산청
+  //             궁능유적본부(royal.khs.go.kr)가 통합 운영해요.
   palace:[
-    {icon:'🏯',name:'경복궁 관리소',addr:'서울 종로구 사직로 161',tel:'02-3700-3900'},
-    {icon:'🏯',name:'창덕궁 관리소',addr:'서울 종로구 율곡로 99',tel:'02-3668-2300'},
-    {icon:'🏯',name:'덕수궁 관리소',addr:'서울 중구 세종대로 99',tel:'02-771-9951'},
-    {icon:'🏯',name:'창경궁 관리소',addr:'서울 종로구 창경궁로 185',tel:'02-762-4868'},
-    {icon:'🏯',name:'경희궁 관리소',addr:'서울 종로구 새문안로 45',tel:'02-724-0274'},
-    {icon:'⛩️',name:'종묘 관리소',addr:'서울 종로구 종로 157',tel:'02-765-0195'},
-    {icon:'🌿',name:'수원화성 관리소',addr:'경기 수원시 팔달구 행궁로 11',tel:'031-290-3600'},
-    {icon:'🗺️',name:'불국사·석굴암',addr:'경북 경주시 불국로 385',tel:'054-746-9913'},
+    {icon:'🏯',name:'경복궁 관리소',addr:'서울 종로구 사직로 161',tel:'02-3700-3900',lat:37.579617,lon:126.977041,homepage:'https://royal.khs.go.kr'},
+    {icon:'🏯',name:'창덕궁 관리소',addr:'서울 종로구 율곡로 99',tel:'02-3668-2300',lat:37.5794309,lon:126.9910426,homepage:'https://royal.khs.go.kr'},
+    {icon:'🏯',name:'덕수궁 관리소',addr:'서울 중구 세종대로 99',tel:'02-771-9951',lat:37.5658862,lon:126.9749017,homepage:'https://royal.khs.go.kr'},
+    {icon:'🏯',name:'창경궁 관리소',addr:'서울 종로구 창경궁로 185',tel:'02-762-4868',lat:37.5788149,lon:126.9949298,homepage:'https://royal.khs.go.kr'},
+    {icon:'🏯',name:'경희궁 관리소',addr:'서울 종로구 새문안로 45',tel:'02-724-0274',lat:37.5712378,lon:126.9681688,homepage:'https://royal.khs.go.kr'},
+    {icon:'⛩️',name:'종묘 관리소',addr:'서울 종로구 종로 157',tel:'02-765-0195',lat:37.5746313,lon:126.9938158,homepage:'https://royal.khs.go.kr'},
+    {icon:'🌿',name:'수원화성 관리소',addr:'경기 수원시 팔달구 행궁로 11',tel:'031-290-3600',lat:37.2819666,lon:127.0137270,homepage:'https://www.visitsuwon.or.kr'},
+    {icon:'🗺️',name:'불국사·석굴암',addr:'경북 경주시 불국로 385',tel:'054-746-9913',lat:35.7898804,lon:129.3318909,homepage:'http://www.bulguksa.or.kr'},
   ],
   library:[
     {icon:'📚',name:'국립중앙도서관',addr:'서울 서초구 반포대로 201',tel:'02-535-4142'},
@@ -1367,11 +1382,7 @@ function showFacility(type, btnEl){
     facilityTourCategory = type;
     document.getElementById('facility-search-wrap').style.display = 'block';
     document.getElementById('facility-list').style.display = 'none';
-    document.getElementById('facility-tour-list').innerHTML = '';
-    document.getElementById('facility-tour-source').style.display = 'none';
-    document.getElementById('facility-hint').style.display = 'block';
-    document.getElementById('facility-error').classList.remove('show');
-    document.getElementById('facility-sido').value = '';
+    resetFacilityTour();
   } else {
     // ── 고정 목록 탭 (궁궐·유적 / 도서관) ──
     document.getElementById('facility-search-wrap').style.display = 'none';
@@ -1379,44 +1390,85 @@ function showFacility(type, btnEl){
     var items = FACILITY_DATA[type] || [];
     var html = '';
     items.forEach(function(item){
-      html += '<a class="facility-card" href="tel:'+item.tel+'">'
-        + '<div class="facility-icon">'+item.icon+'</div>'
-        + '<div class="facility-info">'
-        + '<div class="facility-name">'+item.name+'</div>'
-        + '<div class="facility-addr">'+item.addr+'</div>'
-        + '<div class="facility-num">📞 '+item.tel+'</div>'
-        + '</div></a>';
+      if (item.lat && item.lon) {
+        // ── 궁궐·유적: 지도로 보기·길찾기·홈페이지까지 풍성하게 ──
+        html += '<div style="background:#fff9fa;border:1.5px solid #f8bbd0;border-radius:14px;padding:14px;margin-bottom:10px;">'
+          + '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">'
+          + '<div class="facility-icon">'+item.icon+'</div>'
+          + '<div class="facility-info">'
+          + '<div class="facility-name">'+item.name+'</div>'
+          + '<div class="facility-addr">'+item.addr+'</div>'
+          + '</div></div>'
+          + '<a href="tel:'+item.tel+'" style="display:block;text-align:center;padding:10px;border-radius:8px;background:#e8f5e9;color:#2e7d32;text-decoration:none;font-weight:700;font-size:14px;margin-bottom:8px;">📞 '+item.tel+'</a>'
+          + buildMapLinks(item.name, item.lat, item.lon)
+          + (item.homepage ? '<a href="#" onclick="confirmExternalLink(\''+item.homepage+'\');return false;" style="display:block;text-align:center;margin-top:8px;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;text-decoration:none;font-weight:700;font-size:13px;">🔗 홈페이지 방문</a>' : '')
+          + '</div>';
+      } else {
+        // ── 도서관: 기존 방식 그대로 ──
+        html += '<a class="facility-card" href="tel:'+item.tel+'">'
+          + '<div class="facility-icon">'+item.icon+'</div>'
+          + '<div class="facility-info">'
+          + '<div class="facility-name">'+item.name+'</div>'
+          + '<div class="facility-addr">'+item.addr+'</div>'
+          + '<div class="facility-num">📞 '+item.tel+'</div>'
+          + '</div></a>';
+      }
     });
     document.getElementById('facility-list').innerHTML = html;
   }
 }
 
-// (한글 설명) "시설 검색" 버튼을 누르면 실행돼요. api/culture.js의 facilityTour를 호출해요.
+// (한글 설명) "시설 검색" 버튼을 누르면 실행돼요. 1페이지부터 새로 시작해요.
 function searchFacilityTour(){
-  var region = document.getElementById('facility-sido').value;
+  facilityTourRegion = document.getElementById('facility-sido').value;
+  facilityTourPage   = 1;
+  facilityTourItems  = [];
   document.getElementById('facility-hint').style.display = 'none';
   document.getElementById('facility-error').classList.remove('show');
   document.getElementById('facility-tour-source').style.display = 'none';
+  document.getElementById('facility-tour-more-wrap').style.display = 'none';
   document.getElementById('facility-tour-list').innerHTML = '';
   document.getElementById('facility-loading').classList.add('show');
+  fetchFacilityTourPage();
+}
 
-  var url = '/api/culture?type=facilityTour&category='+facilityTourCategory+'&rows=15'
-    + (region ? '&region='+encodeURIComponent(region) : '');
+// (한글 설명) "더보기" 버튼을 누르면 다음 페이지만 이어서 불러와요.
+function loadMoreFacilityTour(){
+  facilityTourPage++;
+  document.getElementById('facility-tour-more-wrap').style.display = 'none';
+  document.getElementById('facility-loading').classList.add('show');
+  fetchFacilityTourPage();
+}
+
+// (한글 설명) 실제 서버 호출은 여기서 한 곳에서 처리해요(검색·더보기가 같이 씀).
+function fetchFacilityTourPage(){
+  var url = '/api/culture?type=facilityTour&category='+facilityTourCategory
+    + '&rows=10&pageNo='+facilityTourPage
+    + (facilityTourRegion ? '&region='+encodeURIComponent(facilityTourRegion) : '');
 
   fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(data){
       document.getElementById('facility-loading').classList.remove('show');
-      facilityTourItems = (data && data.items) || [];
-      if (facilityTourItems.length === 0) {
+      var newItems = (data && data.items) || [];
+      facilityTourTotal = (data && data.totalCount) || 0;
+
+      if (facilityTourItems.length === 0 && newItems.length === 0) {
         document.getElementById('facility-tour-list').innerHTML =
           '<div style="text-align:center;padding:26px 10px;color:#999;font-size:14px;">검색 결과가 없어요.<br>다른 지역으로 찾아보세요.</div>';
         return;
       }
+
+      var startIdx = facilityTourItems.length;
       var html = '';
-      facilityTourItems.forEach(function(item, idx){ html += renderFacilityTourCard(item, idx); });
-      document.getElementById('facility-tour-list').innerHTML = html;
+      newItems.forEach(function(item, i){ html += renderFacilityTourCard(item, startIdx + i); });
+      document.getElementById('facility-tour-list').innerHTML += html;
+      facilityTourItems = facilityTourItems.concat(newItems);
       document.getElementById('facility-tour-source').style.display = 'block';
+
+      // (한글 설명) 지금까지 받은 개수가 전체보다 적으면 "더보기" 버튼을 계속 보여줘요.
+      document.getElementById('facility-tour-more-wrap').style.display =
+        (facilityTourItems.length < facilityTourTotal) ? 'block' : 'none';
     })
     .catch(function(){
       document.getElementById('facility-loading').classList.remove('show');
@@ -1425,8 +1477,13 @@ function searchFacilityTour(){
 }
 
 function resetFacilityTour(){
+  facilityTourItems  = [];
+  facilityTourPage   = 1;
+  facilityTourTotal  = 0;
+  facilityTourRegion = '';
   document.getElementById('facility-sido').value = '';
   document.getElementById('facility-tour-list').innerHTML = '';
+  document.getElementById('facility-tour-more-wrap').style.display = 'none';
   document.getElementById('facility-tour-source').style.display = 'none';
   document.getElementById('facility-error').classList.remove('show');
   document.getElementById('facility-hint').style.display = 'block';
@@ -1451,7 +1508,7 @@ function renderFacilityTourCard(item, idx){
 }
 
 // (한글 설명) "자세히 보기"를 누르면, 그때 딱 한 번만 api/culture.js의 facilityDetail을
-//             불러서 전화번호·홈페이지·소개글을 펼쳐 보여줘요(느린 전체 로딩 방지).
+//             불러서 홈페이지·소개글(전화번호는 있을 때만)을 펼쳐 보여줘요.
 function toggleFacilityDetail(contentid, idx, btnEl){
   var box = document.getElementById('facility-detail-'+idx);
   if (!box) return;
@@ -1487,12 +1544,15 @@ function renderFacilityDetailBox(box, data){
   }
   if (data && data.homepage) {
     html += '<a href="#" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;margin-bottom:8px;">🔗 홈페이지 방문</a>';
+  } else if (!(data && data.tel)) {
+    // (한글 설명) 전화번호도 홈페이지도 둘 다 없을 때만 안내 문구를 보여줘요.
+    // (개요만 있는 경우엔 아래 overview가 대신 보여지니 문구를 안 겹치게 해요)
   }
   if (data && data.overview) {
     html += '<div style="font-size:13px;color:#444;line-height:1.7;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+data.overview+'</div>';
   }
   if (!html) {
-    html = '<div style="text-align:center;padding:10px;color:#999;font-size:13px;">추가로 확인된 정보가 없어요.</div>';
+    html = '<div style="text-align:center;padding:10px;color:#999;font-size:13px;">전화번호·홈페이지 등 추가 정보가 등록되어 있지 않아요.</div>';
   }
   box.innerHTML = html;
 }
