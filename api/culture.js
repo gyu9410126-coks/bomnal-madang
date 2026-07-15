@@ -88,7 +88,10 @@ export default async function handler(req, res) {
       });
 
       if (region) {
-        allItems = allItems.filter(function(it){ return it.sido === region; });
+        // (한글 설명) sido 필드가 "강원도"로 올 수도 "강원특별자치도"로 올 수도 있어서,
+        //             완전히 똑같은지가 아니라 핵심 지역명이 "포함"되는지로 걸러요.
+        //             예: region="강원" → "강원도"·"강원특별자치도" 둘 다 걸림.
+        allItems = allItems.filter(function(it){ return it.sido && it.sido.indexOf(region) !== -1; });
       }
 
       const totalCount = allItems.length;

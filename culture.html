@@ -509,6 +509,19 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
             <button class="event-month-btn" onclick="changeMonth(1)">다음 ▶</button>
           </div>
         </div>
+        <div class="page-label" style="margin-top:10px;">📍 지역 선택</div>
+        <select class="page-select" id="event-sido" onchange="loadEvents()">
+          <option value="">전체보기</option>
+          <option value="서울">서울특별시</option><option value="부산">부산광역시</option>
+          <option value="대구">대구광역시</option><option value="인천">인천광역시</option>
+          <option value="광주">광주광역시</option><option value="대전">대전광역시</option>
+          <option value="울산">울산광역시</option><option value="세종">세종특별자치시</option>
+          <option value="경기">경기도</option><option value="강원">강원특별자치도</option>
+          <option value="충북">충청북도</option><option value="충남">충청남도</option>
+          <option value="전북">전북특별자치도</option><option value="전남">전라남도</option>
+          <option value="경북">경상북도</option><option value="경남">경상남도</option>
+          <option value="제주">제주특별자치도</option>
+        </select>
         <div class="cult-loading" id="event-loading">
           <span class="cult-loading-icon">🎪</span>
           <div class="cult-loading-txt">행사 정보를 불러오는 중...</div>
@@ -520,6 +533,9 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <button class="cult-retry-btn" onclick="loadEvents()">다시 시도</button>
         </div>
         <div id="event-list"></div>
+        <div id="event-more-wrap" style="display:none;margin-top:10px;">
+          <button class="facility-more-btn" onclick="loadMoreEvents()" style="width:100%;padding:12px;background:#fce4ec;color:#c62828;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+        </div>
         <div class="cult-coupon-wrap">
           <div class="cult-coupon-label">🛍️ 문화생활 준비물 추천</div>
           <a onclick="confirmExternalLink('https://link.coupang.com/a/epr05XTGAS');return false;" class="cult-coupon-item" href="#"  rel="noopener noreferrer">
@@ -550,6 +566,19 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <button class="heritage-type-btn" onclick="loadHeritage('13',this)">🗺️ 사적</button>
           <button class="heritage-type-btn" onclick="loadHeritage('15',this)">🌿 천연기념물</button>
         </div>
+        <div class="page-label" style="margin-top:10px;">📍 지역 선택</div>
+        <select class="page-select" id="heritage-sido" onchange="loadHeritage(currentHeritageType,null)">
+          <option value="">전체보기</option>
+          <option value="11">서울특별시</option><option value="21">부산광역시</option>
+          <option value="22">대구광역시</option><option value="23">인천광역시</option>
+          <option value="24">광주광역시</option><option value="25">대전광역시</option>
+          <option value="26">울산광역시</option><option value="29">세종특별자치시</option>
+          <option value="31">경기도</option><option value="32">강원특별자치도</option>
+          <option value="33">충청북도</option><option value="34">충청남도</option>
+          <option value="35">전북특별자치도</option><option value="36">전라남도</option>
+          <option value="37">경상북도</option><option value="38">경상남도</option>
+          <option value="39">제주특별자치도</option>
+        </select>
         <div class="cult-loading" id="heritage-loading">
           <span class="cult-loading-icon">🏛️</span>
           <div class="cult-loading-txt">문화재 정보를 불러오는 중...</div>
@@ -1100,6 +1129,9 @@ window.addEventListener('popstate', function(e) {
 ════════════════════════════════════════════ */
 var eventLoaded = false;
 var eventYear, eventMonth;
+var eventPageNo = 1;
+var eventAllItems = [];
+var eventTotalCount = 0;
 
 (function(){
   var now = new Date();
@@ -1123,22 +1155,43 @@ function changeMonth(offset) {
 
 function loadEvents() {
   eventLoaded = true;
+  eventPageNo = 1;
+  eventAllItems = [];
   document.getElementById('event-month-label').textContent = eventYear+'년 '+eventMonth+'월';
   document.getElementById('event-loading').classList.add('show');
   document.getElementById('event-error').classList.remove('show');
   document.getElementById('event-list').innerHTML = '';
+  document.getElementById('event-more-wrap').style.display = 'none';
+  fetchEventsPage();
+}
 
+function loadMoreEvents(){
+  eventPageNo++;
+  document.getElementById('event-more-wrap').style.display = 'none';
+  document.getElementById('event-loading').classList.add('show');
+  fetchEventsPage();
+}
+
+function fetchEventsPage() {
   var month = String(eventMonth).padStart(2,'0');
-  fetch('/api/culture?type=event&year='+eventYear+'&month='+month)
+  var region = document.getElementById('event-sido').value;
+  var url = '/api/culture?type=event&year='+eventYear+'&month='+month+'&rows=10&pageNo='+eventPageNo
+    + (region ? '&region='+encodeURIComponent(region) : '');
+  fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(data){
       document.getElementById('event-loading').classList.remove('show');
-      if(!data.ok||!data.items||data.items.length===0){
+      var newItems = (data && data.items) || [];
+      eventTotalCount = (data && data.totalCount) || 0;
+      if (eventAllItems.length===0 && newItems.length===0) {
         document.getElementById('event-list').innerHTML =
-          '<div class="event-empty">😊 이번 달 등록된 행사가 없어요.<br>다음 달을 확인해 보세요!</div>';
+          '<div class="event-empty">😊 조건에 맞는 행사가 없어요.<br>다른 달이나 지역으로 확인해 보세요!</div>';
         return;
       }
-      renderEvents(data.items);
+      eventAllItems = eventAllItems.concat(newItems);
+      renderEvents(newItems, eventAllItems.length - newItems.length);
+      document.getElementById('event-more-wrap').style.display =
+        (eventAllItems.length < eventTotalCount) ? 'block' : 'none';
     })
     .catch(function(){
       document.getElementById('event-loading').classList.remove('show');
@@ -1150,22 +1203,28 @@ function renderEvents(items) {
   var html = '';
   items.forEach(function(item){
     var imgHtml = item.imgUrl
-      ? '<img src="'+item.imgUrl+'" onerror="this.style.display=\'none\'">'
+      ? '<img src="'+item.imgUrl+'" onerror="this.parentElement.innerHTML=\'<span style=font-size:32px>🎪</span>\'">'
       : '<span style="font-size:32px;">🎪</span>';
-    var dateStr = (item.startDate&&item.endDate) ? item.startDate+' ~ '+item.endDate : (item.startDate||'');
+    // (한글 설명) dateStr(정부가 사람이 읽기 좋게 정리해준 날짜 문구)이 있으면 그걸 쓰고,
+    //             없으면 시작일~종료일을 직접 조합해요.
+    var dateStr = item.dateStr || ((item.startDate&&item.endDate) ? item.startDate+' ~ '+item.endDate : (item.startDate||''));
+    var placeStr = [item.place, item.sido, item.gugun].filter(Boolean).join(' · ');
     var linkHtml = item.linkUrl
       ? '<a class="event-card-link" href="#" onclick="confirmExternalLink(\''+item.linkUrl+'\');return false;">📋 행사 상세보기</a>' : '';
+    var telHtml = item.contact
+      ? '<a href="tel:'+item.contact+'" class="facility-tel-btn" style="display:block;text-align:center;text-decoration:none;padding:8px;border-radius:8px;background:#e8f5e9;color:#2e7d32;font-weight:700;margin-top:6px;">📞 '+item.contact+'</a>' : '';
     html += '<div class="event-card">'
       +'<div class="event-card-top"><div class="event-card-img">'+imgHtml+'</div>'
       +'<div class="event-card-info">'
       +'<div class="event-card-title">'+item.title+'</div>'
-      +(item.place?'<div class="event-card-place">📍 '+item.place+'</div>':'')
+      +(placeStr?'<div class="event-card-place">📍 '+placeStr+'</div>':'')
       +(dateStr?'<div class="event-card-date">📅 '+dateStr+'</div>':'')
       +'</div></div>'
-      +(item.subTitle?'<div class="dyn-sub" style="font-size:13px;color:#555;margin-bottom:8px;line-height:1.6;">'+item.subTitle+'</div>':'')
+      +(item.content?'<div class="dyn-sub" style="font-size:13px;color:#555;margin-bottom:8px;line-height:1.6;">'+item.content+'</div>':'')
+      +telHtml
       +linkHtml+'</div>';
   });
-  document.getElementById('event-list').innerHTML = html;
+  document.getElementById('event-list').innerHTML += html;
 }
 
 /* ════════════════════════════════════════════
@@ -1176,27 +1235,39 @@ var currentHeritageType = '11';
 var heritageItems = [];
 var heritageIndex = 0;
 var heritageImgCache = {};
+var heritagePageIndex = 1;
+var heritageTotalCnt = 0;
 
 function loadHeritage(kdcd, btnEl) {
   currentHeritageType = kdcd;
   heritageLoaded = true;
   heritageIndex = 0;
   heritageItems = [];
+  heritagePageIndex = 1;
+  heritageTotalCnt = 0;
   document.querySelectorAll('.heritage-type-btn').forEach(function(b){ b.classList.remove('active'); });
   if(btnEl) btnEl.classList.add('active');
   document.getElementById('heritage-loading').classList.add('show');
   document.getElementById('heritage-error').classList.remove('show');
   document.getElementById('heritage-card-wrap').innerHTML = '';
+  fetchHeritagePage();
+}
 
-  fetch('/api/culture?type=list&ccbaKdcd='+kdcd+'&pageUnit=10&pageIndex=1')
+function fetchHeritagePage(){
+  var ctcd = document.getElementById('heritage-sido').value;
+  var url = '/api/culture?type=list&ccbaKdcd='+currentHeritageType+'&pageUnit=10&pageIndex='+heritagePageIndex
+    + (ctcd ? '&ccbaCtcd='+ctcd : '');
+  return fetch(url)
     .then(function(r){ return r.json(); })
     .then(function(data){
       document.getElementById('heritage-loading').classList.remove('show');
-      if(!data.ok||!data.items||data.items.length===0){
+      var newItems = (data && data.items) || [];
+      heritageTotalCnt = (data && data.totalCnt) || 0;
+      if (heritageItems.length===0 && newItems.length===0) {
         document.getElementById('heritage-error').classList.add('show'); return;
       }
-      heritageItems = data.items;
-      renderHeritageCard(0);
+      heritageItems = heritageItems.concat(newItems);
+      renderHeritageCard(heritageIndex);
     })
     .catch(function(){
       document.getElementById('heritage-loading').classList.remove('show');
@@ -1209,19 +1280,23 @@ function renderHeritageCard(idx) {
   if(!item) return;
   var typeNames = {'11':'국보','12':'보물','13':'사적','14':'명승','15':'천연기념물'};
   var typeName = typeNames[currentHeritageType]||'문화재';
+  var locStr = [item.sido, item.gugun].filter(Boolean).join(' ');
+  var hasCoord = item.lat && item.lon && item.lat!=='0' && item.lon!=='0';
   var html = '<div class="heritage-card">'
     +'<div class="heritage-card-img" id="h-img-'+idx+'"><span style="font-size:48px;">🏛️</span></div>'
     +'<div class="heritage-card-body">'
     +'<span class="heritage-card-badge">'+typeName+' '+item.ccbaCpno+'</span>'
-    +'<div class="heritage-card-name">'+item.ccmaName+'</div>'
+    +'<div class="heritage-card-name">'+item.name+'</div>'
+    +(item.nameHanja?'<div style="font-size:13px;color:#999;margin-bottom:6px;">'+item.nameHanja+'</div>':'')
     +'<div class="heritage-card-meta">'
-    +(item.ccdeSijo?'<span>📅 시대: '+item.ccdeSijo+'</span>':'')
-    +(item.ccbaAdmin?'<span>📍 소재지: '+item.ccbaAdmin+'</span>':'')
+    +(locStr?'<span>📍 소재지: '+locStr+'</span>':'')
+    +(item.admin?'<span>🏛️ 관리: '+item.admin+'</span>':'')
     +'</div>'
+    +(hasCoord?buildMapLinks(item.name, item.lat, item.lon):'')
     +'<div class="heritage-nav">'
     +'<button class="heritage-nav-btn" onclick="changeHeritage(-1)" '+(idx===0?'disabled':'')+'">◀ 이전</button>'
-    +'<span class="heritage-nav-count">'+(idx+1)+' / '+heritageItems.length+'</span>'
-    +'<button class="heritage-nav-btn" onclick="changeHeritage(1)" '+(idx===heritageItems.length-1?'disabled':'')+'">다음 ▶</button>'
+    +'<span class="heritage-nav-count">'+(idx+1)+' / '+heritageTotalCnt+'</span>'
+    +'<button class="heritage-nav-btn" onclick="changeHeritage(1)" '+((idx>=heritageItems.length-1 && idx>=heritageTotalCnt-1)?'disabled':'')+'">다음 ▶</button>'
     +'</div></div></div>';
   document.getElementById('heritage-card-wrap').innerHTML = html;
 
@@ -1248,9 +1323,21 @@ function setHImg(idx, url){
   if(el) el.innerHTML='<img src="'+url+'" style="width:100%;height:180px;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<span style=font-size:48px>🏛️</span>\'">';
 }
 
+// (한글 설명) "다음"을 눌렀을 때, 이미 불러온 데이터 안이면 그냥 넘기고,
+//             다 봤는데 더 있으면(totalCnt가 더 크면) 다음 페이지를 자동으로 이어서 불러와요.
 function changeHeritage(offset){
   var n = heritageIndex + offset;
-  if(n<0||n>=heritageItems.length) return;
+  if(n<0) return;
+  if(n>=heritageItems.length){
+    if(heritageItems.length>=heritageTotalCnt) return; // 더 이상 없음
+    heritagePageIndex++;
+    document.getElementById('heritage-loading').classList.add('show');
+    fetchHeritagePage().then(function(){
+      heritageIndex = n;
+      renderHeritageCard(heritageIndex);
+    });
+    return;
+  }
   heritageIndex = n;
   renderHeritageCard(heritageIndex);
 }
