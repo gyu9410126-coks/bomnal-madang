@@ -428,6 +428,7 @@ export default async function handler(req, res) {
           price   : getVal(item,'price'),
           imgUrl  : getVal(item,'imgUrl'),
           placeAddr: getVal(item,'placeAddr'),
+          placeUrl : getVal(item,'placeUrl'),
         });
       } catch (e) {
         return res.status(200).json({ ok:true, overview:'', phone:'', homepage:'', price:'', imgUrl:'' });

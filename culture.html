@@ -2664,8 +2664,14 @@ function renderPerf2DetailBox(box, data){
   if (data && data.price) {
     html += '<div class="facility-card-addr" style="color:#c62828;font-weight:700;margin-bottom:8px;">💰 '+data.price+'</div>';
   }
+  if (data && data.placeAddr) {
+    html += '<div class="facility-card-addr" style="color:#666;margin-bottom:8px;">📍 '+data.placeAddr+'</div>';
+  }
   if (data && data.homepage) {
-    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 홈페이지 방문</a>';
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 예매 홈페이지</a>';
+  }
+  if (data && data.placeUrl) {
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.placeUrl+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;font-weight:700;margin-bottom:8px;">🏛️ 공연장 정보 보기</a>';
   }
   if (data && data.overview) {
     html += '<div class="facility-overview-txt" style="color:#444;line-height:1.8;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+data.overview+'</div>';
