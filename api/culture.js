@@ -71,6 +71,10 @@ export default async function handler(req, res) {
         const subContent = getVal(x,'subContent');
         const imgMatch = subContent.match(/<img[^>]*src=['"]([^'"]+)['"]/i);
         const contactRaw = getVal(x,'contact');
+        // (한글 설명) linkUrl(subPath)이 "culturethebom.com"처럼 https:// 없이 오는
+        //             경우가 실제로 있어서(테스트로 확인), 자동으로 붙여줘요.
+        let linkUrlRaw = getVal(x,'subPath');
+        if (linkUrlRaw && !/^https?:\/\//i.test(linkUrlRaw)) linkUrlRaw = 'https://' + linkUrlRaw;
         return {
           title    : getVal(x,'subTitle'),
           content  : subContent.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,150),
@@ -83,7 +87,7 @@ export default async function handler(req, res) {
           // (한글 설명) contact 필드가 값이 없을 때 "."(점 하나)만 오는 경우가 있어서 걸러내요.
           contact  : (contactRaw && contactRaw !== '.') ? contactRaw : '',
           imgUrl   : imgMatch ? imgMatch[1] : '',
-          linkUrl  : getVal(x,'subPath'),
+          linkUrl  : linkUrlRaw,
         };
       });
 
@@ -676,6 +680,108 @@ export default async function handler(req, res) {
     }
 
     // ════════════════════════════════════════════════════
+    // [M-1] 이달의 문화행사용 "링크 미리보기 사진" (og:image 방식)
+    //     (한글 설명) 카카오톡에 링크를 붙여넣으면 자동으로 대표사진이 뜨는 것과
+    //     같은 원리예요. 행사의 홈페이지 링크(linkUrl) 페이지 안에 있는
+    //     og:image 메타태그를 읽어서, 그 행사를 실제로 홍보한 진짜 사진을 가져와요.
+    //     장소 참고사진(TourAPI)보다 더 정확해서 1순위로 먼저 시도해요.
+    //     ⚠️ 페이지 전체를 다 안 받고 앞부분(약 100KB)만 읽어요 — og:image는
+    //     보통 <head> 안, 즉 페이지 맨 앞쪽에 있어서 이걸로 충분하고, 서버 응답도
+    //     훨씬 빨라져요.
+    // ════════════════════════════════════════════════════
+    if (type === 'linkPreview') {
+      const targetUrl = req.query.url || '';
+      if (!targetUrl || !/^https?:\/\//i.test(targetUrl)) {
+        return res.status(200).json({ ok:true, imgUrl:'' });
+      }
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(function(){ controller.abort(); }, 5000);
+        const r = await fetch(targetUrl, {
+          signal: controller.signal,
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BomnalMadangBot/1.0; +https://bomnal-madang.vercel.app)' },
+        });
+        clearTimeout(timeoutId);
+
+        let html = '';
+        if (r.body && r.body.getReader) {
+          const reader = r.body.getReader();
+          let received = 0;
+          const maxBytes = 100000; // 약 100KB
+          while (received < maxBytes) {
+            const chunk = await reader.read();
+            if (chunk.done) break;
+            html += Buffer.from(chunk.value).toString('utf-8');
+            received += chunk.value.length;
+          }
+          try { reader.cancel(); } catch(e){}
+        } else {
+          html = (await r.text()).slice(0, 100000);
+        }
+
+        // (한글 설명) 속성 순서가 사이트마다 달라서(og:image가 먼저/content가 먼저)
+        //             두 가지 순서 다 시도해요.
+        let m = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i);
+        if (!m) m = html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+        const imgUrl = m ? m[1] : '';
+
+        res.setHeader('Cache-Control','s-maxage=604800'); // 1주일 캐시
+        return res.status(200).json({ ok:true, imgUrl });
+      } catch (e) {
+        // (한글 설명) 상대방 사이트가 느리거나, 접속을 막거나, og:image가 없어도
+        //             에러로 화면이 깨지지 않고 그냥 "사진 없음"으로 처리돼요.
+        return res.status(200).json({ ok:true, imgUrl:'' });
+      }
+    }
+
+    // ════════════════════════════════════════════════════
+    // [M-2] 이달의 문화행사용 "장소 참고사진" (한국관광공사 TourAPI 재사용)
+    //     (한글 설명) 이달의 문화행사 API는 사진이 거의 없어서, 행사 장소명으로
+    //     TourAPI에 검색해 "그 장소가 어떤 곳인지 보여주는 참고사진"을 대신 가져와요.
+    //     행사 자체 사진이 아니므로, 화면에는 반드시 "장소 참고사진"이라고
+    //     표시해서 착각하지 않게 해야 해요.
+    //     ⚠️ 엉뚱한 사진을 잘못 보여주지 않도록, 검색어의 핵심 단어(첫 단어)가
+    //     실제로 결과 제목에 포함될 때만 채택해요(실제 테스트로 "고가"처럼 흔한
+    //     단어는 엉뚱한 결과가 나오는 걸 확인해서, 안전장치를 넣었어요).
+    // ════════════════════════════════════════════════════
+    if (type === 'placePhoto') {
+      const apiKey = process.env.TOURAPI_KEY;
+      if (!apiKey) return res.status(200).json({ ok:true, imgUrl:'' }); // 키 없어도 화면이 안 깨지게
+
+      const keyword = (req.query.keyword || '').trim();
+      if (!keyword) return res.status(200).json({ ok:true, imgUrl:'' });
+
+      const keyEnc = encodeURIComponent(apiKey);
+      const url = `https://apis.data.go.kr/B551011/KorService2/searchKeyword2`
+        + `?serviceKey=${keyEnc}&numOfRows=3&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
+        + `&_type=json&arrange=O&keyword=${encodeURIComponent(keyword)}`;
+
+      try {
+        const r = await fetch(url);
+        const text = await r.text();
+        const j = JSON.parse(text);
+        const body = j && j.response && j.response.body;
+        const rawItems = (body && body.items && (Array.isArray(body.items.item) ? body.items.item : (body.items.item ? [body.items.item] : []))) || [];
+
+        // (한글 설명) 콤마나 공백으로 나눈 첫 단어를 핵심 단어로 봐요.
+        //             (예: "손대식,손병순 고가" → "손대식")
+        const coreWord = keyword.split(/[\s,·]+/)[0];
+        const match = rawItems.find(function(it){
+          return it.firstimage && it.title && coreWord && it.title.indexOf(coreWord) !== -1;
+        });
+
+        res.setHeader('Cache-Control','s-maxage=604800'); // 장소 사진은 자주 안 바뀌니 1주일 캐시
+        return res.status(200).json({
+          ok: true,
+          imgUrl: match ? match.firstimage : '',
+          matchedTitle: match ? match.title : '',
+        });
+      } catch (e) {
+        return res.status(200).json({ ok:true, imgUrl:'' });
+      }
+    }
+
+    // ════════════════════════════════════════════════════
     // [L] 문화시설 자세히보기 - 전화번호·홈페이지 (한국관광공사 TourAPI, detailCommon2)
     //     (한글 설명) [K]번 목록에는 전화번호가 안 들어있어서, "자세히보기"를
     //     눌렀을 때만 딱 한 번 더 불러오는 지연호출(lazy call)이에요.
@@ -757,7 +863,7 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug' });
+    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview' });
 
   } catch (err) {
     return res.status(500).json({ ok:false, message:'서버 오류: '+err.message });

@@ -1207,6 +1207,10 @@ function fetchEventsPage() {
       var html = '';
       newItems.forEach(function(item, i){ html += renderEventCard(item, startIdx+i); });
       document.getElementById('event-list').innerHTML += html;
+      // (한글 설명) 사진이 없는 행사들만 골라서, 장소 참고사진을 하나씩 비동기로 찾아봐요.
+      newItems.forEach(function(item, i){
+        if (!item.imgUrl) fetchEventPlacePhoto(item, startIdx+i);
+      });
       // (한글 설명) 더보기 버튼이 잘 나오는지 눈으로 바로 알 수 있게, 지금까지 받은
       //             개수와 전체 개수를 비교해서 더 있으면 버튼을 보여줘요.
       document.getElementById('event-more-wrap').style.display =
@@ -1242,7 +1246,7 @@ function renderEventCard(item, idx){
   var dateStr = item.dateStr || ((item.startDate&&item.endDate) ? item.startDate+' ~ '+item.endDate : (item.startDate||''));
   var mapKeyword = [item.place, item.sido].filter(Boolean).join(' ');
   return '<div style="background:#fff9fa;border:1.5px solid #f8bbd0;border-radius:14px;overflow:hidden;margin-bottom:12px;">'
-    + imgHtml
+    + '<div id="event-img-'+idx+'">'+imgHtml+'</div>'
     + '<div style="padding:14px;">'
     + '<div class="facility-card-title" style="font-weight:800;color:#1a1a1a;margin-bottom:5px;word-break:keep-all;">'+item.title+'</div>'
     + (placeStr?'<div class="facility-card-addr" style="color:#666;margin-bottom:3px;">📍 '+placeStr+'</div>':'')
@@ -1252,6 +1256,47 @@ function renderEventCard(item, idx){
     + '<button class="facility-detail-btn" onclick="toggleEventDetail('+idx+',this)" style="width:100%;margin-top:4px;padding:10px;background:#fce4ec;color:#c62828;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">🔍 자세히 보기</button>'
     + '<div id="event-detail-'+idx+'" style="display:none;margin-top:8px;"></div>'
     + '</div></div>';
+}
+
+// (한글 설명) 행사 자체 사진이 없을 때 2단계로 시도해요:
+//   1순위: 홈페이지 링크의 미리보기 사진(og:image) — 그 행사를 실제로 홍보한 진짜 사진
+//   2순위: 장소 참고사진(TourAPI) — 1순위가 없을 때만
+// 둘 다 없으면 그냥 사진 없이 둬요(억지로 안 채움).
+function fetchEventPlacePhoto(item, idx){
+  function showPhoto(imgUrl, labelText){
+    var el = document.getElementById('event-img-'+idx);
+    if (!el) return;
+    el.innerHTML = '<div style="position:relative;">'
+      + '<img src="'+imgUrl+'" style="width:100%;height:150px;object-fit:cover;border-radius:14px 14px 0 0;display:block;" onerror="this.parentElement.parentElement.style.display=\'none\'">'
+      + '<span style="position:absolute;bottom:5px;right:6px;font-size:10px;color:#fff;background:rgba(0,0,0,0.5);padding:2px 7px;border-radius:5px;">'+labelText+'</span>'
+      + '</div>';
+  }
+
+  function tryPlacePhoto(){
+    var keyword = item.place || item.title;
+    if (!keyword) return;
+    fetch('/api/culture?type=placePhoto&keyword='+encodeURIComponent(keyword))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d && d.ok && d.imgUrl) showPhoto(d.imgUrl, '📍 장소 참고사진');
+      })
+      .catch(function(){});
+  }
+
+  if (item.linkUrl) {
+    fetch('/api/culture?type=linkPreview&url='+encodeURIComponent(item.linkUrl))
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (d && d.ok && d.imgUrl) {
+          showPhoto(d.imgUrl, '🔗 행사 소개 사진');
+        } else {
+          tryPlacePhoto();
+        }
+      })
+      .catch(function(){ tryPlacePhoto(); });
+  } else {
+    tryPlacePhoto();
+  }
 }
 
 // (한글 설명) 좌표가 없는 장소용 지도 버튼이에요. 카카오맵의 "키워드 검색" 주소
