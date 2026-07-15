@@ -142,6 +142,9 @@
    페이지2 — 오늘의 문화재
 ════════════════════════════════════════ */
 .heritage-type-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 14px; }
+.perf2-tab-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 14px; }
+.perf2-tab-btn { padding: 10px 6px; border: 2px solid #b3e5fc; border-radius: 12px; background: #fff; font-size: 14px; font-weight: 600; color: #0277bd; cursor: pointer; font-family: inherit; text-align: center; }
+.perf2-tab-btn.active { background: #0277bd; color: #fff; border-color: #0277bd; }
 .heritage-type-btn { padding: 10px 6px; border: 2px solid #f8bbd0; border-radius: 12px; background: #fff; font-size: 15px; font-weight: 600; color: #c62828; cursor: pointer; font-family: inherit; text-align: center; }
 .heritage-type-btn.active { background: #c62828; color: #fff; border-color: #c62828; }
 .heritage-card { background: #fff9fa; border: 1.5px solid #f8bbd0; border-radius: 14px; overflow: hidden; margin-bottom: 10px; }
@@ -274,6 +277,7 @@ body.big-font .event-card-date { font-size: 16px !important; }
 body.big-font .event-card-link { font-size: 19px !important; }
 body.big-font .event-empty { font-size: 20px !important; }
 body.big-font .heritage-type-btn { font-size: 19px !important; }
+body.big-font .perf2-tab-btn { font-size: 19px !important; }
 body.big-font .heritage-card-img { font-size: 62px !important; }
 body.big-font .heritage-card-badge { font-size: 16px !important; }
 body.big-font .heritage-card-name { font-size: 24px !important; }
@@ -818,27 +822,45 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
         <div class="page-box-title" style="color:#0277bd;">🎪 통합 공연정보</div>
       </div>
       <div class="page-box-body">
-        <div class="facility-tab-wrap">
-          <button class="perf2-tab facility-tab active" onclick="loadKcisa('perf2',this,'')">🎯 전체</button>
-          <button class="perf2-tab facility-tab" onclick="loadKcisa('perf2',this,'연극')">🎭 연극</button>
-          <button class="perf2-tab facility-tab" onclick="loadKcisa('perf2',this,'뮤지컬')">🎬 뮤지컬</button>
-          <button class="perf2-tab facility-tab" onclick="loadKcisa('perf2',this,'국악')">🥁 국악</button>
-          <button class="perf2-tab facility-tab" onclick="loadKcisa('perf2',this,'무용')">💃 무용</button>
-          <button class="perf2-tab facility-tab" onclick="loadKcisa('perf2',this,'콘서트')">🎵 콘서트</button>
+        <div class="perf2-tab-grid">
+          <button class="perf2-tab-btn active" onclick="selectPerf2Genre('A000,B000,B002,C000,B003',this)">🎯 전체</button>
+          <button class="perf2-tab-btn" onclick="selectPerf2Genre('A000',this)">🎭 연극</button>
+          <button class="perf2-tab-btn" onclick="selectPerf2Genre('B003',this)">🎬 뮤지컬/오페라</button>
+          <button class="perf2-tab-btn" onclick="selectPerf2Genre('B002',this)">🥁 국악</button>
+          <button class="perf2-tab-btn" onclick="selectPerf2Genre('C000',this)">💃 무용</button>
+          <button class="perf2-tab-btn" onclick="selectPerf2Genre('B000',this)">🎵 음악/콘서트</button>
+        </div>
+        <div class="page-label" style="margin-top:10px;">📍 지역 선택</div>
+        <select class="page-select" id="perf2-sido">
+          <option value="">전체보기</option>
+          <option value="서울">서울특별시</option><option value="부산">부산광역시</option>
+          <option value="대구">대구광역시</option><option value="인천">인천광역시</option>
+          <option value="광주">광주광역시</option><option value="대전">대전광역시</option>
+          <option value="울산">울산광역시</option><option value="세종">세종특별자치시</option>
+          <option value="경기">경기도</option><option value="강원">강원특별자치도</option>
+          <option value="충북">충청북도</option><option value="충남">충청남도</option>
+          <option value="전북">전북특별자치도</option><option value="전남">전라남도</option>
+          <option value="경북">경상북도</option><option value="경남">경상남도</option>
+          <option value="제주">제주특별자치도</option>
+        </select>
+        <button class="search-btn" style="width:100%;background:#0277bd;" onclick="searchPerf2()">🔍 공연 검색</button>
+        <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetPerf2()">🔄 검색 초기화</button>
+        <div id="perf2-hint" class="facility-hint-txt" style="text-align:center;padding:26px 10px;color:#999;">
+          장르·지역을 선택하고 <b>공연 검색</b> 버튼을 눌러주세요.
         </div>
         <div class="cult-loading" id="perf2-loading">
           <span class="cult-loading-icon">🎪</span>
           <div class="cult-loading-txt">공연 정보를 불러오는 중...</div>
-          <div class="cult-loading-sub">문화체육관광부 통합 데이터 확인 중</div>
+          <div class="cult-loading-sub">한국문화정보원 데이터를 확인하고 있어요</div>
         </div>
         <div class="cult-error" id="perf2-error">
           <div class="cult-error-icon">😥</div>
           <div class="cult-error-txt">공연 정보를 불러오지 못했어요.</div>
-          <button class="cult-retry-btn" onclick="loadKcisa('perf2',null,'')">다시 시도</button>
+          <button class="cult-retry-btn" onclick="searchPerf2()">다시 시도</button>
         </div>
         <div id="perf2-list"></div>
         <div id="perf2-more-wrap" style="display:none;margin-top:10px;">
-          <button class="dyn-more-btn" onclick="loadMoreKcisa('perf2')" style="width:100%;padding:12px;background:#e8f5fe;color:#0277bd;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+          <button class="facility-more-btn" onclick="loadMorePerf2()" style="width:100%;padding:12px;background:#e8f5fe;color:#0277bd;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
         </div>
         <div class="cult-coupon-wrap" style="margin-top:14px;">
           <div class="cult-coupon-label">🛍️ 공연 관람 준비 추천</div>
@@ -848,7 +870,7 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
             <span class="cult-coupon-arrow">→</span>
           </a>
         </div>
-        <div class="data-source">※ 출처: 문화체육관광부 공연정보 통합 API (api.kcisa.kr)</div>
+        <div class="data-source">※ 출처: 한국문화정보원 한눈에보는문화정보조회서비스 (culture.go.kr)</div>
       </div>
     </div>
   </div><!-- /page-perf2 -->
@@ -1078,7 +1100,6 @@ function goPage(name) {
   /* 첫 진입 시 데이터 로드 */
   if(name==='quiz'    && !quizStarted)    startQuiz();
   if(name==='facility'&& !facilityLoaded) showFacility('museum', document.querySelector('.facility-tab'));
-  if(name==='perf2'      && !perf2Loaded)       loadKcisa('perf2',   document.querySelector('.perf2-tab'));
   if(name==='exhi'       && !exhiLoaded)        loadKcisa('exhi',    document.querySelector('.exhi-tab'));
   if(name==='museum'     && !museumLoaded)      loadKcisa('museum',  null);
   if(name==='edu'        && !eduLoaded)         loadKcisa('edu',     null);
@@ -1092,6 +1113,7 @@ function goBack() {
   var wasFacilityPage = document.getElementById('page-facility').classList.contains('active');
   var wasEventPage    = document.getElementById('page-event').classList.contains('active');
   var wasHeritagePage = document.getElementById('page-heritage').classList.contains('active');
+  var wasPerf2Page    = document.getElementById('page-perf2').classList.contains('active');
 
   PAGES.forEach(function(p){
     document.getElementById('page-'+p).classList.remove('active');
@@ -1116,6 +1138,10 @@ function goBack() {
     resetHeritageSearch();
     heritageLoaded = false;
   }
+  if (wasPerf2Page) {
+    resetPerf2();
+    perf2Loaded = false;
+  }
 }
 
 window.addEventListener('popstate', function(e) {
@@ -1138,7 +1164,6 @@ window.addEventListener('popstate', function(e) {
   var name = st.page;
   if(name==='quiz'    && !quizStarted)    startQuiz();
   if(name==='facility'&& !facilityLoaded) showFacility('museum', document.querySelector('.facility-tab'));
-  if(name==='perf2'      && !perf2Loaded)       loadKcisa('perf2',   document.querySelector('.perf2-tab'));
   if(name==='exhi'       && !exhiLoaded)        loadKcisa('exhi',    document.querySelector('.exhi-tab'));
   if(name==='museum'     && !museumLoaded)      loadKcisa('museum',  null);
   if(name==='edu'        && !eduLoaded)         loadKcisa('edu',     null);
@@ -2506,6 +2531,150 @@ var perf2Loaded  = false;
 var exhiLoaded   = false;
 var museumLoaded = false;
 var eduLoaded    = false;
+
+/* ════════════════════════════════════════════
+   공연정보(3번) 전용 로직 - 오늘 새로 검증한
+   한국문화정보원 한눈에보는문화정보조회서비스 사용
+════════════════════════════════════════════ */
+var perf2State = { region:'', realmCode:'A000,B000,B002,C000,B003', page:1, items:[] };
+var perf2DetailCache = {};
+
+function selectPerf2Genre(realmCode, btnEl){
+  perf2State.realmCode = realmCode;
+  document.querySelectorAll('.perf2-tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  if (btnEl) btnEl.classList.add('active');
+}
+
+function searchPerf2(){
+  perf2Loaded = true;
+  perf2State.page = 1;
+  perf2State.items = [];
+  perf2State.region = document.getElementById('perf2-sido').value;
+  document.getElementById('perf2-hint').style.display = 'none';
+  document.getElementById('perf2-error').classList.remove('show');
+  document.getElementById('perf2-list').innerHTML = '';
+  document.getElementById('perf2-more-wrap').style.display = 'none';
+  document.getElementById('perf2-loading').classList.add('show');
+  fetchPerf2Page();
+}
+
+function loadMorePerf2(){
+  perf2State.page++;
+  document.getElementById('perf2-more-wrap').style.display = 'none';
+  document.getElementById('perf2-loading').classList.add('show');
+  fetchPerf2Page();
+}
+
+function fetchPerf2Page(){
+  var url = '/api/culture?type=perf2&rows=10&pageNo='+perf2State.page
+    + '&realmCode='+encodeURIComponent(perf2State.realmCode)
+    + (perf2State.region ? '&region='+encodeURIComponent(perf2State.region) : '');
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      document.getElementById('perf2-loading').classList.remove('show');
+      var newItems = (data && data.items) || [];
+      if (perf2State.items.length===0 && newItems.length===0) {
+        document.getElementById('perf2-list').innerHTML =
+          '<div class="facility-hint-txt" style="text-align:center;padding:26px 10px;color:#999;">검색 결과가 없어요.<br>다른 장르나 지역으로 찾아보세요.</div>';
+        return;
+      }
+      var startIdx = perf2State.items.length;
+      perf2State.items = perf2State.items.concat(newItems);
+      var html = '';
+      newItems.forEach(function(item, i){ html += renderPerf2Card(item, startIdx+i); });
+      document.getElementById('perf2-list').innerHTML += html;
+      document.getElementById('perf2-more-wrap').style.display = data.hasMore ? 'block' : 'none';
+    })
+    .catch(function(){
+      document.getElementById('perf2-loading').classList.remove('show');
+      document.getElementById('perf2-error').classList.add('show');
+    });
+}
+
+function resetPerf2(){
+  document.getElementById('perf2-sido').value = '';
+  document.querySelectorAll('.perf2-tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  var firstTab = document.querySelector('.perf2-tab-btn');
+  if (firstTab) firstTab.classList.add('active');
+  perf2State = { region:'', realmCode:'A000,B000,B002,C000,B003', page:1, items:[] };
+  document.getElementById('perf2-list').innerHTML = '';
+  document.getElementById('perf2-more-wrap').style.display = 'none';
+  document.getElementById('perf2-error').classList.remove('show');
+  document.getElementById('perf2-hint').style.display = 'block';
+}
+
+// (한글 설명) 문화시설안내 카드와 같은 스타일이에요: 사진 → 제목·장르·장소·날짜
+//             → 지도로보기·길찾기(좌표 있을 때만) → 자세히보기(가격·전화번호·홈페이지).
+function renderPerf2Card(item, idx){
+  var imgHtml = item.thumbnail
+    ? '<img src="'+item.thumbnail+'" style="width:100%;height:150px;object-fit:cover;border-radius:14px 14px 0 0;display:block;" onerror="this.parentElement.style.display=\'none\'">'
+    : '';
+  var locStr = [item.place, item.area, item.sigungu].filter(Boolean).join(' · ');
+  var dateStr = (item.startDate && item.endDate) ? item.startDate+' ~ '+item.endDate : (item.startDate||'');
+  var hasCoord = item.gpsX && item.gpsY && item.gpsX!=='0' && item.gpsY!=='0';
+  return '<div style="background:#fafafa;border:1.5px solid #b3e5fc;border-radius:14px;overflow:hidden;margin-bottom:12px;">'
+    + imgHtml
+    + '<div style="padding:14px;">'
+    + '<div class="facility-card-title" style="font-weight:800;color:#1a1a1a;margin-bottom:5px;word-break:keep-all;">'+item.title+'</div>'
+    + (item.realmName?'<div class="facility-card-addr" style="color:#0277bd;font-weight:700;margin-bottom:3px;">🎭 '+item.realmName+'</div>':'')
+    + (locStr?'<div class="facility-card-addr" style="color:#666;margin-bottom:3px;">📍 '+locStr+'</div>':'')
+    + (dateStr?'<div class="facility-card-addr" style="color:#888;margin-bottom:8px;">📅 '+dateStr+'</div>':'')
+    + (hasCoord?buildMapLinks(item.title, item.gpsY, item.gpsX):'')
+    + (item.seq
+        ? '<button class="facility-detail-btn" onclick="togglePerf2Detail(\''+item.seq+'\','+idx+',this)" style="width:100%;margin-top:8px;padding:10px;background:#e8f5fe;color:#0277bd;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">🔍 자세히 보기</button>'
+        + '<div id="perf2-detail-'+idx+'" style="display:none;margin-top:8px;"></div>'
+        : '')
+    + '</div></div>';
+}
+
+function togglePerf2Detail(seq, idx, btnEl){
+  var box = document.getElementById('perf2-detail-'+idx);
+  if (!box) return;
+  var opened = box.style.display !== 'none';
+  if (opened) {
+    box.style.display = 'none';
+    btnEl.textContent = '🔍 자세히 보기';
+    return;
+  }
+  box.style.display = 'block';
+  btnEl.textContent = '🔼 접기';
+
+  if (perf2DetailCache[seq]) {
+    renderPerf2DetailBox(box, perf2DetailCache[seq]);
+    return;
+  }
+  box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#999;">불러오는 중...</div>';
+  fetch('/api/culture?type=cultureInfoDetail&seq='+encodeURIComponent(seq))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      perf2DetailCache[seq] = d;
+      renderPerf2DetailBox(box, d);
+    })
+    .catch(function(){
+      box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#c62828;">정보를 불러오지 못했어요.</div>';
+    });
+}
+
+function renderPerf2DetailBox(box, data){
+  var html = '';
+  if (data && data.phone) {
+    html += '<a href="tel:'+data.phone+'" class="facility-tel-btn" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e8f5e9;color:#2e7d32;font-weight:700;margin-bottom:8px;">📞 '+data.phone+'</a>';
+  }
+  if (data && data.price) {
+    html += '<div class="facility-card-addr" style="color:#c62828;font-weight:700;margin-bottom:8px;">💰 '+data.price+'</div>';
+  }
+  if (data && data.homepage) {
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 홈페이지 방문</a>';
+  }
+  if (data && data.overview) {
+    html += '<div class="facility-overview-txt" style="color:#444;line-height:1.8;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+data.overview+'</div>';
+  }
+  if (!html) {
+    html = '<div class="facility-hint-txt" style="text-align:center;padding:10px;color:#999;">추가 정보가 등록되어 있지 않아요.</div>';
+  }
+  box.innerHTML = html;
+}
 
 /* 테마 색상 (타입별) */
 var kcisaTheme = {

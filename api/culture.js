@@ -28,6 +28,71 @@ function parseItems(xmlText, tag) {
   return (xmlText.match(new RegExp('<'+t+'>[\\s\\S]*?<\\/'+t+'>', 'g')) || []);
 }
 
+// (한글 설명) 문화재청 원본 데이터에 <시군구>내용</sigungu> 처럼 여닫는 태그명이
+//             서로 다르게 오는 오류가 있어서(실제 테스트로 확인됨), sigungu만
+//             전용으로 한글/영문 태그명 둘 다 시도해서 안전하게 뽑아내요.
+function getSigungu(xml) {
+  let m = xml.match(/<sigungu>([\s\S]*?)<\/sigungu>/);
+  if (!m) m = xml.match(/<시군구>([\s\S]*?)<\/sigungu>/);
+  if (!m) m = xml.match(/<시군구>([\s\S]*?)<\/시군구>/);
+  return m ? m[1].replace(/<!\[CDATA\[|\]\]>/g,'').trim() : '';
+}
+
+// (한글 설명) [한국문화정보원_한눈에보는문화정보조회서비스] 공용 조회 함수예요.
+//             3·4·6번(공연/전시/교육정보) 아이콘이 다 이 API 하나를 재사용해요.
+//             realmCodes가 여러 개면(예: 공연 "전체" 탭) 동시에 다 불러와서 합쳐요.
+//             ※ 실제 테스트로 확인된 것: sido는 "서울"처럼 짧은 이름만 통함,
+//             _type=json 넣으면 응답이 비어버림(XML 그대로 받아야 함).
+async function fetchCultureInfoRealm(apiKey, realmCodes, region, rows, pageNo) {
+  const keyEnc = encodeURIComponent(apiKey);
+  const results = await Promise.all(realmCodes.map(async function(code){
+    let url = `https://apis.data.go.kr/B553457/cultureinfo/realm2`
+      + `?serviceKey=${keyEnc}&PageNo=${pageNo}&numOfrows=${rows}&realmCode=${code}`;
+    if (region) url += `&sido=${encodeURIComponent(region)}`;
+    try {
+      const r = await fetch(url);
+      const text = await r.text();
+      const rawItems = parseItems(text, 'item');
+      const totalM = text.match(/<totalCount>(\d+)<\/totalCount>/);
+      const items = rawItems.map(function(x){
+        return {
+          seq      : getVal(x,'seq'),
+          title    : getVal(x,'title'),
+          startDate: getVal(x,'startDate'),
+          endDate  : getVal(x,'endDate'),
+          place    : getVal(x,'place'),
+          realmName: getVal(x,'realmName'),
+          area     : getVal(x,'area'),
+          sigungu  : getSigungu(x),
+          thumbnail: getVal(x,'thumbnail'),
+          gpsX     : getVal(x,'gpsX'),
+          gpsY     : getVal(x,'gpsY'),
+        };
+      });
+      return { items, totalCount: totalM ? parseInt(totalM[1]) : items.length };
+    } catch (e) {
+      return { items: [], totalCount: 0 };
+    }
+  }));
+
+  // (한글 설명) 여러 분야를 합칠 때는 seq(고유번호) 기준으로 중복을 제거해요.
+  const seen = {};
+  let merged = [];
+  results.forEach(function(r){ merged = merged.concat(r.items); });
+  merged = merged.filter(function(it){
+    if (!it.seq || seen[it.seq]) return false;
+    seen[it.seq] = true;
+    return true;
+  });
+
+  const totalCount = realmCodes.length === 1 ? results[0].totalCount : merged.length;
+  // (한글 설명) 하나라도 이번 페이지에 꽉 채워서(rows개) 왔으면, 다음 페이지도
+  //             있을 가능성이 높다고 보고 "더보기"를 보여줘요.
+  const hasMore = results.some(function(r){ return r.items.length >= rows; });
+
+  return { items: merged, totalCount, hasMore };
+}
+
 export default async function handler(req, res) {
 
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -319,35 +384,55 @@ export default async function handler(req, res) {
     }
 
     // ════════════════════════════════
-    // [E] 공연정보 통합 (api.kcisa.kr — API_CCA_144)
+    // [E] 공연정보 통합 (한국문화정보원 한눈에보는문화정보조회서비스, realmCode 기반)
+    //     (한글 설명) 예전엔 api.kcisa.kr에서 키워드로 대충 검색했는데, 오늘 확인한
+    //     정확한 realmCode로 교체했어요. 연극=A000, 콘서트=B000, 국악=B002,
+    //     무용=C000, 뮤지컬/오페라=B003. "전체" 탭은 이 5개를 한번에 합쳐서 보여줘요.
     // ════════════════════════════════
     if (type === 'perf2') {
-      const apiKey = process.env.CULTURE_PERF_KEY;
-      if (!apiKey) return res.status(500).json({ ok:false, message:'CULTURE_PERF_KEY 없음' });
-      const numOfRows = req.query.rows   || '10';
-      const pageNo    = req.query.cPage  || '1';
-      const keyword   = req.query.keyword|| '';
-      const url = `https://api.kcisa.kr/openapi/API_CCA_144/request`
-        + `?serviceKey=${encodeURIComponent(apiKey)}`
-        + `&numOfRows=${numOfRows}&pageNo=${pageNo}`
-        + (keyword ? `&keyword=${encodeURIComponent(keyword)}` : '');
-      const xmlText = await (await fetch(url)).text();
-      const items = parseItems(xmlText,'item').map(function(x){
-        return {
-          title    : getVal(x,'TITLE'),       // 공연명
-          period   : getVal(x,'PERIOD'),      // 기간
-          place    : getVal(x,'EVENT_SITE'),  // 장소
-          charge   : getVal(x,'CHARGE'),      // 요금
-          thumbnail: getVal(x,'THUMBNAIL'),   // 이미지
-          url      : getVal(x,'URL'),         // 상세링크
-          duration : getVal(x,'DURATION'),    // 공연시간
-        };
-      });
-      const totalCount = getVal(xmlText,'totalCount') || '0';
+      const apiKey = process.env.TOURAPI_KEY;
+      if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
+      const realmCodeParam = req.query.realmCode || 'A000,B000,B002,C000,B003';
+      const realmCodes = realmCodeParam.split(',');
+      const region  = req.query.region || '';
+      const rows    = parseInt(req.query.rows)   || 10;
+      const pageNo  = parseInt(req.query.pageNo) || 1;
+
+      const { items, totalCount, hasMore } = await fetchCultureInfoRealm(apiKey, realmCodes, region, rows, pageNo);
       res.setHeader('Cache-Control','s-maxage=3600');
-      return res.status(200).json({ ok:true, type:'perf2', totalCount, items });
+      return res.status(200).json({ ok:true, type:'perf2', totalCount, hasMore, pageNo, items });
     }
 
+    // ════════════════════════════════
+    // [E-2] 문화정보 상세정보 (한눈에보는문화정보조회서비스 /detail2, 3·4·6번 공용)
+    //     (한글 설명) 목록엔 없는 가격·설명·전화번호·홈페이지를 "자세히보기" 눌렀을
+    //     때만 지연호출로 가져와요(오늘 확인한 Swagger 명세로 정확히 검증됨).
+    // ════════════════════════════════
+    if (type === 'cultureInfoDetail') {
+      const apiKey = process.env.TOURAPI_KEY;
+      if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
+      const seq = req.query.seq || '';
+      if (!seq) return res.status(200).json({ ok:true, overview:'', phone:'', homepage:'', price:'', imgUrl:'' });
+      const keyEnc = encodeURIComponent(apiKey);
+      const url = `https://apis.data.go.kr/B553457/cultureinfo/detail2?serviceKey=${keyEnc}&seq=${encodeURIComponent(seq)}`;
+      try {
+        const r = await fetch(url);
+        const text = await r.text();
+        const item = parseItems(text, 'item')[0] || '';
+        res.setHeader('Cache-Control','s-maxage=86400');
+        return res.status(200).json({
+          ok: true,
+          overview: getVal(item,'contents1'),
+          phone   : getVal(item,'phone'),
+          homepage: getVal(item,'url'),
+          price   : getVal(item,'price'),
+          imgUrl  : getVal(item,'imgUrl'),
+          placeAddr: getVal(item,'placeAddr'),
+        });
+      } catch (e) {
+        return res.status(200).json({ ok:true, overview:'', phone:'', homepage:'', price:'', imgUrl:'' });
+      }
+    }
     // ════════════════════════════════
     // [F] 전시정보 통합 (api.kcisa.kr — API_CCA_145)
     // ════════════════════════════════
@@ -1010,7 +1095,7 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview/cultureInfoDebug/heritageDetail/heritageCodeDiscovery' });
+    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview/cultureInfoDebug/heritageDetail/heritageCodeDiscovery/cultureInfoDetail' });
 
   } catch (err) {
     return res.status(500).json({ ok:false, message:'서버 오류: '+err.message });
