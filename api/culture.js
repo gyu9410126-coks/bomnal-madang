@@ -217,18 +217,25 @@ export default async function handler(req, res) {
         });
       });
 
-      // (한글 설명) 68개를 한꺼번에 동시에 요청해서 빨리 끝나게 해요.
-      const results = await Promise.all(jobs.map(async function(j){
-        const url = `https://www.khs.go.kr/cha/SearchKindOpenapiList.do?ccbaKdcd=${j.kdcd}&pageUnit=1&pageIndex=1&ccbaCtcd=${j.ctcd}`;
-        try {
-          const r = await fetch(url);
-          const text = await r.text();
-          const m = text.match(/<totalCnt>(\d+)<\/totalCnt>/);
-          return { 종류:j.kdcdName, 지역:j.ctcdName, 개수: m ? parseInt(m[1]) : -1 };
-        } catch (e) {
-          return { 종류:j.kdcdName, 지역:j.ctcdName, 개수: -1, 오류: e.message };
-        }
-      }));
+      // (한글 설명) 68개를 한꺼번에 다 보냈더니 정부 서버가 버거워했는지 대부분
+      //             실패했어요(실제 테스트로 확인). 8개씩 나눠서 차례로 보내요.
+      const BATCH_SIZE = 8;
+      const results = [];
+      for (let i = 0; i < jobs.length; i += BATCH_SIZE) {
+        const batch = jobs.slice(i, i + BATCH_SIZE);
+        const batchResults = await Promise.all(batch.map(async function(j){
+          const url = `https://www.khs.go.kr/cha/SearchKindOpenapiList.do?ccbaKdcd=${j.kdcd}&pageUnit=1&pageIndex=1&ccbaCtcd=${j.ctcd}`;
+          try {
+            const r = await fetch(url);
+            const text = await r.text();
+            const m = text.match(/<totalCnt>(\d+)<\/totalCnt>/);
+            return { 종류:j.kdcdName, 지역:j.ctcdName, 개수: m ? parseInt(m[1]) : -1 };
+          } catch (e) {
+            return { 종류:j.kdcdName, 지역:j.ctcdName, 개수: -1, 오류: e.message };
+          }
+        }));
+        results.push(...batchResults);
+      }
 
       // (한글 설명) 0개이거나 오류(-1)인 것만 따로 뽑아서 눈에 잘 띄게 보여줘요.
       const zeroOrError = results.filter(function(x){ return x.개수 <= 0; });
