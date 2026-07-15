@@ -189,22 +189,31 @@ export default async function handler(req, res) {
     }
 
     // ════════════════════════════════════════════════════
-    // [O] (임시 진단용) 문화재 상세정보 API 후보 테스트
-    //     (한글 설명) SearchImageOpenapi.do랑 같은 계열일 것으로 짐작되는
-    //     SearchDetailOpenapi.do가 실제로 있는지 테스트하는 도구예요.
+    // [O] (임시 진단용) 문화재 상세정보 - 국가유산포털(heritage.go.kr) 스크래핑 테스트
+    //     (한글 설명) 레거시 상세 API(SearchDetailOpenapi.do)는 404라 존재하지
+    //     않는 걸로 확인됐어요. 대신 국가유산포털의 실제 상세페이지 주소를
+    //     찾았어요(우리가 이미 가진 ccbaKdcd/ccbaAsno/ccbaCtcd/ccbaCpno로 바로
+    //     들어갈 수 있음). 이달의 문화행사 때 만든 linkPreview와 같은 방식으로
+    //     og:image·og:description을 긁어와 보는 테스트예요.
     // ════════════════════════════════════════════════════
     if (type === 'heritageDetailDebug') {
       const ccbaKdcd = req.query.ccbaKdcd || '11';
       const ccbaAsno = req.query.ccbaAsno || '';
       const ccbaCtcd = req.query.ccbaCtcd || '';
-      const url = `https://www.khs.go.kr/cha/SearchDetailOpenapi.do?ccbaKdcd=${ccbaKdcd}&ccbaAsno=${ccbaAsno}&ccbaCtcd=${ccbaCtcd}`;
+      const ccbaCpno = req.query.ccbaCpno || '';
+      const url = `https://my.heritage.go.kr/public/commentary/culSelectDetail.do`
+        + `?ccbaKdcd=${ccbaKdcd}&ccbaAsno=${ccbaAsno}&ccbaCtcd=${ccbaCtcd}&ccbaCpno=${ccbaCpno}&menuId=01_06`;
       try {
-        const r = await fetch(url);
-        const text = await r.text();
+        const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BomnalMadangBot/1.0)' } });
+        const html = await r.text();
+        const ogImage = (html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
+        const ogDesc  = (html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
+        const ogTitle = (html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
         return res.status(200).json({
           ok: true, debug: true, requestUrl: url,
-          httpStatus: r.status, responseLength: text.length,
-          rawResponseSample: text.slice(0, 2000),
+          httpStatus: r.status, responseLength: html.length,
+          ogImage, ogDescription: ogDesc, ogTitle,
+          rawHtmlSample: html.slice(0, 1500),
         });
       } catch (e) {
         return res.status(200).json({ ok:false, message: e.message });
