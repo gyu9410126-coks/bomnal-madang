@@ -55,7 +55,11 @@ export default async function handler(req, res) {
       const rows   = parseInt(req.query.rows)   || 10;
       const pageNo = parseInt(req.query.pageNo) || 1;
 
-      const url = `https://www.khs.go.kr/cha/openapi/selectEventListOpenapi.do?searchYear=${year}&searchMonth=${month}`;
+      let url = `https://www.khs.go.kr/cha/openapi/selectEventListOpenapi.do?searchYear=${year}&searchMonth=${month}`;
+      // (한글 설명) 실험용: 사람이 보는 웹페이지(evInfo/selectInfoList.do)에서
+      //             sidoCode 파라미터를 쓰는 걸 발견해서, 이 API도 같은 파라미터를
+      //             지원하는지 테스트해봐요.
+      if (req.query.sidoCode) url += `&sidoCode=${req.query.sidoCode}`;
       const xmlText = await (await fetch(url)).text();
       const rawItems = parseItems(xmlText,'item');
 
