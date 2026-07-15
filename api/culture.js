@@ -690,6 +690,42 @@ export default async function handler(req, res) {
     }
 
     // ════════════════════════════════════════════════════
+    // [N] (임시 진단용) 한국문화정보원 "한눈에보는문화정보조회서비스" 확인 도구
+    //     (한글 설명) 3·4·5·6번 아이콘(공연/전시/박물관행사/교육정보) 재작업 전에,
+    //     Swagger 문서로 확인한 realmCode·sido 파라미터가 실제로 잘 작동하는지
+    //     확인하는 일회성 도구예요. 화면에는 안 쓰고 확인용으로만 써요.
+    //     예: &endpoint=realm2&realmCode=G000&sido=서울특별시
+    // ════════════════════════════════════════════════════
+    if (type === 'cultureInfoDebug') {
+      const apiKey = process.env.TOURAPI_KEY; // 경아오빠 확인: TourAPI와 같은 공통 인증키
+      if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
+
+      const endpoint = req.query.endpoint || 'realm2'; // period2 | area2 | detail2 | realm2
+      const keyEnc = encodeURIComponent(apiKey);
+
+      let url = `https://apis.data.go.kr/B553457/cultureinfo/${endpoint}`
+        + `?serviceKey=${keyEnc}&PageNo=1&numOfrows=5&_type=json`;
+
+      // (한글 설명) 문서에 나온 파라미터들을 있으면 그대로 붙여서 테스트해봐요.
+      const passthroughParams = ['realmCode','serviceTp','sido','sigungu','from','to','place','keyword','sortStdr','seq','gpsxfrom','gpsyfrom','gpsxto','gpsyto'];
+      passthroughParams.forEach(function(p){
+        if (req.query[p]) url += `&${p}=${encodeURIComponent(req.query[p])}`;
+      });
+
+      try {
+        const r = await fetch(url);
+        const text = await r.text();
+        return res.status(200).json({
+          ok: true, debug: true,
+          requestUrl: url.replace(keyEnc, '(서비스키-숨김)'),
+          rawResponseSample: text.slice(0, 3000),
+        });
+      } catch (e) {
+        return res.status(200).json({ ok:false, message: e.message });
+      }
+    }
+
+    // ════════════════════════════════════════════════════
     // [M-1] 이달의 문화행사용 "링크 미리보기 사진" (og:image 방식)
     //     (한글 설명) 카카오톡에 링크를 붙여넣으면 자동으로 대표사진이 뜨는 것과
     //     같은 원리예요. 행사의 홈페이지 링크(linkUrl) 페이지 안에 있는
@@ -873,7 +909,7 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview' });
+    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview/cultureInfoDebug' });
 
   } catch (err) {
     return res.status(500).json({ ok:false, message:'서버 오류: '+err.message });
