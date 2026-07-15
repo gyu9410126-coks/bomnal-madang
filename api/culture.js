@@ -188,6 +188,29 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok:true, type:'image', images });
     }
 
+    // ════════════════════════════════════════════════════
+    // [O] (임시 진단용) 문화재 상세정보 API 후보 테스트
+    //     (한글 설명) SearchImageOpenapi.do랑 같은 계열일 것으로 짐작되는
+    //     SearchDetailOpenapi.do가 실제로 있는지 테스트하는 도구예요.
+    // ════════════════════════════════════════════════════
+    if (type === 'heritageDetailDebug') {
+      const ccbaKdcd = req.query.ccbaKdcd || '11';
+      const ccbaAsno = req.query.ccbaAsno || '';
+      const ccbaCtcd = req.query.ccbaCtcd || '';
+      const url = `https://www.khs.go.kr/cha/SearchDetailOpenapi.do?ccbaKdcd=${ccbaKdcd}&ccbaAsno=${ccbaAsno}&ccbaCtcd=${ccbaCtcd}`;
+      try {
+        const r = await fetch(url);
+        const text = await r.text();
+        return res.status(200).json({
+          ok: true, debug: true, requestUrl: url,
+          httpStatus: r.status, responseLength: text.length,
+          rawResponseSample: text.slice(0, 2000),
+        });
+      } catch (e) {
+        return res.status(200).json({ ok:false, message: e.message });
+      }
+    }
+
     // ════════════════════════════════
     // [D] 공연·전시 정보 (문화포털 culture.go.kr)
     // ════════════════════════════════
@@ -915,7 +938,7 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview/cultureInfoDebug' });
+    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview/cultureInfoDebug/heritageDetailDebug' });
 
   } catch (err) {
     return res.status(500).json({ ok:false, message:'서버 오류: '+err.message });
