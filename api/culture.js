@@ -704,7 +704,9 @@ export default async function handler(req, res) {
       const keyEnc = encodeURIComponent(apiKey);
 
       let url = `https://apis.data.go.kr/B553457/cultureinfo/${endpoint}`
-        + `?serviceKey=${keyEnc}&PageNo=1&numOfrows=5&_type=json`;
+        + `?serviceKey=${keyEnc}&PageNo=1&numOfrows=5`;
+      // (한글 설명) _type=json이 이 API에서도 되는지 확실치 않아서 일단 빼고
+      //             기본 응답(아마 XML)을 그대로 받아봐요.
 
       // (한글 설명) 문서에 나온 파라미터들을 있으면 그대로 붙여서 테스트해봐요.
       const passthroughParams = ['realmCode','serviceTp','sido','sigungu','from','to','place','keyword','sortStdr','seq','gpsxfrom','gpsyfrom','gpsxto','gpsyto'];
@@ -718,6 +720,10 @@ export default async function handler(req, res) {
         return res.status(200).json({
           ok: true, debug: true,
           requestUrl: url.replace(keyEnc, '(서비스키-숨김)'),
+          httpStatus: r.status,
+          httpStatusText: r.statusText,
+          contentType: r.headers.get('content-type'),
+          responseLength: text.length,
           rawResponseSample: text.slice(0, 3000),
         });
       } catch (e) {
