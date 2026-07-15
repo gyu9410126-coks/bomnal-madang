@@ -191,7 +191,23 @@
 .facility-tab-wrap { display: flex; gap: 6px; margin-bottom: 14px; overflow-x: auto; padding-bottom: 4px; }
 .facility-tab { padding: 7px 14px; border: 2px solid #f8bbd0; border-radius: 20px; background: #fff; font-size: 14px; font-weight: 600; color: #c62828; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
 .facility-tab.active { background: #c62828; color: #fff; border-color: #c62828; }
+/* (한글 설명) 문화시설 안내 페이지만 탭 4개를 2×2로 줄맞춤해요(모바일에서 옆으로 안 밀어도 다 보이게).
+   다른 페이지(공연·전시)의 facility-tab-wrap은 원래대로 한 줄 스크롤 방식 그대로 둬요. */
+#page-facility .facility-tab-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; overflow-x: visible; }
+#page-facility .facility-tab { flex-shrink: initial; text-align: center; white-space: normal; }
 .facility-card { background: #fff9fa; border: 1.5px solid #f8bbd0; border-radius: 12px; padding: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; -webkit-tap-highlight-color: transparent; }
+/* (한글 설명) 아래는 문화시설 카드(박물관·문화원·도서관·유적지·궁궐)에서 JS로 만드는
+   동적 콘텐츠 전용 글자크기 클래스예요. 돋보기(글자 크게보기) 기능이 이 클래스들을
+   보고 크기를 키워주기 때문에, 카드 안 글자는 인라인이 아니라 꼭 이 클래스를 써야 해요. */
+.facility-tel-btn { font-size: 14px; }
+.facility-detail-btn { font-size: 13px; }
+.facility-homepage-btn { font-size: 13px; }
+.facility-overview-txt { font-size: 13px; }
+.facility-source-note { font-size: 11px; }
+.facility-hint-txt { font-size: 14px; }
+.facility-card-title { font-size: 16px; }
+.facility-card-addr { font-size: 13px; }
+.facility-more-btn { font-size: 15px; }
 .facility-card:active { background: #fce4ec; }
 .facility-icon { font-size: 28px; width: 52px; height: 52px; background: #fce4ec; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .facility-info { flex: 1; }
@@ -283,6 +299,15 @@ body.big-font .facility-icon { font-size: 36px !important; }
 body.big-font .facility-name { font-size: 21px !important; }
 body.big-font .facility-addr { font-size: 16px !important; }
 body.big-font .facility-num { font-size: 22px !important; }
+body.big-font .facility-tel-btn { font-size: 19px !important; }
+body.big-font .facility-detail-btn { font-size: 18px !important; }
+body.big-font .facility-homepage-btn { font-size: 18px !important; }
+body.big-font .facility-overview-txt { font-size: 18px !important; }
+body.big-font .facility-source-note { font-size: 15px !important; }
+body.big-font .facility-hint-txt { font-size: 19px !important; }
+body.big-font .facility-card-title { font-size: 21px !important; }
+body.big-font .facility-card-addr { font-size: 18px !important; }
+body.big-font .facility-more-btn { font-size: 20px !important; }
 body.big-font .page-label { font-size: 20px !important; }
 body.big-font .page-select { font-size: 21px !important; }
 body.big-font .search-btn { font-size: 20px !important; }
@@ -617,30 +642,21 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <button class="facility-tab" onclick="showFacility('library',this)">📚 도서관</button>
         </div>
 
-        <!-- 궁궐·유적 전용 — 직접 확인한 대표 궁궐 고정 목록 -->
-        <div id="facility-list"></div>
-
-        <!-- 궁궐·유적 탭에서만 보이는 구분선 (다른 탭은 바로 검색 UI로 시작) -->
-        <div id="facility-heritage-heading" style="display:none;text-align:center;margin:18px 0 12px;font-size:14px;font-weight:700;color:#888;">
-          ─── 🗺️ 다른 지역 유적지도 찾아보기 ───<br>
-          <span style="font-weight:400;font-size:12px;color:#aaa;">성곽·고택·사적지·고분 등</span>
-        </div>
-
-        <!-- 박물관·미술관 / 문화원 / 도서관 / 유적지(궁궐탭 하단) 공용 — 지역검색 UI (한국관광공사 TourAPI) -->
+        <!-- 박물관·미술관 / 문화원 / 도서관 / 유적지(TourAPI) 공용 — 지역검색 UI, 항상 맨 위 -->
         <div id="facility-search-wrap" style="display:none;">
           <div class="page-label" style="margin-top:0;">📍 지역 선택</div>
           <select class="page-select" id="facility-sido">
             <option value="">전체보기</option>
             <option>서울특별시</option><option>부산광역시</option><option>대구광역시</option>
-            <option>인천광역시</option><option>광주광역시</option><option>대전광역시</option>
+            <option>인천광역시</option><option>전남광주통합특별시</option><option>대전광역시</option>
             <option>울산광역시</option><option>세종특별자치시</option><option>경기도</option>
             <option>강원특별자치도</option><option>충청북도</option><option>충청남도</option>
-            <option>전북특별자치도</option><option>전라남도</option><option>경상북도</option>
+            <option>전북특별자치도</option><option>경상북도</option>
             <option>경상남도</option><option>제주특별자치도</option>
           </select>
           <button class="search-btn" style="width:100%;background:#2e7d32;" onclick="searchFacilityTour()">🔍 시설 검색</button>
           <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetFacilityTour()">🔄 검색 초기화</button>
-          <div id="facility-hint" style="text-align:center;padding:26px 10px;color:#999;font-size:14px;">
+          <div id="facility-hint" class="facility-hint-txt" style="text-align:center;padding:26px 10px;color:#999;">
             지역을 선택하고 <b>시설 검색</b> 버튼을 눌러주세요.<br>(선택 안 하면 전국 목록이 나와요)
           </div>
           <div class="cult-loading" id="facility-loading">
@@ -655,10 +671,19 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           </div>
           <div id="facility-tour-list"></div>
           <div id="facility-tour-more-wrap" style="display:none;margin-top:10px;">
-            <button onclick="loadMoreFacilityTour()" style="width:100%;padding:12px;background:#e8f5e9;color:#2e7d32;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+            <button class="facility-more-btn" onclick="loadMoreFacilityTour()" style="width:100%;padding:12px;background:#e8f5e9;color:#2e7d32;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
           </div>
-          <div id="facility-tour-source" style="display:none;font-size:11px;color:#aaa;text-align:right;margin-top:6px;">사진·정보 출처: 한국관광공사</div>
+          <div id="facility-tour-source" class="facility-source-note" style="display:none;color:#aaa;text-align:right;margin-top:6px;">사진·정보 출처: 한국관광공사</div>
         </div>
+
+        <!-- 궁궐·유적 탭에서만 보이는 구분선 (검색창과 아래 궁궐 8곳 사이) -->
+        <div id="facility-heritage-heading" class="facility-hint-txt" style="display:none;text-align:center;margin:18px 0 12px;font-weight:700;color:#888;">
+          ─── 🏯 대표 궁궐 8곳 ───<br>
+          <span style="font-weight:400;font-size:0.85em;color:#aaa;">위 검색창은 궁궐 외 지역별 유적지 찾아보기예요</span>
+        </div>
+
+        <!-- 궁궐·유적 전용 — 직접 확인한 대표 궁궐 고정 목록 -->
+        <div id="facility-list"></div>
 
         <div class="cult-coupon-wrap" style="margin-top:14px;">
           <div class="cult-coupon-label">🛍️ 나들이 준비 추천</div>
@@ -1360,21 +1385,29 @@ var FACILITY_DATA = {
   //             궁능유적본부(royal.khs.go.kr)가 통합 운영해요.
   palace:[
     {icon:'🏯',name:'경복궁 관리소',addr:'서울 종로구 사직로 161',tel:'02-3700-3900',lat:37.579617,lon:126.977041,homepage:'https://royal.khs.go.kr',
-      photo:'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg'},
+      photo:'https://tong.visitkorea.or.kr/cms/resource/98/3487598_image2_1.jpg',
+      overview:'조선 왕조의 법궁으로, 1395년 태조 이성계가 세운 최초의 궁궐이에요. 근정전·경회루 등 웅장한 건축물이 있고, 수문장 교대식도 볼 수 있어요.'},
     {icon:'🏯',name:'창덕궁 관리소',addr:'서울 종로구 율곡로 99',tel:'02-3668-2300',lat:37.5794309,lon:126.9910426,homepage:'https://royal.khs.go.kr',
-      photo:'http://tong.visitkorea.or.kr/cms/resource/78/3384878_image2_1.JPG'},
+      photo:'http://tong.visitkorea.or.kr/cms/resource/78/3384878_image2_1.JPG',
+      overview:'이궁으로 지어졌지만 조선 왕들이 가장 오래 머문 궁궐이에요. 자연 지형을 그대로 살린 후원(비원)이 아름답기로 유명하고, 유네스코 세계문화유산이에요.'},
     {icon:'🏯',name:'덕수궁 관리소',addr:'서울 중구 세종대로 99',tel:'02-771-9951',lat:37.5658862,lon:126.9749017,homepage:'https://royal.khs.go.kr',
-      photo:'https://tong.visitkorea.or.kr/cms/resource/44/3584644_image2_1.jpg'},
+      photo:'https://tong.visitkorea.or.kr/cms/resource/44/3584644_image2_1.jpg',
+      overview:'원래 이름은 경운궁으로, 대한제국 시기 고종 황제가 머물던 궁궐이에요. 서양식 건물인 석조전이 함께 있어 다른 궁궐과는 다른 독특한 분위기예요.'},
     {icon:'🏯',name:'창경궁 관리소',addr:'서울 종로구 창경궁로 185',tel:'02-762-4868',lat:37.5788149,lon:126.9949298,homepage:'https://royal.khs.go.kr',
-      photo:'http://tong.visitkorea.or.kr/cms/resource/94/3536794_image2_1.jpg'},
+      photo:'http://tong.visitkorea.or.kr/cms/resource/94/3536794_image2_1.jpg',
+      overview:'성종이 세 대비를 모시기 위해 지은 궁궐로, 조선 후기 왕실 생활의 중심지였어요. 아름다운 대온실이 있어 사계절 산책하기 좋아요.'},
     {icon:'🏯',name:'경희궁 관리소',addr:'서울 종로구 새문안로 45',tel:'02-724-0274',lat:37.5712378,lon:126.9681688,homepage:'https://royal.khs.go.kr',
-      photo:'https://tong.visitkorea.or.kr/cms/resource/37/3482237_image2_1.jpg'},
+      photo:'https://tong.visitkorea.or.kr/cms/resource/37/3482237_image2_1.jpg',
+      overview:'조선 후기 이궁으로 지어졌으며, 한때는 경복궁보다 규모가 컸다고 해요. 지금은 정전인 숭정전 등 일부만 복원되어 있어요.'},
     {icon:'⛩️',name:'종묘 관리소',addr:'서울 종로구 종로 157',tel:'02-765-0195',lat:37.5746313,lon:126.9938158,homepage:'https://royal.khs.go.kr',
-      photo:'https://tong.visitkorea.or.kr/cms/resource_photo/57/4063057_image2_1.jpg'},
+      photo:'https://tong.visitkorea.or.kr/cms/resource_photo/57/4063057_image2_1.jpg',
+      overview:'조선 왕과 왕비의 신위를 모신 사당으로, 유네스코 세계문화유산이에요. 매년 5월 종묘제례가 열리는, 유교 문화를 대표하는 공간이에요.'},
     {icon:'🌿',name:'수원화성 관리소',addr:'경기 수원시 팔달구 행궁로 11',tel:'031-290-3600',lat:37.2819666,lon:127.0137270,homepage:'https://www.visitsuwon.or.kr',
-      photo:'https://tong.visitkorea.or.kr/cms/resource/62/4078262_image2_1.jpg'},
+      photo:'https://tong.visitkorea.or.kr/cms/resource/62/4078262_image2_1.jpg',
+      overview:'정조가 아버지 사도세자를 그리며 지은 성곽과 임시 궁궐이에요. 성곽 전체가 유네스코 세계문화유산이며, 화성행궁에서는 다양한 공연도 볼 수 있어요.'},
     {icon:'🗺️',name:'불국사·석굴암',addr:'경북 경주시 불국로 385',tel:'054-746-9913',lat:35.7898804,lon:129.3318909,homepage:'http://www.bulguksa.or.kr',
-      photo:'https://tong.visitkorea.or.kr/cms/resource/70/3506170_image2_1.jpg'},
+      photo:'https://tong.visitkorea.or.kr/cms/resource/70/3506170_image2_1.jpg',
+      overview:'신라 시대에 지어진 사찰과 석굴 암자로, 함께 유네스코 세계문화유산에 등재되어 있어요. 석굴암 본존불상은 통일신라 불교 예술의 정수로 꼽혀요.'},
   ]
 };
 
@@ -1403,11 +1436,12 @@ function showFacility(type, btnEl){
   }
 }
 
-// (한글 설명) 궁궐·유적 대표 8곳 고정 카드를 만들어요. 사진·전화·지도·홈페이지 다 포함.
+// (한글 설명) 궁궐·유적 대표 8곳 고정 카드를 만들어요. 사진·전화·지도까지는 바로 보이고,
+//             홈페이지·소개글은 다른 탭처럼 "자세히 보기"를 눌러야 펼쳐져요.
 function renderPalaceList(){
   var items = FACILITY_DATA.palace || [];
   var html = '';
-  items.forEach(function(item){
+  items.forEach(function(item, idx){
     var imgHtml = item.photo
       ? '<img src="'+item.photo+'" style="width:100%;height:150px;object-fit:cover;border-radius:14px 14px 0 0;display:block;" onerror="this.style.display=\'none\'">'
       : '';
@@ -1420,13 +1454,40 @@ function renderPalaceList(){
       + '<div class="facility-name">'+item.name+'</div>'
       + '<div class="facility-addr">'+item.addr+'</div>'
       + '</div></div>'
-      + '<a href="tel:'+item.tel+'" style="display:block;text-align:center;padding:10px;border-radius:8px;background:#e8f5e9;color:#2e7d32;text-decoration:none;font-weight:700;font-size:14px;margin-bottom:8px;">📞 '+item.tel+'</a>'
+      + '<a href="tel:'+item.tel+'" class="facility-tel-btn" style="display:block;text-align:center;padding:10px;border-radius:8px;background:#e8f5e9;color:#2e7d32;text-decoration:none;font-weight:700;margin-bottom:8px;">📞 '+item.tel+'</a>'
       + buildMapLinks(item.name, item.lat, item.lon)
-      + (item.homepage ? '<a href="#" onclick="confirmExternalLink(\''+item.homepage+'\');return false;" style="display:block;text-align:center;margin-top:8px;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;text-decoration:none;font-weight:700;font-size:13px;">🔗 홈페이지 방문</a>' : '')
+      + '<button class="facility-detail-btn" onclick="togglePalaceDetail('+idx+',this)" style="width:100%;margin-top:8px;padding:10px;background:#f3e5f5;color:#6a1b9a;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">🔍 자세히 보기</button>'
+      + '<div id="palace-detail-'+idx+'" style="display:none;margin-top:8px;"></div>'
       + '</div></div>';
   });
-  html += '<div style="font-size:11px;color:#aaa;text-align:right;margin:2px 0 4px;">사진 출처: 한국관광공사</div>';
+  html += '<div class="facility-source-note" style="color:#aaa;text-align:right;margin:2px 0 4px;">사진 출처: 한국관광공사</div>';
   return html;
+}
+
+// (한글 설명) 궁궐은 이미 다 알고 있는 고정 데이터라 서버에 다시 물어볼 필요 없이,
+//             누르면 바로 펼쳐서 보여줘요(박물관 자세히보기와 달리 fetch 없음).
+function togglePalaceDetail(idx, btnEl){
+  var box = document.getElementById('palace-detail-'+idx);
+  if (!box) return;
+  var opened = box.style.display !== 'none';
+  if (opened) {
+    box.style.display = 'none';
+    btnEl.textContent = '🔍 자세히 보기';
+    return;
+  }
+  var item = (FACILITY_DATA.palace || [])[idx];
+  if (item && !box.innerHTML) {
+    var html = '';
+    if (item.homepage) {
+      html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+item.homepage+'\');return false;" style="display:block;text-align:center;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;text-decoration:none;font-weight:700;margin-bottom:8px;">🔗 홈페이지 방문</a>';
+    }
+    if (item.overview) {
+      html += '<div class="facility-overview-txt" style="color:#444;line-height:1.7;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+item.overview+'</div>';
+    }
+    box.innerHTML = html;
+  }
+  box.style.display = 'block';
+  btnEl.textContent = '🔼 접기';
 }
 
 // (한글 설명) "시설 검색" 버튼을 누르면 실행돼요. 1페이지부터 새로 시작해요.
@@ -1466,7 +1527,7 @@ function fetchFacilityTourPage(){
 
       if (facilityTourItems.length === 0 && newItems.length === 0) {
         document.getElementById('facility-tour-list').innerHTML =
-          '<div style="text-align:center;padding:26px 10px;color:#999;font-size:14px;">검색 결과가 없어요.<br>다른 지역으로 찾아보세요.</div>';
+          '<div class="facility-hint-txt" style="text-align:center;padding:26px 10px;color:#999;">검색 결과가 없어요.<br>다른 지역으로 찾아보세요.</div>';
         return;
       }
 
@@ -1508,11 +1569,11 @@ function renderFacilityTourCard(item, idx){
   return '<div style="background:#fff9fa;border:1.5px solid #c8e6c9;border-radius:14px;overflow:hidden;margin-bottom:12px;">'
     + imgHtml
     + '<div style="padding:14px;">'
-    + '<div style="font-size:16px;font-weight:800;color:#1a1a1a;margin-bottom:5px;word-break:keep-all;">'+item.title+'</div>'
-    + (item.address ? '<div style="font-size:13px;color:#666;margin-bottom:8px;">📍 '+item.address+'</div>' : '')
+    + '<div class="facility-card-title" style="font-weight:800;color:#1a1a1a;margin-bottom:5px;word-break:keep-all;">'+item.title+'</div>'
+    + (item.address ? '<div class="facility-card-addr" style="color:#666;margin-bottom:8px;">📍 '+item.address+'</div>' : '')
     + buildMapLinks(item.title, item.lat, item.lon)
     + (item.contentid
-        ? '<button onclick="toggleFacilityDetail(\''+item.contentid+'\','+idx+',this)" style="width:100%;margin-top:8px;padding:10px;background:#e8f5e9;color:#2e7d32;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">🔍 자세히 보기</button>'
+        ? '<button class="facility-detail-btn" onclick="toggleFacilityDetail(\''+item.contentid+'\','+idx+',this)" style="width:100%;margin-top:8px;padding:10px;background:#e8f5e9;color:#2e7d32;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">🔍 자세히 보기</button>'
         + '<div id="facility-detail-'+idx+'" style="display:none;margin-top:8px;"></div>'
         : '')
     + '</div></div>';
@@ -1536,7 +1597,7 @@ function toggleFacilityDetail(contentid, idx, btnEl){
     renderFacilityDetailBox(box, facilityDetailCache[contentid]);
     return;
   }
-  box.innerHTML = '<div style="text-align:center;padding:14px;color:#999;font-size:13px;">불러오는 중...</div>';
+  box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#999;">불러오는 중...</div>';
   fetch('/api/culture?type=facilityDetail&contentid='+encodeURIComponent(contentid))
     .then(function(r){ return r.json(); })
     .then(function(data){
@@ -1544,26 +1605,26 @@ function toggleFacilityDetail(contentid, idx, btnEl){
       renderFacilityDetailBox(box, data);
     })
     .catch(function(){
-      box.innerHTML = '<div style="text-align:center;padding:14px;color:#c62828;font-size:13px;">정보를 불러오지 못했어요.</div>';
+      box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#c62828;">정보를 불러오지 못했어요.</div>';
     });
 }
 
 function renderFacilityDetailBox(box, data){
   var html = '';
   if (data && data.tel) {
-    html += '<a href="tel:'+data.tel+'" style="display:block;text-align:center;font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:#e8f5e9;color:#2e7d32;margin-bottom:8px;">📞 '+data.tel+'</a>';
+    html += '<a href="tel:'+data.tel+'" class="facility-tel-btn" style="display:block;text-align:center;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:#e8f5e9;color:#2e7d32;margin-bottom:8px;">📞 '+data.tel+'</a>';
   }
   if (data && data.homepage) {
-    html += '<a href="#" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;margin-bottom:8px;">🔗 홈페이지 방문</a>';
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;font-weight:700;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;margin-bottom:8px;">🔗 홈페이지 방문</a>';
   } else if (!(data && data.tel)) {
     // (한글 설명) 전화번호도 홈페이지도 둘 다 없을 때만 안내 문구를 보여줘요.
     // (개요만 있는 경우엔 아래 overview가 대신 보여지니 문구를 안 겹치게 해요)
   }
   if (data && data.overview) {
-    html += '<div style="font-size:13px;color:#444;line-height:1.7;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+data.overview+'</div>';
+    html += '<div class="facility-overview-txt" style="color:#444;line-height:1.7;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+data.overview+'</div>';
   }
   if (!html) {
-    html = '<div style="text-align:center;padding:10px;color:#999;font-size:13px;">전화번호·홈페이지 등 추가 정보가 등록되어 있지 않아요.</div>';
+    html = '<div class="facility-hint-txt" style="text-align:center;padding:10px;color:#999;">전화번호·홈페이지 등 추가 정보가 등록되어 있지 않아요.</div>';
   }
   box.innerHTML = html;
 }
