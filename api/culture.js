@@ -189,6 +189,54 @@ export default async function handler(req, res) {
     }
 
     // ════════════════════════════════════════════════════
+    // [O-2] (임시 진단용) 오늘의 문화재 - 종류×지역 전체 조합 전수조사
+    //     (한글 설명) 4종류(국보/보물/사적/천연기념물) x 17개 지역 = 68개 조합을
+    //     한 번에 서버에서 확인해서, 어디가 진짜 0개(정상)이고 어디가 이상한지
+    //     한눈에 보여주는 도구예요. pageUnit=1로 최소한만 불러와서 totalCnt만 확인.
+    // ════════════════════════════════════════════════════
+    if (type === 'heritageRegionAudit') {
+      const KDCD_LIST = [
+        { code:'11', name:'국보' },
+        { code:'12', name:'보물' },
+        { code:'13', name:'사적' },
+        { code:'15', name:'천연기념물' },
+      ];
+      const CTCD_LIST = [
+        { code:'11', name:'서울' }, { code:'21', name:'부산' }, { code:'22', name:'대구' },
+        { code:'23', name:'인천' }, { code:'24', name:'광주' }, { code:'25', name:'대전' },
+        { code:'26', name:'울산' }, { code:'29', name:'세종' }, { code:'31', name:'경기' },
+        { code:'32', name:'강원' }, { code:'33', name:'충북' }, { code:'34', name:'충남' },
+        { code:'35', name:'전북' }, { code:'36', name:'전남' }, { code:'37', name:'경북' },
+        { code:'38', name:'경남' }, { code:'39', name:'제주' },
+      ];
+
+      const jobs = [];
+      KDCD_LIST.forEach(function(k){
+        CTCD_LIST.forEach(function(c){
+          jobs.push({ kdcd:k.code, kdcdName:k.name, ctcd:c.code, ctcdName:c.name });
+        });
+      });
+
+      // (한글 설명) 68개를 한꺼번에 동시에 요청해서 빨리 끝나게 해요.
+      const results = await Promise.all(jobs.map(async function(j){
+        const url = `https://www.khs.go.kr/cha/SearchKindOpenapiList.do?ccbaKdcd=${j.kdcd}&pageUnit=1&pageIndex=1&ccbaCtcd=${j.ctcd}`;
+        try {
+          const r = await fetch(url);
+          const text = await r.text();
+          const m = text.match(/<totalCnt>(\d+)<\/totalCnt>/);
+          return { 종류:j.kdcdName, 지역:j.ctcdName, 개수: m ? parseInt(m[1]) : -1 };
+        } catch (e) {
+          return { 종류:j.kdcdName, 지역:j.ctcdName, 개수: -1, 오류: e.message };
+        }
+      }));
+
+      // (한글 설명) 0개이거나 오류(-1)인 것만 따로 뽑아서 눈에 잘 띄게 보여줘요.
+      const zeroOrError = results.filter(function(x){ return x.개수 <= 0; });
+
+      return res.status(200).json({ ok:true, type:'heritageRegionAudit', totalCombos: results.length, zeroOrErrorCount: zeroOrError.length, zeroOrError, allResults: results });
+    }
+
+    // ════════════════════════════════════════════════════
     // [O] 오늘의 문화재 "자세히 보기" - 국가유산포털(heritage.go.kr) 설명 가져오기
     //     (한글 설명) 레거시 상세 API는 없어서(SearchDetailOpenapi.do → 404 확인됨),
     //     국가유산포털의 실제 상세페이지에서 og:description(설명글)과
@@ -959,7 +1007,7 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview/cultureInfoDebug/heritageDetail' });
+    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview/cultureInfoDebug/heritageDetail/heritageRegionAudit' });
 
   } catch (err) {
     return res.status(500).json({ ok:false, message:'서버 오류: '+err.message });
