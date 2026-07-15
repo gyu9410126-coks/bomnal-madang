@@ -274,9 +274,12 @@ export default async function handler(req, res) {
         const phone = phoneMatch ? phoneMatch[0] : '';
 
         res.setHeader('Cache-Control','s-maxage=2592000'); // 문화재 설명은 거의 안 바뀌니 30일 캐시
-        return res.status(200).json({ ok:true, overview: ogDesc, imgUrl: ogImage, phone });
+        // (한글 설명) 우리가 방금 긁어온 이 페이지 자체가 국가유산포털의 공식 상세페이지라서,
+        //             "홈페이지 방문" 버튼으로 그대로 연결해줄 수 있어요.
+        return res.status(200).json({ ok:true, overview: ogDesc, imgUrl: ogImage, phone, homepage: url });
       } catch (e) {
-        return res.status(200).json({ ok:true, overview:'', imgUrl:'' });
+        // (한글 설명) 설명글은 못 가져왔어도, 링크 자체는 유효하니 홈페이지 버튼은 살려둬요.
+        return res.status(200).json({ ok:true, overview:'', imgUrl:'', homepage: url });
       }
     }
 

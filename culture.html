@@ -1509,6 +1509,9 @@ function renderHeritageDetailBox(box, data){
   if (data && data.phone) {
     html += '<a href="tel:'+data.phone+'" class="facility-tel-btn" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e8f5e9;color:#2e7d32;font-weight:700;margin-bottom:8px;">📞 '+data.phone+'</a>';
   }
+  if (data && data.homepage) {
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 국가유산포털에서 자세히 보기</a>';
+  }
   if (data && data.overview) {
     html += '<div class="facility-overview-txt" style="color:#444;line-height:1.8;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;white-space:pre-line;">'+data.overview+'</div>';
   }
