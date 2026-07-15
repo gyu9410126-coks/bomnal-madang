@@ -467,28 +467,31 @@ export default async function handler(req, res) {
     }
 
     // ════════════════════════════════════════════════════
-    // [K] 문화시설 안내 - 박물관·미술관 / 문화원 (한국관광공사 TourAPI)
+    // [K] 문화시설 안내 - 박물관·미술관 / 문화원 / 도서관 / 유적지 (한국관광공사 TourAPI)
     //     (한글 설명) [J]번 축제 사진 기능과 같은 TOURAPI_KEY를 재사용해요(새 키 필요없음).
-    //     신분류체계(lclsSystm) 코드로 필터링: VE07=박물관·미술관, VE09=도서관·문화원
-    //     ※ VE09는 문화원·도서관이 섞여나와서, lclsSystm3=VE090100(문화원)으로
-    //        한 번 더 걸러서 문화원만 나오게 했어요(실제 테스트로 문화원/도서관을
-    //        구분하는 세부코드가 있는 걸 확인함). 도서관은 나중에 전용 API로 별도 작업 예정.
+    //     신분류체계(lclsSystm) 코드로 필터링:
+    //       museum  = VE07 (박물관·미술관)
+    //       center  = VE09 + VE090100 (문화원만, 도서관 제외)
+    //       library = VE09 + VE090300 (도서관만)
+    //       heritage= HS01 (역사유적지: 고궁·성곽·고택·사적지·고분·사당 등, 신분류체계정의서 엑셀로 확인)
     //     areaBasedList2 엔드포인트, 공식 활용매뉴얼(v4.4) 표8로 파라미터 확인 완료.
     // ════════════════════════════════════════════════════
     if (type === 'facilityTour') {
       const apiKey = process.env.TOURAPI_KEY;
       if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
 
-      // category: 'museum'(박물관·미술관) 또는 'center'(문화원)
+      // category별로 대/중/소분류가 다 달라서 표로 관리해요.
+      const CATEGORY_MAP = {
+        museum : { l1:'VE', l2:'VE07', l3:''       },
+        center : { l1:'VE', l2:'VE09', l3:'VE090100' },
+        library: { l1:'VE', l2:'VE09', l3:'VE090300' },
+        heritage:{ l1:'HS', l2:'HS01', l3:''       },
+      };
       const category = req.query.category || '';
-      const LCLS_MAP = { museum: 'VE07', center: 'VE09' };
-      const lclsSystm2 = LCLS_MAP[category];
-      if (!lclsSystm2) {
-        return res.status(400).json({ ok:false, message:'category 파라미터가 필요해요 (museum 또는 center)' });
+      const cat = CATEGORY_MAP[category];
+      if (!cat) {
+        return res.status(400).json({ ok:false, message:'category 파라미터가 올바르지 않아요 (museum/center/library/heritage)' });
       }
-      // (한글 설명) center(문화원)일 때만 VE090100(문화원)으로 한 번 더 좁혀요.
-      //             museum은 세부 구분 없이 VE07 전체(박물관·미술관·화랑 등)를 그대로 보여줘요.
-      const lclsSystm3 = (category === 'center') ? 'VE090100' : '';
 
       const region = req.query.region || '';
       const rows   = parseInt(req.query.rows)   || 10;
@@ -509,8 +512,8 @@ export default async function handler(req, res) {
       let url = `https://apis.data.go.kr/B551011/KorService2/areaBasedList2`
         + `?serviceKey=${keyEnc}&numOfRows=${rows}&pageNo=${pageNo}&MobileOS=ETC&MobileApp=BomnalMadang`
         + `&_type=json&arrange=O`
-        + `&lclsSystm1=VE&lclsSystm2=${lclsSystm2}`;
-      if (lclsSystm3)  url += `&lclsSystm3=${lclsSystm3}`;
+        + `&lclsSystm1=${cat.l1}&lclsSystm2=${cat.l2}`;
+      if (cat.l3)      url += `&lclsSystm3=${cat.l3}`;
       if (lDongRegnCd) url += `&lDongRegnCd=${lDongRegnCd}`;
 
       let json;
@@ -556,6 +559,45 @@ export default async function handler(req, res) {
 
       res.setHeader('Cache-Control', 's-maxage=43200'); // 12시간 캐시
       return res.status(200).json({ ok:true, type:'facilityTour', totalCount: (body ? body.totalCount : items.length), pageNo, items });
+    }
+
+    // ════════════════════════════════════════════════════
+    // [K-2] (임시 진단용) 궁궐·유적 사진 찾기 — 이름으로 검색해서 contentid·사진·좌표 확인
+    //     (한글 설명) 궁궐·유적 8곳의 정확한 사진을 하나씩 확인하기 위한 일회성 도구예요.
+    //     화면에는 안 쓰고, 저(Claude)와 경아오빠가 확인용으로만 쓰는 용도예요.
+    //     &keywords=경복궁,창덕궁,덕수궁 처럼 쉼표로 여러 개를 한 번에 검색할 수 있어요.
+    // ════════════════════════════════════════════════════
+    if (type === 'keywordDebug') {
+      const apiKey = process.env.TOURAPI_KEY;
+      if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
+      const keywordsParam = req.query.keywords || '';
+      if (!keywordsParam) return res.status(400).json({ ok:false, message:'keywords 파라미터가 필요해요 (쉼표로 구분)' });
+      const keywords = keywordsParam.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+      const keyEnc = encodeURIComponent(apiKey);
+
+      const results = {};
+      for (const kw of keywords) {
+        const url = `https://apis.data.go.kr/B551011/KorService2/searchKeyword2`
+          + `?serviceKey=${keyEnc}&numOfRows=5&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
+          + `&_type=json&arrange=O&keyword=${encodeURIComponent(kw)}`;
+        try {
+          const r = await fetch(url);
+          const text = await r.text();
+          const j = JSON.parse(text);
+          const b = j && j.response && j.response.body;
+          const raw = (b && b.items && (Array.isArray(b.items.item) ? b.items.item : (b.items.item ? [b.items.item] : []))) || [];
+          results[kw] = raw.map(function(it){
+            return {
+              contentid: it.contentid, title: it.title, addr1: it.addr1,
+              firstimage: it.firstimage, mapx: it.mapx, mapy: it.mapy,
+              contenttypeid: it.contenttypeid,
+            };
+          });
+        } catch (e) {
+          results[kw] = { error: e.message };
+        }
+      }
+      return res.status(200).json({ ok:true, type:'keywordDebug', results });
     }
 
     // ════════════════════════════════════════════════════
@@ -640,7 +682,7 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail' });
+    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug' });
 
   } catch (err) {
     return res.status(500).json({ ok:false, message:'서버 오류: '+err.message });
