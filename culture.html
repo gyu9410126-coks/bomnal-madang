@@ -673,7 +673,6 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <div id="facility-tour-more-wrap" style="display:none;margin-top:10px;">
             <button class="facility-more-btn" onclick="loadMoreFacilityTour()" style="width:100%;padding:12px;background:#e8f5e9;color:#2e7d32;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
           </div>
-          <div id="facility-tour-source" class="facility-source-note" style="display:none;color:#aaa;text-align:right;margin-top:6px;">사진·정보 출처: 한국관광공사</div>
         </div>
 
         <!-- 궁궐·유적 탭에서만 보이는 구분선 (검색창과 아래 궁궐 8곳 사이) -->
@@ -693,6 +692,7 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
             <span class="cult-coupon-arrow">→</span>
           </a>
         </div>
+        <div class="data-source">※ 출처: 한국관광공사 TourAPI (박물관·문화원·도서관·유적지 검색 결과 및 궁궐 사진), 국가유산청 궁능유적본부·각 기관 공식 홈페이지 (궁궐 상세정보)</div>
       </div>
     </div>
   </div><!-- /page-facility -->
@@ -1460,7 +1460,6 @@ function renderPalaceList(){
       + '<div id="palace-detail-'+idx+'" style="display:none;margin-top:8px;"></div>'
       + '</div></div>';
   });
-  html += '<div class="facility-source-note" style="color:#aaa;text-align:right;margin:2px 0 4px;">사진 출처: 한국관광공사</div>';
   return html;
 }
 
@@ -1497,7 +1496,6 @@ function searchFacilityTour(){
   facilityTourItems  = [];
   document.getElementById('facility-hint').style.display = 'none';
   document.getElementById('facility-error').classList.remove('show');
-  document.getElementById('facility-tour-source').style.display = 'none';
   document.getElementById('facility-tour-more-wrap').style.display = 'none';
   document.getElementById('facility-tour-list').innerHTML = '';
   document.getElementById('facility-loading').classList.add('show');
@@ -1536,7 +1534,6 @@ function fetchFacilityTourPage(){
       newItems.forEach(function(item, i){ html += renderFacilityTourCard(item, startIdx + i); });
       document.getElementById('facility-tour-list').innerHTML += html;
       facilityTourItems = facilityTourItems.concat(newItems);
-      document.getElementById('facility-tour-source').style.display = 'block';
 
       // (한글 설명) 지금까지 받은 개수가 전체보다 적으면 "더보기" 버튼을 계속 보여줘요.
       document.getElementById('facility-tour-more-wrap').style.display =
@@ -1556,7 +1553,6 @@ function resetFacilityTour(){
   document.getElementById('facility-sido').value = '';
   document.getElementById('facility-tour-list').innerHTML = '';
   document.getElementById('facility-tour-more-wrap').style.display = 'none';
-  document.getElementById('facility-tour-source').style.display = 'none';
   document.getElementById('facility-error').classList.remove('show');
   document.getElementById('facility-hint').style.display = 'block';
 }
