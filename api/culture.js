@@ -433,6 +433,31 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok:true, overview:'', phone:'', homepage:'', price:'', imgUrl:'' });
       }
     }
+    // ════════════════════════════════════════════════════
+    // [E-3] (임시 진단용) 공연 제목으로 seq 찾아서 상세정보 원본 확인
+    //     (한글 설명) "관련설명"이 왜 안 나오는지 확인하려고, 제목으로 검색해서
+    //     seq를 찾고 바로 detail2 원본까지 같이 보여주는 도구예요.
+    // ════════════════════════════════════════════════════
+    if (type === 'perf2DetailDebug') {
+      const apiKey = process.env.TOURAPI_KEY;
+      if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
+      const keyword = req.query.keyword || '';
+      const keyEnc = encodeURIComponent(apiKey);
+
+      const listUrl = `https://apis.data.go.kr/B553457/cultureinfo/realm2`
+        + `?serviceKey=${keyEnc}&PageNo=1&numOfrows=3&realmCode=A000&keyword=${encodeURIComponent(keyword)}`;
+      const listText = await (await fetch(listUrl)).text();
+      const firstItem = parseItems(listText,'item')[0] || '';
+      const seq = getVal(firstItem,'seq');
+      if (!seq) {
+        return res.status(200).json({ ok:true, message:'검색결과 없음', listRaw: listText.slice(0,1000) });
+      }
+      const detailUrl = `https://apis.data.go.kr/B553457/cultureinfo/detail2?serviceKey=${keyEnc}&seq=${seq}`;
+      const detailText = await (await fetch(detailUrl)).text();
+      return res.status(200).json({ ok:true, seq, detailRaw: detailText });
+    }
+
+    // ════════════════════════════════
     // ════════════════════════════════
     // [F] 전시정보 통합 (api.kcisa.kr — API_CCA_145)
     // ════════════════════════════════
@@ -1095,7 +1120,7 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview/cultureInfoDebug/heritageDetail/heritageCodeDiscovery/cultureInfoDetail' });
+    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview/cultureInfoDebug/heritageDetail/heritageCodeDiscovery/cultureInfoDetail/perf2DetailDebug' });
 
   } catch (err) {
     return res.status(500).json({ ok:false, message:'서버 오류: '+err.message });
