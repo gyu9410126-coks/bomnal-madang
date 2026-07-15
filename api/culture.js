@@ -39,84 +39,117 @@ export default async function handler(req, res) {
 
     // ════════════════════════════════
     // [A] 이달의 문화유산 행사목록 (국가유산청)
-    //     (한글 설명) &debug=1을 붙이면 정부 서버가 실제로 보내는 XML 원본을
-    //     그대로 보여줘요. 우리가 지금 안 쓰고 있는 필드(지역·전화번호 등)가
-    //     있는지 눈으로 직접 확인하는 용도예요.
-    //     &ctcd=11 처럼 지역코드로 보이는 파라미터를 실제로 넣어봐서 정부 서버가
-    //     지역별로 걸러주는지도 테스트할 수 있게 해뒀어요(있으면 반영, 없으면 무시됨).
+    //     (한글 설명) 실제 테스트로 확인한 정확한 XML 필드명으로 전면 수정했어요.
+    //     예전엔 title·place·startDate 등 "있을 것 같은" 이름을 썼는데, 실제로는
+    //     subTitle·sDate·eDate·sido·subPath 였어서 계속 빈칸이 나왔던 거예요.
+    //     지역필터는 정부 서버가 지원하는지 불확실해서, 우리 서버에서 sido 값을
+    //     직접 비교해 걸러내는 안전한 방식으로 했어요(항상 정확하게 작동함).
+    //     752개를 한번에 다 안 주고, rows·pageNo로 나눠서 "더보기"가 가능해요.
     // ════════════════════════════════
     if (type === 'event') {
-      const now   = new Date();
-      const year  = req.query.year  || now.getFullYear();
-      const month = req.query.month || String(now.getMonth()+1).padStart(2,'0');
-      const debug = req.query.debug === '1';
-      let url = `https://www.khs.go.kr/cha/openapi/selectEventListOpenapi.do?searchYear=${year}&searchMonth=${month}`;
-      // (한글 설명) 실험용: ctcd 파라미터가 실제로 있으면 그대로 붙여서 정부 서버가
-      //             지역필터를 지원하는지 테스트해봐요.
-      if (req.query.ctcd) url += `&ctcd=${req.query.ctcd}`;
+      const now    = new Date();
+      const year   = req.query.year  || now.getFullYear();
+      const month  = req.query.month || String(now.getMonth()+1).padStart(2,'0');
+      const debug  = req.query.debug === '1';
+      const region = req.query.region || ''; // sido 값 그대로 (예: 서울특별시)
+      const rows   = parseInt(req.query.rows)   || 10;
+      const pageNo = parseInt(req.query.pageNo) || 1;
+
+      const url = `https://www.khs.go.kr/cha/openapi/selectEventListOpenapi.do?searchYear=${year}&searchMonth=${month}`;
       const xmlText = await (await fetch(url)).text();
       const rawItems = parseItems(xmlText,'item');
+
       if (debug) {
         return res.status(200).json({
-          ok: true, debug: true,
-          requestUrl: url,
+          ok: true, debug: true, requestUrl: url,
           totalRawCount: rawItems.length,
           rawXmlSample: xmlText.slice(0, 3000),
         });
       }
-      const items = rawItems.map(function(x){
+
+      let allItems = rawItems.map(function(x){
+        const subContent = getVal(x,'subContent');
+        const imgMatch = subContent.match(/<img[^>]*src=['"]([^'"]+)['"]/i);
+        const contactRaw = getVal(x,'contact');
         return {
-          title    : getVal(x,'title'),
-          place    : getVal(x,'place'),
-          startDate: getVal(x,'startDate'),
-          endDate  : getVal(x,'endDate'),
-          subTitle : getVal(x,'subTitle'),
-          imgUrl   : getVal(x,'imageUrl'),
-          linkUrl  : getVal(x,'linkUrl'),
+          title    : getVal(x,'subTitle'),
+          content  : subContent.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,150),
+          place    : getVal(x,'subDesc'),
+          sido     : getVal(x,'sido'),
+          gugun    : getVal(x,'gugun'),
+          startDate: getVal(x,'sDate'),
+          endDate  : getVal(x,'eDate'),
+          dateStr  : getVal(x,'subDate'),
+          // (한글 설명) contact 필드가 값이 없을 때 "."(점 하나)만 오는 경우가 있어서 걸러내요.
+          contact  : (contactRaw && contactRaw !== '.') ? contactRaw : '',
+          imgUrl   : imgMatch ? imgMatch[1] : '',
+          linkUrl  : getVal(x,'subPath'),
         };
       });
+
+      if (region) {
+        allItems = allItems.filter(function(it){ return it.sido === region; });
+      }
+
+      const totalCount = allItems.length;
+      const start = (pageNo-1)*rows;
+      const items = allItems.slice(start, start+rows);
+
       res.setHeader('Cache-Control','s-maxage=3600');
-      return res.status(200).json({ ok:true, type:'event', year, month, items });
+      return res.status(200).json({ ok:true, type:'event', year, month, totalCount, pageNo, items });
     }
 
     // ════════════════════════════════
     // [B] 오늘의 문화재 목록 (국가유산청)
-    //     (한글 설명) &debug=1이면 XML 원본 그대로 보여줘요.
-    //     &ccbaCtcd=11 처럼 지역코드를 실제 요청에 넣어봐서 정부 서버가
-    //     지역별로 걸러주는지 테스트할 수 있게 해뒀어요.
+    //     (한글 설명) 실제 테스트로 확인한 정확한 필드명으로 전면 수정했어요.
+    //     ccmaName(문화재 "종류")을 이름 자리에 쓰던 게 제일 큰 문제였어요 —
+    //     이제 진짜 이름인 ccbaMnm1을 써요. 위도·경도도 추가해서 지도 연결이
+    //     가능해졌고, ccbaCtcd 지역필터는 실제 테스트로 작동 확인했어요.
+    //     totalCnt(전체 개수)도 받아서 "더보기"가 정확하게 작동해요.
     // ════════════════════════════════
     if (type === 'list') {
       const ccbaKdcd  = req.query.ccbaKdcd  || '11';
-      const pageUnit  = req.query.pageUnit  || '10';
-      const pageIndex = req.query.pageIndex || '1';
+      const ccbaCtcd  = req.query.ccbaCtcd  || '';
+      const pageUnit  = parseInt(req.query.pageUnit)  || 10;
+      const pageIndex = parseInt(req.query.pageIndex) || 1;
       const debug     = req.query.debug === '1';
+
       let url = `https://www.khs.go.kr/cha/SearchKindOpenapiList.do?ccbaKdcd=${ccbaKdcd}&pageUnit=${pageUnit}&pageIndex=${pageIndex}`;
-      // (한글 설명) 실험용: ccbaCtcd(응답에서 이미 보이는 지역코드로 추정되는 필드)를
-      //             요청 파라미터로도 그대로 붙여서 실제로 걸러지는지 테스트해봐요.
-      if (req.query.ccbaCtcd) url += `&ccbaCtcd=${req.query.ccbaCtcd}`;
+      if (ccbaCtcd) url += `&ccbaCtcd=${ccbaCtcd}`;
+
       const xmlText = await (await fetch(url)).text();
       const rawItems = parseItems(xmlText,'item');
+
       if (debug) {
         return res.status(200).json({
-          ok: true, debug: true,
-          requestUrl: url,
+          ok: true, debug: true, requestUrl: url,
           totalRawCount: rawItems.length,
           rawXmlSample: xmlText.slice(0, 3000),
         });
       }
+
+      const totalCntMatch = xmlText.match(/<totalCnt>(\d+)<\/totalCnt>/);
+      const totalCnt = totalCntMatch ? parseInt(totalCntMatch[1]) : rawItems.length;
+
       const items = rawItems.map(function(x){
         return {
+          name     : getVal(x,'ccbaMnm1'),
+          nameHanja: getVal(x,'ccbaMnm2'),
           ccmaName : getVal(x,'ccmaName'),
+          sido     : getVal(x,'ccbaCtcdNm'),
+          gugun    : getVal(x,'ccsiName'),
+          admin    : getVal(x,'ccbaAdmin'),
           ccbaKdcd : getVal(x,'ccbaKdcd'),
-          ccbaAsno : getVal(x,'ccbaAsno'),
           ccbaCtcd : getVal(x,'ccbaCtcd'),
-          ccdeSijo : getVal(x,'ccdeSijo'),
-          ccbaAdmin: getVal(x,'ccbaAdmin'),
+          ccbaAsno : getVal(x,'ccbaAsno'),
           ccbaCpno : getVal(x,'ccbaCpno'),
+          lat      : getVal(x,'latitude'),
+          lon      : getVal(x,'longitude'),
         };
       });
+
       res.setHeader('Cache-Control','s-maxage=86400');
-      return res.status(200).json({ ok:true, type:'list', items });
+      return res.status(200).json({ ok:true, type:'list', totalCnt, pageIndex, items });
     }
 
     // ════════════════════════════════
