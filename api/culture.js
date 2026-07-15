@@ -96,10 +96,16 @@ export default async function handler(req, res) {
       });
 
       if (region) {
-        // (한글 설명) sido 필드가 "강원도"로 올 수도 "강원특별자치도"로 올 수도 있어서,
-        //             완전히 똑같은지가 아니라 핵심 지역명이 "포함"되는지로 걸러요.
-        //             예: region="강원" → "강원도"·"강원특별자치도" 둘 다 걸림.
-        allItems = allItems.filter(function(it){ return it.sido && it.sido.indexOf(region) !== -1; });
+        // (한글 설명) region 값에 "|"가 있으면 여러 후보 중 하나라도 맞으면 통과시켜요.
+        //             (예: "전라북도|전북특별자치도" → 옛날 이름·새 이름 둘 다 걸림)
+        //             ⚠️ "충북"은 "충청북도" 안에 그대로 안 들어있어요(충[청]북도라서
+        //             중간에 "청"이 껴있음) — 실제 테스트로 발견한 버그를 고쳤어요.
+        //             경북·경남도 마찬가지("경[상]북도")라서 전체 이름을 그대로 써요.
+        const candidates = region.split('|');
+        allItems = allItems.filter(function(it){
+          if (!it.sido) return false;
+          return candidates.some(function(c){ return it.sido.indexOf(c) !== -1; });
+        });
       }
 
       const totalCount = allItems.length;
