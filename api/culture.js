@@ -39,14 +39,32 @@ export default async function handler(req, res) {
 
     // ════════════════════════════════
     // [A] 이달의 문화유산 행사목록 (국가유산청)
+    //     (한글 설명) &debug=1을 붙이면 정부 서버가 실제로 보내는 XML 원본을
+    //     그대로 보여줘요. 우리가 지금 안 쓰고 있는 필드(지역·전화번호 등)가
+    //     있는지 눈으로 직접 확인하는 용도예요.
+    //     &ctcd=11 처럼 지역코드로 보이는 파라미터를 실제로 넣어봐서 정부 서버가
+    //     지역별로 걸러주는지도 테스트할 수 있게 해뒀어요(있으면 반영, 없으면 무시됨).
     // ════════════════════════════════
     if (type === 'event') {
       const now   = new Date();
       const year  = req.query.year  || now.getFullYear();
       const month = req.query.month || String(now.getMonth()+1).padStart(2,'0');
-      const url   = `https://www.khs.go.kr/cha/openapi/selectEventListOpenapi.do?searchYear=${year}&searchMonth=${month}`;
+      const debug = req.query.debug === '1';
+      let url = `https://www.khs.go.kr/cha/openapi/selectEventListOpenapi.do?searchYear=${year}&searchMonth=${month}`;
+      // (한글 설명) 실험용: ctcd 파라미터가 실제로 있으면 그대로 붙여서 정부 서버가
+      //             지역필터를 지원하는지 테스트해봐요.
+      if (req.query.ctcd) url += `&ctcd=${req.query.ctcd}`;
       const xmlText = await (await fetch(url)).text();
-      const items = parseItems(xmlText,'item').map(function(x){
+      const rawItems = parseItems(xmlText,'item');
+      if (debug) {
+        return res.status(200).json({
+          ok: true, debug: true,
+          requestUrl: url,
+          totalRawCount: rawItems.length,
+          rawXmlSample: xmlText.slice(0, 3000),
+        });
+      }
+      const items = rawItems.map(function(x){
         return {
           title    : getVal(x,'title'),
           place    : getVal(x,'place'),
@@ -63,14 +81,30 @@ export default async function handler(req, res) {
 
     // ════════════════════════════════
     // [B] 오늘의 문화재 목록 (국가유산청)
+    //     (한글 설명) &debug=1이면 XML 원본 그대로 보여줘요.
+    //     &ccbaCtcd=11 처럼 지역코드를 실제 요청에 넣어봐서 정부 서버가
+    //     지역별로 걸러주는지 테스트할 수 있게 해뒀어요.
     // ════════════════════════════════
     if (type === 'list') {
       const ccbaKdcd  = req.query.ccbaKdcd  || '11';
       const pageUnit  = req.query.pageUnit  || '10';
       const pageIndex = req.query.pageIndex || '1';
-      const url = `https://www.khs.go.kr/cha/SearchKindOpenapiList.do?ccbaKdcd=${ccbaKdcd}&pageUnit=${pageUnit}&pageIndex=${pageIndex}`;
+      const debug     = req.query.debug === '1';
+      let url = `https://www.khs.go.kr/cha/SearchKindOpenapiList.do?ccbaKdcd=${ccbaKdcd}&pageUnit=${pageUnit}&pageIndex=${pageIndex}`;
+      // (한글 설명) 실험용: ccbaCtcd(응답에서 이미 보이는 지역코드로 추정되는 필드)를
+      //             요청 파라미터로도 그대로 붙여서 실제로 걸러지는지 테스트해봐요.
+      if (req.query.ccbaCtcd) url += `&ccbaCtcd=${req.query.ccbaCtcd}`;
       const xmlText = await (await fetch(url)).text();
-      const items = parseItems(xmlText,'item').map(function(x){
+      const rawItems = parseItems(xmlText,'item');
+      if (debug) {
+        return res.status(200).json({
+          ok: true, debug: true,
+          requestUrl: url,
+          totalRawCount: rawItems.length,
+          rawXmlSample: xmlText.slice(0, 3000),
+        });
+      }
+      const items = rawItems.map(function(x){
         return {
           ccmaName : getVal(x,'ccmaName'),
           ccbaKdcd : getVal(x,'ccbaKdcd'),
