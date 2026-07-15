@@ -504,13 +504,13 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
         <div class="event-month-bar">
           <span class="event-month-label" id="event-month-label"></span>
           <div class="event-month-btns">
-            <button class="event-month-btn" onclick="changeMonth(-1)">◀ 이전</button>
-            <button class="event-month-btn active" onclick="changeMonth(0)">이번달</button>
-            <button class="event-month-btn" onclick="changeMonth(1)">다음 ▶</button>
+            <button class="event-month-btn" onclick="setMonth(-1)">◀ 이전</button>
+            <button class="event-month-btn active" onclick="setMonth(0)">이번달</button>
+            <button class="event-month-btn" onclick="setMonth(1)">다음 ▶</button>
           </div>
         </div>
         <div class="page-label" style="margin-top:10px;">📍 지역 선택</div>
-        <select class="page-select" id="event-sido" onchange="loadEvents()">
+        <select class="page-select" id="event-sido">
           <option value="">전체보기</option>
           <option value="서울">서울특별시</option><option value="부산">부산광역시</option>
           <option value="대구">대구광역시</option><option value="인천">인천광역시</option>
@@ -522,6 +522,11 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <option value="경북">경상북도</option><option value="경남">경상남도</option>
           <option value="제주">제주특별자치도</option>
         </select>
+        <button class="search-btn" style="width:100%;background:#c62828;" onclick="loadEvents()">🔍 행사 검색</button>
+        <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetEvents()">🔄 검색 초기화</button>
+        <div id="event-hint" class="facility-hint-txt" style="text-align:center;padding:26px 10px;color:#999;">
+          월과 지역을 선택하고 <b>행사 검색</b> 버튼을 눌러주세요.
+        </div>
         <div class="cult-loading" id="event-loading">
           <span class="cult-loading-icon">🎪</span>
           <div class="cult-loading-txt">행사 정보를 불러오는 중...</div>
@@ -1062,7 +1067,6 @@ function goPage(name) {
   history.pushState({ page: name }, '', '');
 
   /* 첫 진입 시 데이터 로드 */
-  if(name==='event'   && !eventLoaded)    loadEvents();
   if(name==='heritage'&& !heritageLoaded) loadHeritage('11', document.querySelector('.heritage-type-btn'));
   if(name==='quiz'    && !quizStarted)    startQuiz();
   if(name==='facility'&& !facilityLoaded) showFacility('museum', document.querySelector('.facility-tab'));
@@ -1078,6 +1082,7 @@ function goBack() {
      (다른 카테고리는 "한 번 불러오면 다시 안 불러오기" 방식을 그대로 유지 — 여기만 다름) */
   var wasFestivalPage = document.getElementById('page-festival').classList.contains('active');
   var wasFacilityPage = document.getElementById('page-facility').classList.contains('active');
+  var wasEventPage    = document.getElementById('page-event').classList.contains('active');
 
   PAGES.forEach(function(p){
     document.getElementById('page-'+p).classList.remove('active');
@@ -1093,6 +1098,10 @@ function goBack() {
   if (wasFacilityPage) {
     resetFacilityTour();
     facilityLoaded = false; // 다음에 들어오면 박물관·미술관 탭부터 새로 시작
+  }
+  if (wasEventPage) {
+    resetEvents();
+    eventLoaded = false;
   }
 }
 
@@ -1114,7 +1123,6 @@ window.addEventListener('popstate', function(e) {
   history.replaceState({ page: st.page }, '', '');
 
   var name = st.page;
-  if(name==='event'   && !eventLoaded)    loadEvents();
   if(name==='heritage'&& !heritageLoaded) loadHeritage('11', document.querySelector('.heritage-type-btn'));
   if(name==='quiz'    && !quizStarted)    startQuiz();
   if(name==='facility'&& !facilityLoaded) showFacility('museum', document.querySelector('.facility-tab'));
@@ -1137,9 +1145,16 @@ var eventTotalCount = 0;
   var now = new Date();
   eventYear  = now.getFullYear();
   eventMonth = now.getMonth() + 1;
+  updateEventMonthLabel();
 })();
 
-function changeMonth(offset) {
+function updateEventMonthLabel(){
+  document.getElementById('event-month-label').textContent = eventYear+'년 '+eventMonth+'월';
+}
+
+// (한글 설명) 월 버튼은 이제 "검색 조건만" 바꿔요. 실제 검색은 "🔍 행사 검색" 버튼을
+//             눌러야 실행돼요(다른 탭들과 똑같은 방식으로 통일).
+function setMonth(offset) {
   var now = new Date();
   if(offset===0){ eventYear=now.getFullYear(); eventMonth=now.getMonth()+1; }
   else {
@@ -1149,19 +1164,18 @@ function changeMonth(offset) {
   }
   document.querySelectorAll('.event-month-btn').forEach(function(b){ b.classList.remove('active'); });
   if(offset===0) document.querySelectorAll('.event-month-btn')[1].classList.add('active');
-  eventLoaded = false;
-  loadEvents();
+  updateEventMonthLabel();
 }
 
 function loadEvents() {
   eventLoaded = true;
   eventPageNo = 1;
   eventAllItems = [];
-  document.getElementById('event-month-label').textContent = eventYear+'년 '+eventMonth+'월';
-  document.getElementById('event-loading').classList.add('show');
+  document.getElementById('event-hint').style.display = 'none';
   document.getElementById('event-error').classList.remove('show');
   document.getElementById('event-list').innerHTML = '';
   document.getElementById('event-more-wrap').style.display = 'none';
+  document.getElementById('event-loading').classList.add('show');
   fetchEventsPage();
 }
 
@@ -1185,11 +1199,16 @@ function fetchEventsPage() {
       eventTotalCount = (data && data.totalCount) || 0;
       if (eventAllItems.length===0 && newItems.length===0) {
         document.getElementById('event-list').innerHTML =
-          '<div class="event-empty">😊 조건에 맞는 행사가 없어요.<br>다른 달이나 지역으로 확인해 보세요!</div>';
+          '<div class="facility-hint-txt" style="text-align:center;padding:26px 10px;color:#999;">조건에 맞는 행사가 없어요.<br>다른 달이나 지역으로 확인해 보세요!</div>';
         return;
       }
+      var startIdx = eventAllItems.length;
       eventAllItems = eventAllItems.concat(newItems);
-      renderEvents(newItems, eventAllItems.length - newItems.length);
+      var html = '';
+      newItems.forEach(function(item, i){ html += renderEventCard(item, startIdx+i); });
+      document.getElementById('event-list').innerHTML += html;
+      // (한글 설명) 더보기 버튼이 잘 나오는지 눈으로 바로 알 수 있게, 지금까지 받은
+      //             개수와 전체 개수를 비교해서 더 있으면 버튼을 보여줘요.
       document.getElementById('event-more-wrap').style.display =
         (eventAllItems.length < eventTotalCount) ? 'block' : 'none';
     })
@@ -1199,32 +1218,77 @@ function fetchEventsPage() {
     });
 }
 
-function renderEvents(items) {
-  var html = '';
-  items.forEach(function(item){
-    var imgHtml = item.imgUrl
-      ? '<img src="'+item.imgUrl+'" onerror="this.parentElement.innerHTML=\'<span style=font-size:32px>🎪</span>\'">'
-      : '<span style="font-size:32px;">🎪</span>';
-    // (한글 설명) dateStr(정부가 사람이 읽기 좋게 정리해준 날짜 문구)이 있으면 그걸 쓰고,
-    //             없으면 시작일~종료일을 직접 조합해요.
-    var dateStr = item.dateStr || ((item.startDate&&item.endDate) ? item.startDate+' ~ '+item.endDate : (item.startDate||''));
-    var placeStr = [item.place, item.sido, item.gugun].filter(Boolean).join(' · ');
-    var linkHtml = item.linkUrl
-      ? '<a class="event-card-link" href="#" onclick="confirmExternalLink(\''+item.linkUrl+'\');return false;">📋 행사 상세보기</a>' : '';
-    var telHtml = item.contact
-      ? '<a href="tel:'+item.contact+'" class="facility-tel-btn" style="display:block;text-align:center;text-decoration:none;padding:8px;border-radius:8px;background:#e8f5e9;color:#2e7d32;font-weight:700;margin-top:6px;">📞 '+item.contact+'</a>' : '';
-    html += '<div class="event-card">'
-      +'<div class="event-card-top"><div class="event-card-img">'+imgHtml+'</div>'
-      +'<div class="event-card-info">'
-      +'<div class="event-card-title">'+item.title+'</div>'
-      +(placeStr?'<div class="event-card-place">📍 '+placeStr+'</div>':'')
-      +(dateStr?'<div class="event-card-date">📅 '+dateStr+'</div>':'')
-      +'</div></div>'
-      +(item.content?'<div class="dyn-sub" style="font-size:13px;color:#555;margin-bottom:8px;line-height:1.6;">'+item.content+'</div>':'')
-      +telHtml
-      +linkHtml+'</div>';
-  });
-  document.getElementById('event-list').innerHTML += html;
+function resetEvents(){
+  document.getElementById('event-sido').value = '';
+  setMonth(0);
+  eventPageNo = 1;
+  eventAllItems = [];
+  eventTotalCount = 0;
+  document.getElementById('event-list').innerHTML = '';
+  document.getElementById('event-more-wrap').style.display = 'none';
+  document.getElementById('event-error').classList.remove('show');
+  document.getElementById('event-hint').style.display = 'block';
+}
+
+// (한글 설명) 문화시설안내 카드와 같은 스타일이에요: 사진(있으면) → 제목·장소·날짜
+//             → 전화번호(있으면) → 지도에서 찾기(장소명으로 검색, 좌표가 없어서
+//             "지도로보기·길찾기" 대신 검색 방식 하나로 대체) → 자세히보기(펼치면
+//             상세내용+홈페이지 링크).
+function renderEventCard(item, idx){
+  var imgHtml = item.imgUrl
+    ? '<img src="'+item.imgUrl+'" style="width:100%;height:150px;object-fit:cover;border-radius:14px 14px 0 0;display:block;" onerror="this.parentElement.style.display=\'none\'">'
+    : '';
+  var placeStr = [item.place, item.sido, item.gugun].filter(Boolean).join(' · ');
+  var dateStr = item.dateStr || ((item.startDate&&item.endDate) ? item.startDate+' ~ '+item.endDate : (item.startDate||''));
+  var mapKeyword = [item.place, item.sido].filter(Boolean).join(' ');
+  return '<div style="background:#fff9fa;border:1.5px solid #f8bbd0;border-radius:14px;overflow:hidden;margin-bottom:12px;">'
+    + imgHtml
+    + '<div style="padding:14px;">'
+    + '<div class="facility-card-title" style="font-weight:800;color:#1a1a1a;margin-bottom:5px;word-break:keep-all;">'+item.title+'</div>'
+    + (placeStr?'<div class="facility-card-addr" style="color:#666;margin-bottom:3px;">📍 '+placeStr+'</div>':'')
+    + (dateStr?'<div class="facility-card-addr" style="color:#888;margin-bottom:8px;">📅 '+dateStr+'</div>':'')
+    + (item.contact?'<a href="tel:'+item.contact+'" class="facility-tel-btn" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e8f5e9;color:#2e7d32;font-weight:700;margin-bottom:8px;">📞 '+item.contact+'</a>':'')
+    + (mapKeyword?buildMapSearchLink(mapKeyword):'')
+    + '<button class="facility-detail-btn" onclick="toggleEventDetail('+idx+',this)" style="width:100%;margin-top:4px;padding:10px;background:#fce4ec;color:#c62828;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">🔍 자세히 보기</button>'
+    + '<div id="event-detail-'+idx+'" style="display:none;margin-top:8px;"></div>'
+    + '</div></div>';
+}
+
+// (한글 설명) 좌표가 없는 장소용 지도 버튼이에요. 카카오맵의 "키워드 검색" 주소
+//             방식(map.kakao.com/link/search/키워드)을 써요 — 별도 앱키 없이 되는
+//             정식 방식이에요. 좌표 방식(지도로보기+길찾기 2개)과 달리 검색 결과를
+//             보여주는 방식이라 버튼 하나로 대신해요.
+function buildMapSearchLink(keyword){
+  if (!keyword) return '';
+  var q = encodeURIComponent(keyword);
+  return '<a href="#" onclick="confirmExternalLink(\'https://map.kakao.com/link/search/'+q+'\');return false;" class="facility-homepage-btn" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;font-weight:700;margin-bottom:8px;">🗺️ 지도에서 찾기</a>';
+}
+
+function toggleEventDetail(idx, btnEl){
+  var box = document.getElementById('event-detail-'+idx);
+  if (!box) return;
+  var opened = box.style.display !== 'none';
+  if (opened) {
+    box.style.display = 'none';
+    btnEl.textContent = '🔍 자세히 보기';
+    return;
+  }
+  var item = eventAllItems[idx];
+  if (item && !box.innerHTML) {
+    var html = '';
+    if (item.content) {
+      html += '<div class="facility-overview-txt" style="color:#444;line-height:1.7;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;margin-bottom:8px;">'+item.content+'</div>';
+    }
+    if (item.linkUrl) {
+      html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+item.linkUrl+'\');return false;" style="display:block;text-align:center;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;text-decoration:none;font-weight:700;">🔗 홈페이지 방문</a>';
+    }
+    if (!html) {
+      html = '<div class="facility-hint-txt" style="text-align:center;padding:10px;color:#999;">추가 정보가 등록되어 있지 않아요.</div>';
+    }
+    box.innerHTML = html;
+  }
+  box.style.display = 'block';
+  btnEl.textContent = '🔼 접기';
 }
 
 /* ════════════════════════════════════════════
