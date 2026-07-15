@@ -576,10 +576,12 @@ export default async function handler(req, res) {
       const keyEnc = encodeURIComponent(apiKey);
 
       const results = {};
+      const arrange = req.query.arrange || 'O';
+      const kwRows  = parseInt(req.query.rows) || 5;
       for (const kw of keywords) {
         const url = `https://apis.data.go.kr/B551011/KorService2/searchKeyword2`
-          + `?serviceKey=${keyEnc}&numOfRows=5&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
-          + `&_type=json&arrange=O&keyword=${encodeURIComponent(kw)}`;
+          + `?serviceKey=${keyEnc}&numOfRows=${kwRows}&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
+          + `&_type=json&arrange=${arrange}&keyword=${encodeURIComponent(kw)}`;
         try {
           const r = await fetch(url);
           const text = await r.text();
