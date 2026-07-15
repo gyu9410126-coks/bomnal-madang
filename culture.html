@@ -570,7 +570,7 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <button class="heritage-type-btn active" onclick="selectHeritageType('11',this)">🏆 국보</button>
           <button class="heritage-type-btn" onclick="selectHeritageType('12',this)">💎 보물</button>
           <button class="heritage-type-btn" onclick="selectHeritageType('13',this)">🗺️ 사적</button>
-          <button class="heritage-type-btn" onclick="selectHeritageType('15',this)">🌿 천연기념물</button>
+          <button class="heritage-type-btn" onclick="selectHeritageType('16',this)">🌿 천연기념물</button>
         </div>
         <div class="page-label" style="margin-top:10px;">📍 지역 선택</div>
         <select class="page-select" id="heritage-sido">
@@ -578,7 +578,7 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
           <option value="11">서울특별시</option><option value="21">부산광역시</option>
           <option value="22">대구광역시</option><option value="23">인천광역시</option>
           <option value="24">광주광역시</option><option value="25">대전광역시</option>
-          <option value="26">울산광역시</option><option value="29">세종특별자치시</option>
+          <option value="26">울산광역시</option><option value="45">세종특별자치시</option>
           <option value="31">경기도</option><option value="32">강원특별자치도</option>
           <option value="33">충청북도</option><option value="34">충청남도</option>
           <option value="35">전북특별자치도</option><option value="36">전라남도</option>
@@ -1429,7 +1429,7 @@ function resetHeritageSearch(){
 // (한글 설명) 문화시설안내 카드와 같은 방식으로 목록 카드 하나를 만들어요.
 //             사진은 원래 방식(사진이 있는 만큼만 꽉 차게 보여주는 방식)으로 되돌렸어요.
 function renderHeritageCard(item, idx){
-  var typeNames = {'11':'국보','12':'보물','13':'사적','14':'명승','15':'천연기념물'};
+  var typeNames = {'11':'국보','12':'보물','13':'사적','15':'명승','16':'천연기념물'};
   var typeName = typeNames[currentHeritageType]||'문화재';
   var locStr = [item.sido, item.gugun].filter(Boolean).join(' ');
   var hasCoord = item.lat && item.lon && item.lat!=='0' && item.lon!=='0';
