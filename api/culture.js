@@ -189,34 +189,41 @@ export default async function handler(req, res) {
     }
 
     // ════════════════════════════════════════════════════
-    // [O] (임시 진단용) 문화재 상세정보 - 국가유산포털(heritage.go.kr) 스크래핑 테스트
-    //     (한글 설명) 레거시 상세 API(SearchDetailOpenapi.do)는 404라 존재하지
-    //     않는 걸로 확인됐어요. 대신 국가유산포털의 실제 상세페이지 주소를
-    //     찾았어요(우리가 이미 가진 ccbaKdcd/ccbaAsno/ccbaCtcd/ccbaCpno로 바로
-    //     들어갈 수 있음). 이달의 문화행사 때 만든 linkPreview와 같은 방식으로
-    //     og:image·og:description을 긁어와 보는 테스트예요.
+    // [O] 오늘의 문화재 "자세히 보기" - 국가유산포털(heritage.go.kr) 설명 가져오기
+    //     (한글 설명) 레거시 상세 API는 없어서(SearchDetailOpenapi.do → 404 확인됨),
+    //     국가유산포털의 실제 상세페이지에서 og:description(설명글)과
+    //     og:image(사진)를 가져와요. 이미 확인된 우리 데이터(ccbaKdcd/ccbaAsno/
+    //     ccbaCtcd/ccbaCpno)로 바로 접근 가능해요.
     // ════════════════════════════════════════════════════
-    if (type === 'heritageDetailDebug') {
-      const ccbaKdcd = req.query.ccbaKdcd || '11';
+    if (type === 'heritageDetail') {
+      const ccbaKdcd = req.query.ccbaKdcd || '';
       const ccbaAsno = req.query.ccbaAsno || '';
       const ccbaCtcd = req.query.ccbaCtcd || '';
       const ccbaCpno = req.query.ccbaCpno || '';
+      if (!ccbaAsno || !ccbaCtcd) {
+        return res.status(200).json({ ok:true, overview:'', imgUrl:'' });
+      }
       const url = `https://my.heritage.go.kr/public/commentary/culSelectDetail.do`
         + `?ccbaKdcd=${ccbaKdcd}&ccbaAsno=${ccbaAsno}&ccbaCtcd=${ccbaCtcd}&ccbaCpno=${ccbaCpno}&menuId=01_06`;
       try {
         const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; BomnalMadangBot/1.0)' } });
         const html = await r.text();
         const ogImage = (html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
-        const ogDesc  = (html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
-        const ogTitle = (html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i) || [])[1] || '';
-        return res.status(200).json({
-          ok: true, debug: true, requestUrl: url,
-          httpStatus: r.status, responseLength: html.length,
-          ogImage, ogDescription: ogDesc, ogTitle,
-          rawHtmlSample: html.slice(0, 1500),
-        });
+        let ogDesc = (html.match(/<meta[^>]+property=["']og:description["'][^>]+content=['"]([\s\S]*?)['"]\s*>/i) || [])[1] || '';
+        // (한글 설명) &lt;br /&gt; 같은 HTML 엔티티를 실제 줄바꿈으로 바꾸고,
+        //             남은 HTML 태그·엔티티를 정리해서 깔끔한 글로 만들어요.
+        ogDesc = ogDesc
+          .replace(/&lt;br\s*\/?&gt;/gi, '\n')
+          .replace(/<br\s*\/?>/gi, '\n')
+          .replace(/&lt;[^&]*?&gt;/g, '')
+          .replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+          .replace(/\n{3,}/g, '\n\n')
+          .trim();
+
+        res.setHeader('Cache-Control','s-maxage=2592000'); // 문화재 설명은 거의 안 바뀌니 30일 캐시
+        return res.status(200).json({ ok:true, overview: ogDesc, imgUrl: ogImage });
       } catch (e) {
-        return res.status(200).json({ ok:false, message: e.message });
+        return res.status(200).json({ ok:true, overview:'', imgUrl:'' });
       }
     }
 
@@ -947,7 +954,7 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview/cultureInfoDebug/heritageDetailDebug' });
+    return res.status(400).json({ ok:false, message:'올바른 type: event/list/image/performance/perf2/exhi/museum/edu/festival/festivalTour/facilityTour/facilityDetail/keywordDebug/placePhoto/linkPreview/cultureInfoDebug/heritageDetail' });
 
   } catch (err) {
     return res.status(500).json({ ok:false, message:'서버 오류: '+err.message });

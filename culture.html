@@ -145,8 +145,8 @@
 .heritage-type-btn { padding: 8px 2px; border: 2px solid #f8bbd0; border-radius: 10px; background: #fff; font-size: 12px; font-weight: 600; color: #c62828; cursor: pointer; font-family: inherit; text-align: center; }
 .heritage-type-btn.active { background: #c62828; color: #fff; border-color: #c62828; }
 .heritage-card { background: #fff9fa; border: 1.5px solid #f8bbd0; border-radius: 14px; overflow: hidden; margin-bottom: 10px; }
-.heritage-card-img { width: 100%; height: 180px; background: #fce4ec; display: flex; align-items: center; justify-content: center; font-size: 48px; overflow: hidden; }
-.heritage-card-img img { width: 100%; height: 180px; object-fit: cover; }
+.heritage-card-img { width: 100%; height: 220px; background: #fce4ec; display: flex; align-items: center; justify-content: center; font-size: 48px; overflow: hidden; }
+.heritage-card-img img { width: 100%; height: 220px; object-fit: contain; }
 .heritage-card-body { padding: 14px; }
 .heritage-card-badge { display: inline-block; background: #fce4ec; color: #c62828; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 8px; margin-bottom: 8px; }
 .heritage-card-name { font-size: 18px; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; line-height: 1.4; }
@@ -1403,6 +1403,8 @@ function renderHeritageCard(idx) {
     +(item.admin?'<span>🏛️ 관리: '+item.admin+'</span>':'')
     +'</div>'
     +(hasCoord?buildMapLinks(item.name, item.lat, item.lon):'')
+    +'<button class="facility-detail-btn" onclick="toggleHeritageDetail('+idx+',this)" style="width:100%;margin-top:8px;padding:10px;background:#fce4ec;color:#c62828;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">🔍 자세히 보기</button>'
+    +'<div id="heritage-detail-'+idx+'" style="display:none;margin-top:8px;"></div>'
     +'<div class="heritage-nav">'
     +'<button class="heritage-nav-btn" onclick="changeHeritage(-1)" '+(idx===0?'disabled':'')+'">◀ 이전</button>'
     +'<span class="heritage-nav-count">'+(idx+1)+' / '+heritageTotalCnt+'</span>'
@@ -1430,7 +1432,52 @@ function renderHeritageCard(idx) {
 
 function setHImg(idx, url){
   var el = document.getElementById('h-img-'+idx);
-  if(el) el.innerHTML='<img src="'+url+'" style="width:100%;height:180px;object-fit:cover;" onerror="this.parentElement.innerHTML=\'<span style=font-size:48px>🏛️</span>\'">';
+  if(el) el.innerHTML='<img src="'+url+'" style="width:100%;height:220px;object-fit:contain;" onerror="this.parentElement.innerHTML=\'<span style=font-size:48px>🏛️</span>\'">';
+}
+
+// (한글 설명) "자세히 보기"를 누르면, 국가유산포털에서 설명글을 가져와서 펼쳐 보여줘요.
+//             같은 문화재를 다시 열 때는 캐시에서 바로 꺼내서 다시 안 불러와요.
+var heritageDetailCache = {};
+function toggleHeritageDetail(idx, btnEl){
+  var box = document.getElementById('heritage-detail-'+idx);
+  if (!box) return;
+  var opened = box.style.display !== 'none';
+  if (opened) {
+    box.style.display = 'none';
+    btnEl.textContent = '🔍 자세히 보기';
+    return;
+  }
+  box.style.display = 'block';
+  btnEl.textContent = '🔼 접기';
+
+  var item = heritageItems[idx];
+  var cKey = item.ccbaKdcd+'_'+item.ccbaAsno+'_'+item.ccbaCtcd;
+  if (heritageDetailCache[cKey]) {
+    renderHeritageDetailBox(box, heritageDetailCache[cKey]);
+    return;
+  }
+  box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#999;">불러오는 중...</div>';
+  fetch('/api/culture?type=heritageDetail&ccbaKdcd='+item.ccbaKdcd+'&ccbaAsno='+item.ccbaAsno+'&ccbaCtcd='+item.ccbaCtcd+'&ccbaCpno='+(item.ccbaCpno||''))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      heritageDetailCache[cKey] = d;
+      renderHeritageDetailBox(box, d);
+    })
+    .catch(function(){
+      box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#c62828;">정보를 불러오지 못했어요.</div>';
+    });
+}
+
+function renderHeritageDetailBox(box, data){
+  var html = '';
+  if (data && data.overview) {
+    html += '<div class="facility-overview-txt" style="color:#444;line-height:1.8;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;white-space:pre-line;">'+data.overview+'</div>';
+  }
+  if (!html) {
+    html = '<div class="facility-hint-txt" style="text-align:center;padding:10px;color:#999;">설명이 등록되어 있지 않아요.</div>';
+  }
+  html += '<div class="facility-source-note" style="color:#aaa;text-align:right;margin-top:6px;">출처: 국가유산포털(heritage.go.kr)</div>';
+  box.innerHTML = html;
 }
 
 // (한글 설명) "다음"을 눌렀을 때, 이미 불러온 데이터 안이면 그냥 넘기고,
