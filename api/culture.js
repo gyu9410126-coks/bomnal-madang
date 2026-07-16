@@ -19,7 +19,15 @@ function getMonthLaterStr() {
 // ── XML에서 태그값 추출 공통 함수 ──
 function getVal(xml, tag) {
   const m = xml.match(new RegExp('<'+tag+'>([\\s\\S]*?)<\\/'+tag+'>'));
-  return m ? m[1].replace(/<!\[CDATA\[|\]\]>/g,'').trim() : '';
+  if (!m) return '';
+  // (한글 설명) XML은 &·<·> 같은 특수문자를 &amp;·&lt;·&gt; 로 이스케이프해서 보내는데,
+  //             그대로 두면 링크가 깨지거나 제목에 이상한 글자가 섞여요. 실제 데이터에서
+  //             확인된 문제라 여기서 한 번에 다 풀어줘요(모든 API 공통 적용).
+  return m[1]
+    .replace(/<!\[CDATA\[|\]\]>/g,'')
+    .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+    .replace(/&quot;/g,'"').replace(/&#39;/g,"'")
+    .trim();
 }
 
 // ── XML 아이템 목록 파싱 공통 함수 ──
