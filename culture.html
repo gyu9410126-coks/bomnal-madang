@@ -2289,7 +2289,12 @@ function toggleFestivalDetail(idx, btn) {
 //             (health.html에서 검증된 코드를 그대로 재사용 — 이름·위도·경도만 넣으면 돼요)
 function buildMapLinks(name, lat, lon) {
   if (!lat || !lon) return ''; // 좌표가 없으면 버튼을 안 만들어요 (에러 방지)
-  var n = encodeURIComponent(name || '위치');
+  // (한글 설명) 카카오맵 주소는 "이름,위도,경도"처럼 쉼표로 구분하는 방식이에요.
+  //             제목 안에 쉼표가 들어있으면(예: "막걸리, 거친 일상의 벗") 카카오맵이
+  //             어디까지가 이름이고 어디부터 좌표인지 헷갈려서 위치를 못 찾는 문제를
+  //             실제로 발견했어요 — 그래서 이름 안의 쉼표는 가운뎃점으로 바꿔줘요.
+  var safeName = (name || '위치').replace(/,/g, '·');
+  var n = encodeURIComponent(safeName);
   var mapUrl = 'https://map.kakao.com/link/map/' + n + ',' + lat + ',' + lon;
   var wayUrl = 'https://map.kakao.com/link/to/' + n + ',' + lat + ',' + lon;
   var appMapUrl = 'kakaomap://look?p=' + lat + ',' + lon;
