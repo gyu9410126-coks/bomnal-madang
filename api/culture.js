@@ -435,16 +435,26 @@ export default async function handler(req, res) {
           return u;
         }
         res.setHeader('Cache-Control','s-maxage=86400');
+        const phoneRaw = getVal(item,'phone');
+        // (한글 설명) phone 필드가 "국립기상박물관 070-7850-8493"처럼 "기관이름 + 전화번호"
+        //             형태로 오는 경우가 많아서(실제 데이터로 확인함), place가 비어있을 때
+        //             전화번호 앞의 기관이름을 대신 뽑아 써요 — "서울" 같은 넓은 범위보다
+        //             훨씬 정확한 장소로 지도 검색이 가능해져요.
+        const orgNameMatch = phoneRaw.match(/^([^\d]+?)\s*0\d{1,2}[-.]?\d{3,4}/);
+        const orgName = orgNameMatch ? orgNameMatch[1].trim() : '';
+
         const placeAddr = getVal(item,'placeAddr');
         const place = getVal(item,'place');
         const area  = getVal(item,'area');
-        // (한글 설명) placeAddr(정확한 주소)가 없는 항목이 있어서, 그럴 땐
-        //             장소명+지역명이라도 합쳐서 지도 검색에 쓸 수 있게 해요.
-        const mapKeyword = placeAddr || [place, area].filter(Boolean).join(' ');
+        // (한글 설명) placeAddr(정확한 주소) → place+지역 → 전화번호 속 기관이름+지역
+        //             순서로 제일 정확한 것부터 시도해요.
+        const mapKeyword = placeAddr
+          || [place, area].filter(Boolean).join(' ')
+          || [orgName, area].filter(Boolean).join(' ');
         return res.status(200).json({
           ok: true,
           overview: getVal(item,'contents1'),
-          phone   : getVal(item,'phone'),
+          phone   : phoneRaw,
           homepage: fixUrl(getVal(item,'url')),
           price   : getVal(item,'price'),
           imgUrl  : getVal(item,'imgUrl'),
