@@ -527,31 +527,21 @@ export default async function handler(req, res) {
     // ════════════════════════════════
     // [H] 소속 및 산하기관 교육정보 (api.kcisa.kr — conver3)
     // ════════════════════════════════
+    // ════════════════════════════════
+    // [G] 문화기관 교육정보 (한국문화정보원 한눈에보는문화정보조회서비스, realmCode=G000)
+    //     (한글 설명) 3·4번과 완전히 같은 API·같은 방식이에요. G000(교육/체험)
+    //     하나만 쓰면 되니까 4번(전시)이랑 구조가 똑같아요.
+    // ════════════════════════════════
     if (type === 'edu') {
-      const apiKey = process.env.CULTURE_EDU_KEY;
-      if (!apiKey) return res.status(500).json({ ok:false, message:'CULTURE_EDU_KEY 없음' });
-      const numOfRows = req.query.rows  || '10';
-      const pageNo    = req.query.cPage || '1';
-      const keyword   = req.query.keyword || '';
-      const url = `https://api.kcisa.kr/openapi/service/rest/convergence/conver3`
-        + `?serviceKey=${encodeURIComponent(apiKey)}`
-        + `&numOfRows=${numOfRows}&pageNo=${pageNo}`
-        + `&keyword=${encodeURIComponent(keyword)}`;
-      const xmlText = await (await fetch(url)).text();
-      const items = parseItems(xmlText,'item').map(function(x){
-        return {
-          title    : getVal(x,'TITLE'),
-          period   : getVal(x,'PERIOD'),
-          place    : getVal(x,'EVENT_SITE'),
-          charge   : getVal(x,'CHARGE'),
-          thumbnail: getVal(x,'THUMBNAIL'),
-          url      : getVal(x,'URL'),
-          organizer: getVal(x,'SPATIAL_COVERAGE'),
-        };
-      });
-      const totalCount = getVal(xmlText,'totalCount') || '0';
+      const apiKey = process.env.TOURAPI_KEY;
+      if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
+      const region = req.query.region || '';
+      const rows   = parseInt(req.query.rows)   || 10;
+      const pageNo = parseInt(req.query.pageNo) || 1;
+
+      const { items, totalCount, hasMore } = await fetchCultureInfoRealm(apiKey, ['G000'], region, rows, pageNo);
       res.setHeader('Cache-Control','s-maxage=3600');
-      return res.status(200).json({ ok:true, type:'edu', totalCount, items });
+      return res.status(200).json({ ok:true, type:'edu', totalCount, hasMore, pageNo, items });
     }
 
     // ════════════════════════════════

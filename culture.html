@@ -977,19 +977,37 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
         <div class="page-box-title" style="color:#c62828;">📚 문화기관 교육정보</div>
       </div>
       <div class="page-box-body">
+        <div class="page-label" style="margin-top:0;">📍 지역 선택</div>
+        <select class="page-select" id="edu-sido">
+          <option value="">전체보기</option>
+          <option value="서울">서울특별시</option><option value="부산">부산광역시</option>
+          <option value="대구">대구광역시</option><option value="인천">인천광역시</option>
+          <option value="광주">광주광역시·전라남도(통합)</option><option value="대전">대전광역시</option>
+          <option value="울산">울산광역시</option><option value="세종">세종특별자치시</option>
+          <option value="경기">경기도</option><option value="강원">강원특별자치도</option>
+          <option value="충북">충청북도</option><option value="충남">충청남도</option>
+          <option value="전북">전북특별자치도</option>
+          <option value="경북">경상북도</option><option value="경남">경상남도</option>
+          <option value="제주">제주특별자치도</option>
+        </select>
+        <button class="search-btn" style="width:100%;background:#c62828;" onclick="searchEdu()">🔍 교육정보 검색</button>
+        <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetEdu()">🔄 검색 초기화</button>
+        <div id="edu-hint" class="facility-hint-txt" style="text-align:center;padding:26px 10px;color:#999;">
+          지역을 선택하고 <b>교육정보 검색</b> 버튼을 눌러주세요.<br>(선택 안 하면 전국 목록이 나와요)
+        </div>
         <div class="cult-loading" id="edu-loading">
           <span class="cult-loading-icon">📚</span>
           <div class="cult-loading-txt">교육 프로그램을 불러오는 중...</div>
-          <div class="cult-loading-sub">국립극장·국립현대미술관 등 확인 중</div>
+          <div class="cult-loading-sub">한국문화정보원 데이터를 확인하고 있어요</div>
         </div>
         <div class="cult-error" id="edu-error">
           <div class="cult-error-icon">😥</div>
           <div class="cult-error-txt">교육 정보를 불러오지 못했어요.</div>
-          <button class="cult-retry-btn" onclick="loadKcisa('edu',null,'')">다시 시도</button>
+          <button class="cult-retry-btn" onclick="searchEdu()">다시 시도</button>
         </div>
         <div id="edu-list"></div>
         <div id="edu-more-wrap" style="display:none;margin-top:10px;">
-          <button class="dyn-more-btn" onclick="loadMoreKcisa('edu')" style="width:100%;padding:12px;background:#fce4ec;color:#c62828;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
+          <button class="facility-more-btn" onclick="loadMoreEdu()" style="width:100%;padding:12px;background:#fce4ec;color:#c62828;border:none;border-radius:12px;font-weight:700;cursor:pointer;font-family:inherit;">더보기 ▼</button>
         </div>
         <div class="cult-coupon-wrap" style="margin-top:14px;">
           <div class="cult-coupon-label">🛍️ 문화 교육 준비 추천</div>
@@ -999,7 +1017,7 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
             <span class="cult-coupon-arrow">→</span>
           </a>
         </div>
-        <div class="data-source">※ 출처: 인천문화재단 외 소속·산하기관 교육정보 API (api.kcisa.kr)</div>
+        <div class="data-source">※ 출처: 한국문화정보원 한눈에보는문화정보조회서비스 (culture.go.kr)</div>
       </div>
     </div>
   </div><!-- /page-edu -->
@@ -1112,7 +1130,6 @@ function goPage(name) {
   if(name==='quiz'    && !quizStarted)    startQuiz();
   if(name==='facility'&& !facilityLoaded) showFacility('museum', document.querySelector('.facility-tab'));
   if(name==='museum'     && !museumLoaded)      loadKcisa('museum',  null);
-  if(name==='edu'        && !eduLoaded)         loadKcisa('edu',     null);
 }
 
 function goBack() {
@@ -1125,6 +1142,7 @@ function goBack() {
   var wasHeritagePage = document.getElementById('page-heritage').classList.contains('active');
   var wasPerf2Page    = document.getElementById('page-perf2').classList.contains('active');
   var wasExhiPage     = document.getElementById('page-exhi').classList.contains('active');
+  var wasEduPage      = document.getElementById('page-edu').classList.contains('active');
 
   PAGES.forEach(function(p){
     document.getElementById('page-'+p).classList.remove('active');
@@ -1157,6 +1175,10 @@ function goBack() {
     resetExhi();
     exhiLoaded = false;
   }
+  if (wasEduPage) {
+    resetEdu();
+    eduLoaded = false;
+  }
 }
 
 window.addEventListener('popstate', function(e) {
@@ -1180,7 +1202,6 @@ window.addEventListener('popstate', function(e) {
   if(name==='quiz'    && !quizStarted)    startQuiz();
   if(name==='facility'&& !facilityLoaded) showFacility('museum', document.querySelector('.facility-tab'));
   if(name==='museum'     && !museumLoaded)      loadKcisa('museum',  null);
-  if(name==='edu'        && !eduLoaded)         loadKcisa('edu',     null);
 })();
 
 /* ════════════════════════════════════════════
@@ -2822,6 +2843,142 @@ function renderExhiDetailBox(box, data){
   }
   if (data && data.placeUrl) {
     html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.placeUrl+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;font-weight:700;margin-bottom:8px;">🏛️ 전시장 정보 보기</a>';
+  }
+  if (data && data.overview) {
+    html += '<div class="facility-overview-txt" style="color:#444;line-height:1.8;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+data.overview+'</div>';
+  }
+  if (!html) {
+    html = '<div class="facility-hint-txt" style="text-align:center;padding:10px;color:#999;">추가 정보가 등록되어 있지 않아요.</div>';
+  }
+  box.innerHTML = html;
+}
+
+/* ════════════════════════════════════════════
+   문화기관교육정보(6번) 전용 로직 - 3·4번과 같은 API, realmCode=G000만 씀
+════════════════════════════════════════════ */
+var eduState = { region:'', page:1, items:[] };
+var eduDetailCache = {};
+
+function searchEdu(){
+  eduLoaded = true;
+  eduState.page = 1;
+  eduState.items = [];
+  eduState.region = document.getElementById('edu-sido').value;
+  document.getElementById('edu-hint').style.display = 'none';
+  document.getElementById('edu-error').classList.remove('show');
+  document.getElementById('edu-list').innerHTML = '';
+  document.getElementById('edu-more-wrap').style.display = 'none';
+  document.getElementById('edu-loading').classList.add('show');
+  fetchEduPage();
+}
+
+function loadMoreEdu(){
+  eduState.page++;
+  document.getElementById('edu-more-wrap').style.display = 'none';
+  document.getElementById('edu-loading').classList.add('show');
+  fetchEduPage();
+}
+
+function fetchEduPage(){
+  var url = '/api/culture?type=edu&rows=10&pageNo='+eduState.page
+    + (eduState.region ? '&region='+encodeURIComponent(eduState.region) : '');
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      document.getElementById('edu-loading').classList.remove('show');
+      var newItems = (data && data.items) || [];
+      if (eduState.items.length===0 && newItems.length===0) {
+        document.getElementById('edu-list').innerHTML =
+          '<div class="facility-hint-txt" style="text-align:center;padding:26px 10px;color:#999;">검색 결과가 없어요.<br>다른 지역으로 찾아보세요.</div>';
+        return;
+      }
+      var startIdx = eduState.items.length;
+      eduState.items = eduState.items.concat(newItems);
+      var html = '';
+      newItems.forEach(function(item, i){ html += renderEduCard(item, startIdx+i); });
+      document.getElementById('edu-list').innerHTML += html;
+      document.getElementById('edu-more-wrap').style.display = data.hasMore ? 'block' : 'none';
+    })
+    .catch(function(){
+      document.getElementById('edu-loading').classList.remove('show');
+      document.getElementById('edu-error').classList.add('show');
+    });
+}
+
+function resetEdu(){
+  document.getElementById('edu-sido').value = '';
+  eduState = { region:'', page:1, items:[] };
+  document.getElementById('edu-list').innerHTML = '';
+  document.getElementById('edu-more-wrap').style.display = 'none';
+  document.getElementById('edu-error').classList.remove('show');
+  document.getElementById('edu-hint').style.display = 'block';
+}
+
+function renderEduCard(item, idx){
+  var imgHtml = item.thumbnail
+    ? '<img src="'+item.thumbnail+'" style="width:100%;height:230px;object-fit:cover;border-radius:14px 14px 0 0;display:block;" onerror="this.parentElement.style.display=\'none\'">'
+    : '';
+  var locStr = [item.place, item.area, item.sigungu].filter(Boolean).join(' · ');
+  var dateStr = (item.startDate && item.endDate) ? item.startDate+' ~ '+item.endDate : (item.startDate||'');
+  var hasCoord = parseFloat(item.gpsX) > 0 && parseFloat(item.gpsY) > 0;
+  return '<div style="background:#fafafa;border:1.5px solid #f8bbd0;border-radius:14px;overflow:hidden;margin-bottom:12px;">'
+    + imgHtml
+    + '<div style="padding:14px;">'
+    + '<div class="facility-card-title" style="font-weight:800;color:#1a1a1a;margin-bottom:5px;word-break:keep-all;">'+item.title+'</div>'
+    + (locStr?'<div class="facility-card-addr" style="color:#666;margin-bottom:3px;">📍 '+locStr+'</div>':'')
+    + (dateStr?'<div class="facility-card-addr" style="color:#888;margin-bottom:8px;">📅 '+dateStr+'</div>':'')
+    + (hasCoord?buildMapLinks(item.title, item.gpsY, item.gpsX):'')
+    + (item.seq
+        ? '<button class="facility-detail-btn" onclick="toggleEduDetail(\''+item.seq+'\','+idx+',this)" style="width:100%;margin-top:8px;padding:10px;background:#fce4ec;color:#c62828;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">🔍 자세히 보기</button>'
+        + '<div id="edu-detail-'+idx+'" style="display:none;margin-top:8px;"></div>'
+        : '')
+    + '</div></div>';
+}
+
+function toggleEduDetail(seq, idx, btnEl){
+  var box = document.getElementById('edu-detail-'+idx);
+  if (!box) return;
+  var opened = box.style.display !== 'none';
+  if (opened) {
+    box.style.display = 'none';
+    btnEl.textContent = '🔍 자세히 보기';
+    return;
+  }
+  box.style.display = 'block';
+  btnEl.textContent = '🔼 접기';
+
+  if (eduDetailCache[seq]) {
+    renderEduDetailBox(box, eduDetailCache[seq]);
+    return;
+  }
+  box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#999;">불러오는 중...</div>';
+  fetch('/api/culture?type=cultureInfoDetail&seq='+encodeURIComponent(seq))
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      eduDetailCache[seq] = d;
+      renderEduDetailBox(box, d);
+    })
+    .catch(function(){
+      box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#c62828;">정보를 불러오지 못했어요.</div>';
+    });
+}
+
+function renderEduDetailBox(box, data){
+  var html = '';
+  if (data && data.phone) {
+    html += '<a href="tel:'+data.phone+'" class="facility-tel-btn" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e8f5e9;color:#2e7d32;font-weight:700;margin-bottom:8px;">📞 '+data.phone+'</a>';
+  }
+  if (data && data.price) {
+    html += '<div class="facility-card-addr" style="color:#c62828;font-weight:700;margin-bottom:8px;">💰 '+data.price+'</div>';
+  }
+  if (data && data.placeAddr) {
+    html += '<div class="facility-card-addr" style="color:#666;margin-bottom:8px;">📍 '+data.placeAddr+'</div>';
+  }
+  if (data && data.homepage) {
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 홈페이지 방문</a>';
+  }
+  if (data && data.placeUrl) {
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.placeUrl+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;font-weight:700;margin-bottom:8px;">🏛️ 기관 정보 보기</a>';
   }
   if (data && data.overview) {
     html += '<div class="facility-overview-txt" style="color:#444;line-height:1.8;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+data.overview+'</div>';
