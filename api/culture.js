@@ -450,7 +450,8 @@ export default async function handler(req, res) {
         //             순서로 제일 정확한 것부터 시도해요.
         const mapKeyword = placeAddr
           || [place, area].filter(Boolean).join(' ')
-          || [orgName, area].filter(Boolean).join(' ');
+          || orgName; // (한글 설명) "국립김해박물관"처럼 이미 충분히 구체적인 기관이름엔
+                      //             지역명을 안 붙여요 — 붙이면 오히려 검색이 안 될 수 있어요.
         return res.status(200).json({
           ok: true,
           overview: getVal(item,'contents1'),
