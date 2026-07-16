@@ -435,6 +435,12 @@ export default async function handler(req, res) {
           return u;
         }
         res.setHeader('Cache-Control','s-maxage=86400');
+        const placeAddr = getVal(item,'placeAddr');
+        const place = getVal(item,'place');
+        const area  = getVal(item,'area');
+        // (한글 설명) placeAddr(정확한 주소)가 없는 항목이 있어서, 그럴 땐
+        //             장소명+지역명이라도 합쳐서 지도 검색에 쓸 수 있게 해요.
+        const mapKeyword = placeAddr || [place, area].filter(Boolean).join(' ');
         return res.status(200).json({
           ok: true,
           overview: getVal(item,'contents1'),
@@ -442,8 +448,9 @@ export default async function handler(req, res) {
           homepage: fixUrl(getVal(item,'url')),
           price   : getVal(item,'price'),
           imgUrl  : getVal(item,'imgUrl'),
-          placeAddr: getVal(item,'placeAddr'),
+          placeAddr: placeAddr,
           placeUrl : fixUrl(getVal(item,'placeUrl')),
+          mapKeyword: mapKeyword,
         });
       } catch (e) {
         return res.status(200).json({ ok:true, overview:'', phone:'', homepage:'', price:'', imgUrl:'' });

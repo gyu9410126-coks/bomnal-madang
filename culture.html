@@ -2702,6 +2702,9 @@ function renderPerf2DetailBox(box, data){
   if (data && data.placeAddr) {
     html += '<div class="facility-card-addr" style="color:#666;margin-bottom:8px;">📍 '+data.placeAddr+'</div>';
   }
+  if (data && data.mapKeyword) {
+    html += buildMapSearchLink(data.mapKeyword);
+  }
   if (data && data.homepage) {
     html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 예매 홈페이지</a>';
   }
@@ -2838,6 +2841,9 @@ function renderExhiDetailBox(box, data){
   if (data && data.placeAddr) {
     html += '<div class="facility-card-addr" style="color:#666;margin-bottom:8px;">📍 '+data.placeAddr+'</div>';
   }
+  if (data && data.mapKeyword) {
+    html += buildMapSearchLink(data.mapKeyword);
+  }
   if (data && data.homepage) {
     html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 홈페이지 방문</a>';
   }
@@ -2973,6 +2979,9 @@ function renderEduDetailBox(box, data){
   }
   if (data && data.placeAddr) {
     html += '<div class="facility-card-addr" style="color:#666;margin-bottom:8px;">📍 '+data.placeAddr+'</div>';
+  }
+  if (data && data.mapKeyword) {
+    html += buildMapSearchLink(data.mapKeyword);
   }
   if (data && data.homepage) {
     html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 홈페이지 방문</a>';
