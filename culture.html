@@ -1471,7 +1471,7 @@ function renderHeritageCard(item, idx){
   var typeNames = {'11':'국보','12':'보물','13':'사적','15':'명승','16':'천연기념물'};
   var typeName = typeNames[currentHeritageType]||'문화재';
   var locStr = [item.sido, item.gugun].filter(Boolean).join(' ');
-  var hasCoord = item.lat && item.lon && item.lat!=='0' && item.lon!=='0';
+  var hasCoord = parseFloat(item.lat) > 0 && parseFloat(item.lon) > 0;
   return '<div class="heritage-card">'
     +'<div class="heritage-card-img" id="h-img-'+idx+'"><span style="font-size:48px;">🏛️</span></div>'
     +'<div class="heritage-card-body">'
@@ -2626,7 +2626,7 @@ function renderPerf2Card(item, idx){
     : '';
   var locStr = [item.place, item.area, item.sigungu].filter(Boolean).join(' · ');
   var dateStr = (item.startDate && item.endDate) ? item.startDate+' ~ '+item.endDate : (item.startDate||'');
-  var hasCoord = item.gpsX && item.gpsY && item.gpsX!=='0' && item.gpsY!=='0';
+  var hasCoord = parseFloat(item.gpsX) > 0 && parseFloat(item.gpsY) > 0;
   return '<div style="background:#fafafa;border:1.5px solid #b3e5fc;border-radius:14px;overflow:hidden;margin-bottom:12px;">'
     + imgHtml
     + '<div style="padding:14px;">'
@@ -2763,7 +2763,7 @@ function renderExhiCard(item, idx){
     : '';
   var locStr = [item.place, item.area, item.sigungu].filter(Boolean).join(' · ');
   var dateStr = (item.startDate && item.endDate) ? item.startDate+' ~ '+item.endDate : (item.startDate||'');
-  var hasCoord = item.gpsX && item.gpsY && item.gpsX!=='0' && item.gpsY!=='0';
+  var hasCoord = parseFloat(item.gpsX) > 0 && parseFloat(item.gpsY) > 0;
   return '<div style="background:#fafafa;border:1.5px solid #dcedc8;border-radius:14px;overflow:hidden;margin-bottom:12px;">'
     + imgHtml
     + '<div style="padding:14px;">'

@@ -419,16 +419,23 @@ export default async function handler(req, res) {
         const r = await fetch(url);
         const text = await r.text();
         const item = parseItems(text, 'item')[0] || '';
+        // (한글 설명) 이달의 문화행사 때처럼, url/placeUrl이 https:// 없이
+        //             오는 경우가 있을 수 있어서 미리 보정해요.
+        function fixUrl(u){
+          u = (u||'').trim();
+          if (u && !/^https?:\/\//i.test(u)) u = 'https://' + u;
+          return u;
+        }
         res.setHeader('Cache-Control','s-maxage=86400');
         return res.status(200).json({
           ok: true,
           overview: getVal(item,'contents1'),
           phone   : getVal(item,'phone'),
-          homepage: getVal(item,'url'),
+          homepage: fixUrl(getVal(item,'url')),
           price   : getVal(item,'price'),
           imgUrl  : getVal(item,'imgUrl'),
           placeAddr: getVal(item,'placeAddr'),
-          placeUrl : getVal(item,'placeUrl'),
+          placeUrl : fixUrl(getVal(item,'placeUrl')),
         });
       } catch (e) {
         return res.status(200).json({ ok:true, overview:'', phone:'', homepage:'', price:'', imgUrl:'' });
