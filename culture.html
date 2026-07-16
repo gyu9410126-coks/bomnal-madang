@@ -1377,8 +1377,16 @@ function fetchEventPlacePhoto(item, idx){
 //             보여주는 방식이라 버튼 하나로 대신해요.
 function buildMapSearchLink(keyword){
   if (!keyword) return '';
-  var q = encodeURIComponent(keyword);
-  return '<a href="#" onclick="confirmExternalLink(\'https://map.kakao.com/link/search/'+q+'\');return false;" class="facility-homepage-btn" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;font-weight:700;margin-bottom:8px;">🗺️ 지도에서 찾기</a>';
+  // (한글 설명) "아트허브 온라인 갤러리(ARTHUB Online Gallery)"처럼 괄호 안에
+  //             영어 설명이 붙어있으면 검색어가 너무 길고 복잡해져서 카카오맵이
+  //             오히려 못 찾는 경우가 있어요. 괄호 안 내용은 빼고 검색해요.
+  var cleanKeyword = keyword.replace(/\([^)]*\)/g, '').replace(/\s+/g,' ').trim();
+  if (!cleanKeyword) cleanKeyword = keyword;
+  // (한글 설명) encodeURIComponent는 작은따옴표(')·괄호·별표 같은 문자를
+  //             안전하게 안 바꿔줘서(실제로 확인된 예외 문자들), escJs로 한 번
+  //             더 안전하게 처리해요 — 안 그러면 버튼 자체가 깨질 수 있어요.
+  var q = encodeURIComponent(cleanKeyword);
+  return '<a href="#" onclick="confirmExternalLink(\'https://map.kakao.com/link/search/'+escJs(q)+'\');return false;" class="facility-homepage-btn" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;font-weight:700;margin-bottom:8px;">🗺️ 지도에서 찾기</a>';
 }
 
 function toggleEventDetail(idx, btnEl){
@@ -2307,7 +2315,7 @@ function buildMapLinks(name, lat, lon) {
   var wayUrl = 'https://map.kakao.com/link/to/' + n + ',' + lat + ',' + lon;
   var appMapUrl = 'kakaomap://look?p=' + lat + ',' + lon;
   return '<div class="result-card-row">'
-    + '<a href="#" style="flex:1;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:8px 6px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;" onclick="openKakaoMapPlace(\'' + appMapUrl + '\', \'' + mapUrl + '\');return false;" rel="noopener">🗺️ 지도로 보기</a>'
+    + '<a href="#" style="flex:1;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:8px 6px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;" onclick="openKakaoMapPlace(\'' + escJs(appMapUrl) + '\', \'' + escJs(mapUrl) + '\');return false;" rel="noopener">🗺️ 지도로 보기</a>'
     + '<a href="#" style="flex:1;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:8px 6px;border-radius:8px;background:#e65100;color:#fff;" onclick="confirmExternalLink(\''+escJs(wayUrl)+'\');return false;" rel="noopener">🚗 길찾기</a>'
     + '</div>';
 }
