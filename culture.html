@@ -2675,8 +2675,13 @@ function togglePerf2Detail(seq, idx, btnEl){
   box.style.display = 'block';
   btnEl.textContent = '🔼 접기';
 
+  // (한글 설명) 카드에 이미 좌표기반 지도버튼(지도로보기·길찾기)이 있는 항목이면,
+  //             자세히보기 안에는 "지도에서 찾기"를 또 넣지 않아요(중복 방지).
+  var listItem = perf2State.items[idx];
+  var alreadyHasCoordMap = !!(listItem && parseFloat(listItem.gpsX) > 0 && parseFloat(listItem.gpsY) > 0);
+
   if (perf2DetailCache[seq]) {
-    renderPerf2DetailBox(box, perf2DetailCache[seq]);
+    renderPerf2DetailBox(box, perf2DetailCache[seq], alreadyHasCoordMap);
     return;
   }
   box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#999;">불러오는 중...</div>';
@@ -2684,14 +2689,14 @@ function togglePerf2Detail(seq, idx, btnEl){
     .then(function(r){ return r.json(); })
     .then(function(d){
       perf2DetailCache[seq] = d;
-      renderPerf2DetailBox(box, d);
+      renderPerf2DetailBox(box, d, alreadyHasCoordMap);
     })
     .catch(function(){
       box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#c62828;">정보를 불러오지 못했어요.</div>';
     });
 }
 
-function renderPerf2DetailBox(box, data){
+function renderPerf2DetailBox(box, data, alreadyHasCoordMap){
   var html = '';
   if (data && data.phone) {
     html += '<a href="tel:'+data.phone+'" class="facility-tel-btn" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e8f5e9;color:#2e7d32;font-weight:700;margin-bottom:8px;">📞 '+data.phone+'</a>';
@@ -2702,7 +2707,7 @@ function renderPerf2DetailBox(box, data){
   if (data && data.placeAddr) {
     html += '<div class="facility-card-addr" style="color:#666;margin-bottom:8px;">📍 '+data.placeAddr+'</div>';
   }
-  if (data && data.mapKeyword) {
+  if (data && data.mapKeyword && !alreadyHasCoordMap) {
     html += buildMapSearchLink(data.mapKeyword);
   }
   if (data && data.homepage) {
@@ -2814,8 +2819,11 @@ function toggleExhiDetail(seq, idx, btnEl){
   box.style.display = 'block';
   btnEl.textContent = '🔼 접기';
 
+  var listItem = exhiState.items[idx];
+  var alreadyHasCoordMap = !!(listItem && parseFloat(listItem.gpsX) > 0 && parseFloat(listItem.gpsY) > 0);
+
   if (exhiDetailCache[seq]) {
-    renderExhiDetailBox(box, exhiDetailCache[seq]);
+    renderExhiDetailBox(box, exhiDetailCache[seq], alreadyHasCoordMap);
     return;
   }
   box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#999;">불러오는 중...</div>';
@@ -2823,14 +2831,14 @@ function toggleExhiDetail(seq, idx, btnEl){
     .then(function(r){ return r.json(); })
     .then(function(d){
       exhiDetailCache[seq] = d;
-      renderExhiDetailBox(box, d);
+      renderExhiDetailBox(box, d, alreadyHasCoordMap);
     })
     .catch(function(){
       box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#c62828;">정보를 불러오지 못했어요.</div>';
     });
 }
 
-function renderExhiDetailBox(box, data){
+function renderExhiDetailBox(box, data, alreadyHasCoordMap){
   var html = '';
   if (data && data.phone) {
     html += '<a href="tel:'+data.phone+'" class="facility-tel-btn" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e8f5e9;color:#2e7d32;font-weight:700;margin-bottom:8px;">📞 '+data.phone+'</a>';
@@ -2841,7 +2849,7 @@ function renderExhiDetailBox(box, data){
   if (data && data.placeAddr) {
     html += '<div class="facility-card-addr" style="color:#666;margin-bottom:8px;">📍 '+data.placeAddr+'</div>';
   }
-  if (data && data.mapKeyword) {
+  if (data && data.mapKeyword && !alreadyHasCoordMap) {
     html += buildMapSearchLink(data.mapKeyword);
   }
   if (data && data.homepage) {
@@ -2953,8 +2961,11 @@ function toggleEduDetail(seq, idx, btnEl){
   box.style.display = 'block';
   btnEl.textContent = '🔼 접기';
 
+  var listItem = eduState.items[idx];
+  var alreadyHasCoordMap = !!(listItem && parseFloat(listItem.gpsX) > 0 && parseFloat(listItem.gpsY) > 0);
+
   if (eduDetailCache[seq]) {
-    renderEduDetailBox(box, eduDetailCache[seq]);
+    renderEduDetailBox(box, eduDetailCache[seq], alreadyHasCoordMap);
     return;
   }
   box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#999;">불러오는 중...</div>';
@@ -2962,14 +2973,14 @@ function toggleEduDetail(seq, idx, btnEl){
     .then(function(r){ return r.json(); })
     .then(function(d){
       eduDetailCache[seq] = d;
-      renderEduDetailBox(box, d);
+      renderEduDetailBox(box, d, alreadyHasCoordMap);
     })
     .catch(function(){
       box.innerHTML = '<div class="facility-hint-txt" style="text-align:center;padding:14px;color:#c62828;">정보를 불러오지 못했어요.</div>';
     });
 }
 
-function renderEduDetailBox(box, data){
+function renderEduDetailBox(box, data, alreadyHasCoordMap){
   var html = '';
   if (data && data.phone) {
     html += '<a href="tel:'+data.phone+'" class="facility-tel-btn" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e8f5e9;color:#2e7d32;font-weight:700;margin-bottom:8px;">📞 '+data.phone+'</a>';
@@ -2980,7 +2991,7 @@ function renderEduDetailBox(box, data){
   if (data && data.placeAddr) {
     html += '<div class="facility-card-addr" style="color:#666;margin-bottom:8px;">📍 '+data.placeAddr+'</div>';
   }
-  if (data && data.mapKeyword) {
+  if (data && data.mapKeyword && !alreadyHasCoordMap) {
     html += buildMapSearchLink(data.mapKeyword);
   }
   if (data && data.homepage) {
