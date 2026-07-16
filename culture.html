@@ -1397,7 +1397,7 @@ function toggleEventDetail(idx, btnEl){
       html += '<div class="facility-overview-txt" style="color:#444;line-height:1.7;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;margin-bottom:8px;">'+item.content+'</div>';
     }
     if (item.linkUrl) {
-      html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+item.linkUrl+'\');return false;" style="display:block;text-align:center;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;text-decoration:none;font-weight:700;">🔗 홈페이지 방문</a>';
+      html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+escJs(item.linkUrl)+'\');return false;" style="display:block;text-align:center;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;text-decoration:none;font-weight:700;">🔗 홈페이지 방문</a>';
     }
     if (!html) {
       html = '<div class="facility-hint-txt" style="text-align:center;padding:10px;color:#999;">추가 정보가 등록되어 있지 않아요.</div>';
@@ -1570,7 +1570,7 @@ function renderHeritageDetailBox(box, data){
     html += '<a href="tel:'+data.phone+'" class="facility-tel-btn" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e8f5e9;color:#2e7d32;font-weight:700;margin-bottom:8px;">📞 '+data.phone+'</a>';
   }
   if (data && data.homepage) {
-    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 국가유산포털에서 자세히 보기</a>';
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+escJs(data.homepage)+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 국가유산포털에서 자세히 보기</a>';
   }
   if (data && data.overview) {
     html += '<div class="facility-overview-txt" style="color:#444;line-height:1.8;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;white-space:pre-line;">'+data.overview+'</div>';
@@ -1917,7 +1917,7 @@ function togglePalaceDetail(idx, btnEl){
   if (item && !box.innerHTML) {
     var html = '';
     if (item.homepage) {
-      html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+item.homepage+'\');return false;" style="display:block;text-align:center;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;text-decoration:none;font-weight:700;margin-bottom:8px;">🔗 홈페이지 방문</a>';
+      html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+escJs(item.homepage)+'\');return false;" style="display:block;text-align:center;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;text-decoration:none;font-weight:700;margin-bottom:8px;">🔗 홈페이지 방문</a>';
     }
     if (item.overview) {
       html += '<div class="facility-overview-txt" style="color:#444;line-height:1.7;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+item.overview+'</div>';
@@ -2050,7 +2050,7 @@ function renderFacilityDetailBox(box, data){
     html += '<a href="tel:'+data.tel+'" class="facility-tel-btn" style="display:block;text-align:center;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:#e8f5e9;color:#2e7d32;margin-bottom:8px;">📞 '+data.tel+'</a>';
   }
   if (data && data.homepage) {
-    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;font-weight:700;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;margin-bottom:8px;">🔗 홈페이지 방문</a>';
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+escJs(data.homepage)+'\');return false;" style="display:block;text-align:center;font-weight:700;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;margin-bottom:8px;">🔗 홈페이지 방문</a>';
   } else if (!(data && data.tel)) {
     // (한글 설명) 전화번호도 홈페이지도 둘 다 없을 때만 안내 문구를 보여줘요.
     // (개요만 있는 경우엔 아래 overview가 대신 보여지니 문구를 안 겹치게 해요)
@@ -2256,7 +2256,7 @@ function renderFestivalCard(item) {
       + (item.content ? '<div style="font-size:13px;color:#555;line-height:1.6;margin-bottom:10px;">📝 '+item.content+'</div>' : '')
       + (item.address ? '<div style="font-size:13px;color:#555;margin-bottom:10px;">📍 '+item.address+'</div>' : '')
       + (item.phone ? '<a href="tel:'+item.phone+'" style="display:block;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:9px 6px;border-radius:8px;background:#e8f5e9;color:#2e7d32;margin-bottom:6px;">📞 전화 문의 ('+item.phone+')</a>' : '')
-      + (item.url ? '<a href="#" onclick="confirmExternalLink(\''+item.url+'\');return false;" style="display:block;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:9px 6px;border-radius:8px;background:#e3f2fd;color:#1565c0;" rel="noopener">🔗 홈페이지 바로가기</a>' : '')
+      + (item.url ? '<a href="#" onclick="confirmExternalLink(\''+escJs(item.url)+'\');return false;" style="display:block;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:9px 6px;border-radius:8px;background:#e3f2fd;color:#1565c0;" rel="noopener">🔗 홈페이지 바로가기</a>' : '')
       + '</div>';
   }
 
@@ -2287,6 +2287,14 @@ function toggleFestivalDetail(idx, btn) {
 
 // (한글 설명) "지도로 보기"/"길찾기" 버튼 HTML을 만드는 공통 함수예요
 //             (health.html에서 검증된 코드를 그대로 재사용 — 이름·위도·경도만 넣으면 돼요)
+// (한글 설명) onclick="...('값')" 형태로 동적인 값을 끼워넣을 때, 그 값 안에
+//             작은따옴표(')가 섞여있으면 문장이 중간에 끊겨서 버튼이 깨져요
+//             (쉼표가 지도 주소를 깨뜨렸던 것과 같은 종류의 문제). 이 함수로
+//             작은따옴표·역슬래시를 안전하게 미리 이스케이프해요.
+function escJs(s){
+  return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
 function buildMapLinks(name, lat, lon) {
   if (!lat || !lon) return ''; // 좌표가 없으면 버튼을 안 만들어요 (에러 방지)
   // (한글 설명) 카카오맵 주소는 "이름,위도,경도"처럼 쉼표로 구분하는 방식이에요.
@@ -2300,7 +2308,7 @@ function buildMapLinks(name, lat, lon) {
   var appMapUrl = 'kakaomap://look?p=' + lat + ',' + lon;
   return '<div class="result-card-row">'
     + '<a href="#" style="flex:1;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:8px 6px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;" onclick="openKakaoMapPlace(\'' + appMapUrl + '\', \'' + mapUrl + '\');return false;" rel="noopener">🗺️ 지도로 보기</a>'
-    + '<a href="#" style="flex:1;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:8px 6px;border-radius:8px;background:#e65100;color:#fff;" onclick="confirmExternalLink(\'' + wayUrl + '\');return false;" rel="noopener">🚗 길찾기</a>'
+    + '<a href="#" style="flex:1;text-align:center;font-size:13px;font-weight:700;text-decoration:none;padding:8px 6px;border-radius:8px;background:#e65100;color:#fff;" onclick="confirmExternalLink(\''+escJs(wayUrl)+'\');return false;" rel="noopener">🚗 길찾기</a>'
     + '</div>';
 }
 
@@ -2535,7 +2543,7 @@ function renderPerformance(items) {
 
     /* 상세 링크 */
     var linkHtml = item.url
-      ? '<a href="#" onclick="confirmExternalLink(\''+item.url+'\');return false;" style="display:block;text-align:center;padding:8px;background:#f3e5f5;border-radius:8px;color:#6a1b9a;font-size:13px;font-weight:700;text-decoration:none;margin-top:8px;">📋 상세보기</a>'
+      ? '<a href="#" onclick="confirmExternalLink(\''+escJs(item.url)+'\');return false;" style="display:block;text-align:center;padding:8px;background:#f3e5f5;border-radius:8px;color:#6a1b9a;font-size:13px;font-weight:700;text-decoration:none;margin-top:8px;">📋 상세보기</a>'
       : '';
 
     html += '<div style="background:#fdf6ff;border:1.5px solid #e1bee7;border-radius:14px;padding:14px;margin-bottom:10px;">'
@@ -2716,10 +2724,10 @@ function renderPerf2DetailBox(box, data, alreadyHasCoordMap){
     html += buildMapSearchLink(data.mapKeyword);
   }
   if (data && data.homepage) {
-    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 예매 홈페이지</a>';
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+escJs(data.homepage)+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 예매 홈페이지</a>';
   }
   if (data && data.placeUrl) {
-    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.placeUrl+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;font-weight:700;margin-bottom:8px;">🏛️ 공연장 정보 보기</a>';
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+escJs(data.placeUrl)+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;font-weight:700;margin-bottom:8px;">🏛️ 공연장 정보 보기</a>';
   }
   if (data && data.overview) {
     html += '<div class="facility-overview-txt" style="color:#444;line-height:1.8;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+data.overview+'</div>';
@@ -2858,10 +2866,10 @@ function renderExhiDetailBox(box, data, alreadyHasCoordMap){
     html += buildMapSearchLink(data.mapKeyword);
   }
   if (data && data.homepage) {
-    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 홈페이지 방문</a>';
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+escJs(data.homepage)+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 홈페이지 방문</a>';
   }
   if (data && data.placeUrl) {
-    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.placeUrl+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;font-weight:700;margin-bottom:8px;">🏛️ 전시장 정보 보기</a>';
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+escJs(data.placeUrl)+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;font-weight:700;margin-bottom:8px;">🏛️ 전시장 정보 보기</a>';
   }
   if (data && data.overview) {
     html += '<div class="facility-overview-txt" style="color:#444;line-height:1.8;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+data.overview+'</div>';
@@ -3000,10 +3008,10 @@ function renderEduDetailBox(box, data, alreadyHasCoordMap){
     html += buildMapSearchLink(data.mapKeyword);
   }
   if (data && data.homepage) {
-    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.homepage+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 홈페이지 방문</a>';
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+escJs(data.homepage)+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#e3f2fd;color:#1565c0;font-weight:700;margin-bottom:8px;">🔗 홈페이지 방문</a>';
   }
   if (data && data.placeUrl) {
-    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+data.placeUrl+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;font-weight:700;margin-bottom:8px;">🏛️ 기관 정보 보기</a>';
+    html += '<a href="#" class="facility-homepage-btn" onclick="confirmExternalLink(\''+escJs(data.placeUrl)+'\');return false;" style="display:block;text-align:center;text-decoration:none;padding:9px;border-radius:8px;background:#f3e5f5;color:#6a1b9a;font-weight:700;margin-bottom:8px;">🏛️ 기관 정보 보기</a>';
   }
   if (data && data.overview) {
     html += '<div class="facility-overview-txt" style="color:#444;line-height:1.8;background:#f7f8fa;border-radius:8px;padding:12px;word-break:keep-all;">'+data.overview+'</div>';
@@ -3109,7 +3117,7 @@ function renderKcisa(type, items) {
     var orgStr = item.organizer ? '<div class="dyn-organizer" style="font-size:11px;color:#aaa;margin-top:2px;">🏛️ '+item.organizer+'</div>' : '';
     /* 상세링크 */
     var linkHtml = item.url
-      ? '<a class="dyn-link" href="#" onclick="confirmExternalLink(\''+item.url+'\');return false;" style="display:block;text-align:center;padding:8px;background:'+theme.bg+';border-radius:8px;color:'+theme.color+';font-size:13px;font-weight:700;text-decoration:none;margin-top:8px;">📋 상세보기</a>'
+      ? '<a class="dyn-link" href="#" onclick="confirmExternalLink(\''+escJs(item.url)+'\');return false;" style="display:block;text-align:center;padding:8px;background:'+theme.bg+';border-radius:8px;color:'+theme.color+';font-size:13px;font-weight:700;text-decoration:none;margin-top:8px;">📋 상세보기</a>'
       : '';
 
     html += '<div style="background:#fafafa;border:1.5px solid #eee;border-radius:14px;padding:14px;margin-bottom:10px;">'
