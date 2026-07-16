@@ -462,31 +462,21 @@ export default async function handler(req, res) {
     // ════════════════════════════════
     // [F] 전시정보 통합 (api.kcisa.kr — API_CCA_145)
     // ════════════════════════════════
+    // ════════════════════════════════
+    // [F] 전시정보 통합 (한국문화정보원 한눈에보는문화정보조회서비스, realmCode=D000)
+    //     (한글 설명) 3번(공연정보)과 완전히 같은 API·같은 방식이에요. D000(전시)
+    //     하나만 쓰면 되니까 여러 개 합칠 필요 없이 간단해요.
+    // ════════════════════════════════
     if (type === 'exhi') {
-      const apiKey = process.env.CULTURE_EXHI_KEY;
-      if (!apiKey) return res.status(500).json({ ok:false, message:'CULTURE_EXHI_KEY 없음' });
-      const numOfRows = req.query.rows  || '10';
-      const pageNo    = req.query.cPage || '1';
-      const keyword   = req.query.keyword || '';
-      const url = `https://api.kcisa.kr/openapi/API_CCA_145/request`
-        + `?serviceKey=${encodeURIComponent(apiKey)}`
-        + `&numOfRows=${numOfRows}&pageNo=${pageNo}`
-        + (keyword ? `&keyword=${encodeURIComponent(keyword)}` : '');
-      const xmlText = await (await fetch(url)).text();
-      const items = parseItems(xmlText,'item').map(function(x){
-        return {
-          title    : getVal(x,'TITLE'),
-          period   : getVal(x,'PERIOD'),
-          place    : getVal(x,'EVENT_SITE'),
-          charge   : getVal(x,'CHARGE'),
-          thumbnail: getVal(x,'THUMBNAIL'),
-          url      : getVal(x,'URL'),
-          duration : getVal(x,'DURATION'),
-        };
-      });
-      const totalCount = getVal(xmlText,'totalCount') || '0';
+      const apiKey = process.env.TOURAPI_KEY;
+      if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
+      const region = req.query.region || '';
+      const rows   = parseInt(req.query.rows)   || 10;
+      const pageNo = parseInt(req.query.pageNo) || 1;
+
+      const { items, totalCount, hasMore } = await fetchCultureInfoRealm(apiKey, ['D000'], region, rows, pageNo);
       res.setHeader('Cache-Control','s-maxage=3600');
-      return res.status(200).json({ ok:true, type:'exhi', totalCount, items });
+      return res.status(200).json({ ok:true, type:'exhi', totalCount, hasMore, pageNo, items });
     }
 
     // ════════════════════════════════
