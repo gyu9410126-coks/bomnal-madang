@@ -500,12 +500,50 @@ export default async function handler(req, res) {
           } catch (e) { /* 이 후보가 실패해도 다음 후보로 계속 시도해요 */ }
         }
 
+        // (한글 설명) 3단계: 기관 홈페이지도 별도로 보강해요(좌표를 이미 찾았어도
+        //             실행돼요 — 국립중앙박물관처럼 좌표는 있는데 홈페이지 링크만
+        //             죽어있는 경우를 발견해서요). orgName(전화번호 속 기관이름)으로
+        //             TourAPI에서 검색 → 정확히 일치하는 곳을 찾으면 그 기관의 공식
+        //             홈페이지(detailCommon2)를 대신 가져와요. 개별 행사 링크보다
+        //             기관 대표 홈페이지가 훨씬 안정적으로 열려요.
+        let orgHomepage = '';
+        if (orgName) {
+          try {
+            const oUrl = `https://apis.data.go.kr/B551011/KorService2/searchKeyword2`
+              + `?serviceKey=${keyEnc}&numOfRows=3&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
+              + `&_type=json&arrange=O&keyword=${encodeURIComponent(orgName)}`;
+            const or_ = await fetch(oUrl);
+            const oj = await or_.json();
+            const oBody = oj && oj.response && oj.response.body;
+            const oItems = (oBody && oBody.items && (Array.isArray(oBody.items.item) ? oBody.items.item : (oBody.items.item ? [oBody.items.item] : []))) || [];
+            const oCoreWord = orgName.split(/[\s,·()]+/)[0];
+            const oMatch = oItems.find(function(it){ return it.title && oCoreWord && it.title.indexOf(oCoreWord) !== -1; });
+            if (oMatch && oMatch.contentid) {
+              const dUrl = `https://apis.data.go.kr/B551011/KorService2/detailCommon2`
+                + `?serviceKey=${keyEnc}&contentId=${oMatch.contentid}&MobileOS=ETC&MobileApp=BomnalMadang&_type=json&numOfRows=1&pageNo=1`;
+              const dr = await fetch(dUrl);
+              const dj = await dr.json();
+              const dBody = dj && dj.response && dj.response.body;
+              const dItems = (dBody && dBody.items && (Array.isArray(dBody.items.item) ? dBody.items.item : (dBody.items.item ? [dBody.items.item] : []))) || [];
+              const dItem = dItems[0];
+              if (dItem && dItem.homepage) {
+                const hpRaw = String(dItem.homepage).trim();
+                const hrefM = hpRaw.match(/href="([^"]+)"/);
+                orgHomepage = hrefM ? hrefM[1] : (hpRaw.indexOf('http') === 0 ? hpRaw : (hpRaw && hpRaw.indexOf('<') === -1 ? 'https://' + hpRaw : ''));
+              }
+            }
+          } catch (e) { /* 실패해도 화면은 안 깨지게 그냥 넘어가요 */ }
+        }
+
         res.setHeader('Cache-Control','s-maxage=86400');
+        // (한글 설명) 기관 대표 홈페이지를 찾았으면 그걸 우선으로 써요 — 개별 행사
+        //             링크(url)는 오래돼서 죽어있는 경우가 많았어요(실제 확인함).
+        const finalHomepage = orgHomepage || fixUrl(getVal(item,'url'));
         return res.status(200).json({
           ok: true,
           overview: getVal(item,'contents1'),
           phone   : phoneRaw,
-          homepage: fixUrl(getVal(item,'url')),
+          homepage: finalHomepage,
           price   : getVal(item,'price'),
           imgUrl  : getVal(item,'imgUrl'),
           placeAddr: placeAddr,
