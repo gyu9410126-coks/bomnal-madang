@@ -457,31 +457,42 @@ export default async function handler(req, res) {
         let lat = getVal(item,'gpsY');
         let lon = getVal(item,'gpsX');
 
+        // (한글 설명) "영종역사관 티켓 발권"처럼, 가격 정보 안에 진짜 장소이름이
+        //             숨어있는 경우를 실제로 발견했어요(place 필드는 "아트허브 온라인
+        //             갤러리"처럼 온라인 접수처 이름이라 지도에 없는 경우가 있었음).
+        const priceRaw = getVal(item,'price');
+        const priceVenueMatch = priceRaw.match(/^([^\d]+?)\s*(?:티켓|입장|발권|요금|관람료|입장료)/);
+        const priceVenue = priceVenueMatch ? priceVenueMatch[1].trim() : '';
+
         // (한글 설명) 2단계: 그래도 좌표가 없으면, 오늘 여러 번 성공했던 방법대로
-        //             TourAPI에서 장소명으로 다시 검색해서 좌표를 우회로 찾아봐요.
-        //             엉뚱한 곳을 잘못 찾지 않도록, 검색 결과 제목에 우리 장소명의
-        //             핵심 단어가 실제로 포함될 때만 채택해요(placePhoto와 동일한 안전장치).
+        //             TourAPI에서 다시 검색해서 좌표를 우회로 찾아봐요. place 필드가
+        //             실제 장소가 아닐 수 있어서, 가격정보 속 장소이름·기관이름까지
+        //             여러 후보를 순서대로 시도해요. 엉뚱한 곳이 안 걸리도록, 검색
+        //             결과 제목에 후보 단어가 실제로 포함될 때만 채택해요.
         let coordSource = (parseFloat(lat) > 0 && parseFloat(lon) > 0) ? 'detail2' : '';
-        const lookupKeyword = place || orgName;
-        if (!coordSource && lookupKeyword) {
+        const candidates = [place, priceVenue, orgName].filter(function(v, i, arr){
+          return v && arr.indexOf(v) === i; // 중복 제거
+        });
+        for (const cand of candidates) {
+          if (coordSource) break;
           try {
             const tourUrl = `https://apis.data.go.kr/B551011/KorService2/searchKeyword2`
               + `?serviceKey=${keyEnc}&numOfRows=3&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
-              + `&_type=json&arrange=O&keyword=${encodeURIComponent(lookupKeyword)}`;
+              + `&_type=json&arrange=O&keyword=${encodeURIComponent(cand)}`;
             const tr = await fetch(tourUrl);
             const tj = await tr.json();
             const tBody = tj && tj.response && tj.response.body;
             const tItems = (tBody && tBody.items && (Array.isArray(tBody.items.item) ? tBody.items.item : (tBody.items.item ? [tBody.items.item] : []))) || [];
-            const coreWord = lookupKeyword.split(/[\s,·()]+/)[0];
+            const coreWord = cand.split(/[\s,·()]+/)[0];
             const tMatch = tItems.find(function(it){
               return it.mapx && it.mapy && it.title && coreWord && it.title.indexOf(coreWord) !== -1;
             });
             if (tMatch) {
               lat = tMatch.mapy;
               lon = tMatch.mapx;
-              coordSource = 'tourapi';
+              coordSource = 'tourapi:' + cand;
             }
-          } catch (e) { /* 우회 검색 실패해도 화면은 안 깨지게 그냥 넘어가요 */ }
+          } catch (e) { /* 이 후보가 실패해도 다음 후보로 계속 시도해요 */ }
         }
 
         res.setHeader('Cache-Control','s-maxage=86400');
