@@ -2730,7 +2730,11 @@ function renderPerf2DetailBox(box, data, alreadyHasCoordMap){
   if (data && data.placeAddr) {
     html += '<div class="facility-card-addr" style="color:#666;margin-bottom:8px;">📍 '+data.placeAddr+'</div>';
   }
-  if (data && data.mapKeyword && !alreadyHasCoordMap) {
+  if (data && parseFloat(data.lat) > 0 && parseFloat(data.lon) > 0 && !alreadyHasCoordMap) {
+    // (한글 설명) 상세정보에서 좌표를 찾았으면(직접 있었거나 TourAPI로 우회 검색),
+    //             텍스트 검색보다 훨씬 정확한 "지도로보기·길찾기"를 보여줘요.
+    html += buildMapLinks(data.mapKeyword || '위치', data.lat, data.lon);
+  } else if (data && data.mapKeyword && !alreadyHasCoordMap) {
     html += buildMapSearchLink(data.mapKeyword);
   }
   if (data && data.homepage) {
@@ -2872,7 +2876,11 @@ function renderExhiDetailBox(box, data, alreadyHasCoordMap){
   if (data && data.placeAddr) {
     html += '<div class="facility-card-addr" style="color:#666;margin-bottom:8px;">📍 '+data.placeAddr+'</div>';
   }
-  if (data && data.mapKeyword && !alreadyHasCoordMap) {
+  if (data && parseFloat(data.lat) > 0 && parseFloat(data.lon) > 0 && !alreadyHasCoordMap) {
+    // (한글 설명) 상세정보에서 좌표를 찾았으면(직접 있었거나 TourAPI로 우회 검색),
+    //             텍스트 검색보다 훨씬 정확한 "지도로보기·길찾기"를 보여줘요.
+    html += buildMapLinks(data.mapKeyword || '위치', data.lat, data.lon);
+  } else if (data && data.mapKeyword && !alreadyHasCoordMap) {
     html += buildMapSearchLink(data.mapKeyword);
   }
   if (data && data.homepage) {
@@ -3014,7 +3022,11 @@ function renderEduDetailBox(box, data, alreadyHasCoordMap){
   if (data && data.placeAddr) {
     html += '<div class="facility-card-addr" style="color:#666;margin-bottom:8px;">📍 '+data.placeAddr+'</div>';
   }
-  if (data && data.mapKeyword && !alreadyHasCoordMap) {
+  if (data && parseFloat(data.lat) > 0 && parseFloat(data.lon) > 0 && !alreadyHasCoordMap) {
+    // (한글 설명) 상세정보에서 좌표를 찾았으면(직접 있었거나 TourAPI로 우회 검색),
+    //             텍스트 검색보다 훨씬 정확한 "지도로보기·길찾기"를 보여줘요.
+    html += buildMapLinks(data.mapKeyword || '위치', data.lat, data.lon);
+  } else if (data && data.mapKeyword && !alreadyHasCoordMap) {
     html += buildMapSearchLink(data.mapKeyword);
   }
   if (data && data.homepage) {

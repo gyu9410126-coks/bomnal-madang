@@ -451,6 +451,40 @@ export default async function handler(req, res) {
         //             이미 구체적인 이름 뒤에 지역명을 붙이면 오히려 카카오맵 검색이
         //             안 되는 걸 실제로 확인해서, 이름이 있으면 지역명은 안 붙여요.
         const mapKeyword = placeAddr || place || orgName || area;
+
+        // (한글 설명) 1단계: 상세정보(/detail2) 자체에 좌표가 있는지 먼저 확인해요
+        //             (목록(realm2)엔 없어도 상세정보엔 있는 경우가 있어서요).
+        let lat = getVal(item,'gpsY');
+        let lon = getVal(item,'gpsX');
+
+        // (한글 설명) 2단계: 그래도 좌표가 없으면, 오늘 여러 번 성공했던 방법대로
+        //             TourAPI에서 장소명으로 다시 검색해서 좌표를 우회로 찾아봐요.
+        //             엉뚱한 곳을 잘못 찾지 않도록, 검색 결과 제목에 우리 장소명의
+        //             핵심 단어가 실제로 포함될 때만 채택해요(placePhoto와 동일한 안전장치).
+        let coordSource = (parseFloat(lat) > 0 && parseFloat(lon) > 0) ? 'detail2' : '';
+        const lookupKeyword = place || orgName;
+        if (!coordSource && lookupKeyword) {
+          try {
+            const tourUrl = `https://apis.data.go.kr/B551011/KorService2/searchKeyword2`
+              + `?serviceKey=${keyEnc}&numOfRows=3&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
+              + `&_type=json&arrange=O&keyword=${encodeURIComponent(lookupKeyword)}`;
+            const tr = await fetch(tourUrl);
+            const tj = await tr.json();
+            const tBody = tj && tj.response && tj.response.body;
+            const tItems = (tBody && tBody.items && (Array.isArray(tBody.items.item) ? tBody.items.item : (tBody.items.item ? [tBody.items.item] : []))) || [];
+            const coreWord = lookupKeyword.split(/[\s,·()]+/)[0];
+            const tMatch = tItems.find(function(it){
+              return it.mapx && it.mapy && it.title && coreWord && it.title.indexOf(coreWord) !== -1;
+            });
+            if (tMatch) {
+              lat = tMatch.mapy;
+              lon = tMatch.mapx;
+              coordSource = 'tourapi';
+            }
+          } catch (e) { /* 우회 검색 실패해도 화면은 안 깨지게 그냥 넘어가요 */ }
+        }
+
+        res.setHeader('Cache-Control','s-maxage=86400');
         return res.status(200).json({
           ok: true,
           overview: getVal(item,'contents1'),
@@ -461,6 +495,7 @@ export default async function handler(req, res) {
           placeAddr: placeAddr,
           placeUrl : fixUrl(getVal(item,'placeUrl')),
           mapKeyword: mapKeyword,
+          lat: lat, lon: lon, coordSource: coordSource,
         });
       } catch (e) {
         return res.status(200).json({ ok:true, overview:'', phone:'', homepage:'', price:'', imgUrl:'' });
