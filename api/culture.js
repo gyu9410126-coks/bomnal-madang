@@ -470,16 +470,20 @@ export default async function handler(req, res) {
         const priceVenue = priceVenueMatch ? priceVenueMatch[1].trim() : '';
 
         // (한글 설명) 2단계: 그래도 좌표가 없으면, 오늘 여러 번 성공했던 방법대로
-        //             TourAPI에서 다시 검색해서 좌표를 우회로 찾아봐요. place 필드가
-        //             실제 장소가 아닐 수 있어서, 가격정보 속 장소이름·기관이름까지
-        //             여러 후보를 순서대로 시도해요. 엉뚱한 곳이 안 걸리도록, 검색
-        //             결과 제목에 후보 단어가 실제로 포함될 때만 채택해요.
+        //             TourAPI에서 다시 검색해서 좌표와 홈페이지를 우회로 찾아봐요.
+        //             place 필드가 실제 장소가 아닐 수 있어서, 가격정보 속 장소이름·
+        //             기관이름까지 여러 후보를 순서대로 시도해요. 엉뚱한 곳이 안
+        //             걸리도록, 검색 결과 제목에 후보 단어가 실제로 포함될 때만
+        //             채택해요. ⚠️ 좌표랑 홈페이지를 따로따로 다른 후보로 찾으면
+        //             서로 다른 곳을 가리킬 수 있어서, 하나의 후보 반복문에서
+        //             "같은 곳"으로 좌표+홈페이지를 함께 가져오도록 통일했어요.
         let coordSource = (parseFloat(lat) > 0 && parseFloat(lon) > 0) ? 'detail2' : '';
+        let orgHomepage = '';
         const candidates = [place, priceVenue, orgName].filter(function(v, i, arr){
           return v && arr.indexOf(v) === i; // 중복 제거
         });
         for (const cand of candidates) {
-          if (coordSource) break;
+          if (coordSource && orgHomepage) break; // 둘 다 찾았으면 그만 시도해요
           try {
             const tourUrl = `https://apis.data.go.kr/B551011/KorService2/searchKeyword2`
               + `?serviceKey=${keyEnc}&numOfRows=3&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
@@ -490,37 +494,21 @@ export default async function handler(req, res) {
             const tItems = (tBody && tBody.items && (Array.isArray(tBody.items.item) ? tBody.items.item : (tBody.items.item ? [tBody.items.item] : []))) || [];
             const coreWord = cand.split(/[\s,·()]+/)[0];
             const tMatch = tItems.find(function(it){
-              return it.mapx && it.mapy && it.title && coreWord && it.title.indexOf(coreWord) !== -1;
+              return it.title && coreWord && it.title.indexOf(coreWord) !== -1;
             });
-            if (tMatch) {
+            if (!tMatch) continue;
+
+            if (!coordSource && tMatch.mapx && tMatch.mapy) {
               lat = tMatch.mapy;
               lon = tMatch.mapx;
               coordSource = 'tourapi:' + cand;
             }
-          } catch (e) { /* 이 후보가 실패해도 다음 후보로 계속 시도해요 */ }
-        }
-
-        // (한글 설명) 3단계: 기관 홈페이지도 별도로 보강해요(좌표를 이미 찾았어도
-        //             실행돼요 — 국립중앙박물관처럼 좌표는 있는데 홈페이지 링크만
-        //             죽어있는 경우를 발견해서요). orgName(전화번호 속 기관이름)으로
-        //             TourAPI에서 검색 → 정확히 일치하는 곳을 찾으면 그 기관의 공식
-        //             홈페이지(detailCommon2)를 대신 가져와요. 개별 행사 링크보다
-        //             기관 대표 홈페이지가 훨씬 안정적으로 열려요.
-        let orgHomepage = '';
-        if (orgName) {
-          try {
-            const oUrl = `https://apis.data.go.kr/B551011/KorService2/searchKeyword2`
-              + `?serviceKey=${keyEnc}&numOfRows=3&pageNo=1&MobileOS=ETC&MobileApp=BomnalMadang`
-              + `&_type=json&arrange=O&keyword=${encodeURIComponent(orgName)}`;
-            const or_ = await fetch(oUrl);
-            const oj = await or_.json();
-            const oBody = oj && oj.response && oj.response.body;
-            const oItems = (oBody && oBody.items && (Array.isArray(oBody.items.item) ? oBody.items.item : (oBody.items.item ? [oBody.items.item] : []))) || [];
-            const oCoreWord = orgName.split(/[\s,·()]+/)[0];
-            const oMatch = oItems.find(function(it){ return it.title && oCoreWord && it.title.indexOf(oCoreWord) !== -1; });
-            if (oMatch && oMatch.contentid) {
+            // (한글 설명) 같은 곳(contentid)에서 홈페이지도 같이 가져와요 —
+            //             detailCommon2는 오늘 문화시설 작업 때 검증된 그대로예요
+            //             (contentTypeId 넣으면 오류나서 안 넣음).
+            if (!orgHomepage && tMatch.contentid) {
               const dUrl = `https://apis.data.go.kr/B551011/KorService2/detailCommon2`
-                + `?serviceKey=${keyEnc}&contentId=${oMatch.contentid}&MobileOS=ETC&MobileApp=BomnalMadang&_type=json&numOfRows=1&pageNo=1`;
+                + `?serviceKey=${keyEnc}&contentId=${tMatch.contentid}&MobileOS=ETC&MobileApp=BomnalMadang&_type=json&numOfRows=1&pageNo=1`;
               const dr = await fetch(dUrl);
               const dj = await dr.json();
               const dBody = dj && dj.response && dj.response.body;
@@ -532,7 +520,7 @@ export default async function handler(req, res) {
                 orgHomepage = hrefM ? hrefM[1] : (hpRaw.indexOf('http') === 0 ? hpRaw : (hpRaw && hpRaw.indexOf('<') === -1 ? 'https://' + hpRaw : ''));
               }
             }
-          } catch (e) { /* 실패해도 화면은 안 깨지게 그냥 넘어가요 */ }
+          } catch (e) { /* 이 후보가 실패해도 다음 후보로 계속 시도해요 */ }
         }
 
         res.setHeader('Cache-Control','s-maxage=86400');
