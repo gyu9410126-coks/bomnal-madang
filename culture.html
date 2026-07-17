@@ -1316,7 +1316,9 @@ function renderEventCard(item, idx){
     : '';
   var placeStr = [item.place, item.sido, item.gugun].filter(Boolean).join(' · ');
   var dateStr = item.dateStr || ((item.startDate&&item.endDate) ? item.startDate+' ~ '+item.endDate : (item.startDate||''));
-  var mapKeyword = [item.place, item.sido].filter(Boolean).join(' ');
+  // (한글 설명) 장소명이 있으면 그대로 쓰고, 없을 때만 지역명으로 대체해요.
+  //             "OO박물관 서울"처럼 붙이면 오히려 카카오맵 검색이 안 되는 걸 확인했어요.
+  var mapKeyword = item.place || item.sido || '';
   return '<div style="background:#fff9fa;border:1.5px solid #f8bbd0;border-radius:14px;overflow:hidden;margin-bottom:12px;">'
     + '<div id="event-img-'+idx+'">'+imgHtml+'</div>'
     + '<div style="padding:14px;">'

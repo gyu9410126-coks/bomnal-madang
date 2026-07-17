@@ -446,12 +446,11 @@ export default async function handler(req, res) {
         const placeAddr = getVal(item,'placeAddr');
         const place = getVal(item,'place');
         const area  = getVal(item,'area');
-        // (한글 설명) placeAddr(정확한 주소) → place+지역 → 전화번호 속 기관이름+지역
-        //             순서로 제일 정확한 것부터 시도해요.
-        const mapKeyword = placeAddr
-          || [place, area].filter(Boolean).join(' ')
-          || orgName; // (한글 설명) "국립김해박물관"처럼 이미 충분히 구체적인 기관이름엔
-                      //             지역명을 안 붙여요 — 붙이면 오히려 검색이 안 될 수 있어요.
+        // (한글 설명) placeAddr(정확한 주소) → place(장소명 단독) → 기관이름(단독) →
+        //             area(지역명만) 순서로 시도해요. "경기도어린이박물관 경기"처럼
+        //             이미 구체적인 이름 뒤에 지역명을 붙이면 오히려 카카오맵 검색이
+        //             안 되는 걸 실제로 확인해서, 이름이 있으면 지역명은 안 붙여요.
+        const mapKeyword = placeAddr || place || orgName || area;
         return res.status(200).json({
           ok: true,
           overview: getVal(item,'contents1'),
