@@ -51,12 +51,17 @@ function getSigungu(xml) {
 //             realmCodes가 여러 개면(예: 공연 "전체" 탭) 동시에 다 불러와서 합쳐요.
 //             ※ 실제 테스트로 확인된 것: sido는 "서울"처럼 짧은 이름만 통함,
 //             _type=json 넣으면 응답이 비어버림(XML 그대로 받아야 함).
-async function fetchCultureInfoRealm(apiKey, realmCodes, region, rows, pageNo) {
+async function fetchCultureInfoRealm(apiKey, realmCodes, region, rows, pageNo, keyword) {
   const keyEnc = encodeURIComponent(apiKey);
-  const results = await Promise.all(realmCodes.map(async function(code){
+  // (한글 설명) realmCodes가 비어있으면(예: 박물관행사처럼 분야코드 없이 검색어만
+  //             쓰는 경우) realmCode 파라미터 없이 딱 1번만 요청해요.
+  const codes = (realmCodes && realmCodes.length) ? realmCodes : [''];
+  const results = await Promise.all(codes.map(async function(code){
     let url = `https://apis.data.go.kr/B553457/cultureinfo/realm2`
-      + `?serviceKey=${keyEnc}&PageNo=${pageNo}&numOfrows=${rows}&realmCode=${code}`;
+      + `?serviceKey=${keyEnc}&PageNo=${pageNo}&numOfrows=${rows}`;
+    if (code) url += `&realmCode=${code}`;
     if (region) url += `&sido=${encodeURIComponent(region)}`;
+    if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
     try {
       const r = await fetch(url);
       const text = await r.text();
@@ -560,31 +565,21 @@ export default async function handler(req, res) {
     // ════════════════════════════════
     // [G] 국립지방박물관 문화행사 통합 (api.kcisa.kr — API_CNV_043)
     // ════════════════════════════════
+    // ════════════════════════════════
+    // [E-museum] 박물관문화행사 (한국문화정보원 한눈에보는문화정보조회서비스, keyword=박물관)
+    //     (한글 설명) 이 API엔 "박물관행사" 전용 분류코드가 없어서, keyword=박물관으로
+    //     검색해요(실제 테스트로 30건, 사진·좌표 다 갖춘 좋은 결과 확인함).
+    // ════════════════════════════════
     if (type === 'museum') {
-      const apiKey = process.env.CULTURE_MUSEUM_KEY;
-      if (!apiKey) return res.status(500).json({ ok:false, message:'CULTURE_MUSEUM_KEY 없음' });
-      const numOfRows = req.query.rows  || '10';
-      const pageNo    = req.query.cPage || '1';
-      const keyword   = req.query.keyword || '';
-      const url = `https://api.kcisa.kr/openapi/service/CNV/API_CNV_043/request`
-        + `?serviceKey=${encodeURIComponent(apiKey)}`
-        + `&numOfRows=${numOfRows}&pageNo=${pageNo}`
-        + `&keyword=${encodeURIComponent(keyword)}`;
-      const xmlText = await (await fetch(url)).text();
-      const items = parseItems(xmlText,'item').map(function(x){
-        return {
-          title    : getVal(x,'TITLE'),
-          period   : getVal(x,'PERIOD'),
-          place    : getVal(x,'EVENT_SITE'),
-          charge   : getVal(x,'CHARGE'),
-          thumbnail: getVal(x,'THUMBNAIL'),
-          url      : getVal(x,'URL'),
-          organizer: getVal(x,'SPATIAL_COVERAGE'), // 주관기관
-        };
-      });
-      const totalCount = getVal(xmlText,'totalCount') || '0';
+      const apiKey = process.env.TOURAPI_KEY;
+      if (!apiKey) return res.status(500).json({ ok:false, message:'TOURAPI_KEY 없음' });
+      const region = req.query.region || '';
+      const rows   = parseInt(req.query.rows)   || 10;
+      const pageNo = parseInt(req.query.pageNo) || 1;
+
+      const { items, totalCount, hasMore } = await fetchCultureInfoRealm(apiKey, [], region, rows, pageNo, '박물관');
       res.setHeader('Cache-Control','s-maxage=3600');
-      return res.status(200).json({ ok:true, type:'museum', totalCount, items });
+      return res.status(200).json({ ok:true, type:'museum', totalCount, hasMore, pageNo, items });
     }
 
     // ════════════════════════════════
