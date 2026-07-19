@@ -154,7 +154,7 @@ export default async function handler(req, res) {
 
       const url = `https://apis.data.go.kr/B551457/run/v2/travelerTrainRunPlan2`
         + `?serviceKey=${encodeURIComponent(process.env.KORAIL_TRAIN_KEY)}`
-        + `&numOfRows=20&pageNo=1&returnType=JSON`
+        + `&numOfRows=100&pageNo=1&returnType=JSON`
         + `&${depKey}=${encodeURIComponent(depart)}`
         + `&${arrKey}=${encodeURIComponent(arrive)}`
         + `&${dateKey}=${encodeURIComponent(dateStr)}`;
@@ -258,7 +258,7 @@ export default async function handler(req, res) {
 
     if (type === 'seoulBusStopGps') {
       if (!tmX || !tmY) return res.json({ ok: false, message: 'GPS 좌표 없음' });
-      const url = `http://ws.bus.go.kr/api/rest/stationinfo/getStaionsByPosList`
+      const url = `http://ws.bus.go.kr/api/rest/stationinfo/getStationByPos`
         + `?serviceKey=${encodeURIComponent(process.env.SEOUL_BUS_KEY)}`
         + `&tmX=${encodeURIComponent(tmX)}&tmY=${encodeURIComponent(tmY)}&radius=${encodeURIComponent(radius||'300')}`;
       const r = await fetch(url);
@@ -272,19 +272,44 @@ export default async function handler(req, res) {
 
     if (type === 'seoulBusArrival') {
       if (!arsId) return res.json({ ok: false, message: '정류소번호 없음' });
-      const url = `http://ws.bus.go.kr/api/rest/stationinfo/getStationByUidItem`
+      // (한글 설명) 활용가이드 원문의 실제 예제 URI로 확인함 - "getStationByUidItem"이
+      //             아니라 "getStationByUid"였어요(Item 없음). 이게 지금까지
+      //             안 되던 진짜 원인이었을 가능성이 높아요.
+      const url = `http://ws.bus.go.kr/api/rest/stationinfo/getStationByUid`
         + `?serviceKey=${encodeURIComponent(process.env.SEOUL_BUS_KEY)}`
         + `&arsId=${encodeURIComponent(arsId)}`;
       const r = await fetch(url);
       const text = await r.text();
+      if (req.query.debug === '1') {
+        return res.json({ ok: true, debug: true, requestUrl: url.replace(process.env.SEOUL_BUS_KEY, '(키-숨김)'), rawSample: text.slice(0, 2500) });
+      }
+      // (한글 설명) 활용가이드 표 29번에서 정확히 확인한 필드들로 대폭 보강했어요 —
+      //             혼잡도·잔여좌석·배차간격·막차여부·만차여부·방향까지 다 나와요.
       const items = (text.match(/<itemList>[\s\S]*?<\/itemList>/g) || []).map(function(chunk){
         function pick(tag){ const m = chunk.match(new RegExp('<'+tag+'>([\\s\\S]*?)<\\/'+tag+'>')); return m ? m[1].trim() : ''; }
         return {
-          busRouteNm: pick('rtNm'), arrmsg1: pick('arrmsg1'), arrmsg2: pick('arrmsg2'),
-          busRouteId: pick('busRouteId'), congestion: pick('congestion1'), stationNm: pick('stNm'),
+          busRouteNm: pick('rtNm'),
+          busRouteId: pick('busRouteId'),
+          adirection: pick('adirection'),      // 방향 (예: "신설동")
+          arrmsg1: pick('arrmsg1'),             // 첫번째 버스 도착메시지
+          arrmsg2: pick('arrmsg2'),             // 두번째 버스 도착메시지
+          congestion1: pick('congestion1'),     // 혼잡도 (3:여유 4:보통 5:혼잡)
+          congestion2: pick('congestion2'),
+          remndrNmpr1: pick('remndrNmpr1'),     // 잔여좌석
+          remndrNmpr2: pick('remndrNmpr2'),
+          isLast1: pick('isLast1'),             // 막차여부
+          isLast2: pick('isLast2'),
+          isFullFlag1: pick('isFullFlag1'),     // 만차여부
+          isFullFlag2: pick('isFullFlag2'),
+          busType1: pick('busType1'),           // 차량유형 (0:일반 1:저상 2:굴절)
+          term: pick('term'),                   // 배차간격(분)
+          firstTm: pick('firstTm'),             // 첫차시간
+          lastTm: pick('lastTm'),               // 막차시간
+          nxtStn: pick('nxtStn'),               // 다음 정류장
+          deTourAt: pick('deTourAt'),           // 우회여부
         };
       });
-      return res.json({ ok: true, items, rawSample: text.slice(0,1500) });
+      return res.json({ ok: true, items });
     }
 
     // ════════════════════════════════════════════
