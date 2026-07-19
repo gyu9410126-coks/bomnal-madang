@@ -1637,15 +1637,23 @@ function searchBusStopName(){
   var keyword = document.getElementById('bus-stop-input').value.trim();
   if (!keyword) { alert('정류장 이름을 입력해 주세요!'); return; }
   var resultEl = document.getElementById('bus-stop-result');
-  resultEl.innerHTML = '<div class="traf-loading">🔍 정류장을 찾는 중이에요...</div>';
   resultEl.classList.add('show');
 
   if (busRegion === 'seoul') {
-    fetch('/api/traffic?type=seoulBusStopName&keyword='+encodeURIComponent(keyword))
-      .then(function(r){return r.json();})
-      .then(function(data){ renderBusStopResults(data.items||[], true); })
-      .catch(function(){ resultEl.innerHTML = '<div class="traf-error">⚠️ 정류장을 불러오지 못했어요.</div>'; });
-  } else {
+    // (한글 설명) 서울 버스는 정부 시스템 장애(2025.9.26 국가정보자원관리원
+    //             화재 이후 신규 인증키 미등록)로 지금 직접 조회가 안 돼서,
+    //             카카오맵으로 안내하는 임시 방편이에요. 나중에 시스템 복구되면
+    //             이 부분만 원래 방식(seoulBusStopName)으로 되돌리면 돼요.
+    var q = encodeURIComponent(keyword + ' 버스정류장');
+    resultEl.innerHTML = '<div style="background:#fff3e0;border:1.5px solid #e65100;padding:16px;border-radius:12px;text-align:center;">'
+      + '😥 서울은 지금 정부 시스템 문제로 직접 조회가 어려워요.<br>카카오맵에서 확인해주세요!<br><br>'
+      + '<button class="traf-btn traf-btn-orange" style="width:100%;" onclick="confirmExternalLink(\'https://map.kakao.com/link/search/'+q+'\')">🗺️ 카카오맵에서 "'+keyword+'" 찾기</button>'
+      + '</div>';
+    return;
+  }
+
+  resultEl.innerHTML = '<div class="traf-loading">🔍 정류장을 찾는 중이에요...</div>';
+  if (busRegion !== 'seoul') {
     if (!busSelectedCityCode) { alert('지역(시/도)을 먼저 선택해 주세요!'); return; }
     fetch('/api/traffic?type=busStopName&keyword='+encodeURIComponent(keyword)+'&cityCode='+busSelectedCityCode)
       .then(function(r){return r.json();})
