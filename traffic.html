@@ -1869,8 +1869,12 @@ function searchTrain() {
       }
       var html = '';
       items.slice(0,10).forEach(function(item){
-        var dt = item.trn_plan_dptre_dt || '';
-        var timeStr = dt.length>=12 ? dt.slice(8,10)+':'+dt.slice(10,12) : '';
+        // (한글 설명) 실제 테스트로 확인한 형식은 "2026-07-19 05:09:00.0"처럼
+        //             하이픈·콜론이 있는 형식이었어요(붙어있는 숫자가 아니었음).
+        //             그래서 정규식으로 시:분만 정확히 뽑아내요.
+        var timeStr = '';
+        var m = (item.trn_plan_dptre_dt || '').match(/(\d{2}):(\d{2})/);
+        if (m) timeStr = m[1] + ':' + m[2];
         html += '<div class="traf-result-item" style="background:#e8f5e9;border-color:#2e7d32;">'
           + '<div class="traf-result-route" style="color:#2e7d32;">🚄 '+(item.trn_no||'')+'열차</div>'
           + '<div class="traf-result-time">'+timeStr+' 출발</div>'
