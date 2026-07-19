@@ -241,7 +241,7 @@ export default async function handler(req, res) {
     if (type === 'seoulBusStopName') {
       if (!keyword) return res.json({ ok: false, message: '정류장 이름 없음' });
       const url = `http://ws.bus.go.kr/api/rest/stationinfo/getStationByName`
-        + `?serviceKey=${encodeURIComponent(process.env.SEOUL_BUS_KEY)}`
+        + `?serviceKey=${process.env.SEOUL_BUS_KEY}` // (한글 설명) 다른 API들과 달리 이 서비스는 이미 인코딩된 키를 그대로 써야 해요(실제 성공사례로 확인함) - 여기서 또 encodeURIComponent 하면 두 번 인코딩되어 깨져요.
         + `&stSrch=${encodeURIComponent(keyword)}`;
       const r = await fetch(url);
       const text = await r.text();
@@ -259,7 +259,7 @@ export default async function handler(req, res) {
     if (type === 'seoulBusStopGps') {
       if (!tmX || !tmY) return res.json({ ok: false, message: 'GPS 좌표 없음' });
       const url = `http://ws.bus.go.kr/api/rest/stationinfo/getStationByPos`
-        + `?serviceKey=${encodeURIComponent(process.env.SEOUL_BUS_KEY)}`
+        + `?serviceKey=${process.env.SEOUL_BUS_KEY}` // (한글 설명) 다른 API들과 달리 이 서비스는 이미 인코딩된 키를 그대로 써야 해요(실제 성공사례로 확인함) - 여기서 또 encodeURIComponent 하면 두 번 인코딩되어 깨져요.
         + `&tmX=${encodeURIComponent(tmX)}&tmY=${encodeURIComponent(tmY)}&radius=${encodeURIComponent(radius||'300')}`;
       const r = await fetch(url);
       const text = await r.text();
@@ -276,7 +276,7 @@ export default async function handler(req, res) {
       //             아니라 "getStationByUid"였어요(Item 없음). 이게 지금까지
       //             안 되던 진짜 원인이었을 가능성이 높아요.
       const url = `http://ws.bus.go.kr/api/rest/stationinfo/getStationByUid`
-        + `?serviceKey=${encodeURIComponent(process.env.SEOUL_BUS_KEY)}`
+        + `?serviceKey=${process.env.SEOUL_BUS_KEY}` // (한글 설명) 다른 API들과 달리 이 서비스는 이미 인코딩된 키를 그대로 써야 해요(실제 성공사례로 확인함) - 여기서 또 encodeURIComponent 하면 두 번 인코딩되어 깨져요.
         + `&arsId=${encodeURIComponent(arsId)}`;
       const r = await fetch(url);
       const text = await r.text();
