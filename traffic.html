@@ -383,11 +383,28 @@ body.big-font .zoom-btn-icon { font-size: 26px !important; }
       <span class="traf-page-badge" style="background:#ffcc80;color:#e65100;">실시간</span>
     </div>
     <div class="traf-page-inner">
-      <div class="notice-box">💡 정류장 이름을 입력하고 <strong>정류장 찾기</strong> 버튼을 눌러주세요.<br>목록에서 내 정류장을 선택하면 버스 도착 시간을 알려드려요!</div>
+      <div class="notice-box">💡 <strong>"내 주변에서 찾기"</strong>가 제일 쉬워요! 버튼 하나로 가까운 정류장을 바로 찾아드려요.</div>
       <div class="traf-card">
-        <div class="traf-card-title">🔍 정류장 검색</div>
-        <input class="traf-input" type="text" id="bus-stop-input" placeholder="정류장 이름 입력 (예: 강남역)" maxlength="30">
-        <button class="traf-btn traf-btn-orange" onclick="searchBusStop()">🔍 정류장 찾기</button>
+        <div class="traf-card-title">📍 지역 선택</div>
+        <div style="display:flex;gap:8px;margin-bottom:12px;">
+          <button class="traf-btn" id="bus-region-seoul" style="flex:1;background:#e65100;" onclick="selectBusRegion('seoul')">🏙️ 서울</button>
+          <button class="traf-btn" id="bus-region-national" style="flex:1;background:#bdbdbd;" onclick="selectBusRegion('national')">🗺️ 그 외 지역</button>
+        </div>
+
+        <button class="traf-btn traf-btn-orange" onclick="searchBusStopGps()">📍 내 주변에서 찾기</button>
+
+        <div id="bus-national-select-wrap" style="display:none;margin-top:12px;">
+          <select class="traf-input" id="bus-sido-select" onchange="onBusSidoChange()">
+            <option value="">시/도 선택</option>
+          </select>
+          <select class="traf-input" id="bus-sigungu-select" style="display:none;margin-top:8px;">
+            <option value="">시/군 선택</option>
+          </select>
+        </div>
+
+        <input class="traf-input" type="text" id="bus-stop-input" placeholder="정류장 이름 입력 (예: 강남역)" maxlength="30" style="margin-top:12px;">
+        <button class="traf-btn traf-btn-orange" onclick="searchBusStopName()">🔍 이름으로 찾기</button>
+        <button class="traf-btn traf-btn-gray" onclick="resetBus()">🔄 검색 초기화</button>
         <div id="bus-stop-result" class="traf-result-box"></div>
       </div>
       <div class="traf-card" id="bus-arrival-card" style="display:none;">
@@ -679,38 +696,23 @@ body.big-font .zoom-btn-icon { font-size: 26px !important; }
       <span class="traf-page-badge" style="background:#e1bee7;color:#6a1b9a;">시간표</span>
     </div>
     <div class="traf-page-inner">
-      <div class="notice-box" style="background:#f3e5f5;border-color:#6a1b9a;color:#4a148c;">💡 출발 터미널과 도착 터미널을 선택하신 후 <strong>조회 버튼</strong>을 눌러주세요.<br>오늘 출발하는 고속버스 시간표를 보여드려요!</div>
+      <div class="notice-box" style="background:#f3e5f5;border-color:#6a1b9a;color:#4a148c;">💡 출발·도착 터미널 이름을 검색해서 선택해주세요.<br>오늘 출발하는 고속버스 시간표를 보여드려요!</div>
       <div class="traf-card">
-        <div class="traf-card-title">🚍 출발·도착 선택</div>
-        <label class="tsz-16" style="font-size:16px;font-weight:700;color:#555;display:block;margin-bottom:6px;">출발터미널</label>
-        <select class="traf-select" id="express-depart">
-          <option value="">출발 터미널 선택</option>
-          <option value="서울경부">서울경부 (강남)</option>
-          <option value="서울호남">서울호남 (강남)</option>
-          <option value="동서울">동서울</option>
-          <option value="인천">인천</option>
-          <option value="수원">수원</option>
-          <option value="대전복합">대전복합</option>
-          <option value="대구북부">대구북부</option>
-          <option value="부산">부산 (사상)</option>
-          <option value="광주">광주 (유스퀘어)</option>
-          <option value="전주">전주</option>
-        </select>
-        <label class="tsz-16" style="font-size:16px;font-weight:700;color:#555;display:block;margin-bottom:6px;">도착터미널</label>
-        <select class="traf-select" id="express-arrive">
-          <option value="">도착 터미널 선택</option>
-          <option value="서울경부">서울경부 (강남)</option>
-          <option value="서울호남">서울호남 (강남)</option>
-          <option value="동서울">동서울</option>
-          <option value="인천">인천</option>
-          <option value="수원">수원</option>
-          <option value="대전복합">대전복합</option>
-          <option value="대구북부">대구북부</option>
-          <option value="부산">부산 (사상)</option>
-          <option value="광주">광주 (유스퀘어)</option>
-          <option value="전주">전주</option>
-        </select>
-        <button class="traf-btn traf-btn-purple" onclick="searchExpress()">🚍 고속버스 조회</button>
+        <div class="traf-card-title">🚍 출발 터미널 검색</div>
+        <input class="traf-input" type="text" id="express-depart-input" placeholder="터미널 이름 (예: 서울, 부산)" maxlength="20">
+        <button class="traf-btn traf-btn-purple" onclick="searchExpressTerminal('depart')">🔍 출발 터미널 찾기</button>
+        <div id="express-depart-result" class="traf-result-box"></div>
+        <div id="express-depart-selected" style="display:none;margin-top:8px;padding:10px;background:#f3e5f5;border-radius:10px;font-weight:700;color:#6a1b9a;"></div>
+      </div>
+      <div class="traf-card">
+        <div class="traf-card-title">🚍 도착 터미널 검색</div>
+        <input class="traf-input" type="text" id="express-arrive-input" placeholder="터미널 이름 (예: 대전, 광주)" maxlength="20">
+        <button class="traf-btn traf-btn-purple" onclick="searchExpressTerminal('arrive')">🔍 도착 터미널 찾기</button>
+        <div id="express-arrive-result" class="traf-result-box"></div>
+        <div id="express-arrive-selected" style="display:none;margin-top:8px;padding:10px;background:#f3e5f5;border-radius:10px;font-weight:700;color:#6a1b9a;"></div>
+      </div>
+      <div class="traf-card">
+        <button class="traf-btn traf-btn-purple" onclick="searchExpress()">🚍 고속버스 시간표 조회</button>
         <div id="express-result" class="traf-result-box"></div>
         <button class="traf-btn traf-btn-gray" style="margin-top:10px;" onclick="resetExpress()">🔄 검색 초기화</button>
       </div>
@@ -1545,32 +1547,345 @@ function goHome() { window.location.href = 'index.html'; }
 
 /* ── 리셋 ── */
 function resetAll() {
-  document.getElementById('bus-stop-input').value = '';
-  document.getElementById('bus-stop-result').innerHTML = '';
-  document.getElementById('bus-stop-result').classList.remove('show');
-  document.getElementById('bus-arrival-card').style.display = 'none';
-  document.getElementById('subway-input').value = '';
-  document.getElementById('subway-result').innerHTML = '';
-  document.getElementById('subway-result').classList.remove('show');
-  document.getElementById('train-depart').value = '';
-  document.getElementById('train-arrive').value = '';
-  document.getElementById('train-result').innerHTML = '';
-  document.getElementById('train-result').classList.remove('show');
-  document.getElementById('express-depart').value = '';
-  document.getElementById('express-arrive').value = '';
-  document.getElementById('express-result').innerHTML = '';
-  document.getElementById('express-result').classList.remove('show');
+  resetBus();
+  resetSubway();
+  resetTrain();
+  resetExpress();
 }
+
+/* ════════════════════════════════
+   버스 — 전국(TAGO) + 서울(별도시스템)
+════════════════════════════════ */
+var BUS_REGION_DATA = {
+  "세종": [["12","세종특별시"]],
+  "부산": [["21","부산광역시"]],
+  "대구": [["22","대구광역시"]],
+  "인천": [["23","인천광역시"]],
+  "광주": [["24","광주광역시"]],
+  "대전": [["25","대전광역시/계룡시"]],
+  "울산": [["26","울산광역시"]],
+  "제주": [["39","제주도"]],
+  "경기": [["31010","수원시"],["31020","성남시"],["31030","의정부시"],["31040","안양시"],["31050","부천시"],["31060","광명시"],["31070","평택시"],["31080","동두천시"],["31090","안산시"],["31100","고양시"],["31110","과천시"],["31120","구리시"],["31130","남양주시"],["31140","오산시"],["31150","시흥시"],["31160","군포시"],["31170","의왕시"],["31180","하남시"],["31190","용인시"],["31200","파주시"],["31210","이천시"],["31220","안성시"],["31230","김포시"],["31240","화성시"],["31250","광주시"],["31260","양주시"],["31270","포천시"],["31320","여주시"],["31350","연천군"],["31370","가평군"],["31380","양평군"]],
+  "강원": [["32010","춘천시"],["32020","원주시/횡성군"],["32050","태백시"],["32310","홍천군"],["32360","철원군"],["32410","양양군"]],
+  "충북": [["33010","청주시"],["33020","충주시"],["33030","제천시"],["33320","보은군"],["33330","옥천군"],["33340","영동군"],["33350","진천군"],["33360","괴산군"],["33370","음성군"],["33380","단양군"]],
+  "충남": [["34010","천안시"],["34020","공주시"],["34030","보령시"],["34040","아산시"],["34050","서산시"],["34060","논산시"],["34070","계룡시"],["34310","금산군"],["34330","부여군"],["34340","서천군"],["34350","청양군"],["34380","태안군"],["34390","당진시"]],
+  "전북": [["35010","전주시"],["35020","군산시"],["35030","익산시"],["35040","정읍시"],["35050","남원시"],["35060","김제시"],["35320","진안군"],["35330","무주군"],["35340","장수군"],["35350","임실군"],["35360","순창군"],["35370","고창군"],["35380","부안군"]],
+  "전남": [["36010","목포시"],["36020","여수시"],["36030","순천시"],["36040","나주시"],["36060","광양시"],["36320","곡성군"],["36330","구례군"],["36350","고흥군"],["36380","장흥군"],["36400","해남군"],["36410","영암군"],["36420","무안군"],["36430","함평군"],["36450","장성군"],["36460","완도군"],["36470","진도군"],["36480","신안군"]],
+  "경북": [["37010","포항시"],["37020","경주시"],["37030","김천시"],["37040","안동시"],["37050","구미시"],["37060","영주시"],["37070","영천시"],["37080","상주시"],["37090","문경시"],["37100","경산시"],["37320","의성군"],["37330","청송군"],["37340","영양군"],["37350","영덕군"],["37360","청도군"],["37370","고령군"],["37380","성주군"],["37390","칠곡군"],["37400","예천군"],["37410","봉화군"],["37420","울진군"],["37430","울릉군"]],
+  "경남": [["38010","창원시"],["38030","진주시"],["38050","통영시"],["38060","사천시"],["38070","김해시"],["38080","밀양시"],["38090","거제시"],["38100","양산시"],["38310","의령군"],["38320","함안군"],["38330","창녕군"],["38340","고성군"],["38350","남해군"],["38360","하동군"],["38370","산청군"],["38380","함양군"],["38390","거창군"],["38400","합천군"]]
+};
+
+var busRegion = 'seoul';
+var busSelectedCityCode = '';
+
+function selectBusRegion(region){
+  busRegion = region;
+  document.getElementById('bus-region-seoul').style.background = (region==='seoul') ? '#e65100' : '#bdbdbd';
+  document.getElementById('bus-region-national').style.background = (region==='national') ? '#e65100' : '#bdbdbd';
+  var natWrap = document.getElementById('bus-national-select-wrap');
+  natWrap.style.display = (region==='national') ? 'block' : 'none';
+  if (region==='national' && document.getElementById('bus-sido-select').options.length<=1) {
+    var sel = document.getElementById('bus-sido-select');
+    Object.keys(BUS_REGION_DATA).forEach(function(sido){
+      var opt = document.createElement('option');
+      opt.value = sido; opt.textContent = sido;
+      sel.appendChild(opt);
+    });
+  }
+}
+
+function onBusSidoChange(){
+  var sido = document.getElementById('bus-sido-select').value;
+  var sigunguSel = document.getElementById('bus-sigungu-select');
+  sigunguSel.innerHTML = '<option value="">시/군 선택</option>';
+  if (!sido) { sigunguSel.style.display='none'; busSelectedCityCode=''; return; }
+  var list = BUS_REGION_DATA[sido] || [];
+  if (list.length === 1) {
+    busSelectedCityCode = list[0][0];
+    sigunguSel.style.display = 'none';
+  } else {
+    sigunguSel.style.display = 'block';
+    list.forEach(function(pair){
+      var opt = document.createElement('option');
+      opt.value = pair[0]; opt.textContent = pair[1];
+      sigunguSel.appendChild(opt);
+    });
+    sigunguSel.onchange = function(){ busSelectedCityCode = sigunguSel.value; };
+  }
+}
+
+function searchBusStopGps(){
+  if (busRegion === 'seoul') {
+    alert('서울은 GPS 검색이 아직 준비 중이에요. 이름으로 검색해주세요!');
+    return;
+  }
+  var resultEl = document.getElementById('bus-stop-result');
+  resultEl.innerHTML = '<div class="traf-loading">📍 내 위치를 확인하는 중이에요...</div>';
+  resultEl.classList.add('show');
+  navigator.geolocation.getCurrentPosition(function(pos){
+    var lat = pos.coords.latitude, lon = pos.coords.longitude;
+    fetch('/api/traffic?type=busStopGps&gpsLati='+lat+'&gpsLong='+lon)
+      .then(function(r){return r.json();})
+      .then(function(data){ renderBusStopResults(data.items||[], false); })
+      .catch(function(){ resultEl.innerHTML = '<div class="traf-error">⚠️ 정류장을 불러오지 못했어요.</div>'; });
+  }, function(){
+    resultEl.innerHTML = '<div class="traf-error">⚠️ 위치 확인에 실패했어요. 휴대폰 위치(GPS) 권한을 허용해주세요.</div>';
+  }, { enableHighAccuracy:true, maximumAge:0 });
+}
+
+function searchBusStopName(){
+  var keyword = document.getElementById('bus-stop-input').value.trim();
+  if (!keyword) { alert('정류장 이름을 입력해 주세요!'); return; }
+  var resultEl = document.getElementById('bus-stop-result');
+  resultEl.innerHTML = '<div class="traf-loading">🔍 정류장을 찾는 중이에요...</div>';
+  resultEl.classList.add('show');
+
+  if (busRegion === 'seoul') {
+    fetch('/api/traffic?type=seoulBusStopName&keyword='+encodeURIComponent(keyword))
+      .then(function(r){return r.json();})
+      .then(function(data){ renderBusStopResults(data.items||[], true); })
+      .catch(function(){ resultEl.innerHTML = '<div class="traf-error">⚠️ 정류장을 불러오지 못했어요.</div>'; });
+  } else {
+    if (!busSelectedCityCode) { alert('지역(시/도)을 먼저 선택해 주세요!'); return; }
+    fetch('/api/traffic?type=busStopName&keyword='+encodeURIComponent(keyword)+'&cityCode='+busSelectedCityCode)
+      .then(function(r){return r.json();})
+      .then(function(data){ renderBusStopResults(data.items||[], false); })
+      .catch(function(){ resultEl.innerHTML = '<div class="traf-error">⚠️ 정류장을 불러오지 못했어요.</div>'; });
+  }
+}
+
+function renderBusStopResults(items, isSeoul){
+  var resultEl = document.getElementById('bus-stop-result');
+  if (!items.length) {
+    resultEl.innerHTML = '<div class="traf-empty">😢 정류장을 찾을 수 없어요. 다른 이름으로 검색해보세요.</div>';
+    return;
+  }
+  var html = '';
+  items.slice(0,10).forEach(function(item){
+    if (isSeoul) {
+      var name = item.stNm || item.stationNm || '';
+      var arsId = item.arsId || '';
+      html += '<button class="traf-result-item" style="width:100%;text-align:left;background:#fff3e0;border-color:#e65100;cursor:pointer;" onclick="loadBusArrival(\''+arsId+'\',\''+escJs(encodeURIComponent(name))+'\',\'\',true)">'
+        + '<div class="traf-result-route" style="color:#e65100;">🚏 '+name+'</div>'
+        + (arsId ? '<div class="traf-result-desc">정류소번호: '+arsId+'</div>' : '')
+        + '</button>';
+    } else {
+      var name2 = item.nodenm || ''; var nodeId = item.nodeid || ''; var cc = item.cityCode || '';
+      html += '<button class="traf-result-item" style="width:100%;text-align:left;background:#fff3e0;border-color:#e65100;cursor:pointer;" onclick="loadBusArrival(\''+nodeId+'\',\''+escJs(encodeURIComponent(name2))+'\',\''+cc+'\',false)">'
+        + '<div class="traf-result-route" style="color:#e65100;">🚏 '+name2+'</div>'
+        + '</button>';
+    }
+  });
+  resultEl.innerHTML = html;
+}
+
+function loadBusArrival(stopId, nameEnc, cityCode, isSeoul){
+  var name = decodeURIComponent(nameEnc || '');
+  var card = document.getElementById('bus-arrival-card');
+  var titleEl = document.getElementById('bus-arrival-title');
+  var resultEl = document.getElementById('bus-arrival-result');
+  card.style.display = 'block';
+  titleEl.textContent = '🚌 ' + name + ' 도착 예정 버스';
+  resultEl.innerHTML = '<div class="traf-loading">🚌 도착정보를 불러오는 중이에요...</div>';
+  card.scrollIntoView({behavior:'smooth', block:'start'});
+
+  var url = isSeoul
+    ? '/api/traffic?type=seoulBusArrival&arsId='+encodeURIComponent(stopId)
+    : '/api/traffic?type=busArrival&nodeId='+encodeURIComponent(stopId)+'&cityCode='+encodeURIComponent(cityCode);
+
+  fetch(url).then(function(r){return r.json();}).then(function(data){
+    var items = data.items || [];
+    if (!items.length) {
+      resultEl.innerHTML = '<div class="traf-empty">😢 지금 도착 예정인 버스가 없어요.</div>';
+      return;
+    }
+    var html = '';
+    items.slice(0,10).forEach(function(item, idx){
+      if (isSeoul) {
+        html += '<div class="traf-result-item" style="background:#fff3e0;border-color:#e65100;">'
+          + '<div class="traf-result-route" style="color:#e65100;">🚌 '+(item.busRouteNm||'')+'</div>'
+          + '<div class="traf-result-time">'+(item.arrmsg1||'정보없음')+'</div>'
+          + (item.arrmsg2 ? '<div class="traf-result-desc">다음차: '+item.arrmsg2+'</div>' : '')
+          + '</div>';
+      } else {
+        var minLeft = item.arrtime ? Math.ceil(Number(item.arrtime)/60) : null;
+        html += '<div class="traf-result-item" style="background:#fff3e0;border-color:#e65100;">'
+          + '<div class="traf-result-route" style="color:#e65100;">🚌 '+(item.routeno||'')+'</div>'
+          + '<div class="traf-result-time">'+(minLeft!==null ? minLeft+'분 후 도착' : '정보없음')+(item.arrprevstationcnt?' · '+item.arrprevstationcnt+'번째 전':'')+'</div>'
+          + (item.routeid ? '<button class="traf-btn traf-btn-gray" style="margin-top:6px;padding:8px;font-size:14px;" onclick="loadBusLocation(\''+cityCode+'\',\''+item.routeid+'\',\''+(item.routeno||'')+'\')">📍 이 버스 위치 보기</button>' : '')
+          + '<div id="bus-loc-'+idx+'" style="margin-top:6px;"></div>'
+          + '</div>';
+      }
+    });
+    resultEl.innerHTML = html;
+  }).catch(function(){
+    resultEl.innerHTML = '<div class="traf-error">⚠️ 도착정보를 불러오지 못했어요.</div>';
+  });
+}
+
+function loadBusLocation(cityCode, routeId, routeNo){
+  if (!confirm(routeNo+'번 버스의 실시간 위치를 확인할까요?')) return;
+  fetch('/api/traffic?type=busLocation&cityCode='+encodeURIComponent(cityCode)+'&routeId='+encodeURIComponent(routeId))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var items = data.items || [];
+      if (!items.length) { alert('지금 운행 중인 '+routeNo+'번 버스 위치 정보가 없어요.'); return; }
+      var msg = items.slice(0,5).map(function(b){ return '차량번호 '+(b.vehicleno||'?')+' · '+(b.nodenm||'')+' 부근'; }).join('\n');
+      alert('🚌 '+routeNo+'번 버스 실시간 위치\n\n'+msg);
+    })
+    .catch(function(){ alert('위치 정보를 불러오지 못했어요.'); });
+}
+
 function resetBus() {
   document.getElementById('bus-stop-input').value = '';
   document.getElementById('bus-stop-result').innerHTML = '';
   document.getElementById('bus-stop-result').classList.remove('show');
   document.getElementById('bus-arrival-card').style.display = 'none';
+  document.getElementById('bus-sido-select').value = '';
+  document.getElementById('bus-sigungu-select').style.display = 'none';
+  busSelectedCityCode = '';
+}
+
+/* ════════════════════════════════
+   지하철 — 서울은 실시간, 그 외는 요일별 시간표
+════════════════════════════════ */
+var subwayDir = 'up';
+function setSubwayDir(dir) {
+  subwayDir = dir;
+  document.getElementById('tab-up').classList.toggle('active', dir === 'up');
+  document.getElementById('tab-down').classList.toggle('active', dir === 'down');
+}
+function getTodayDailyType(){
+  var d = new Date().getDay();
+  if (d===0) return '03';
+  if (d===6) return '02';
+  return '01';
+}
+function searchSubway() {
+  var keyword = document.getElementById('subway-input').value.trim();
+  if (!keyword) { alert('역 이름을 입력해 주세요!'); return; }
+  var resultEl = document.getElementById('subway-result');
+  resultEl.innerHTML = '<div class="traf-loading">🚇 열차 정보를 확인하는 중이에요...</div>';
+  resultEl.classList.add('show');
+
+  fetch('/api/traffic?type=seoulSubwayArrival&keyword='+encodeURIComponent(keyword))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if (data.ok && data.items && data.items.length>0) {
+        renderSeoulSubwayArrival(data.items);
+      } else {
+        fallbackToTagoSubway(keyword);
+      }
+    })
+    .catch(function(){ fallbackToTagoSubway(keyword); });
+}
+function renderSeoulSubwayArrival(items){
+  var resultEl = document.getElementById('subway-result');
+  var html = '<div class="traf-empty" style="background:none;border:none;padding:4px 0;">📌 실시간 도착정보예요</div>';
+  items.slice(0,10).forEach(function(item){
+    html += '<div class="traf-result-item" style="background:#e3f2fd;border-color:#1565c0;">'
+      + '<div class="traf-result-route" style="color:#1565c0;">🚇 '+(item.trainLineNm||'')+'</div>'
+      + '<div class="traf-result-time">'+(item.arvlMsg2||'정보없음')+'</div>'
+      + '</div>';
+  });
+  resultEl.innerHTML = html;
+}
+function fallbackToTagoSubway(keyword){
+  var resultEl = document.getElementById('subway-result');
+  fetch('/api/traffic?type=subwayStationSearch&keyword='+encodeURIComponent(keyword))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var items = data.items || [];
+      if (!items.length) {
+        resultEl.innerHTML = '<div class="traf-empty">😢 역을 찾을 수 없어요.</div>';
+        return;
+      }
+      if (items.length === 1) {
+        loadSubwaySchedule(items[0].subwayStationId, encodeURIComponent(items[0].subwayStationName));
+      } else {
+        var html = '<div class="traf-empty" style="background:none;border:none;padding:6px 0;">여러 노선이 있어요, 하나를 골라주세요:</div>';
+        items.forEach(function(item){
+          html += '<button class="traf-result-item" style="width:100%;text-align:left;background:#e3f2fd;border-color:#1565c0;cursor:pointer;" onclick="loadSubwaySchedule(\''+item.subwayStationId+'\',\''+escJs(encodeURIComponent(item.subwayStationName))+'\')">'
+            + '<div class="traf-result-route" style="color:#1565c0;">🚇 '+item.subwayStationName+' ('+(item.subwayRouteName||'')+')</div>'
+            + '</button>';
+        });
+        resultEl.innerHTML = html;
+      }
+    })
+    .catch(function(){ resultEl.innerHTML = '<div class="traf-error">⚠️ 역 정보를 불러오지 못했어요.</div>'; });
+}
+function loadSubwaySchedule(stationId, nameEnc){
+  var name = decodeURIComponent(nameEnc || '');
+  var resultEl = document.getElementById('subway-result');
+  resultEl.innerHTML = '<div class="traf-loading">🚇 시간표를 불러오는 중이에요...</div>';
+  var dailyType = getTodayDailyType();
+  var upDown = subwayDir === 'up' ? 'U' : 'D';
+  fetch('/api/traffic?type=subwaySchedule&subwayStationId='+encodeURIComponent(stationId)+'&dailyTypeCode='+dailyType+'&upDownTypeCode='+upDown)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var items = data.items || [];
+      if (!items.length) {
+        resultEl.innerHTML = '<div class="traf-empty">😢 시간표를 찾을 수 없어요.</div>';
+        return;
+      }
+      var now = new Date();
+      var nowMin = now.getHours()*60 + now.getMinutes();
+      var upcoming = items.filter(function(it){
+        if (!it.depTime) return false;
+        var h = parseInt(it.depTime.slice(0,2)), m = parseInt(it.depTime.slice(2,4));
+        return (h*60+m) >= nowMin;
+      }).slice(0,5);
+      if (!upcoming.length) upcoming = items.slice(0,5);
+      var html = '<div class="traf-empty" style="background:none;border:none;padding:4px 0;">📌 '+name+' · 정해진 시간표예요(실시간 아님)</div>';
+      upcoming.forEach(function(item){
+        var t = item.depTime ? item.depTime.slice(0,2)+':'+item.depTime.slice(2,4) : '?';
+        html += '<div class="traf-result-item" style="background:#e3f2fd;border-color:#1565c0;">'
+          + '<div class="traf-result-route" style="color:#1565c0;">🚇 '+t+' 출발</div>'
+          + '<div class="traf-result-desc">'+(item.endSubwayStationNm||'')+' 방면</div>'
+          + '</div>';
+      });
+      resultEl.innerHTML = html;
+    })
+    .catch(function(){ resultEl.innerHTML = '<div class="traf-error">⚠️ 시간표를 불러오지 못했어요.</div>'; });
 }
 function resetSubway() {
   document.getElementById('subway-input').value = '';
   document.getElementById('subway-result').innerHTML = '';
   document.getElementById('subway-result').classList.remove('show');
+}
+
+/* ════════════════════════════════
+   기차(코레일)
+════════════════════════════════ */
+function searchTrain() {
+  var dep = document.getElementById('train-depart').value;
+  var arr = document.getElementById('train-arrive').value;
+  if (!dep || !arr) { alert('출발·도착역을 모두 선택해 주세요!'); return; }
+  if (dep === arr) { alert('출발지와 도착지가 같아요!'); return; }
+  var resultEl = document.getElementById('train-result');
+  resultEl.innerHTML = '<div class="traf-loading">🚄 기차 시간표를 불러오는 중이에요...</div>';
+  resultEl.classList.add('show');
+  fetch('/api/traffic?type=train&depart='+encodeURIComponent(dep)+'&arrive='+encodeURIComponent(arr))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var items = data.items || [];
+      if (!items.length) {
+        resultEl.innerHTML = '<div class="traf-empty">😢 해당 구간 열차를 찾을 수 없어요.</div>';
+        return;
+      }
+      var html = '';
+      items.slice(0,10).forEach(function(item){
+        var dt = item.trn_plan_dptre_dt || '';
+        var timeStr = dt.length>=12 ? dt.slice(8,10)+':'+dt.slice(10,12) : '';
+        html += '<div class="traf-result-item" style="background:#e8f5e9;border-color:#2e7d32;">'
+          + '<div class="traf-result-route" style="color:#2e7d32;">🚄 '+(item.trn_no||'')+'열차</div>'
+          + '<div class="traf-result-time">'+timeStr+' 출발</div>'
+          + '<div class="traf-result-desc">'+dep+' → '+arr+'</div>'
+          + '</div>';
+      });
+      resultEl.innerHTML = html;
+    })
+    .catch(function(){ resultEl.innerHTML = '<div class="traf-error">⚠️ 기차 정보를 불러오지 못했어요.</div>'; });
 }
 function resetTrain() {
   document.getElementById('train-depart').value = '';
@@ -1578,197 +1893,138 @@ function resetTrain() {
   document.getElementById('train-result').innerHTML = '';
   document.getElementById('train-result').classList.remove('show');
 }
-function resetExpress() {
-  document.getElementById('express-depart').value = '';
-  document.getElementById('express-arrive').value = '';
-  document.getElementById('express-result').innerHTML = '';
-  document.getElementById('express-result').classList.remove('show');
+
+/* ════════════════════════════════
+   고속버스 — 터미널명 검색 → 선택(2단계)
+════════════════════════════════ */
+var expressSelected = { depart: null, arrive: null };
+function searchExpressTerminal(which){
+  var input = document.getElementById('express-'+which+'-input');
+  var keyword = input.value.trim();
+  if (!keyword) { alert('터미널 이름을 입력해 주세요!'); return; }
+  var resultEl = document.getElementById('express-'+which+'-result');
+  resultEl.innerHTML = '<div class="traf-loading">🔍 터미널을 찾는 중이에요...</div>';
+  resultEl.classList.add('show');
+  fetch('/api/traffic?type=expressTerminalSearch&keyword='+encodeURIComponent(keyword))
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var items = data.items || [];
+      if (!items.length) {
+        resultEl.innerHTML = '<div class="traf-empty">😢 터미널을 찾을 수 없어요.</div>';
+        return;
+      }
+      var html = '';
+      items.slice(0,10).forEach(function(item){
+        html += '<button class="traf-result-item" style="width:100%;text-align:left;background:#f3e5f5;border-color:#6a1b9a;cursor:pointer;" onclick="selectExpressTerminal(\''+which+'\',\''+item.terminalId+'\',\''+escJs(encodeURIComponent(item.terminalNm))+'\')">'
+          + '<div class="traf-result-route" style="color:#6a1b9a;">🚍 '+item.terminalNm+'</div>'
+          + '</button>';
+      });
+      resultEl.innerHTML = html;
+    })
+    .catch(function(){ resultEl.innerHTML = '<div class="traf-error">⚠️ 터미널 정보를 불러오지 못했어요.</div>'; });
+}
+function selectExpressTerminal(which, id, nameEnc){
+  var name = decodeURIComponent(nameEnc);
+  expressSelected[which] = { id: id, name: name };
+  var box = document.getElementById('express-'+which+'-selected');
+  box.style.display = 'block';
+  box.textContent = '✅ 선택됨: ' + name;
+  document.getElementById('express-'+which+'-result').innerHTML = '';
+}
+function searchExpress() {
+  if (!expressSelected.depart || !expressSelected.arrive) {
+    alert('출발·도착 터미널을 먼저 검색해서 선택해 주세요!');
+    return;
+  }
+  var resultEl = document.getElementById('express-result');
+  resultEl.innerHTML = '<div class="traf-loading">🚍 고속버스 시간표를 불러오는 중이에요...</div>';
+  resultEl.classList.add('show');
+  fetch('/api/traffic?type=express&depart='+expressSelected.depart.id+'&arrive='+expressSelected.arrive.id)
+    .then(function(r){return r.json();})
+    .then(function(data){
+      var items = data.items || [];
+      if (!items.length) {
+        resultEl.innerHTML = '<div class="traf-empty">😢 해당 구간 고속버스를 찾을 수 없어요.</div>';
+        return;
+      }
+      var html = '<button class="traf-btn traf-btn-purple" style="margin-bottom:10px;" onclick="loadExpressArrival()">🚌 지금 운행 중인 버스 실시간 위치 보기</button>'
+        + '<div id="express-arrival-live" style="margin-bottom:10px;"></div>';
+      items.slice(0,10).forEach(function(item){
+        html += '<div class="traf-result-item" style="background:#f3e5f5;border-color:#6a1b9a;">'
+          + '<div class="traf-result-route" style="color:#6a1b9a;">🚍 '+(item.gradeNm||'일반')+'</div>'
+          + '<div class="traf-result-time">'+(item.depPlandTime||'').slice(0,5)+' 출발</div>'
+          + '<div class="traf-result-desc">'+expressSelected.depart.name+' → '+expressSelected.arrive.name
+          + (item.charge?' · '+Number(item.charge).toLocaleString()+'원':'')+'</div>'
+          + '</div>';
+      });
+      resultEl.innerHTML = html;
+    })
+    .catch(function(){ resultEl.innerHTML = '<div class="traf-error">⚠️ 고속버스 정보를 불러오지 못했어요.</div>'; });
+}
+function loadExpressArrival(){
+  var liveEl = document.getElementById('express-arrival-live');
+  liveEl.innerHTML = '<div class="traf-loading">🚌 실시간 정보를 확인하는 중이에요...</div>';
+  // (한글 설명) 실시간 도착정보 서비스는 시간표 조회 서비스와 터미널코드
+  //             체계가 서로 달라서(별도 API), 이름으로 다시 한번 찾아야 해요.
+  Promise.all([
+    fetch('/api/traffic?type=expressArrTerminalSearch&keyword='+encodeURIComponent(expressSelected.depart.name)).then(function(r){return r.json();}),
+    fetch('/api/traffic?type=expressArrTerminalSearch&keyword='+encodeURIComponent(expressSelected.arrive.name)).then(function(r){return r.json();}),
+  ]).then(function(results){
+    var depItems = results[0].items || [];
+    var arrItems = results[1].items || [];
+    if (!depItems.length || !arrItems.length) {
+      liveEl.innerHTML = '<div class="traf-empty">😢 실시간 위치 정보를 지원하지 않는 구간이에요.</div>';
+      return;
+    }
+    var depCd = depItems[0].tmnCd;
+    var arrCd = arrItems[0].tmnCd;
+    return fetch('/api/traffic?type=expressArrival&depart='+encodeURIComponent(depCd)+'&arrive='+encodeURIComponent(arrCd))
+      .then(function(r){return r.json();})
+      .then(function(data){
+        var items = data.items || [];
+        if (!items.length) {
+          liveEl.innerHTML = '<div class="traf-empty">😢 지금 운행 중인 버스가 없어요.</div>';
+          return;
+        }
+        var html = '';
+        items.slice(0,5).forEach(function(item){
+          html += '<div class="traf-result-item" style="background:#f3e5f5;border-color:#6a1b9a;">'
+            + '<div class="traf-result-route" style="color:#6a1b9a;">🚍 '+(item.corpNm||'')+' · '+(item.busGrdNm||'')+'</div>'
+            + '<div class="traf-result-time">'+(item.rmnTm?item.rmnTm+'분 후 도착':'')+'</div>'
+            + (item.curLocNm ? '<div class="traf-result-desc">현재 위치: '+item.curLocNm+'</div>' : '')
+            + '</div>';
+        });
+        liveEl.innerHTML = html;
+      });
+  }).catch(function(){
+    liveEl.innerHTML = '<div class="traf-error">⚠️ 실시간 정보를 불러오지 못했어요.</div>';
+  });
 }
 
-/* ── 외부링크 팝업 ── */
+function resetExpress() {
+  document.getElementById('express-depart-input').value = '';
+  document.getElementById('express-arrive-input').value = '';
+  document.getElementById('express-depart-result').innerHTML = '';
+  document.getElementById('express-arrive-result').innerHTML = '';
+  document.getElementById('express-depart-selected').style.display = 'none';
+  document.getElementById('express-arrive-selected').style.display = 'none';
+  document.getElementById('express-result').innerHTML = '';
+  document.getElementById('express-result').classList.remove('show');
+  expressSelected = { depart: null, arrive: null };
+}
+
+/* ── 외부링크 팝업 (실수로 빠졌던 걸 복구함) ── */
 function confirmExternalLink(url) {
   if (confirm('외부 사이트로 이동합니다.\n봄날마당으로 돌아오려면 휴대폰 뒤로가기를 누르세요.')) {
     window.open(url, '_blank');
   }
 }
 
-/* ── 지하철 방향 탭 ── */
-var subwayDir = 'up';
-function setSubwayDir(dir) {
-  subwayDir = dir;
-  document.getElementById('tab-up').classList.toggle('active', dir === 'up');
-  document.getElementById('tab-down').classList.toggle('active', dir === 'down');
-}
-
-/* ════════════════════════════════
-   버스 정류장 검색
-════════════════════════════════ */
-function searchBusStop() {
-  var keyword = document.getElementById('bus-stop-input').value.trim();
-  if (!keyword) { alert('정류장 이름을 입력해 주세요!'); return; }
-  var resultEl = document.getElementById('bus-stop-result');
-  resultEl.innerHTML = '<div class="traf-loading">🔍 정류장을 찾는 중이에요...</div>';
-  resultEl.classList.add('show');
-
-  fetch('/api/traffic?type=busStop&keyword=' + encodeURIComponent(keyword))
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.ok || !data.items || data.items.length === 0) {
-        resultEl.innerHTML = '<div class="traf-empty">😢 "' + keyword + '" 정류장을 찾을 수 없어요.<br>다른 이름으로 검색해 보세요.</div>';
-        return;
-      }
-      var html = '<div class="tsz-16" style="font-size:16px;font-weight:700;color:#555;margin-bottom:8px;">🚏 정류장을 선택해 주세요</div>';
-      data.items.forEach(function(item) {
-        html += '<button onclick="loadBusArrival(\'' + item.nodeId + '\',\'' + encodeURIComponent(item.nodeName) + '\',\'' + item.cityCode + '\')" style="width:100%;background:#fff3e0;border:1.5px solid #ffcc80;border-radius:12px;padding:14px 16px;margin-bottom:8px;text-align:left;cursor:pointer;font-family:inherit;">'
-          + '<div class="tsz-17" style="font-size:17px;font-weight:800;color:#e65100;">' + item.nodeName + '</div>'
-          + '<div class="tsz-14" style="font-size:14px;color:#888;margin-top:3px;">정류장 번호: ' + (item.nodeNo || '-') + '</div>'
-          + '</button>';
-      });
-      resultEl.innerHTML = html;
-    })
-    .catch(function() {
-      resultEl.innerHTML = '<div class="traf-error">⚠️ 정류장 검색에 실패했어요.<br>잠시 후 다시 시도해 주세요.</div>';
-    });
-}
-
-/* ── 버스 도착 정보 조회 ── */
-function loadBusArrival(nodeId, nodeName, cityCode) {
-  var decodedName = decodeURIComponent(nodeName);
-  document.getElementById('bus-stop-result').classList.remove('show');
-  var arrivalCard = document.getElementById('bus-arrival-card');
-  arrivalCard.style.display = 'block';
-  document.getElementById('bus-arrival-title').textContent = '🚌 ' + decodedName + ' 도착 버스';
-  var resultEl = document.getElementById('bus-arrival-result');
-  resultEl.innerHTML = '<div class="traf-loading">🚌 버스 도착 정보를 불러오는 중이에요...</div>';
-
-  fetch('/api/traffic?type=busArrival&nodeId=' + nodeId + '&cityCode=' + cityCode)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.ok || !data.items || data.items.length === 0) {
-        resultEl.innerHTML = '<div class="traf-empty">😢 현재 운행 중인 버스가 없어요.<br>잠시 후 다시 확인해 보세요.</div>';
-        return;
-      }
-      var html = '';
-      data.items.forEach(function(item) {
-        var arrMin = item.arrtime ? Math.round(item.arrtime / 60) : null;
-        var timeStr = arrMin !== null ? (arrMin <= 1 ? '곧 도착!' : arrMin + '분 후') : '정보 없음';
-        var isClose = arrMin !== null && arrMin <= 3;
-        html += '<div class="traf-result-item" style="' + (isClose ? 'background:#ffe0b2;border-color:#e65100;' : '') + '">'
-          + '<div class="traf-result-route">🚌 ' + item.routeno + '번</div>'
-          + '<div class="traf-result-time" style="' + (isClose ? 'color:#e65100;font-size:22px;' : '') + '">' + timeStr + '</div>'
-          + (item.nodenm ? '<div class="traf-result-desc">현재 위치: ' + item.nodenm + '</div>' : '')
-          + '</div>';
-      });
-      resultEl.innerHTML = html;
-    })
-    .catch(function() {
-      resultEl.innerHTML = '<div class="traf-error">⚠️ 도착 정보를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>';
-    });
-}
-
-/* ════════════════════════════════
-   지하철 조회
-════════════════════════════════ */
-function searchSubway() {
-  var keyword = document.getElementById('subway-input').value.trim();
-  if (!keyword) { alert('역 이름을 입력해 주세요!'); return; }
-  var resultEl = document.getElementById('subway-result');
-  resultEl.innerHTML = '<div class="traf-loading">🚇 열차 정보를 불러오는 중이에요...</div>';
-  resultEl.classList.add('show');
-
-  fetch('/api/traffic?type=subway&keyword=' + encodeURIComponent(keyword) + '&dir=' + subwayDir)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.ok || !data.items || data.items.length === 0) {
-        resultEl.innerHTML = '<div class="traf-empty">😢 "' + keyword + '" 역 정보를 찾을 수 없어요.<br>역 이름을 정확히 입력해 보세요.</div>';
-        return;
-      }
-      var html = '';
-      data.items.forEach(function(item) {
-        html += '<div class="traf-result-item" style="background:#e3f2fd;border-color:#1565c0;">'
-          + '<div class="traf-result-route" style="color:#1565c0;">🚇 ' + (item.subwayRouteName || item.routeName || '') + '</div>'
-          + '<div class="traf-result-time" style="color:#1565c0;">' + (item.arrTime || item.arrtime || '') + '</div>'
-          + '<div class="traf-result-desc">' + (item.direction || (subwayDir === 'up' ? '상행' : '하행')) + ' · ' + (item.trainNum || '') + '</div>'
-          + '</div>';
-      });
-      resultEl.innerHTML = html;
-    })
-    .catch(function() {
-      resultEl.innerHTML = '<div class="traf-error">⚠️ 지하철 정보를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>';
-    });
-}
-
-/* ════════════════════════════════
-   기차 조회
-════════════════════════════════ */
-function searchTrain() {
-  var dep = document.getElementById('train-depart').value;
-  var arr = document.getElementById('train-arrive').value;
-  if (!dep || !arr) { alert('출발역과 도착역을 모두 선택해 주세요!'); return; }
-  if (dep === arr) { alert('출발역과 도착역이 같아요!'); return; }
-  var resultEl = document.getElementById('train-result');
-  resultEl.innerHTML = '<div class="traf-loading">🚄 기차 시간표를 불러오는 중이에요...</div>';
-  resultEl.classList.add('show');
-
-  var today = new Date();
-  var dateStr = today.getFullYear() + ('0'+(today.getMonth()+1)).slice(-2) + ('0'+today.getDate()).slice(-2);
-
-  fetch('/api/traffic?type=train&depart=' + encodeURIComponent(dep) + '&arrive=' + encodeURIComponent(arr) + '&date=' + dateStr)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.ok || !data.items || data.items.length === 0) {
-        resultEl.innerHTML = '<div class="traf-empty">😢 오늘 운행하는 열차를 찾을 수 없어요.</div>';
-        return;
-      }
-      var html = '';
-      data.items.slice(0,8).forEach(function(item) {
-        html += '<div class="traf-result-item" style="background:#e8f5e9;border-color:#2e7d32;">'
-          + '<div class="traf-result-route" style="color:#2e7d32;">🚄 ' + (item.trainNm || item.trainType || '열차') + '</div>'
-          + '<div class="traf-result-time">' + (item.depplandtime || '').slice(8,12).replace(/(\d{2})(\d{2})/, '$1:$2')
-          + ' → ' + (item.arrplandtime || '').slice(8,12).replace(/(\d{2})(\d{2})/, '$1:$2') + '</div>'
-          + '<div class="traf-result-desc">' + dep + ' → ' + arr + ' · ' + (item.trainGradeName || '') + '</div>'
-          + '</div>';
-      });
-      resultEl.innerHTML = html;
-    })
-    .catch(function() {
-      resultEl.innerHTML = '<div class="traf-error">⚠️ 기차 정보를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>';
-    });
-}
-
-/* ════════════════════════════════
-   고속버스 조회
-════════════════════════════════ */
-function searchExpress() {
-  var dep = document.getElementById('express-depart').value;
-  var arr = document.getElementById('express-arrive').value;
-  if (!dep || !arr) { alert('출발·도착 터미널을 모두 선택해 주세요!'); return; }
-  if (dep === arr) { alert('출발지와 도착지가 같아요!'); return; }
-  var resultEl = document.getElementById('express-result');
-  resultEl.innerHTML = '<div class="traf-loading">🚍 고속버스 시간표를 불러오는 중이에요...</div>';
-  resultEl.classList.add('show');
-
-  fetch('/api/traffic?type=express&depart=' + encodeURIComponent(dep) + '&arrive=' + encodeURIComponent(arr))
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.ok || !data.items || data.items.length === 0) {
-        resultEl.innerHTML = '<div class="traf-empty">😢 해당 구간 고속버스를 찾을 수 없어요.</div>';
-        return;
-      }
-      var html = '';
-      data.items.slice(0,8).forEach(function(item) {
-        html += '<div class="traf-result-item" style="background:#f3e5f5;border-color:#6a1b9a;">'
-          + '<div class="traf-result-route" style="color:#6a1b9a;">🚍 ' + (item.gradeNm || '일반') + '</div>'
-          + '<div class="traf-result-time">' + (item.depPlandTime || '').slice(0,5) + ' 출발</div>'
-          + '<div class="traf-result-desc">' + dep + ' → ' + arr
-          + (item.charge ? ' · ' + Number(item.charge).toLocaleString() + '원' : '') + '</div>'
-          + '</div>';
-      });
-      resultEl.innerHTML = html;
-    })
-    .catch(function() {
-      resultEl.innerHTML = '<div class="traf-error">⚠️ 고속버스 정보를 불러오지 못했어요.<br>잠시 후 다시 시도해 주세요.</div>';
-    });
+/* (한글 설명) onclick="...('값')" 안에 넣는 값에 작은따옴표가 섞여있으면
+   버튼이 깨지는 문제를 오늘 culture.html에서 발견해서 고쳤었는데, 여기도
+   같은 위험이 있어서 미리 방지해요. */
+function escJs(s){
+  return String(s || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
 /* ════════════════════════════════
