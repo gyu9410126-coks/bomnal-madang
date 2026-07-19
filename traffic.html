@@ -1828,16 +1828,10 @@ function loadSubwaySchedule(stationId, nameEnc){
         resultEl.innerHTML = '<div class="traf-empty">😢 시간표를 찾을 수 없어요.</div>';
         return;
       }
-      var now = new Date();
-      var nowMin = now.getHours()*60 + now.getMinutes();
-      var upcoming = items.filter(function(it){
-        if (!it.depTime) return false;
-        var h = parseInt(it.depTime.slice(0,2)), m = parseInt(it.depTime.slice(2,4));
-        return (h*60+m) >= nowMin;
-      }).slice(0,5);
-      if (!upcoming.length) upcoming = items.slice(0,5);
-      var html = '<div class="traf-empty" style="background:none;border:none;padding:4px 0;">📌 '+name+' · 정해진 시간표예요(실시간 아님)</div>';
-      upcoming.forEach(function(item){
+      // (한글 설명) "지금부터 새벽까지만" 나오던 문제 발견돼서, 하루 전체
+      //             시간표를 다 보여주도록 고쳤어요(필터링 없이 전체 표시).
+      var html = '<div class="traf-empty" style="background:none;border:none;padding:4px 0;">📌 '+name+' · '+(subwayDir==='up'?'상행':'하행')+' 하루 전체 시간표예요(실시간 아님)</div>';
+      items.forEach(function(item){
         var t = item.depTime ? item.depTime.slice(0,2)+':'+item.depTime.slice(2,4) : '?';
         html += '<div class="traf-result-item" style="background:#e3f2fd;border-color:#1565c0;">'
           + '<div class="traf-result-route" style="color:#1565c0;">🚇 '+t+' 출발</div>'

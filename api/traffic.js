@@ -129,7 +129,7 @@ export default async function handler(req, res) {
       }
       const url = `https://apis.data.go.kr/1613000/SubwayInfo/GetSubwaySttnAcctoSchdulList`
         + `?serviceKey=${encodeURIComponent(process.env.TAGO_SUBWAY_KEY)}`
-        + `&numOfRows=30&pageNo=1&_type=json`
+        + `&numOfRows=100&pageNo=1&_type=json`
         + `&subwayStationId=${encodeURIComponent(subwayStationId)}`
         + `&dailyTypeCode=${encodeURIComponent(dailyTypeCode)}`
         + `&upDownTypeCode=${encodeURIComponent(upDownTypeCode)}`;
@@ -160,6 +160,9 @@ export default async function handler(req, res) {
         + `&${dateKey}=${encodeURIComponent(dateStr)}`;
       const r = await fetch(url);
       const data = await r.json();
+      if (req.query.debug === '1') {
+        return res.json({ ok: true, debug: true, requestUrl: url.replace(process.env.KORAIL_TRAIN_KEY, '(키-숨김)'), rawData: data });
+      }
       const body = data?.response?.body;
       const items = body?.items?.item ? (Array.isArray(body.items.item) ? body.items.item : [body.items.item]) : [];
       return res.json({ ok: true, items });
@@ -197,6 +200,9 @@ export default async function handler(req, res) {
         + `&depPlandTime=${dateStr}`;
       const r = await fetch(url);
       const data = await r.json();
+      if (req.query.debug === '1') {
+        return res.json({ ok: true, debug: true, requestUrl: url.replace(process.env.TAGO_EXPRESS_KEY, '(키-숨김)'), rawData: data });
+      }
       return res.json({ ok: true, items: extractItems(data) });
     }
 
@@ -239,6 +245,9 @@ export default async function handler(req, res) {
         + `&stSrch=${encodeURIComponent(keyword)}`;
       const r = await fetch(url);
       const text = await r.text();
+      if (req.query.debug === '1') {
+        return res.json({ ok: true, debug: true, requestUrl: url.replace(process.env.SEOUL_BUS_KEY, '(키-숨김)'), rawSample: text.slice(0, 2000) });
+      }
       // (한글 설명) 서울시 API는 응답이 XML로 와요(json 옵션이 안 보여서 XML 그대로 파싱).
       const items = (text.match(/<itemList>[\s\S]*?<\/itemList>/g) || []).map(function(chunk){
         function pick(tag){ const m = chunk.match(new RegExp('<'+tag+'>([\\s\\S]*?)<\\/'+tag+'>')); return m ? m[1].trim() : ''; }
