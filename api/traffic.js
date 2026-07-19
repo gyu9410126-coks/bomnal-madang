@@ -18,6 +18,17 @@ export default async function handler(req, res) {
     tmX, tmY, radius, arsId,
   } = req.query;
 
+  // (한글 설명) 서버가 세계표준시(UTC) 기준으로 돌아가서, 그냥 new Date()만
+  //             쓰면 한국 새벽 시간대에 날짜가 하루 어긋날 수 있어요(실제로
+  //             발견된 버그). 항상 한국시간(KST, UTC+9) 기준으로 오늘 날짜를
+  //             정확히 계산해요.
+  function getKstDateStr() {
+    const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+    return kst.getUTCFullYear()
+      + String(kst.getUTCMonth() + 1).padStart(2, '0')
+      + String(kst.getUTCDate()).padStart(2, '0');
+  }
+
   // (한글 설명) 정부 응답에서 item 배열 뽑는 공통 함수예요. item이 1개면
   //             객체 하나로, 여러 개면 배열로 오는 특성 때문에 통일해줘요.
   function extractItems(data) {
@@ -143,10 +154,7 @@ export default async function handler(req, res) {
     // ════════════════════════════════════════════
     if (type === 'train') {
       if (!depart || !arrive) return res.json({ ok: false, message: '파라미터 없음' });
-      const today = new Date();
-      const dateStr = date || (today.getFullYear()
-        + String(today.getMonth()+1).padStart(2,'0')
-        + String(today.getDate()).padStart(2,'0'));
+      const dateStr = date || getKstDateStr();
 
       const depKey = encodeURIComponent('cond[dptre_stn_nm::EQ]');
       const arrKey = encodeURIComponent('cond[arvl_stn_nm::EQ]');
@@ -187,10 +195,7 @@ export default async function handler(req, res) {
     // ════════════════════════════════════════════
     if (type === 'express') {
       if (!depart || !arrive) return res.json({ ok: false, message: '파라미터 없음' });
-      const today = new Date();
-      const dateStr = date || (today.getFullYear()
-        + String(today.getMonth()+1).padStart(2,'0')
-        + String(today.getDate()).padStart(2,'0'));
+      const dateStr = date || getKstDateStr();
 
       const url = `https://apis.data.go.kr/1613000/ExpBusInfo/GetStrtpntAlocFndExpbusInfo`
         + `?serviceKey=${encodeURIComponent(process.env.TAGO_EXPRESS_KEY)}`
