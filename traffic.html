@@ -609,6 +609,8 @@ body.big-font .zoom-btn-icon { font-size: 26px !important; }
           <option value="목포">목포</option><option value="수서">수서</option>
           <option value="행신">행신</option>
         </select>
+        <label class="tsz-16" style="font-size:16px;font-weight:700;color:#555;display:block;margin-bottom:6px;">출발 날짜</label>
+        <input class="traf-select" type="date" id="train-date" style="margin-bottom:12px;">
         <button class="traf-btn traf-btn-green" onclick="searchTrain()">🚄 기차 시간 조회</button>
         <div id="train-result" class="traf-result-box"></div>
         <button class="traf-btn traf-btn-gray" style="margin-top:10px;" onclick="resetTrain()">🔄 검색 초기화</button>
@@ -1489,6 +1491,7 @@ body.big-font .zoom-btn-icon { font-size: 26px !important; }
 var d = new Date();
 var days = ['일','월','화','수','목','금','토'];
 document.getElementById('date-solar').textContent = (d.getMonth()+1)+'월 '+d.getDate()+'일 ('+days[d.getDay()]+')';
+setTrainDateToday(); // (한글 설명) 기차 날짜 선택칸을 처음부터 오늘 날짜로 채워둬요
 
 /* 한국천문연구원 API로 정확한 음력 가져오기 */
 (function(){
@@ -1867,12 +1870,14 @@ function resetSubway() {
 function searchTrain() {
   var dep = document.getElementById('train-depart').value;
   var arr = document.getElementById('train-arrive').value;
+  var dateInput = document.getElementById('train-date').value; // YYYY-MM-DD
   if (!dep || !arr) { alert('출발·도착역을 모두 선택해 주세요!'); return; }
   if (dep === arr) { alert('출발지와 도착지가 같아요!'); return; }
+  var dateStr = dateInput ? dateInput.replace(/-/g,'') : '';
   var resultEl = document.getElementById('train-result');
   resultEl.innerHTML = '<div class="traf-loading">🚄 기차 시간표를 불러오는 중이에요...</div>';
   resultEl.classList.add('show');
-  fetch('/api/traffic?type=train&depart='+encodeURIComponent(dep)+'&arrive='+encodeURIComponent(arr))
+  fetch('/api/traffic?type=train&depart='+encodeURIComponent(dep)+'&arrive='+encodeURIComponent(arr)+(dateStr?'&date='+dateStr:''))
     .then(function(r){return r.json();})
     .then(function(data){
       var items = data.items || [];
@@ -1880,7 +1885,8 @@ function searchTrain() {
         resultEl.innerHTML = '<div class="traf-empty">😢 해당 구간 열차를 찾을 수 없어요.</div>';
         return;
       }
-      var html = '<div class="traf-empty" style="background:none;border:none;padding:4px 0;">📌 오늘 하루 전체 열차예요(총 '+items.length+'개)</div>';
+      var dateLabel = dateInput || '오늘';
+      var html = '<div class="traf-empty" style="background:none;border:none;padding:4px 0;">📌 '+dateLabel+' 하루 전체 열차예요(총 '+items.length+'개)</div>';
       items.forEach(function(item){
         // (한글 설명) 실제 테스트로 확인한 형식은 "2026-07-19 05:09:00.0"처럼
         //             하이픈·콜론이 있는 형식이었어요(붙어있는 숫자가 아니었음).
@@ -1901,8 +1907,19 @@ function searchTrain() {
 function resetTrain() {
   document.getElementById('train-depart').value = '';
   document.getElementById('train-arrive').value = '';
+  setTrainDateToday();
   document.getElementById('train-result').innerHTML = '';
   document.getElementById('train-result').classList.remove('show');
+}
+function setTrainDateToday(){
+  var el = document.getElementById('train-date');
+  if (!el) return;
+  var d = new Date();
+  var yyyy = d.getFullYear();
+  var mm = String(d.getMonth()+1).padStart(2,'0');
+  var dd = String(d.getDate()).padStart(2,'0');
+  el.value = yyyy+'-'+mm+'-'+dd;
+  el.min = yyyy+'-'+mm+'-'+dd; // (한글 설명) 지난 날짜는 선택 못 하게 막아요
 }
 
 /* ════════════════════════════════
