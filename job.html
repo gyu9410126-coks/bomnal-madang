@@ -1840,18 +1840,22 @@ document.getElementById('date-solar').textContent = (d.getMonth()+1)+'월 '+d.ge
 
 /* ── 화면 전환 ── */
 var currentJobPage = null;
-/* ── 안내 팝업 (세션당 1번) ── */
-function showGuidePopupIfNeeded(type) {
-  var key = 'guidePopupShown_' + type;
+/* ── 안내 팝업 (세션당 1번, 로딩안내는 메인/채용공고검색 각각 별도로) ── */
+var currentLoadingVariant = '';
+function showGuidePopupIfNeeded(type, variant) {
+  var key = 'guidePopupShown_' + type + (variant ? '_' + variant : '');
   if (sessionStorage.getItem(key)) return;
+  if (type === 'loading') currentLoadingVariant = variant || '';
   document.getElementById('guide-popup-' + type).classList.add('show');
 }
 function closeGuidePopup(type) {
-  sessionStorage.setItem('guidePopupShown_' + type, '1');
+  var variant = (type === 'loading') ? currentLoadingVariant : '';
+  var key = 'guidePopupShown_' + type + (variant ? '_' + variant : '');
+  sessionStorage.setItem(key, '1');
   document.getElementById('guide-popup-' + type).classList.remove('show');
 }
 /* 일자리는 메인화면 자체에 실시간 채용정보가 있어서 메인 진입 시에도 로딩안내를 띄워요 */
-setTimeout(function(){ showGuidePopupIfNeeded('loading'); }, 600);
+setTimeout(function(){ showGuidePopupIfNeeded('loading', 'main'); }, 600);
 
 function goPage(id) {
   document.getElementById('main-view').style.display = 'none';
@@ -1860,7 +1864,10 @@ function goPage(id) {
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
   history.pushState({ page: id }, '', '');
-  showGuidePopupIfNeeded('loading');
+  /* (한글 설명) 채용공고검색만 별도로 실시간 데이터를 다시 가져오는 페이지라
+     따로 한 번 더 안내해요. 나머지 아이콘(자격증·창업지원 등)은 정적인
+     안내 페이지라 필요 없어서 안 띄워요. */
+  if (id === 'page-job-search') showGuidePopupIfNeeded('loading', 'jobsearch');
   resetJobPage(id);
 }
 function goBack() {
