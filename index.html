@@ -1917,7 +1917,16 @@ function checkWeatherWarning() {
 
 /* 폭염/한파 팝업 실제로 화면에 띄우기 */
 function showWeatherWarningPopup(warnType, level) {
-  var isHeat = warnType === 'heat';
+  var META = {
+    heat:    { icon: '🥵', name: '폭염' },
+    cold:    { icon: '🥶', name: '한파' },
+    rain:    { icon: '🌧️', name: '호우' },
+    snow:    { icon: '❄️', name: '대설' },
+    wind:    { icon: '💨', name: '강풍' },
+    typhoon: { icon: '🌀', name: '태풍' },
+    fog:     { icon: '🌫️', name: '안개' },
+    dry:     { icon: '🔥', name: '건조' },
+  };
   var texts = {
     heat: {
       경보: '🥵 오늘은 매우 위험할 정도로 더워요! 낮 12시~오후 5시엔 꼭 실내에 계세요. 물은 목마르지 않아도 자주 드세요. 어지럽거나 속이 안 좋으면 즉시 시원한 곳으로 가세요.',
@@ -1926,13 +1935,38 @@ function showWeatherWarningPopup(warnType, level) {
     cold: {
       경보: '🥶 오늘은 매우 위험할 정도로 추워요! 외출은 되도록 삼가시고, 나가실 땐 두꺼운 옷·장갑·목도리를 꼭 챙기세요. 빙판길 낙상 조심하세요.',
       주의보: '🥶 오늘 많이 추워요. 외출하실 땐 따뜻하게 챙겨 입으시고, 실내 온도도 따뜻하게 유지해주세요.'
-    }
+    },
+    rain: {
+      경보: '🌧️ 비가 매우 많이 내리고 있어요! 하천·저지대·지하공간은 절대 가까이 가지 마세요. 외출은 꼭 필요할 때만, 우비를 챙기세요.',
+      주의보: '🌧️ 비가 많이 내리고 있어요. 우산을 꼭 챙기시고, 미끄러운 길 조심하세요.'
+    },
+    snow: {
+      경보: '❄️ 눈이 매우 많이 내리고 있어요! 외출은 되도록 삼가시고, 꼭 나가셔야 하면 미끄럼 방지 신발을 신으세요.',
+      주의보: '❄️ 눈이 내리고 있어요. 길이 미끄러우니 천천히 걸으시고, 장갑을 끼시면 넘어질 때 손을 짚기 편해요.'
+    },
+    wind: {
+      경보: '💨 바람이 매우 강하게 불고 있어요! 간판·나뭇가지 낙하물을 조심하시고, 외출을 삼가주세요. 우산은 뒤집히기 쉬워 위험해요.',
+      주의보: '💨 바람이 강하게 불고 있어요. 외출하실 땐 넘어지지 않게 조심하세요.'
+    },
+    typhoon: {
+      경보: '🌀 태풍이 다가오고 있어요! 외출을 삼가시고 창문을 꼭 닫아두세요. 창문 근처에는 가지 마시고 안전한 실내에 계세요.',
+      주의보: '🌀 태풍 영향권에 있어요. 외출을 자제하시고 창문 단속을 해주세요.'
+    },
+    fog: {
+      경보: '🌫️ 안개가 매우 짙게 꼈어요! 길이 잘 안 보이니 외출을 삼가시고, 꼭 나가셔야 하면 밝은 옷을 입으세요.',
+      주의보: '🌫️ 안개가 꼈어요. 밖에 나가실 땐 주변을 잘 살피며 천천히 걸으세요.'
+    },
+    dry: {
+      경보: '🔥 공기가 매우 건조해요! 작은 불씨도 큰불로 번질 수 있어요. 담뱃불·화기 조심하시고, 실내에선 물을 자주 드세요.',
+      주의보: '🔥 공기가 건조해요. 화재 조심하시고, 실내 습도를 유지해주세요.'
+    },
   };
   var desc = (texts[warnType] && texts[warnType][level]) || '';
-  if (!desc) return;
+  var meta = META[warnType];
+  if (!desc || !meta) return;
 
-  document.getElementById('wx-warn-icon').textContent = isHeat ? '🥵' : '🥶';
-  document.getElementById('wx-warn-title').textContent = (isHeat ? '폭염' : '한파') + level;
+  document.getElementById('wx-warn-icon').textContent = meta.icon;
+  document.getElementById('wx-warn-title').textContent = meta.name + level;
   document.getElementById('wx-warn-desc').textContent = desc;
   document.getElementById('wx-warn-popup').classList.add('show');
 }
