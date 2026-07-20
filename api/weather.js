@@ -239,32 +239,45 @@ export default async function handler(req, res) {
       function dist(sLat, sLon) {
         return Math.sqrt(Math.pow(sLat - lat, 2) + Math.pow(sLon - lon, 2));
       }
-      let nearest = null, minDist = Infinity;
-      stations.forEach(function(s) {
-        const sLon = parseFloat(s.dmX), sLat = parseFloat(s.dmY);
-        if (isNaN(sLon) || isNaN(sLat)) return;
-        const d = dist(sLat, sLon);
-        if (d < minDist) { minDist = d; nearest = s; }
-      });
+      const sorted = stations
+        .map(function(s) {
+          const sLon = parseFloat(s.dmX), sLat = parseFloat(s.dmY);
+          return { s, d: (isNaN(sLon) || isNaN(sLat)) ? Infinity : dist(sLat, sLon) };
+        })
+        .filter(function(x) { return x.d !== Infinity; })
+        .sort(function(a, b) { return a.d - b.d; })
+        .slice(0, 5)
+        .map(function(x) { return x.s; });
 
-      if (!nearest) return res.status(200).json({ ok: false, error: '가까운 측정소를 찾을 수 없어요', city: cityName });
-
-      const rtUrl = `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty`
-        + `?serviceKey=${encodeURIComponent(DUST_KEY)}&returnType=json&numOfRows=1&pageNo=1`
-        + `&stationName=${encodeURIComponent(nearest.stationName)}&dataTerm=DAILY&ver=1.3`;
+      if (!sorted.length) return res.status(200).json({ ok: false, error: '가까운 측정소를 찾을 수 없어요', city: cityName });
 
       if (req.query.debug === '1') {
-        const r = await fetch(rtUrl);
+        const rtUrl0 = `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty`
+          + `?serviceKey=${encodeURIComponent(DUST_KEY)}&returnType=json&numOfRows=1&pageNo=1`
+          + `&stationName=${encodeURIComponent(sorted[0].stationName)}&dataTerm=DAILY&ver=1.3`;
+        const r = await fetch(rtUrl0);
         const t = await r.text();
-        return res.status(200).json({ ok: true, debug: true, nearestStation: nearest.stationName, requestUrl: rtUrl.replace(DUST_KEY, '(키-숨김)'), rawSample: t.slice(0, 2000) });
+        return res.status(200).json({ ok: true, debug: true, sidoShort, candidateStations: sorted.map(s => s.stationName), requestUrl: rtUrl0.replace(DUST_KEY, '(키-숨김)'), rawSample: t.slice(0, 2000) });
       }
 
-      const rtRes = await fetch(rtUrl);
-      const rtData = await rtRes.json();
-      const rtItems = rtData?.response?.body?.items || [];
-      const latest = rtItems[0];
+      // (한글 설명) 제일 가까운 곳부터 순서대로 시도해서, 데이터가 있는 첫 측정소를 써요
+      //             (활용가이드에 "측정소 현지 사정에 따라 미수신될 수 있음"이라고 명시돼있어요).
+      let latest = null, usedStation = null;
+      for (const st of sorted) {
+        const rtUrl = `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty`
+          + `?serviceKey=${encodeURIComponent(DUST_KEY)}&returnType=json&numOfRows=1&pageNo=1`
+          + `&stationName=${encodeURIComponent(st.stationName)}&dataTerm=DAILY&ver=1.3`;
+        try {
+          const rtRes = await fetch(rtUrl);
+          const rtData = await rtRes.json();
+          const item = (rtData?.response?.body?.items || [])[0];
+          if (item && item.pm10Value && item.pm10Value !== '-') {
+            latest = item; usedStation = st.stationName; break;
+          }
+        } catch (e) { /* 다음 측정소로 넘어가요 */ }
+      }
 
-      if (!latest) return res.status(200).json({ ok: false, error: '측정값을 찾을 수 없어요', city: cityName });
+      if (!latest) return res.status(200).json({ ok: false, error: '주변 측정소에 데이터가 아직 없어요', city: cityName });
 
       const GRADE_TEXT = { '1': '좋음', '2': '보통', '3': '나쁨', '4': '매우나쁨' };
       const GRADE_COLOR = { '1': '#2e7d32', '2': '#f9a825', '3': '#e65100', '4': '#c62828' };
@@ -272,7 +285,7 @@ export default async function handler(req, res) {
       return res.status(200).json({
         ok: true,
         city: cityName,
-        stationName: nearest.stationName,
+        stationName: usedStation,
         pm10: latest.pm10Value || '-',
         pm10Grade: GRADE_TEXT[latest.pm10Grade] || '정보없음',
         pm10Color: GRADE_COLOR[latest.pm10Grade] || '#888',
