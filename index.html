@@ -1283,6 +1283,14 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
 .wx-day-max { font-size:13px; font-weight:700; color:#d32f2f; }
 .wx-day-min { font-size:12px; color:#1565c0; }
 .wx-source-note { font-size:11px; color:#aaa; text-align:center; margin-top:4px; word-break:keep-all; }
+.wx-region-picker { margin-bottom:14px; }
+.wx-region-toggle { font-size:13px; color:#1a6fc4; font-weight:700; text-align:center; cursor:pointer; padding:6px; }
+.wx-region-select { width:100%; padding:10px; border:1.5px solid #ddd; border-radius:10px; font-size:15px; font-family:inherit; color:#222; background:#fff; }
+.wx-region-apply-btn { width:100%; margin-top:8px; padding:11px; background:#e8f0fe; color:#1a6fc4; border:1.5px solid #1a6fc4; border-radius:10px; font-size:15px; font-weight:700; font-family:inherit; cursor:pointer; }
+.wx-region-back-btn { width:100%; margin-top:8px; padding:10px; background:#f5f5f5; color:#555; border:none; border-radius:10px; font-size:14px; font-weight:600; font-family:inherit; cursor:pointer; }
+body.big-font .wx-region-toggle { font-size:17px !important; }
+body.big-font .wx-region-select { font-size:19px !important; }
+body.big-font .wx-region-apply-btn { font-size:19px !important; }
 
 /* 폭염/한파 경보 팝업 */
 .wx-warn-icon { font-size:44px; margin-bottom:10px; text-align:center; }
@@ -1829,29 +1837,108 @@ function getSavedGeoOrDefault() {
 }
 
 /* 날씨 띠배너 클릭 → 상세 팝업(일주일 날씨 + 미세먼지) */
-function openWeatherDetail() {
-  var overlay = document.getElementById('wx-detail-popup');
-  var content = document.getElementById('wx-detail-content');
-  content.innerHTML = '<div class="wx-loading">☁️ 날씨 정보를 가져오는 중이에요...</div>';
-  overlay.classList.add('show');
+var wxCurrentMode = 'gps'; // 'gps' | 'custom'
+var REGION_DATA = {"세종": ["세종특별자치시"], "서울": ["종로구", "중구", "용산구", "성동구", "광진구", "동대문구", "중랑구", "성북구", "강북구", "도봉구", "노원구", "은평구", "서대문구", "마포구", "양천구", "강서구", "구로구", "금천구", "영등포구", "동작구", "관악구", "서초구", "강남구", "송파구", "강동구"], "부산": ["부산광역시"], "대구": ["대구광역시"], "인천": ["인천광역시"], "광주": ["광주광역시"], "대전": ["대전광역시"], "울산": ["울산광역시"], "제주": ["제주특별자치도"], "경기": ["수원시", "성남시", "의정부시", "안양시", "부천시", "광명시", "평택시", "동두천시", "안산시", "고양시", "과천시", "구리시", "남양주시", "오산시", "시흥시", "군포시", "의왕시", "하남시", "용인시", "파주시", "이천시", "안성시", "김포시", "화성시", "광주시", "양주시", "포천시", "여주시", "가평군", "양평군", "연천군"], "강원": ["춘천시", "원주시", "태백시", "홍천군", "철원군", "양양군"], "충북": ["청주시", "충주시", "제천시", "보은군", "옥천군", "영동군", "진천군", "괴산군", "음성군", "단양군"], "충남": ["천안시", "공주시", "보령시", "아산시", "서산시", "논산시", "계룡시", "금산군", "부여군", "서천군", "청양군", "태안군", "당진시"], "전북": ["전주시", "군산시", "익산시", "정읍시", "남원시", "김제시", "진안군", "무주군", "장수군", "임실군", "순창군", "고창군", "부안군"], "전남": ["목포시", "여수시", "순천시", "나주시", "광양시", "곡성군", "구례군", "고흥군", "장흥군", "해남군", "영암군", "무안군", "함평군", "장성군", "완도군", "진도군", "신안군"], "경북": ["포항시", "경주시", "김천시", "안동시", "구미시", "영주시", "영천시", "상주시", "문경시", "경산시", "의성군", "청송군", "영양군", "영덕군", "청도군", "고령군", "성주군", "칠곡군", "예천군", "봉화군", "울진군", "울릉군"], "경남": ["창원시", "진주시", "통영시", "사천시", "김해시", "밀양시", "거제시", "양산시", "의령군", "함안군", "창녕군", "고성군", "남해군", "하동군", "산청군", "함양군", "거창군", "합천군"]};
 
+function openWeatherDetail() {
   var geo = getSavedGeoOrDefault();
   var nowIcon = document.getElementById('weather-icon').textContent;
   var nowTemp = document.getElementById('weather-temp').textContent;
   var nowState = document.getElementById('weather-state').textContent;
   var nowCity = document.getElementById('weather-city').textContent;
+  wxCurrentMode = 'gps';
+  loadWeatherFor(geo.lat, geo.lon, nowCity, { icon: nowIcon, temp: nowTemp, state: nowState });
+}
 
-  Promise.all([
-    fetch('/api/weather?type=weekly&lat=' + geo.lat + '&lon=' + geo.lon).then(function(r){ return r.json(); }).catch(function(){ return { ok:false }; }),
-    fetch('/api/weather?type=dust&lat=' + geo.lat + '&lon=' + geo.lon).then(function(r){ return r.json(); }).catch(function(){ return { ok:false }; }),
-  ]).then(function(results) {
+/* 지역선택 UI(시/도·시/군/구 드롭다운) HTML 만들기 */
+function buildRegionPickerHtml() {
+  var sidoOptions = '<option value="">시/도 선택</option>';
+  Object.keys(REGION_DATA).forEach(function(s) { sidoOptions += '<option value="' + s + '">' + s + '</option>'; });
+  return '<div class="wx-region-picker">'
+    + '<div class="wx-region-toggle" onclick="toggleRegionPicker()">🌍 다른 지역 날씨 보기</div>'
+    + '<div id="wx-region-form" style="display:none;margin-top:8px;">'
+    + '<select id="wx-sido-select" class="wx-region-select" onchange="onWxSidoChange()">' + sidoOptions + '</select>'
+    + '<select id="wx-sigungu-select" class="wx-region-select" style="margin-top:6px;"><option value="">시/군/구 선택</option></select>'
+    + '<button class="wx-region-apply-btn" onclick="applyCustomRegion()">이 지역 날씨 보기</button>'
+    + '</div>'
+    + (wxCurrentMode === 'custom' ? '<button class="wx-region-back-btn" onclick="backToMyLocation()">📍 내 위치로 돌아가기</button>' : '')
+    + '</div>';
+}
+
+function toggleRegionPicker() {
+  var form = document.getElementById('wx-region-form');
+  if (form) form.style.display = (form.style.display === 'none') ? 'block' : 'none';
+}
+
+function onWxSidoChange() {
+  var sido = document.getElementById('wx-sido-select').value;
+  var sigunguSel = document.getElementById('wx-sigungu-select');
+  sigunguSel.innerHTML = '<option value="">시/군/구 선택</option>';
+  (REGION_DATA[sido] || []).forEach(function(name) {
+    var opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    sigunguSel.appendChild(opt);
+  });
+}
+
+function applyCustomRegion() {
+  var sido = document.getElementById('wx-sido-select').value;
+  var sigungu = document.getElementById('wx-sigungu-select').value;
+  if (!sido) { alert('시/도를 먼저 선택해 주세요!'); return; }
+  var query = sido + ' ' + (sigungu || '');
+  var content = document.getElementById('wx-detail-content');
+  content.innerHTML = '<div class="wx-loading">📍 ' + query.trim() + ' 위치를 찾는 중이에요...</div>';
+
+  fetch('/api/kakao?query=' + encodeURIComponent(query.trim()))
+    .then(function(r){ return r.json(); })
+    .then(function(data) {
+      var doc = data.documents && data.documents[0];
+      if (!doc) { content.innerHTML = '<div class="wx-loading">😥 위치를 찾지 못했어요.</div><button class="wx-popup-close-btn" onclick="document.getElementById(\'wx-detail-popup\').classList.remove(\'show\')">닫기</button>'; return; }
+      var lon = parseFloat(doc.x), lat = parseFloat(doc.y);
+      wxCurrentMode = 'custom';
+      loadWeatherFor(lat, lon, sigungu ? (sido + ' ' + sigungu) : sido, null);
+    })
+    .catch(function() {
+      content.innerHTML = '<div class="wx-loading">⚠️ 위치를 찾지 못했어요.</div><button class="wx-popup-close-btn" onclick="document.getElementById(\'wx-detail-popup\').classList.remove(\'show\')">닫기</button>';
+    });
+}
+
+function backToMyLocation() {
+  wxCurrentMode = 'gps';
+  var geo = getSavedGeoOrDefault();
+  var nowIcon = document.getElementById('weather-icon').textContent;
+  var nowTemp = document.getElementById('weather-temp').textContent;
+  var nowState = document.getElementById('weather-state').textContent;
+  var nowCity = document.getElementById('weather-city').textContent;
+  loadWeatherFor(geo.lat, geo.lon, nowCity, { icon: nowIcon, temp: nowTemp, state: nowState });
+}
+
+/* 실제 날씨(현재+일주일+미세먼지) 조회 및 렌더링 — 내 위치·다른 지역 공통으로 씀 */
+function loadWeatherFor(lat, lon, cityLabel, knownCurrent) {
+  var overlay = document.getElementById('wx-detail-popup');
+  var content = document.getElementById('wx-detail-content');
+  content.innerHTML = '<div class="wx-loading">☁️ 날씨 정보를 가져오는 중이에요...</div>';
+  overlay.classList.add('show');
+
+  var fetches = [
+    fetch('/api/weather?type=weekly&lat=' + lat + '&lon=' + lon).then(function(r){ return r.json(); }).catch(function(){ return { ok:false }; }),
+    fetch('/api/weather?type=dust&lat=' + lat + '&lon=' + lon).then(function(r){ return r.json(); }).catch(function(){ return { ok:false }; }),
+  ];
+  if (!knownCurrent) {
+    fetches.push(fetch('/api/weather?lat=' + lat + '&lon=' + lon).then(function(r){ return r.json(); }).catch(function(){ return { ok:false }; }));
+  }
+
+  Promise.all(fetches).then(function(results) {
     var weekly = results[0], dust = results[1];
+    var cur = knownCurrent || (results[2] && results[2].ok ? { icon: results[2].icon, temp: results[2].temp, state: results[2].state } : { icon: '☁️', temp: '--°C', state: '' });
     var now = new Date();
     var hh = String(now.getHours()).padStart(2,'0');
 
-    var html = '<div class="wx-head">'
-      + '<div><div class="wx-head-city">📍 ' + nowCity + '</div><div class="wx-head-time">지금 · ' + hh + '시 기준</div></div>'
-      + '<div><div class="wx-head-temp">' + nowTemp + ' ' + nowIcon + '</div><div class="wx-head-state">' + nowState + '</div></div>'
+    var html = buildRegionPickerHtml();
+
+    html += '<div class="wx-head">'
+      + '<div><div class="wx-head-city">📍 ' + cityLabel + '</div><div class="wx-head-time">지금 · ' + hh + '시 기준</div></div>'
+      + '<div><div class="wx-head-temp">' + cur.temp + ' ' + cur.icon + '</div><div class="wx-head-state">' + cur.state + '</div></div>'
       + '</div>';
 
     if (dust.ok) {
