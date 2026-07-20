@@ -417,6 +417,7 @@ body.big-font .qlink-icon { font-size: 34px !important; width: 60px !important; 
         <div class="search-row" style="margin-top:10px;">
           <button class="search-btn" style="width:100%;" onclick="searchPharmacy(1)">💊 약국 찾기</button>
         </div>
+        <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetPharmacy()">🔄 검색 초기화</button>
         <div id="ph-result" class="result-list"></div>
         <div class="source-notice">출처: 국립중앙의료원</div>
       </div>
@@ -470,6 +471,7 @@ body.big-font .qlink-icon { font-size: 34px !important; width: 60px !important; 
         <div class="search-row" style="margin-top:10px;">
           <button class="search-btn" style="width:100%;background:#c62828;" onclick="searchEmergency(1)">🚑 응급실 찾기</button>
         </div>
+        <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetEmergency()">🔄 검색 초기화</button>
         <div id="em-result" class="result-list"></div>
         <div class="source-notice">출처: 국립중앙의료원</div>
       </div>
@@ -581,6 +583,7 @@ body.big-font .qlink-icon { font-size: 34px !important; width: 60px !important; 
         <div class="search-row" style="margin-top:10px;">
           <button class="search-btn" style="width:100%;background:#e65100;" onclick="searchStore()">🏪 건강매장 찾기</button>
         </div>
+        <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetHealthStore()">🔄 검색 초기화</button>
         <div id="st-result" class="result-list"></div>
         <div class="source-notice">출처: 소상공인시장진흥공단</div>
       </div>
@@ -679,6 +682,7 @@ body.big-font .qlink-icon { font-size: 34px !important; width: 60px !important; 
         <div class="search-row" style="margin-top:10px;">
           <button class="search-btn" style="width:100%;background:#6a1b9a;" onclick="searchCare(1)">🏥 요양시설 찾기</button>
         </div>
+        <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetCare()">🔄 검색 초기화</button>
         <div id="care-result" class="result-list"></div>
         <div class="source-notice">출처: 국민건강보험공단</div>
       </div>
@@ -840,6 +844,7 @@ body.big-font .qlink-icon { font-size: 34px !important; width: 60px !important; 
         <div class="search-row" style="margin-top:10px;">
           <button class="search-btn" style="width:100%;background:#3949ab;" onclick="searchHospital(1)">🏨 병원 찾기</button>
         </div>
+        <button class="search-btn" style="width:100%;background:#e0e0e0;color:#555;margin-top:8px;" onclick="resetHospital()">🔄 검색 초기화</button>
         <div id="hosp-result" class="result-list"></div>
         <div class="source-notice">출처: 건강보험심사평가원</div>
       </div>
@@ -1459,6 +1464,12 @@ function searchPharmacyGPS() {
 }
 
 // 🔍 지역 드롭다운으로 검색
+function resetPharmacy(){
+  document.getElementById('ph-sido').value = '';
+  document.getElementById('ph-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
+  document.getElementById('ph-dong').innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+  document.getElementById('ph-result').innerHTML = '';
+}
 async function searchPharmacy(page) {
   var sido = document.getElementById('ph-sido').value;
   var sigungu = document.getElementById('ph-sigungu').value;
@@ -1548,6 +1559,11 @@ function searchEmergencyGPS() {
 }
 
 // 🔍 지역 드롭다운으로 검색
+function resetEmergency(){
+  document.getElementById('em-sido').value = '';
+  document.getElementById('em-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
+  document.getElementById('em-result').innerHTML = '';
+}
 async function searchEmergency(page) {
   var sido = document.getElementById('em-sido').value;
   var sigungu = document.getElementById('em-sigungu').value;
@@ -1876,6 +1892,13 @@ function searchStoreGPS() {
 }
 
 // 🔍 지역 드롭다운으로 검색
+function resetHealthStore(){
+  document.getElementById('st-sido').value = '';
+  document.getElementById('st-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
+  document.getElementById('st-dong').innerHTML = '<option value="">읍·면·동 선택 (선택 사항)</option>';
+  document.getElementById('st-type').value = '';
+  document.getElementById('st-result').innerHTML = '';
+}
 async function searchStore() {
   var sido = document.getElementById('st-sido').value;
   var sigungu = document.getElementById('st-sigungu').value;
@@ -2058,6 +2081,12 @@ function renderCareCard(it) {
 }
 
 // 🔍 지역 드롭다운(또는 GPS로 찾은 지역)으로 검색
+function resetCare(){
+  document.getElementById('care-sido').value = '';
+  document.getElementById('care-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
+  document.getElementById('care-dong').innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+  document.getElementById('care-result').innerHTML = '';
+}
 async function searchCare(page) {
   var sido, sigungu, dong;
   if (careGPSRegion) {
@@ -2310,6 +2339,14 @@ function searchHospitalGPS() {
 }
 
 // 🔍 지역 드롭다운으로 검색
+function resetHospital(){
+  document.getElementById('hosp-sido').value = '';
+  document.getElementById('hosp-sigungu').innerHTML = '<option value="">시·군·구 선택</option>';
+  document.getElementById('hosp-dong').innerHTML = '<option value="">읍·면·동 선택 (선택 사항, 고를수록 더 정확해요)</option>';
+  document.getElementById('hosp-cl').value = '';
+  document.getElementById('hosp-dgsbjt').value = '';
+  document.getElementById('hosp-result').innerHTML = '';
+}
 async function searchHospital(page) {
   var sido = document.getElementById('hosp-sido').value;
   var sigungu = document.getElementById('hosp-sigungu').value;
