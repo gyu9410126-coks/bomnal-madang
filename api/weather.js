@@ -176,13 +176,22 @@ export default async function handler(req, res) {
       const urlNoRange = `http://apis.data.go.kr/1360000/WthrWrnInfoService/getWthrWrnList`
         + `?serviceKey=${encodeURIComponent(WEATHER_KEY)}&pageNo=1&numOfRows=10&dataType=JSON&stnId=${stnId}`;
 
+      // (한글 설명) 활용가이드는 "L1011900" 같은 특보구역코드를 쓰라고 했는데,
+      //             실제 사례에서는 "108"(서울) 같은 옛날 방식 숫자 관측지점번호를
+      //             쓰는 경우도 발견돼서, 혹시 몰라 이것도 같이 시도해봐요.
+      const NUMERIC_STN = { '서울':108,'인천':112,'경기도':119,'강원도':101,'충청북도':131,'충청남도':133,'대전':133,'세종':239,'전라북도':146,'전북자치도':146,'광주':156,'전라남도':165,'대구':143,'경상북도':143,'부산':159,'울산':152,'경상남도':155,'제주도':184 };
+      const numericId = NUMERIC_STN[sido] || NUMERIC_STN[sido.replace('특별자치도','').replace('특별자치시','').replace('특별시','').replace('광역시','').trim()] || 108;
+      const urlNumeric = `http://apis.data.go.kr/1360000/WthrWrnInfoService/getWthrWrnList`
+        + `?serviceKey=${encodeURIComponent(WEATHER_KEY)}&pageNo=1&numOfRows=10&dataType=JSON&stnId=${numericId}`;
+
       if (req.query.debug === '1') {
-        const [r1, r2] = await Promise.all([fetch(urlWithRange), fetch(urlNoRange)]);
-        const [t1, t2] = await Promise.all([r1.text(), r2.text()]);
+        const [r1, r2, r3] = await Promise.all([fetch(urlWithRange), fetch(urlNoRange), fetch(urlNumeric)]);
+        const [t1, t2, t3] = await Promise.all([r1.text(), r2.text(), r3.text()]);
         return res.status(200).json({
-          ok: true, debug: true, stnId,
+          ok: true, debug: true, stnId, numericId,
           withRangeUrl: urlWithRange.replace(WEATHER_KEY, '(키-숨김)'), withRangeRaw: t1.slice(0, 1500),
           noRangeUrl: urlNoRange.replace(WEATHER_KEY, '(키-숨김)'), noRangeRaw: t2.slice(0, 1500),
+          numericUrl: urlNumeric.replace(WEATHER_KEY, '(키-숨김)'), numericRaw: t3.slice(0, 1500),
         });
       }
 
@@ -190,6 +199,10 @@ export default async function handler(req, res) {
       let apiData = await apiRes.json();
       if (apiData?.response?.header?.resultCode !== '00') {
         apiRes = await fetch(urlNoRange);
+        apiData = await apiRes.json();
+      }
+      if (apiData?.response?.header?.resultCode !== '00') {
+        apiRes = await fetch(urlNumeric);
         apiData = await apiRes.json();
       }
       const items = apiData?.response?.body?.items?.item;
