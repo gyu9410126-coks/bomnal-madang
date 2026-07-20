@@ -10,6 +10,53 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
 </head>
 <body>
+
+<!-- ══════ 안내 팝업 (세션당 1번) ══════ -->
+<style>
+.guide-popup-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); display:none; align-items:center; justify-content:center; z-index:9999; padding:20px; }
+.guide-popup-overlay.show { display:flex; }
+.guide-popup-card { background:#fff; border-radius:20px; padding:28px 22px; width:100%; max-width:320px; text-align:center; box-shadow:0 4px 20px rgba(0,0,0,0.18); }
+.guide-popup-icon { font-size:40px; margin-bottom:10px; display:inline-block; }
+.guide-popup-icon-spin { animation: guide-spin 1.6s linear infinite; }
+@keyframes guide-spin { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+.guide-popup-title { font-size:20px; font-weight:700; color:#1a1a1a; margin-bottom:16px; }
+.guide-popup-item { border-radius:12px; padding:12px 14px; margin-bottom:10px; text-align:left; display:flex; gap:10px; align-items:flex-start; }
+.guide-popup-item-icon { font-size:20px; }
+.guide-popup-item-text { font-size:16px; color:#1a1a1a; line-height:1.5; }
+.guide-popup-desc { font-size:17px; color:#444; line-height:1.7; margin-bottom:20px; }
+.guide-popup-btn { width:100%; padding:14px; background:#1a6fc4; color:#fff; border:none; border-radius:12px; font-size:18px; font-weight:700; font-family:inherit; cursor:pointer; }
+body.big-font .guide-popup-title { font-size:26px !important; }
+body.big-font .guide-popup-item-text { font-size:20px !important; }
+body.big-font .guide-popup-desc { font-size:21px !important; }
+body.big-font .guide-popup-btn { font-size:22px !important; padding:17px !important; }
+body.big-font .guide-popup-icon { font-size:48px !important; }
+</style>
+
+<div id="guide-popup-search" class="guide-popup-overlay">
+  <div class="guide-popup-card">
+    <div class="guide-popup-icon">💡</div>
+    <div class="guide-popup-title">이용 안내</div>
+    <div class="guide-popup-item" style="background:#e3f2fd;">
+      <span class="guide-popup-item-icon">🗺️</span>
+      <span class="guide-popup-item-text">검색 결과에서 <b>지도로 보기·길찾기</b>도 이용하실 수 있어요</span>
+    </div>
+    <div class="guide-popup-item" style="background:#e8f5e9;">
+      <span class="guide-popup-item-icon">📞</span>
+      <span class="guide-popup-item-text"><b>전화번호</b>를 누르면 바로 전화가 걸려요</span>
+    </div>
+    <button class="guide-popup-btn" onclick="closeGuidePopup('search')">확인했어요</button>
+  </div>
+</div>
+
+<div id="guide-popup-loading" class="guide-popup-overlay">
+  <div class="guide-popup-card">
+    <div class="guide-popup-icon guide-popup-icon-spin">⏳</div>
+    <div class="guide-popup-title">잠시만요</div>
+    <div class="guide-popup-desc">지금 정보를 가져오고 있어서<br>시간이 조금 걸려요</div>
+    <button class="guide-popup-btn" onclick="closeGuidePopup('loading')">확인했어요</button>
+  </div>
+</div>
+
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
 
@@ -1133,6 +1180,18 @@ body.big-font .dyn-organizer { font-size: 15px !important; }
 ════════════════════════════════════════════ */
 var PAGES = ['event','heritage','quiz','facility','festival','perf2','exhi','museum','edu'];
 
+/* ── 안내 팝업 (세션당 1번) ── */
+function showGuidePopupIfNeeded(type) {
+  var key = 'guidePopupShown_' + type;
+  if (sessionStorage.getItem(key)) return;
+  document.getElementById('guide-popup-' + type).classList.add('show');
+}
+function closeGuidePopup(type) {
+  sessionStorage.setItem('guidePopupShown_' + type, '1');
+  document.getElementById('guide-popup-' + type).classList.remove('show');
+}
+setTimeout(function(){ showGuidePopupIfNeeded('search'); }, 600);
+
 function goPage(name) {
   /* 메인 숨김 */
   document.getElementById('main-grid-wrap').style.display = 'none';
@@ -1144,6 +1203,7 @@ function goPage(name) {
   document.getElementById('page-'+name).classList.add('active');
   window.scrollTo(0,0);
   history.pushState({ page: name }, '', '');
+  showGuidePopupIfNeeded('loading');
 
   /* 첫 진입 시 데이터 로드 */
   if(name==='quiz'    && !quizStarted)    startQuiz();
