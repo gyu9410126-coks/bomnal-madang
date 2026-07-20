@@ -158,7 +158,8 @@ export default async function handler(req, res) {
     if (type === 'warning') {
       const { sigu, sido, cityName } = await resolveRegion();
       // (한글 설명) 시/군/구 이름으로 먼저 찾아보고, 없으면 시/도 이름으로 찾아요
-      const stnId = WARN_CODES[sigu] || WARN_CODES[sido] || WARN_CODES['전국'];
+      const siguMainForWarn = sigu ? sigu.split(' ')[0] : '';
+      const stnId = WARN_CODES[siguMainForWarn] || WARN_CODES[sigu] || WARN_CODES[sido] || WARN_CODES['전국'];
 
       const kst = getKst();
       const now = kst.dateObj;
@@ -167,18 +168,30 @@ export default async function handler(req, res) {
       const fromTmFc = fmt(yesterday);
       const toTmFc = fmt(now);
 
-      const url = `http://apis.data.go.kr/1360000/WthrWrnInfoService/getWthrWrnList`
+      const urlWithRange = `http://apis.data.go.kr/1360000/WthrWrnInfoService/getWthrWrnList`
         + `?serviceKey=${encodeURIComponent(WEATHER_KEY)}&pageNo=1&numOfRows=10&dataType=JSON`
         + `&stnId=${stnId}&fromTmFc=${fromTmFc}&toTmFc=${toTmFc}`;
+      // (한글 설명) 시간범위를 넣었을 때 DB_ERROR가 나는 경우가 있어서, 그럴 땐
+      //             시간범위 없이 다시 한 번 시도해봐요(최신 특보만 기본으로 주는지 확인).
+      const urlNoRange = `http://apis.data.go.kr/1360000/WthrWrnInfoService/getWthrWrnList`
+        + `?serviceKey=${encodeURIComponent(WEATHER_KEY)}&pageNo=1&numOfRows=10&dataType=JSON&stnId=${stnId}`;
 
       if (req.query.debug === '1') {
-        const r = await fetch(url);
-        const t = await r.text();
-        return res.status(200).json({ ok: true, debug: true, stnId, requestUrl: url.replace(WEATHER_KEY, '(키-숨김)'), rawSample: t.slice(0, 2000) });
+        const [r1, r2] = await Promise.all([fetch(urlWithRange), fetch(urlNoRange)]);
+        const [t1, t2] = await Promise.all([r1.text(), r2.text()]);
+        return res.status(200).json({
+          ok: true, debug: true, stnId,
+          withRangeUrl: urlWithRange.replace(WEATHER_KEY, '(키-숨김)'), withRangeRaw: t1.slice(0, 1500),
+          noRangeUrl: urlNoRange.replace(WEATHER_KEY, '(키-숨김)'), noRangeRaw: t2.slice(0, 1500),
+        });
       }
 
-      const apiRes = await fetch(url);
-      const apiData = await apiRes.json();
+      let apiRes = await fetch(urlWithRange);
+      let apiData = await apiRes.json();
+      if (apiData?.response?.header?.resultCode !== '00') {
+        apiRes = await fetch(urlNoRange);
+        apiData = await apiRes.json();
+      }
       const items = apiData?.response?.body?.items?.item;
       const list = items ? (Array.isArray(items) ? items : [items]) : [];
 
@@ -354,7 +367,10 @@ export default async function handler(req, res) {
           || (sidoNorm === '전북' ? LAND_CODES['전북자치도'] : null)
           || LAND_CODES['서울'];
       }
-      const tempCode = TEMP_CODES[sigu ? sigu.replace(/(광역시|특별시|시|군|구)$/, '') : ''] || TEMP_CODES['서울'];
+      // (한글 설명) 카카오가 "수원시 영통구"처럼 구까지 붙여서 줄 때가 있어서,
+      //             띄어쓰기 앞부분(시 이름)만 먼저 떼어내고 접미사를 지워요.
+      const siguMain = sigu ? sigu.split(' ')[0].replace(/(광역시|특별시|시|군|구)$/, '') : '';
+      const tempCode = TEMP_CODES[siguMain] || TEMP_CODES['서울'];
 
       // 중기예보 발표시각(최근 06 또는 18시 KST, 최근 24시간만 제공)
       let midHour = kst.hour >= 18 ? 18 : (kst.hour >= 6 ? 6 : 18);
