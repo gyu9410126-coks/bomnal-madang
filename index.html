@@ -289,17 +289,21 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  row-gap: 2px;
   margin-top: 4px;
 }
 .weather-msg {
   font-size: 15px;
   font-weight: 500;
   color: #1a3f7a;
+  white-space: nowrap;
 }
 .weather-open {
   font-size: 15px;
   font-weight: 600;
   color: #1a3f7a;
+  white-space: nowrap;
 }
 
 /* =====================================================
@@ -1455,7 +1459,7 @@ body.big-font .wx-popup-close-btn { font-size:22px !important; padding:17px !imp
     </div>
     <div class="weather-row2">
       <span class="weather-msg" id="weather-msg">오늘도 좋은 하루 되세요!</span>
-      <span class="weather-open">📍 내 위치 기준 · 날씨 더보기</span>
+      <span class="weather-open">날씨 더보기</span>
     </div>
   </div>
 
@@ -1861,6 +1865,8 @@ function openWeatherDetail() {
         + '<div class="wx-dust-grade" style="color:' + dust.pm25Color + ';">' + dust.pm25Grade + '</div>'
         + '<div class="wx-dust-value">' + dust.pm25 + '㎍/㎥</div></div>'
         + '</div>';
+    } else {
+      html += '<div class="wx-source-note" style="margin-bottom:12px;">😥 미세먼지 정보를 지금은 가져올 수 없어요' + (dust.error ? ' (' + dust.error + ')' : '') + '</div>';
     }
 
     if (weekly.ok && weekly.days && weekly.days.length) {

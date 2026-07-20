@@ -220,20 +220,36 @@ export default async function handler(req, res) {
     // ════════════════════════════════════════════
     if (type === 'dust') {
       if (!DUST_KEY) return res.status(200).json({ ok: false, error: '미세먼지 API 키 없음' });
-      const { sido, cityName } = await resolveRegion();
+      const { sido, sigu, cityName } = await resolveRegion();
       const sidoShort = sido.replace('특별자치시','').replace('특별자치도','').replace('특별시','').replace('광역시','').trim() || '서울';
 
-      // (한글 설명) TM좌표 변환 없이, 시/도 이름으로 그 지역 측정소들을 검색해서
+      // (한글 설명) 측정소 주소가 "경상남도"가 아니라 "경남"처럼 줄임말로 저장된
+      //             경우가 있어서(실제 테스트로 확인함), 여러 방식으로 순서대로 시도해요.
+      const SIDO_ABBR = {
+        '경기도':'경기', '강원도':'강원', '강원특별자치도':'강원',
+        '충청북도':'충북', '충청남도':'충남', '전라북도':'전북', '전북특별자치도':'전북',
+        '전라남도':'전남', '경상북도':'경북', '경상남도':'경남', '제주특별자치도':'제주', '제주도':'제주',
+      };
+      const addrCandidates = [sidoShort, SIDO_ABBR[sidoShort], SIDO_ABBR[sido], sigu].filter(Boolean);
+      const uniqueAddrs = [...new Set(addrCandidates)];
+
+      // (한글 설명) TM좌표 변환 없이, 지역 이름으로 그 근처 측정소들을 검색해서
       //             WGS84 좌표(GPS와 같은 방식)로 제일 가까운 곳을 직접 골라요.
-      const listUrl = `http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getMsrstnList`
-        + `?serviceKey=${encodeURIComponent(DUST_KEY)}&returnType=json&numOfRows=100&pageNo=1`
-        + `&addr=${encodeURIComponent(sidoShort)}&ver=1.1`;
+      let stations = [];
+      let usedAddr = '';
+      for (const addr of uniqueAddrs) {
+        const listUrl = `http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getMsrstnList`
+          + `?serviceKey=${encodeURIComponent(DUST_KEY)}&returnType=json&numOfRows=100&pageNo=1`
+          + `&addr=${encodeURIComponent(addr)}&ver=1.1`;
+        try {
+          const listRes = await fetch(listUrl);
+          const listData = await listRes.json();
+          const items = listData?.response?.body?.items || [];
+          if (items.length) { stations = items; usedAddr = addr; break; }
+        } catch (e) { /* 다음 후보로 넘어가요 */ }
+      }
 
-      const listRes = await fetch(listUrl);
-      const listData = await listRes.json();
-      const stations = listData?.response?.body?.items || [];
-
-      if (!stations.length) return res.status(200).json({ ok: false, error: '측정소를 찾을 수 없어요', city: cityName });
+      if (!stations.length) return res.status(200).json({ ok: false, error: '측정소를 찾을 수 없어요', city: cityName, tried: uniqueAddrs });
 
       // (한글 설명) ver=1.1이면 dmX=경도, dmY=위도예요(활용가이드로 확인함).
       function dist(sLat, sLon) {
@@ -257,7 +273,7 @@ export default async function handler(req, res) {
           + `&stationName=${encodeURIComponent(sorted[0].stationName)}&dataTerm=DAILY&ver=1.3`;
         const r = await fetch(rtUrl0);
         const t = await r.text();
-        return res.status(200).json({ ok: true, debug: true, sidoShort, candidateStations: sorted.map(s => s.stationName), requestUrl: rtUrl0.replace(DUST_KEY, '(키-숨김)'), rawSample: t.slice(0, 2000) });
+        return res.status(200).json({ ok: true, debug: true, usedAddr, triedAddrs: uniqueAddrs, candidateStations: sorted.map(s => s.stationName), requestUrl: rtUrl0.replace(DUST_KEY, '(키-숨김)'), rawSample: t.slice(0, 2000) });
       }
 
       // (한글 설명) 제일 가까운 곳부터 순서대로 시도해서, 데이터가 있는 첫 측정소를 써요
