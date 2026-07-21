@@ -46,7 +46,65 @@ export default async function handler(req, res) {
     }
   }
 
-  // ② 쿼리 파라미터에서 페이지 번호 받기 (기본값 1페이지)
+  // (한글 설명) 지역별 검색 기능 - 서버가 못 걸러주니까, 여러 페이지를
+  //             한꺼번에(동시에) 받아와서 저희가 직접 지역이름으로 걸러내요.
+  //             완벽하게 전체를 다 훑는 건 아니고(76만건이라 불가능), 최근
+  //             등록된 것들 중에서 찾은 만큼만 보여드리는 방식이에요.
+  if (req.query.type === 'regionSearch') {
+    const region = req.query.region || '';
+    if (!region) return res.status(400).json({ ok: false, message: '지역을 입력해 주세요.' });
+    const pageCount = parseInt(req.query.pages || '10', 10); // 기본 10페이지(=1000건) 훑어봄
+    const rowsPerPage = 100;
+
+    try {
+      const fetches = [];
+      for (let p = 1; p <= pageCount; p++) {
+        const pageUrl =
+          `https://apis.data.go.kr/B552474/SenuriService/getJobList` +
+          `?serviceKey=${encodeURIComponent(apiKey)}&pageNo=${p}&numOfRows=${rowsPerPage}`;
+        fetches.push(fetch(pageUrl).then(function(r) { return r.text(); }));
+      }
+      const pages = await Promise.all(fetches);
+      const allXml = pages.join('');
+      const itemMatches = allXml.match(/<item>([\s\S]*?)<\/item>/g) || [];
+
+      const workTypeMap = { 'CM0101':'정규직','CM0102':'계약직','CM0103':'파트타임','CM0104':'일용직','CM0105':'시간제','CM0106':'기타' };
+      function get(itemXml, tag) {
+        var m = itemXml.match(new RegExp('<' + tag + '[^>]*>([\\s\\S]*?)<\\/' + tag + '>'));
+        return m ? m[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim() : '';
+      }
+
+      const matched = [];
+      itemMatches.forEach(function(itemXml) {
+        const loc = get(itemXml, 'workPlcNm');
+        if (loc.includes(region)) {
+          const rawCode = get(itemXml, 'emplymShp') || get(itemXml, 'emplymShpNm');
+          matched.push({
+            id: get(itemXml, 'jobId'),
+            title: get(itemXml, 'recrtTitle'),
+            company: get(itemXml, 'oranNm'),
+            workType: workTypeMap[rawCode] || rawCode || '-',
+            location: loc,
+            startDate: get(itemXml, 'frDd'),
+            endDate: get(itemXml, 'toDd'),
+            deadline: get(itemXml, 'deadline'),
+          });
+        }
+      });
+
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      return res.status(200).json({
+        ok: true,
+        items: matched.filter(function(it){ return it.deadline === '접수중'; }),
+        searchedCount: itemMatches.length,
+        note: '최근 등록된 ' + itemMatches.length + '건 중에서 찾은 결과예요(전체를 다 훑은 건 아니에요)',
+      });
+    } catch (err) {
+      return res.status(500).json({ ok: false, message: '서버 오류: ' + err.message });
+    }
+  }
+
+
   // 메인화면 → 3개, 복지탭 → 10개 가져오도록 구분
   const numOfRows = req.query.numOfRows || '10';
   const pageNo   = req.query.pageNo   || '1';
