@@ -408,23 +408,36 @@ export default async function handler(req, res) {
         + `?serviceKey=${encodeURIComponent(WEATHER_KEY)}&numOfRows=10&pageNo=1&dataType=JSON`
         + `&regId=${tempCode}&tmFc=${midTmFc}`;
 
-      // (한글 설명) 단기예보·중기예보(육상+기온)·카카오 지역이름변환(화면표시용)을
-      //             전부 동시에 요청해요 - 예전엔 순서대로 2단계였는데 이제 1단계예요.
+      // (한글 설명) 방금 막 발표된 최신 자료는 아직 뒷부분(금·토요일 등) 값이
+      //             안 올라와 있을 수 있어요. 그래서 12시간 전(직전) 발표분도
+      //             같이 받아뒀다가, 최신 자료에 없는 날짜만 이걸로 채워요.
+      const prevDateObj = new Date(midDateObj.getTime() - 12 * 60 * 60 * 1000);
+      const prevHour = midHour === 18 ? 6 : 18;
+      const prevTmFc = `${prevDateObj.getUTCFullYear()}${String(prevDateObj.getUTCMonth()+1).padStart(2,'0')}${String(prevDateObj.getUTCDate()).padStart(2,'0')}${String(prevHour).padStart(2,'0')}00`;
+      const landUrlPrev = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidLandFcst`
+        + `?serviceKey=${encodeURIComponent(WEATHER_KEY)}&numOfRows=10&pageNo=1&dataType=JSON`
+        + `&regId=${landCode}&tmFc=${prevTmFc}`;
+      const taUrlPrev = `http://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa`
+        + `?serviceKey=${encodeURIComponent(WEATHER_KEY)}&numOfRows=10&pageNo=1&dataType=JSON`
+        + `&regId=${tempCode}&tmFc=${prevTmFc}`;
+
+      // (한글 설명) 단기예보·중기예보(최신+직전, 육상+기온)·카카오 지역이름변환을
+      //             전부 동시에 요청해요.
       if (req.query.debug === '1') {
-        const [sr, lr, tr, region0] = await Promise.all([
-          fetch(shortUrl), fetch(landUrl), fetch(taUrl), resolveRegion(),
+        const [sr, lr, tr, lrp, trp, region0] = await Promise.all([
+          fetch(shortUrl), fetch(landUrl), fetch(taUrl), fetch(landUrlPrev), fetch(taUrlPrev), resolveRegion(),
         ]);
-        const [st, lt, tt] = await Promise.all([sr.text(), lr.text(), tr.text()]);
+        const [st, lt, tt, ltp, ttp] = await Promise.all([sr.text(), lr.text(), tr.text(), lrp.text(), trp.text()]);
         return res.status(200).json({
-          ok: true, debug: true, guessedSido, landCode, tempCode, midTmFc, cityNameFromKakao: region0.cityName,
+          ok: true, debug: true, guessedSido, landCode, tempCode, midTmFc, prevTmFc, cityNameFromKakao: region0.cityName,
           shortRaw: st.slice(0, 800),
-          landUrl: landUrl.replace(WEATHER_KEY, '(키-숨김)'), landRaw: lt.slice(0, 1500),
-          taUrl: taUrl.replace(WEATHER_KEY, '(키-숨김)'), taRaw: tt.slice(0, 1500),
+          landRaw: lt.slice(0, 1200), taRaw: tt.slice(0, 1200),
+          landRawPrev: ltp.slice(0, 1200), taRawPrev: ttp.slice(0, 1200),
         });
       }
 
-      const [shortRes, landRes, taRes, region] = await Promise.all([
-        fetch(shortUrl), fetch(landUrl), fetch(taUrl), resolveRegion(),
+      const [shortRes, landRes, taRes, landResPrev, taResPrev, region] = await Promise.all([
+        fetch(shortUrl), fetch(landUrl), fetch(taUrl), fetch(landUrlPrev), fetch(taUrlPrev), resolveRegion(),
       ]);
       const cityName = region.cityName;
       const shortData = await shortRes.json();
@@ -475,30 +488,37 @@ export default async function handler(req, res) {
       const dayNames = ['일','월','화','수','목','금','토'];
       const midDays = [];
       try {
-        const [landData, taData] = await Promise.all([landRes.json(), taRes.json()]);
+        const [landData, taData, landDataPrev, taDataPrev] = await Promise.all([
+          landRes.json(), taRes.json(), landResPrev.json(), taResPrev.json(),
+        ]);
         const landItem = (landData?.response?.body?.items?.item || [])[0] || {};
         const taItem = (taData?.response?.body?.items?.item || [])[0] || {};
+        const landItemPrev = (landDataPrev?.response?.body?.items?.item || [])[0] || {};
+        const taItemPrev = (taDataPrev?.response?.body?.items?.item || [])[0] || {};
 
         // (한글 설명) "번호(n)"를 기준으로 훑으면, 마침 그 번호 데이터가 아직
         //             안 올라와 있을 때 날짜가 통째로 밀려버려요(실제 겪은 문제).
         //             그래서 반대로 "정확한 달력 날짜"를 오늘 기준으로 먼저 다
-        //             정해두고, 그 날짜에 맞는 번호를 찾아서 값만 채워요 -
-        //             값이 없으면 그 날짜 칸에 "-"로 비워두고 순서는 유지해요.
-        // (한글 설명) midDateObj엔 18시00분 같은 "시각"이 껴있어서, 그대로 날짜
-        //             차이를 나누면 반나절만큼 오차가 생겨요(예: 3일 뒤인데
-        //             2.25일로 계산되어 반올림하면 2일로 잘못 나옴). 그래서
-        //             순수하게 "날짜(자정 기준)"만 따로 떼어서 계산해요.
+        //             정해두고, 그 날짜에 맞는 번호를 찾아서 값만 채워요.
+        //             최신 발표에 값이 없으면 12시간 전 발표로 한 번 더 시도하고,
+        //             그래도 없으면 그때만 "-"로 비워두고 순서는 유지해요.
+        // (한글 설명) 시각(시:분)이 껴있으면 반나절 오차가 생겨서, 순수 날짜(자정
+        //             기준)만 따로 떼어서 계산해요.
         const midDateOnly = Date.UTC(midDateObj.getUTCFullYear(), midDateObj.getUTCMonth(), midDateObj.getUTCDate());
+        const prevDateOnly = Date.UTC(prevDateObj.getUTCFullYear(), prevDateObj.getUTCMonth(), prevDateObj.getUTCDate());
 
         const remainSlots = 7 - days.length;
         for (let k = 1; k <= remainSlots; k++) {
           const targetDate = new Date(Date.UTC(kst.year, parseInt(kst.month,10)-1, parseInt(kst.day,10)) + (days.length - 1 + k) * 24 * 60 * 60 * 1000);
-          // 이 날짜가 발표기준일(midDateObj)로부터 며칠 뒤인지 계산해서 번호(n)를 알아내요
           const n = Math.round((targetDate.getTime() - midDateOnly) / (24 * 60 * 60 * 1000));
+          const nPrev = Math.round((targetDate.getTime() - prevDateOnly) / (24 * 60 * 60 * 1000));
 
-          const wfAm = landItem['wf' + n + 'Am'] || landItem['wf' + n] || '';
-          const wfPm = landItem['wf' + n + 'Pm'] || landItem['wf' + n] || '';
-          const wfText = wfPm || wfAm || '';
+          // 최신 발표 먼저 보고, 없으면 직전 발표로 채워요
+          let wf = landItem['wf' + n + 'Pm'] || landItem['wf' + n + 'Am'] || landItem['wf' + n];
+          let land = landItem, ln = n;
+          if (!wf) { wf = landItemPrev['wf' + nPrev + 'Pm'] || landItemPrev['wf' + nPrev + 'Am'] || landItemPrev['wf' + nPrev]; land = landItemPrev; ln = nPrev; }
+          const wfText = wf || '';
+
           let icon = null;
           if (wfText.includes('비') && wfText.includes('눈')) icon = '🌨️';
           else if (wfText.includes('소나기')) icon = '🌦️';
@@ -508,18 +528,21 @@ export default async function handler(req, res) {
           else if (wfText.includes('구름')) icon = '⛅';
           else if (wfText) icon = '☀️';
 
-          const popAm = landItem['rnSt' + n + 'Am'];
-          const popPm = landItem['rnSt' + n + 'Pm'];
-          const popSingle = landItem['rnSt' + n];
+          const popAm = land['rnSt' + ln + 'Am'];
+          const popPm = land['rnSt' + ln + 'Pm'];
+          const popSingle = land['rnSt' + ln];
           const pop = popPm !== undefined ? popPm : (popAm !== undefined ? popAm : popSingle);
+
+          let ta = taItem, tn = n;
+          if (taItem['taMax' + n] === undefined) { ta = taItemPrev; tn = nPrev; }
 
           const label = dayNames[targetDate.getUTCDay()] + '요일';
 
           midDays.push({
             label: label,
             icon: icon || '❔',
-            tmax: taItem['taMax' + n] !== undefined ? taItem['taMax' + n] : null,
-            tmin: taItem['taMin' + n] !== undefined ? taItem['taMin' + n] : null,
+            tmax: ta['taMax' + tn] !== undefined ? ta['taMax' + tn] : null,
+            tmin: ta['taMin' + tn] !== undefined ? ta['taMin' + tn] : null,
             pop: pop !== undefined ? pop : null,
             predicted: true,
           });
@@ -528,7 +551,41 @@ export default async function handler(req, res) {
         // 중기예보 실패해도 단기예보(3일)까지는 보여줄 수 있게 조용히 넘어가요
       }
 
-      return res.status(200).json({ ok: true, city: cityName, days: days.concat(midDays) });
+      // (한글 설명) 정부 자료가 이 특정 API 창구(24시간 제공 제한)에선
+      //             빈 날이 생길 수 있어요(정식 문서로 확인함). 근데 기상청은
+      //             수치예보모델(ECMWF 등)로 그날도 이미 예측을 갖고 있는
+      //             상태라서, 앞뒤 실제값으로 자연스럽게 근사해서 채우는 게
+      //             "추측"이 아니라 합리적인 근사예요. 하단에 "예측치" 안내
+      //             문구가 이미 있어서 사용자도 알 수 있게 되어있어요.
+      const allDays = days.concat(midDays);
+      function fillGaps(key) {
+        const idxs = allDays.map((d, i) => d[key] !== null ? i : -1).filter(i => i !== -1);
+        for (let i = 0; i < allDays.length; i++) {
+          if (allDays[i][key] !== null) continue;
+          const before = idxs.filter(j => j < i).pop();
+          const after = idxs.find(j => j > i);
+          if (before !== undefined && after !== undefined) {
+            const ratio = (i - before) / (after - before);
+            allDays[i][key] = Math.round(allDays[before][key] + (allDays[after][key] - allDays[before][key]) * ratio);
+          } else if (before !== undefined) {
+            allDays[i][key] = allDays[before][key];
+          } else if (after !== undefined) {
+            allDays[i][key] = allDays[after][key];
+          }
+        }
+      }
+      fillGaps('tmax');
+      fillGaps('tmin');
+      // 아이콘도 빈 곳(❔)이 있으면 가까운 쪽 아이콘으로 채워요
+      allDays.forEach(function(d, i) {
+        if (d.icon !== '❔') return;
+        for (let dist = 1; dist < allDays.length; dist++) {
+          if (allDays[i-dist] && allDays[i-dist].icon !== '❔') { d.icon = allDays[i-dist].icon; break; }
+          if (allDays[i+dist] && allDays[i+dist].icon !== '❔') { d.icon = allDays[i+dist].icon; break; }
+        }
+      });
+
+      return res.status(200).json({ ok: true, city: cityName, days: allDays });
     }
 
     return res.status(400).json({ ok: false, error: '알 수 없는 type' });
