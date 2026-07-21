@@ -17,13 +17,17 @@ export default async function handler(req, res) {
   // 메인화면 → 3개, 복지탭 → 10개 가져오도록 구분
   const numOfRows = req.query.numOfRows || '10';
   const pageNo   = req.query.pageNo   || '1';
+  // (한글 설명) 정식 활용가이드로 새로 확인한 지역 필터 - 근무지명(예: "수원시")으로
+  //             걸러서 요청할 수 있어요. 없으면 전국 전체가 나와요.
+  const workPlcNm = req.query.workPlcNm || '';
 
   // ③ API 요청 주소 조립
   const url =
     `https://apis.data.go.kr/B552474/SenuriService/getJobList` +
     `?serviceKey=${encodeURIComponent(apiKey)}` +
     `&pageNo=${pageNo}` +
-    `&numOfRows=${numOfRows}`;
+    `&numOfRows=${numOfRows}` +
+    (workPlcNm ? `&workPlcNm=${encodeURIComponent(workPlcNm)}` : '');
 
   try {
     // ④ 노인인력개발원 서버에 데이터 요청
