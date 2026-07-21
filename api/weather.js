@@ -21,8 +21,16 @@ const STATIONS = [["퇴계동", "127.7421806", "37.8431778"], ["신사우동", "
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
-  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
-  res.setHeader('Pragma', 'no-cache');
+  // (한글 설명) 예전엔 "절대 캐싱 금지"였는데, 날씨·미세먼지는 1~2분 사이에
+  //             급변하는 정보가 아니라서 5분 정도는 캐싱해도 괜찮아요.
+  //             캐싱을 허용하면 같은 지역을 다시 보거나 근처 사용자가 볼 때
+  //             정부서버를 다시 거치지 않고 Vercel이 바로 응답해줘서 훨씬 빨라요.
+  //             (debug 모드는 항상 최신 확인이 필요하니 캐싱 안 함)
+  if (req.query.debug === '1') {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  } else {
+    res.setHeader('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+  }
 
   const WEATHER_KEY = process.env.WEATHER_API_KEY;
   const KAKAO_KEY   = process.env.KAKAO_API_KEY;
@@ -33,8 +41,12 @@ export default async function handler(req, res) {
   }
 
   const type = req.query.type || 'current';
-  const lat = parseFloat(req.query.lat) || 37.5665;
-  const lon = parseFloat(req.query.lon) || 126.9780;
+  // (한글 설명) GPS는 사람마다 미세하게 다 달라서(소수점 4~6자리까지),
+  //             그대로 쓰면 캐시가 거의 안 맞아떨어져요. 소수점 2자리(약 1km
+  //             오차)로 뭉뚱그리면 근처 사람들끼리 캐시를 같이 쓸 수 있어요.
+  //             날씨는 1km 정도 차이로 결과가 달라지지 않으니 안전해요.
+  const lat = Math.round((parseFloat(req.query.lat) || 37.5665) * 100) / 100;
+  const lon = Math.round((parseFloat(req.query.lon) || 126.9780) * 100) / 100;
 
   // ── 공통 함수: GPS → 카카오 주소변환 ──
   async function resolveRegion() {
