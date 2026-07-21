@@ -479,30 +479,34 @@ export default async function handler(req, res) {
         const landItem = (landData?.response?.body?.items?.item || [])[0] || {};
         const taItem = (taData?.response?.body?.items?.item || [])[0] || {};
 
-        // (한글 설명) 발표시각(06시/18시)에 따라 필드 번호가 4번부터 시작할 때도,
-        //             5번부터 시작할 때도 있어요(실제 테스트로 확인함) - 번호를
-        //             고정하지 말고, 그 번호가 실제 "며칠 뒤"인지 발표시각
-        //             기준일(midDateObj)로 직접 계산해서 요일을 정확히 맞춰요.
-        const usedDates = new Set(dates); // 이미 단기예보로 보여준 날짜(YYYYMMDD)는 건너뛰어요
-        for (let n = 2; n <= 10 && midDays.length < (7 - days.length); n++) {
-          const hasData = taItem['taMax' + n] !== undefined || landItem['wf' + n + 'Am'] !== undefined || landItem['wf' + n] !== undefined;
-          if (!hasData) continue;
+        // (한글 설명) "번호(n)"를 기준으로 훑으면, 마침 그 번호 데이터가 아직
+        //             안 올라와 있을 때 날짜가 통째로 밀려버려요(실제 겪은 문제).
+        //             그래서 반대로 "정확한 달력 날짜"를 오늘 기준으로 먼저 다
+        //             정해두고, 그 날짜에 맞는 번호를 찾아서 값만 채워요 -
+        //             값이 없으면 그 날짜 칸에 "-"로 비워두고 순서는 유지해요.
+        // (한글 설명) midDateObj엔 18시00분 같은 "시각"이 껴있어서, 그대로 날짜
+        //             차이를 나누면 반나절만큼 오차가 생겨요(예: 3일 뒤인데
+        //             2.25일로 계산되어 반올림하면 2일로 잘못 나옴). 그래서
+        //             순수하게 "날짜(자정 기준)"만 따로 떼어서 계산해요.
+        const midDateOnly = Date.UTC(midDateObj.getUTCFullYear(), midDateObj.getUTCMonth(), midDateObj.getUTCDate());
 
-          const targetDate = new Date(midDateObj.getTime() + n * 24 * 60 * 60 * 1000);
-          const targetDateStr = `${targetDate.getUTCFullYear()}${String(targetDate.getUTCMonth()+1).padStart(2,'0')}${String(targetDate.getUTCDate()).padStart(2,'0')}`;
-          if (usedDates.has(targetDateStr)) continue; // 단기예보랑 겹치는 날짜면 건너뛰어요
-          usedDates.add(targetDateStr);
+        const remainSlots = 7 - days.length;
+        for (let k = 1; k <= remainSlots; k++) {
+          const targetDate = new Date(Date.UTC(kst.year, parseInt(kst.month,10)-1, parseInt(kst.day,10)) + (days.length - 1 + k) * 24 * 60 * 60 * 1000);
+          // 이 날짜가 발표기준일(midDateObj)로부터 며칠 뒤인지 계산해서 번호(n)를 알아내요
+          const n = Math.round((targetDate.getTime() - midDateOnly) / (24 * 60 * 60 * 1000));
 
           const wfAm = landItem['wf' + n + 'Am'] || landItem['wf' + n] || '';
           const wfPm = landItem['wf' + n + 'Pm'] || landItem['wf' + n] || '';
           const wfText = wfPm || wfAm || '';
-          let icon = '☀️';
+          let icon = null;
           if (wfText.includes('비') && wfText.includes('눈')) icon = '🌨️';
           else if (wfText.includes('소나기')) icon = '🌦️';
           else if (wfText.includes('비')) icon = '🌧️';
           else if (wfText.includes('눈')) icon = '❄️';
           else if (wfText.includes('흐림')) icon = '☁️';
           else if (wfText.includes('구름')) icon = '⛅';
+          else if (wfText) icon = '☀️';
 
           const popAm = landItem['rnSt' + n + 'Am'];
           const popPm = landItem['rnSt' + n + 'Pm'];
@@ -513,7 +517,7 @@ export default async function handler(req, res) {
 
           midDays.push({
             label: label,
-            icon: icon,
+            icon: icon || '❔',
             tmax: taItem['taMax' + n] !== undefined ? taItem['taMax' + n] : null,
             tmin: taItem['taMin' + n] !== undefined ? taItem['taMin' + n] : null,
             pop: pop !== undefined ? pop : null,
