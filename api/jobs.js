@@ -53,8 +53,8 @@ export default async function handler(req, res) {
   if (req.query.type === 'regionSearch') {
     const region = req.query.region || '';
     if (!region) return res.status(400).json({ ok: false, message: '지역을 입력해 주세요.' });
-    const pageCount = parseInt(req.query.pages || '10', 10); // 기본 10페이지(=1000건) 훑어봄
-    const rowsPerPage = 100;
+    const pageCount = parseInt(req.query.pages || '10', 10); // 기본 10페이지
+    const rowsPerPage = parseInt(req.query.rowsPerPage || '100', 10); // 한 페이지당 몇 건(테스트용으로 조절 가능)
 
     try {
       const fetches = [];
@@ -67,6 +67,21 @@ export default async function handler(req, res) {
       const pages = await Promise.all(fetches);
       const allXml = pages.join('');
       const itemMatches = allXml.match(/<item>([\s\S]*?)<\/item>/g) || [];
+
+      if (req.query.debug === '1') {
+        // (한글 설명) 페이지 하나하나 실제로 몇 건씩 왔는지, resultCode는 정상인지 확인용
+        const perPageInfo = pages.map(function(pXml, idx) {
+          const its = pXml.match(/<item>([\s\S]*?)<\/item>/g) || [];
+          const rc = pXml.match(/<resultCode>([\s\S]*?)<\/resultCode>/);
+          return { page: idx + 1, itemCount: its.length, resultCode: rc ? rc[1] : '?' };
+        });
+        return res.status(200).json({
+          ok: true, debug: true,
+          requestedRowsPerPage: rowsPerPage, requestedPages: pageCount,
+          totalItemsReceived: itemMatches.length,
+          perPageInfo: perPageInfo,
+        });
+      }
 
       const workTypeMap = { 'CM0101':'정규직','CM0102':'계약직','CM0103':'파트타임','CM0104':'일용직','CM0105':'시간제','CM0106':'기타' };
       function get(itemXml, tag) {
