@@ -96,7 +96,6 @@ export default async function handler(req, res) {
     // [기본] 현재 날씨 (기존 기능, 100% 그대로 유지)
     // ════════════════════════════════════════════
     if (type === 'current') {
-      const { cityName } = await resolveRegion();
       const { nx, ny } = latLonToGrid(lat, lon);
       const kst = getKst();
 
@@ -117,7 +116,8 @@ export default async function handler(req, res) {
         + `?serviceKey=${encodeURIComponent(WEATHER_KEY)}&pageNo=1&numOfRows=100&dataType=JSON`
         + `&base_date=${baseDate}&base_time=${baseTime}&nx=${nx}&ny=${ny}`;
 
-      const apiRes = await fetch(url);
+      const [region, apiRes] = await Promise.all([resolveRegion(), fetch(url)]);
+      const cityName = region.cityName;
       const apiData = await apiRes.json();
       const items = apiData?.response?.body?.items?.item;
       if (!items || items.length === 0) return res.status(200).json({ ok: false, error: '날씨 데이터 없음' });
@@ -243,11 +243,10 @@ export default async function handler(req, res) {
       const addrCandidates = [sidoShort, SIDO_ABBR[sidoShort], SIDO_ABBR[sido], sigu].filter(Boolean);
       const uniqueAddrs = [...new Set(addrCandidates)];
 
-      // (한글 설명) TM좌표 변환 없이, 지역 이름으로 그 근처 측정소들을 검색해서
-      //             WGS84 좌표(GPS와 같은 방식)로 제일 가까운 곳을 직접 골라요.
-      let stations = [];
-      let usedAddr = '';
-      for (const addr of uniqueAddrs) {
+      // (한글 설명) TM좌표 변환 없이, 지역 이름으로 그 근처 측정소들을 검색해요.
+      //             예전엔 전체이름→줄임말→시군구 순서로 하나씩 기다리며 시도해서
+      //             느렸는데, 이제 전부 동시에 요청해두고 우선순위대로 골라요.
+      const addrResults = await Promise.all(uniqueAddrs.map(async function(addr) {
         const listUrl = `http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getMsrstnList`
           + `?serviceKey=${encodeURIComponent(DUST_KEY)}&returnType=json&numOfRows=100&pageNo=1`
           + `&addr=${encodeURIComponent(addr)}&ver=1.1`;
@@ -255,8 +254,15 @@ export default async function handler(req, res) {
           const listRes = await fetch(listUrl);
           const listData = await listRes.json();
           const items = listData?.response?.body?.items || [];
-          if (items.length) { stations = items; usedAddr = addr; break; }
-        } catch (e) { /* 다음 후보로 넘어가요 */ }
+          return { addr, items };
+        } catch (e) {
+          return { addr, items: [] };
+        }
+      }));
+      let stations = [];
+      let usedAddr = '';
+      for (const r of addrResults) {
+        if (r.items.length) { stations = r.items; usedAddr = r.addr; break; }
       }
 
       if (!stations.length) return res.status(200).json({ ok: false, error: '측정소를 찾을 수 없어요', city: cityName, tried: uniqueAddrs });
@@ -331,7 +337,6 @@ export default async function handler(req, res) {
     // [weekly] 일주일 날씨 (오늘~3일 단기예보 + 4~7일 중기예보)
     // ════════════════════════════════════════════
     if (type === 'weekly') {
-      const { sido, sigu, cityName } = await resolveRegion();
       const { nx, ny } = latLonToGrid(lat, lon);
       const kst = getKst();
 
@@ -353,7 +358,11 @@ export default async function handler(req, res) {
         + `?serviceKey=${encodeURIComponent(WEATHER_KEY)}&pageNo=1&numOfRows=1000&dataType=JSON`
         + `&base_date=${baseDate}&base_time=${baseTime}&nx=${nx}&ny=${ny}`;
 
-      const shortRes = await fetch(shortUrl);
+      // (한글 설명) 지역이름 변환(카카오)이랑 단기예보 조회는 서로 필요한 게
+      //             달라서(단기예보는 nx/ny만 있으면 됨) 굳이 순서대로 기다릴
+      //             필요가 없어요 - 동시에 요청해서 속도를 줄여요.
+      const [region, shortRes] = await Promise.all([resolveRegion(), fetch(shortUrl)]);
+      const { sido, sigu, cityName } = region;
       const shortData = await shortRes.json();
       const shortItems = shortData?.response?.body?.items?.item || [];
 
