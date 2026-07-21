@@ -32,6 +32,21 @@ export default async function handler(req, res) {
     // ⑤ 응답이 XML 형식이므로 텍스트로 받기
     const xmlText = await response.text();
 
+    // (한글 설명) 진단용 - 전체 공고 수와 지역 분포를 확인하고 싶을 때
+    //             ?debug=1 을 붙이면 원본 그대로 보여줘요.
+    if (req.query.debug === '1') {
+      const totalCountMatch = xmlText.match(/<totalCount>(\d+)<\/totalCount>/);
+      const workPlcMatches = xmlText.match(/<workPlcNm>([\s\S]*?)<\/workPlcNm>/g) || [];
+      const workPlcList = workPlcMatches.map(function(m) { return m.replace(/<\/?workPlcNm>/g, ''); });
+      return res.status(200).json({
+        ok: true, debug: true,
+        requestUrl: url.replace(apiKey, '(키-숨김)'),
+        totalCount: totalCountMatch ? totalCountMatch[1] : '확인불가',
+        thisPageCount: workPlcList.length,
+        workPlcSample: workPlcList,
+      });
+    }
+
     // ⑥ XML에서 <item> 태그 하나씩 꺼내기
     const itemMatches = xmlText.match(/<item>([\s\S]*?)<\/item>/g) || [];
 
