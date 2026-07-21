@@ -286,10 +286,11 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, debug: true, usedAddr, triedAddrs: uniqueAddrs, candidateStations: sorted.map(s => s.stationName), requestUrl: rtUrl0.replace(DUST_KEY, '(키-숨김)'), rawSample: t.slice(0, 2000) });
       }
 
-      // (한글 설명) 제일 가까운 곳부터 순서대로 시도해서, 데이터가 있는 첫 측정소를 써요
-      //             (활용가이드에 "측정소 현지 사정에 따라 미수신될 수 있음"이라고 명시돼있어요).
-      let latest = null, usedStation = null;
-      for (const st of sorted) {
+      // (한글 설명) 예전엔 가까운 곳부터 하나씩 순서대로 기다리면서 시도해서 느렸어요.
+      //             이제 5곳을 동시에 다 요청하고, 그중 제일 가까우면서 데이터
+      //             있는 곳을 골라요(활용가이드에 "측정소 현지 사정에 따라
+      //             미수신될 수 있음"이라고 명시돼있어서 여러 곳을 봐야 함).
+      const stationResults = await Promise.all(sorted.map(async function(st) {
         const rtUrl = `http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty`
           + `?serviceKey=${encodeURIComponent(DUST_KEY)}&returnType=json&numOfRows=1&pageNo=1`
           + `&stationName=${encodeURIComponent(st.stationName)}&dataTerm=DAILY&ver=1.3`;
@@ -297,10 +298,14 @@ export default async function handler(req, res) {
           const rtRes = await fetch(rtUrl);
           const rtData = await rtRes.json();
           const item = (rtData?.response?.body?.items || [])[0];
-          if (item && item.pm10Value && item.pm10Value !== '-') {
-            latest = item; usedStation = st.stationName; break;
-          }
-        } catch (e) { /* 다음 측정소로 넘어가요 */ }
+          return { stationName: st.stationName, item: (item && item.pm10Value && item.pm10Value !== '-') ? item : null };
+        } catch (e) {
+          return { stationName: st.stationName, item: null };
+        }
+      }));
+      let latest = null, usedStation = null;
+      for (const r of stationResults) {
+        if (r.item) { latest = r.item; usedStation = r.stationName; break; }
       }
 
       if (!latest) return res.status(200).json({ ok: false, error: '주변 측정소에 데이터가 아직 없어요', city: cityName });
