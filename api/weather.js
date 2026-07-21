@@ -228,6 +228,25 @@ export default async function handler(req, res) {
     // ════════════════════════════════════════════
     // [dust] 미세먼지·초미세먼지 실시간 정보
     // ════════════════════════════════════════════
+    // (한글 설명) 미세먼지 속도개선용 - 전국 측정소를 한번에 다 받아올 수
+    //             있는지 테스트하는 기능. 되면 이걸 코드에 캐싱해서
+    //             매번 검색 안 해도 되게 만들 예정.
+    if (type === 'allStations') {
+      if (!DUST_KEY) return res.status(200).json({ ok: false, error: '미세먼지 API 키 없음' });
+      const listUrl = `http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getMsrstnList`
+        + `?serviceKey=${encodeURIComponent(DUST_KEY)}&returnType=json&numOfRows=1000&pageNo=1`
+        + `&addr=&ver=1.1`;
+      const listRes = await fetch(listUrl);
+      const listData = await listRes.json();
+      const items = listData?.response?.body?.items || [];
+      return res.status(200).json({
+        ok: true,
+        totalCount: listData?.response?.body?.totalCount || '확인불가',
+        count: items.length,
+        sample: items.slice(0, 5),
+      });
+    }
+
     if (type === 'dust') {
       if (!DUST_KEY) return res.status(200).json({ ok: false, error: '미세먼지 API 키 없음' });
       const { sido, sigu, cityName } = await resolveRegion();
