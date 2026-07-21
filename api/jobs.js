@@ -81,11 +81,15 @@ export default async function handler(req, res) {
       const workPlcList = workPlcMatches.map(function(m) { return m.replace(/<\/?workPlcNm>/g, ''); });
       const workPlcCodeMatches = xmlText.match(/<workPlc>([\s\S]*?)<\/workPlc>/g) || [];
       const workPlcCodeList = workPlcCodeMatches.map(function(m) { return m.replace(/<\/?workPlc>/g, ''); });
+      const deadlineMatches = xmlText.match(/<deadline>([\s\S]*?)<\/deadline>/g) || [];
+      const deadlineList = deadlineMatches.map(function(m) { return m.replace(/<\/?deadline>/g, ''); });
+      const acceptingCount = deadlineList.filter(function(d) { return d === '접수중'; }).length;
       return res.status(200).json({
         ok: true, debug: true,
         requestUrl: url.replace(apiKey, '(키-숨김)'),
         totalCount: totalCountMatch ? totalCountMatch[1] : '확인불가',
         thisPageCount: workPlcList.length,
+        acceptingCount: acceptingCount + ' / ' + deadlineList.length + ' (이 페이지 안에서 접수중 비율)',
         workPlcSample: workPlcList,
         workPlcCodeSample: workPlcCodeList,
         rawXmlSample: xmlText.slice(0, 3000),
