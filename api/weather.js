@@ -239,6 +239,11 @@ export default async function handler(req, res) {
       const listRes = await fetch(listUrl);
       const listData = await listRes.json();
       const items = listData?.response?.body?.items || [];
+      if (req.query.full === '1') {
+        // (한글 설명) 코드에 캐싱해서 넣을 최소 정보(이름+좌표)만 간결하게 뽑아요.
+        const compact = items.map(function(s) { return [s.stationName, s.dmX, s.dmY]; });
+        return res.status(200).json({ ok: true, count: compact.length, stations: compact });
+      }
       return res.status(200).json({
         ok: true,
         totalCount: listData?.response?.body?.totalCount || '확인불가',
