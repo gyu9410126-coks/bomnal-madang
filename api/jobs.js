@@ -13,6 +13,39 @@ export default async function handler(req, res) {
     return res.status(500).json({ ok: false, message: 'API 키가 설정되지 않았습니다.' });
   }
 
+  // (한글 설명) 지역코드 조회 전용 기능 - 시도/시군구 코드를 확인할 때 씀
+  if (req.query.type === 'areaCodes') {
+    const paramType = req.query.paramType || 'A'; // A:시도, B:시군구
+    const contRegnStr1 = req.query.contRegnStr1 || '';
+    const codeUrl =
+      `https://apis.data.go.kr/B552474/OdsnCodeInquiryService2/getOdsnAreaCodeInquiryList2` +
+      `?serviceKey=${encodeURIComponent(apiKey)}` +
+      `&numOfRows=${req.query.numOfRows || '200'}&pageNo=1` +
+      `&paramType=${paramType}` +
+      (contRegnStr1 ? `&contRegnStr1=${encodeURIComponent(contRegnStr1)}` : '');
+    try {
+      const r = await fetch(codeUrl);
+      const t = await r.text();
+      if (req.query.debug === '1') {
+        return res.status(200).json({ ok: true, debug: true, requestUrl: codeUrl.replace(apiKey, '(키-숨김)'), rawXmlSample: t.slice(0, 3000) });
+      }
+      const itemMatches = t.match(/<item>([\s\S]*?)<\/item>/g) || [];
+      const codes = itemMatches.map(function(itemXml) {
+        function get(tag) {
+          var m = itemXml.match(new RegExp('<' + tag + '[^>]*>([\\s\\S]*?)<\\/' + tag + '>'));
+          return m ? m[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim() : '';
+        }
+        return {
+          code1: get('contRegnStr1Code'), name1: get('contRegnStr1Name'),
+          code2: get('contRegnStr2Code'), name2: get('contRegnStr2Name'),
+        };
+      });
+      return res.status(200).json({ ok: true, codes: codes });
+    } catch (err) {
+      return res.status(500).json({ ok: false, message: '서버 오류: ' + err.message });
+    }
+  }
+
   // ② 쿼리 파라미터에서 페이지 번호 받기 (기본값 1페이지)
   // 메인화면 → 3개, 복지탭 → 10개 가져오도록 구분
   const numOfRows = req.query.numOfRows || '10';
@@ -20,6 +53,9 @@ export default async function handler(req, res) {
   // (한글 설명) 정식 활용가이드로 새로 확인한 지역 필터 - 근무지명(예: "수원시")으로
   //             걸러서 요청할 수 있어요. 없으면 전국 전체가 나와요.
   const workPlcNm = req.query.workPlcNm || '';
+  // (한글 설명) workPlcNm(이름)이 실제로는 안 먹혀서, 결과에 있던 숫자코드(workPlc)로도
+  //             테스트해볼 수 있게 추가함(문서엔 없지만 혹시 몰라서).
+  const workPlc = req.query.workPlc || '';
 
   // ③ API 요청 주소 조립
   const url =
@@ -27,7 +63,8 @@ export default async function handler(req, res) {
     `?serviceKey=${encodeURIComponent(apiKey)}` +
     `&pageNo=${pageNo}` +
     `&numOfRows=${numOfRows}` +
-    (workPlcNm ? `&workPlcNm=${encodeURIComponent(workPlcNm)}` : '');
+    (workPlcNm ? `&workPlcNm=${encodeURIComponent(workPlcNm)}` : '') +
+    (workPlc ? `&workPlc=${encodeURIComponent(workPlc)}` : '');
 
   try {
     // ④ 노인인력개발원 서버에 데이터 요청
@@ -42,12 +79,15 @@ export default async function handler(req, res) {
       const totalCountMatch = xmlText.match(/<totalCount>(\d+)<\/totalCount>/);
       const workPlcMatches = xmlText.match(/<workPlcNm>([\s\S]*?)<\/workPlcNm>/g) || [];
       const workPlcList = workPlcMatches.map(function(m) { return m.replace(/<\/?workPlcNm>/g, ''); });
+      const workPlcCodeMatches = xmlText.match(/<workPlc>([\s\S]*?)<\/workPlc>/g) || [];
+      const workPlcCodeList = workPlcCodeMatches.map(function(m) { return m.replace(/<\/?workPlc>/g, ''); });
       return res.status(200).json({
         ok: true, debug: true,
         requestUrl: url.replace(apiKey, '(키-숨김)'),
         totalCount: totalCountMatch ? totalCountMatch[1] : '확인불가',
         thisPageCount: workPlcList.length,
         workPlcSample: workPlcList,
+        workPlcCodeSample: workPlcCodeList,
         rawXmlSample: xmlText.slice(0, 3000),
       });
     }
