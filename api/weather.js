@@ -479,7 +479,20 @@ export default async function handler(req, res) {
         const landItem = (landData?.response?.body?.items?.item || [])[0] || {};
         const taItem = (taData?.response?.body?.items?.item || [])[0] || {};
 
-        for (let n = 4; n <= 7; n++) {
+        // (한글 설명) 발표시각(06시/18시)에 따라 필드 번호가 4번부터 시작할 때도,
+        //             5번부터 시작할 때도 있어요(실제 테스트로 확인함) - 번호를
+        //             고정하지 말고, 그 번호가 실제 "며칠 뒤"인지 발표시각
+        //             기준일(midDateObj)로 직접 계산해서 요일을 정확히 맞춰요.
+        const usedDates = new Set(dates); // 이미 단기예보로 보여준 날짜(YYYYMMDD)는 건너뛰어요
+        for (let n = 2; n <= 10 && midDays.length < (7 - days.length); n++) {
+          const hasData = taItem['taMax' + n] !== undefined || landItem['wf' + n + 'Am'] !== undefined || landItem['wf' + n] !== undefined;
+          if (!hasData) continue;
+
+          const targetDate = new Date(midDateObj.getTime() + n * 24 * 60 * 60 * 1000);
+          const targetDateStr = `${targetDate.getUTCFullYear()}${String(targetDate.getUTCMonth()+1).padStart(2,'0')}${String(targetDate.getUTCDate()).padStart(2,'0')}`;
+          if (usedDates.has(targetDateStr)) continue; // 단기예보랑 겹치는 날짜면 건너뛰어요
+          usedDates.add(targetDateStr);
+
           const wfAm = landItem['wf' + n + 'Am'] || landItem['wf' + n] || '';
           const wfPm = landItem['wf' + n + 'Pm'] || landItem['wf' + n] || '';
           const wfText = wfPm || wfAm || '';
@@ -496,7 +509,6 @@ export default async function handler(req, res) {
           const popSingle = landItem['rnSt' + n];
           const pop = popPm !== undefined ? popPm : (popAm !== undefined ? popAm : popSingle);
 
-          const targetDate = new Date(kst.dateObj.getTime() + (n - (kst.hour < 6 ? 1 : 0)) * 24 * 60 * 60 * 1000);
           const label = dayNames[targetDate.getUTCDay()] + '요일';
 
           midDays.push({
