@@ -48,6 +48,7 @@ export default async function handler(req, res) {
         totalCount: totalCountMatch ? totalCountMatch[1] : '확인불가',
         thisPageCount: workPlcList.length,
         workPlcSample: workPlcList,
+        rawXmlSample: xmlText.slice(0, 3000),
       });
     }
 
