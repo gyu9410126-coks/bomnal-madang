@@ -63,17 +63,26 @@ export default async function handler(req, res) {
   if (req.query.type === 'regionSearch') {
     const region = req.query.region || '';
     if (!region) return res.status(400).json({ ok: false, message: '지역을 입력해 주세요.' });
-    const pageCount = parseInt(req.query.pages || '30', 10); // 기본 30페이지 (1000건씩 = 총 30,000건, 결과 부족 문제로 확대)
+    const pageCount = parseInt(req.query.pages || '50', 10); // 기본 50페이지 (1000건씩 = 총 50,000건)
     const rowsPerPage = parseInt(req.query.rowsPerPage || '1000', 10); // 한 페이지당 1000건(실제 테스트로 확인된 안전값)
-    // (한글 설명) 전체는 약 76만건(1000건씩 약 762페이지)이에요. 앞쪽 페이지만
-    //             계속 훑으면, 혹시 등록 순서상 특정 지역이 뒤쪽에 몰려있을 때
-    //             계속 못 찾을 수 있어요. 그래서 앞부터 순서대로가 아니라,
-    //             전체 762페이지 범위에 걸쳐 골고루 페이지를 뽑아서 봐요.
-    const TOTAL_PAGES_ESTIMATE = 762;
+    // (한글 설명) [중요] 뒷페이지(700번대 등)로 갈수록 정부 서버 응답이 훨씬
+    //             느려지는 걸 실제로 확인했어요(데이터베이스가 뒤 페이지일수록
+    //             찾는 데 시간이 오래 걸리는 흔한 현상). "골고루 뽑기"는
+    //             오히려 느려지고 일부는 응답 실패로 결과도 줄어서, 다시
+    //             앞쪽 페이지부터 순서대로(빠르고 확실한 방식) 가요. 대신
+    //             페이지 수를 30→50으로 늘려서 좀 더 넓게 봐요.
     const pageNumbers = [];
-    for (let i = 0; i < pageCount; i++) {
-      const p = Math.floor(1 + (i * (TOTAL_PAGES_ESTIMATE - 1)) / Math.max(pageCount - 1, 1));
-      pageNumbers.push(p);
+    for (let p = 1; p <= pageCount; p++) pageNumbers.push(p);
+
+    // (한글 설명) 혹시 일부 페이지 요청이 아주 오래 걸리면 전체가 다 같이
+    //             느려지니, 8초 넘으면 그 페이지는 포기하고 있는 것만으로 진행해요.
+    function fetchWithTimeout(url, ms) {
+      const controller = new AbortController();
+      const timer = setTimeout(function(){ controller.abort(); }, ms);
+      return fetch(url, { signal: controller.signal })
+        .then(function(r){ return r.text(); })
+        .catch(function(){ return ''; })
+        .finally(function(){ clearTimeout(timer); });
     }
 
     try {
@@ -82,7 +91,7 @@ export default async function handler(req, res) {
         const pageUrl =
           `https://apis.data.go.kr/B552474/SenuriService/getJobList` +
           `?serviceKey=${encodeURIComponent(apiKey)}&pageNo=${p}&numOfRows=${rowsPerPage}`;
-        fetches.push(fetch(pageUrl).then(function(r) { return r.text(); }));
+        fetches.push(fetchWithTimeout(pageUrl, 8000));
       });
       const pages = await Promise.all(fetches);
       const allXml = pages.join('');
