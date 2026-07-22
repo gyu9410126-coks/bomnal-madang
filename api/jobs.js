@@ -5,6 +5,16 @@
 
 export default async function handler(req, res) {
 
+  // (한글 설명) 채용정보는 1초마다 바뀌는 게 아니라서, 3분 정도는 캐싱해도
+  //             괜찮아요. 캐싱하면 같은 지역을 다시 검색할 때 정부서버를
+  //             다시 거치지 않고 Vercel이 훨씬 빠르게 바로 응답해줘요.
+  //             (debug 모드는 항상 최신 확인이 필요하니 캐싱 안 함)
+  if (req.query.debug === '1') {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  } else {
+    res.setHeader('Cache-Control', 'public, s-maxage=180, stale-while-revalidate=300');
+  }
+
   // ① 환경변수에서 API 키 가져오기
   const apiKey = process.env.SENIOR_API_KEY;
 
@@ -53,7 +63,7 @@ export default async function handler(req, res) {
   if (req.query.type === 'regionSearch') {
     const region = req.query.region || '';
     if (!region) return res.status(400).json({ ok: false, message: '지역을 입력해 주세요.' });
-    const pageCount = parseInt(req.query.pages || '3', 10); // 기본 3페이지 (한 페이지 1000건 확인됨 → 3000건)
+    const pageCount = parseInt(req.query.pages || '10', 10); // 기본 10페이지 (1000건씩 = 총 10,000건)
     const rowsPerPage = parseInt(req.query.rowsPerPage || '1000', 10); // 한 페이지당 1000건(실제 테스트로 확인된 안전값)
 
     try {
