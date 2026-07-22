@@ -63,7 +63,7 @@ export default async function handler(req, res) {
   if (req.query.type === 'regionSearch') {
     const region = req.query.region || '';
     if (!region) return res.status(400).json({ ok: false, message: '지역을 입력해 주세요.' });
-    const pageCount = parseInt(req.query.pages || '10', 10); // 기본 10페이지 (1000건씩 = 총 10,000건)
+    const pageCount = parseInt(req.query.pages || '30', 10); // 기본 30페이지 (1000건씩 = 총 30,000건, 결과 부족 문제로 확대)
     const rowsPerPage = parseInt(req.query.rowsPerPage || '1000', 10); // 한 페이지당 1000건(실제 테스트로 확인된 안전값)
 
     try {
