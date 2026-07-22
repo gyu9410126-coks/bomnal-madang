@@ -63,11 +63,16 @@ export default async function handler(req, res) {
   if (req.query.type === 'regionSearch') {
     const region = req.query.region || '';
     if (!region) return res.status(400).json({ ok: false, message: '지역을 입력해 주세요.' });
-    const pageCount = parseInt(req.query.pages || '20', 10); // 기본 20페이지 (1000건씩 = 총 20,000건) - 속도·안정성 확인된 최종값
+    const pageCount = parseInt(req.query.pages || '10', 10); // 기본 10페이지 (1000건씩 = 총 10,000건) - 실제 운영시 하루 호출한도(10,000회)를 아끼기 위해 안전하게 낮춤. 필요하면 주소에 &pages=20 등으로 늘려서 테스트 가능
     const rowsPerPage = parseInt(req.query.rowsPerPage || '1000', 10); // 한 페이지당 1000건(실제 테스트로 확인된 안전값)
-    // (한글 설명) [최종 결론] 50개를 한꺼번에 동시에 요청하니 오히려 서로
-    //             방해가 돼서 실패하는 경우가 늘었어요(너무 많은 동시요청 문제).
-    //             앞쪽 페이지 순차 방식 + 적당한 동시요청 수(20개)로 고정해요.
+    // (한글 설명) [2026-07-21 최종 결론] 오늘 테스트를 워낙 많이 해서 하루
+    //             호출한도(10,000회)를 다 써버린 것으로 보임(resultCode가
+    //             아예 안 나오는 비정상 응답이 모든 페이지에서 동시에 발생 -
+    //             정상적인 상황이면 이렇게 전부 동시에 실패하지 않음). 내일
+    //             한도가 초기화된 후 다시 테스트 필요. 앞으로는 사용자가
+    //             실제로 자주 검색할 걸 감안해서, 기본 페이지 수를 20→10으로
+    //             낮춰서 한도를 아끼도록 함(활용사례 등록하면 한도가 늘어남 -
+    //             메모리#1 참고, 사이트 오픈 후 꼭 등록할 것).
     const pageNumbers = [];
     for (let p = 1; p <= pageCount; p++) pageNumbers.push(p);
 
