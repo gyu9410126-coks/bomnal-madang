@@ -109,6 +109,8 @@ body.big-font .guide-popup-icon { font-size:48px !important; }
 .job-refresh-btn { display: block; width: 100%; margin-top: 12px; padding: 13px; background: #4A90D9; color: #fff; border: none; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .job-refresh-btn:active { background: #357abd; }
 .job-more-btn { display: block; width: 100%; margin-top: 12px; padding: 13px; background: #fff; color: #4A90D9; border: 2px solid #4A90D9; border-radius: 12px; font-size: 15px; font-weight: 800; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.job-region-btn { padding: 11px 4px; background: #f5f5f5; color: #333; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.job-region-btn.active { background: #1565c0; color: #fff; }
 .job-more-btn:active { background: #eef2f8; }
 .job-more-btn:disabled { opacity: 0.6; }
 .job-btn-desc { font-size: 12px; color: #888; text-align: center; margin-top: 6px; line-height: 1.5; }
@@ -202,6 +204,7 @@ body.big-font .job-api-meta { font-size: 21px !important; }
 body.big-font .job-api-error { font-size: 19px !important; }
 body.big-font .job-refresh-btn { font-size: 21px !important; }
 body.big-font .job-more-btn { font-size: 21px !important; }
+body.big-font .job-region-btn { font-size: 18px !important; }
 body.big-font .job-btn-desc { font-size: 17px !important; }
 body.big-font .job-popup-title { font-size: 27px !important; }
 body.big-font .job-popup-row { font-size: 21px !important; }
@@ -628,10 +631,32 @@ body.big-font .tsz-36 { font-size: 46px !important; }
   </div>
   <div class="job-page-inner">
     <div class="job-notice-box" style="margin-bottom:14px;">💡 한국노인인력개발원에서 실시간으로 올라온 공고입니다. 공고를 누르면 상세정보를 볼 수 있어요.</div>
-    <div class="card" style="margin:0;padding:14px;">
-      <div id="job-api-list2">
-        <div style="text-align:center;padding:30px;color:#666;">공고를 불러오는 중이에요...</div>
+
+    <div class="card" style="margin:0 0 14px;padding:14px;">
+      <div class="card-title" style="font-size:17px;margin-bottom:10px;">🌍 지역별로 찾기</div>
+      <div id="job-region-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+        <button class="job-region-btn" onclick="searchJobByRegion('서울')">서울</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('부산')">부산</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('대구')">대구</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('인천')">인천</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('광주')">광주·전남</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('대전')">대전</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('울산')">울산</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('세종')">세종</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('경기')">경기</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('강원')">강원</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('충북')">충북</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('충남')">충남</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('전북')">전북</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('경북')">경북</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('경남')">경남</button>
+        <button class="job-region-btn" onclick="searchJobByRegion('제주')">제주</button>
       </div>
+      <div id="job-region-result" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="card" style="margin:0;padding:14px;">
+      <div id="job-api-list2"></div>
       <button class="job-more-btn" id="job-more-btn2" style="display:none;margin-top:12px;" onclick="loadMoreJobApi2()">더보기 ▼</button>
       <div class="job-btn-desc" id="job-more-desc2" style="display:none;">받아둔 공고 중에서 다음 공고를 보여드려요</div>
       <button class="job-refresh-btn" onclick="searchNewJobApi2()" style="margin-top:12px;">🔄 다른 공고 검색하기</button>
@@ -1897,6 +1922,10 @@ function resetMainCalc() {
   var el = document.getElementById('job-type'); if(el) el.value = '';
   var el2 = document.getElementById('job-hours'); if(el2) el2.value = '';
   var rb = document.getElementById('job-result'); if(rb) rb.classList.remove('show');
+  // (한글 설명) 메인화면 채용목록도 "더보기"로 늘려놨던 걸 다시 들어올 때마다
+  //             처음(10개)으로 되돌려요.
+  jobState.offset = 0;
+  loadJobApi();
 }
 function resetJobPage(id) {
   if (id === 'page-job-calc') {
@@ -1910,7 +1939,17 @@ function resetJobPage(id) {
     var rb = document.getElementById('job-result3'); if(rb) rb.classList.remove('show');
   }
   if (id === 'page-job-wage') { resetUnempCalc(); }
-  if (id === 'page-job-search') { loadJobApi2(); }
+  if (id === 'page-job-search') {
+    // (한글 설명) "더보기"로 늘려놨던 목록을 다시 들어올 때마다 처음(10개)으로
+    //             되돌려요. 캐시된 자료는 그대로 재사용해서 서버에 새로 안
+    //             물어보니 빠르면서도, 화면은 항상 깔끔하게 리셋된 상태로 보여요.
+    jobState2.offset = 0;
+    loadJobApi2();
+    // 지역검색 결과·선택 상태도 같이 초기화
+    var regionResultEl = document.getElementById('job-region-result');
+    if (regionResultEl) regionResultEl.innerHTML = '';
+    document.querySelectorAll('#job-region-grid .job-region-btn').forEach(function(b){ b.classList.remove('active'); });
+  }
 }
 
 function showToast(msg){
@@ -2237,6 +2276,34 @@ async function searchNewJobs(state,listElId,moreBtnId,descId){
 
 function loadJobApi(){ return loadJobList(jobState,'job-api-list','job-more-btn','job-more-desc'); }
 function loadJobApi2(){ return loadJobList(jobState2,'job-api-list2','job-more-btn2','job-more-desc2'); }
+
+// (한글 설명) 지역 버튼을 누르면, 최근 등록된 채용공고 중에서 그 지역 이름이
+//             들어간 것만 찾아서 보여줘요(전체를 다 훑는 완벽한 검색은 아니고,
+//             최근 만 건 정도 중에서 찾은 결과예요 - 화면에 안내문구로 알려드려요).
+async function searchJobByRegion(region){
+  var buttons = document.querySelectorAll('#job-region-grid .job-region-btn');
+  buttons.forEach(function(b){ b.classList.toggle('active', b.textContent.startsWith(region)); });
+
+  var resultEl = document.getElementById('job-region-result');
+  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">🔍 '+region+' 지역 공고를 찾는 중이에요...</div>';
+
+  try{
+    var res = await fetch('/api/jobs?type=regionSearch&region='+encodeURIComponent(region));
+    var data = await res.json();
+    if(!data.ok){
+      resultEl.innerHTML = '<div class="job-api-error">⚠️ 지금은 검색할 수 없어요. 잠시 후 다시 시도해 주세요.</div>';
+      return;
+    }
+    if(!data.items || data.items.length===0){
+      resultEl.innerHTML = '<div class="job-notice-box">😅 지금 이 지역에는 새로 올라온 공고가 없어요.<br>위의 "🔗 다른 채용 사이트"에서 더 찾아보실 수 있어요.</div>';
+      return;
+    }
+    resultEl.innerHTML = '<div class="job-btn-desc" style="margin-bottom:8px;">'+region+' 지역 공고 '+data.items.length+'건을 찾았어요 · '+data.note+'</div>' + renderJobItems(data.items);
+  }catch(err){
+    resultEl.innerHTML = '<div class="job-api-error">⚠️ 인터넷 연결을 확인해 주세요.</div>';
+  }
+}
+
 function loadMoreJobApi(){ return loadMoreJobs(jobState,'job-api-list','job-more-btn','job-more-desc'); }
 function loadMoreJobApi2(){ return loadMoreJobs(jobState2,'job-api-list2','job-more-btn2','job-more-desc2'); }
 function searchNewJobApi(){ return searchNewJobs(jobState,'job-api-list','job-more-btn','job-more-desc'); }
