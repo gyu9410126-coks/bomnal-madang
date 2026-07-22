@@ -65,15 +65,25 @@ export default async function handler(req, res) {
     if (!region) return res.status(400).json({ ok: false, message: '지역을 입력해 주세요.' });
     const pageCount = parseInt(req.query.pages || '30', 10); // 기본 30페이지 (1000건씩 = 총 30,000건, 결과 부족 문제로 확대)
     const rowsPerPage = parseInt(req.query.rowsPerPage || '1000', 10); // 한 페이지당 1000건(실제 테스트로 확인된 안전값)
+    // (한글 설명) 전체는 약 76만건(1000건씩 약 762페이지)이에요. 앞쪽 페이지만
+    //             계속 훑으면, 혹시 등록 순서상 특정 지역이 뒤쪽에 몰려있을 때
+    //             계속 못 찾을 수 있어요. 그래서 앞부터 순서대로가 아니라,
+    //             전체 762페이지 범위에 걸쳐 골고루 페이지를 뽑아서 봐요.
+    const TOTAL_PAGES_ESTIMATE = 762;
+    const pageNumbers = [];
+    for (let i = 0; i < pageCount; i++) {
+      const p = Math.floor(1 + (i * (TOTAL_PAGES_ESTIMATE - 1)) / Math.max(pageCount - 1, 1));
+      pageNumbers.push(p);
+    }
 
     try {
       const fetches = [];
-      for (let p = 1; p <= pageCount; p++) {
+      pageNumbers.forEach(function(p) {
         const pageUrl =
           `https://apis.data.go.kr/B552474/SenuriService/getJobList` +
           `?serviceKey=${encodeURIComponent(apiKey)}&pageNo=${p}&numOfRows=${rowsPerPage}`;
         fetches.push(fetch(pageUrl).then(function(r) { return r.text(); }));
-      }
+      });
       const pages = await Promise.all(fetches);
       const allXml = pages.join('');
       const itemMatches = allXml.match(/<item>([\s\S]*?)<\/item>/g) || [];
@@ -83,11 +93,12 @@ export default async function handler(req, res) {
         const perPageInfo = pages.map(function(pXml, idx) {
           const its = pXml.match(/<item>([\s\S]*?)<\/item>/g) || [];
           const rc = pXml.match(/<resultCode>([\s\S]*?)<\/resultCode>/);
-          return { page: idx + 1, itemCount: its.length, resultCode: rc ? rc[1] : '?' };
+          return { page: pageNumbers[idx], itemCount: its.length, resultCode: rc ? rc[1] : '?' };
         });
         return res.status(200).json({
           ok: true, debug: true,
           requestedRowsPerPage: rowsPerPage, requestedPages: pageCount,
+          pageNumbersUsed: pageNumbers,
           totalItemsReceived: itemMatches.length,
           perPageInfo: perPageInfo,
         });

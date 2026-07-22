@@ -112,6 +112,8 @@ body.big-font .guide-popup-icon { font-size:48px !important; }
 .job-region-btn { padding: 11px 4px; background: #f5f5f5; color: #333; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .job-region-btn.active { background: #1565c0; color: #fff; }
 .job-region-close-btn { padding: 6px 12px; background: #f5f5f5; color: #555; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.job-loading-spin { display: inline-block; animation: job-spin 1.2s linear infinite; }
+@keyframes job-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 .job-more-btn:active { background: #eef2f8; }
 .job-more-btn:disabled { opacity: 0.6; }
 .job-btn-desc { font-size: 12px; color: #888; text-align: center; margin-top: 6px; line-height: 1.5; }
@@ -2307,7 +2309,7 @@ async function searchJobByRegion(region){
   if(defaultCard) defaultCard.style.display = 'none';
   if(regionCard) regionCard.style.display = 'block';
   if(titleEl) titleEl.textContent = '📍 ' + region + ' 지역 검색 결과';
-  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">🔍 '+region+' 지역 공고를 찾는 중이에요...</div>';
+  resultEl.innerHTML = '<div style="text-align:center;padding:20px;color:#666;"><span class="job-loading-spin" style="font-size:22px;">🔄</span><br><br>'+region+' 지역 공고를 찾는 중이에요...</div>';
 
   try{
     var res = await fetch('/api/jobs?type=regionSearch&region='+encodeURIComponent(region));
