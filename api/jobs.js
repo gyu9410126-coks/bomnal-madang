@@ -63,19 +63,16 @@ export default async function handler(req, res) {
   if (req.query.type === 'regionSearch') {
     const region = req.query.region || '';
     if (!region) return res.status(400).json({ ok: false, message: '지역을 입력해 주세요.' });
-    const pageCount = parseInt(req.query.pages || '50', 10); // 기본 50페이지 (1000건씩 = 총 50,000건)
+    const pageCount = parseInt(req.query.pages || '20', 10); // 기본 20페이지 (1000건씩 = 총 20,000건) - 속도·안정성 확인된 최종값
     const rowsPerPage = parseInt(req.query.rowsPerPage || '1000', 10); // 한 페이지당 1000건(실제 테스트로 확인된 안전값)
-    // (한글 설명) [중요] 뒷페이지(700번대 등)로 갈수록 정부 서버 응답이 훨씬
-    //             느려지는 걸 실제로 확인했어요(데이터베이스가 뒤 페이지일수록
-    //             찾는 데 시간이 오래 걸리는 흔한 현상). "골고루 뽑기"는
-    //             오히려 느려지고 일부는 응답 실패로 결과도 줄어서, 다시
-    //             앞쪽 페이지부터 순서대로(빠르고 확실한 방식) 가요. 대신
-    //             페이지 수를 30→50으로 늘려서 좀 더 넓게 봐요.
+    // (한글 설명) [최종 결론] 50개를 한꺼번에 동시에 요청하니 오히려 서로
+    //             방해가 돼서 실패하는 경우가 늘었어요(너무 많은 동시요청 문제).
+    //             앞쪽 페이지 순차 방식 + 적당한 동시요청 수(20개)로 고정해요.
     const pageNumbers = [];
     for (let p = 1; p <= pageCount; p++) pageNumbers.push(p);
 
     // (한글 설명) 혹시 일부 페이지 요청이 아주 오래 걸리면 전체가 다 같이
-    //             느려지니, 8초 넘으면 그 페이지는 포기하고 있는 것만으로 진행해요.
+    //             느려지니, 10초 넘으면 그 페이지는 포기하고 있는 것만으로 진행해요.
     function fetchWithTimeout(url, ms) {
       const controller = new AbortController();
       const timer = setTimeout(function(){ controller.abort(); }, ms);
@@ -91,7 +88,7 @@ export default async function handler(req, res) {
         const pageUrl =
           `https://apis.data.go.kr/B552474/SenuriService/getJobList` +
           `?serviceKey=${encodeURIComponent(apiKey)}&pageNo=${p}&numOfRows=${rowsPerPage}`;
-        fetches.push(fetchWithTimeout(pageUrl, 8000));
+        fetches.push(fetchWithTimeout(pageUrl, 10000));
       });
       const pages = await Promise.all(fetches);
       const allXml = pages.join('');
