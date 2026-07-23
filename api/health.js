@@ -18,6 +18,14 @@ import careSigunguCodes from './data/care-sigungu-codes.json';
 //             이 표로만 코드를 찾아야 해요. 시도코드는 활용가이드 예제(sidoCd=110000)와
 //             똑같이 맞도록 "코드표의 2자리 코드 + 0000"으로 미리 계산해 저장해뒀어요.
 import hospitalSigunguCodes from './data/hospital-sigungu-codes.json';
+// (한글 설명) [신규 2026-07-24] 약효능·복용법(medicine)과 식품영양정보(nutrition)는
+//             GitHub Actions가 하루 1번 정부 API에서 전체를 미리 받아와 이 두 파일에
+//             저장해둬요(scripts/cache-health-dictionaries.mjs가 만드는 파일). 매번
+//             정부 서버를 실시간으로 부르는 대신 여기서 바로 검색하면 훨씬 빨라요.
+//             아직 한 번도 캐싱이 안 됐거나 실패했으면 빈 배열([])이 들어있는데, 이때는
+//             아래 코드에서 자동으로 예전 방식(정부 서버 실시간 호출)으로 돌아가요.
+import medicineData from './data/medicine-data.json';
+import nutritionData from './data/nutrition-data.json';
 
 // (한글 설명) [신규] 한방약재사전(특허청 MatInfoService)은 실제 테스트로 확인해보니
 //             JSON을 요청해도 XML로만 응답해요(2026-07-13 debug 테스트로 확인됨). 다른
@@ -389,9 +397,31 @@ export default async function handler(req, res) {
     // 파라미터: itemName(약품명 검색어), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'medicine') {
+      const medKw = (params.itemName || '').trim();
+
+      // (한글 설명) [신규 2026-07-24] 캐시 파일에 데이터가 있으면(=캐싱이 최소 1번 성공했으면)
+      //             정부 서버 대신 여기서 바로 검색해서 즉시 응답해요.
+      if (medicineData.length > 0) {
+        const medMatched = medKw
+          ? medicineData.filter((it) => (it.itemName || '').includes(medKw))
+          : medicineData;
+
+        const medPageNo = Math.max(parseInt(params.pageNo || '1', 10) || 1, 1);
+        const medNumOfRows = Math.min(parseInt(params.numOfRows || '10', 10) || 10, 500);
+        const medStart = (medPageNo - 1) * medNumOfRows;
+        const medPageItems = medMatched.slice(medStart, medStart + medNumOfRows);
+
+        return res.status(200).json({
+          header: { resultCode: '00', resultMsg: 'NORMAL SERVICE.(캐시)' },
+          body: { items: medPageItems, numOfRows: medNumOfRows, pageNo: medPageNo, totalCount: medMatched.length },
+        });
+      }
+
+      // (한글 설명) 안전장치 - 캐시 파일이 비어있으면(아직 한 번도 캐싱 안 됐거나 실패한 경우)
+      //             예전처럼 정부 서버에 실시간으로 바로 물어봐요.
       url = 'https://apis.data.go.kr/1471000/DrbEasyDrugInfoService/getDrbEasyDrugList';
       queryParams.append('serviceKey', process.env.MEDICINE_API_KEY);
-      queryParams.append('itemName', params.itemName || '');
+      queryParams.append('itemName', medKw);
       queryParams.append('pageNo', params.pageNo || '1');
       queryParams.append('numOfRows', params.numOfRows || '10');
       queryParams.append('type', 'json');
@@ -761,9 +791,29 @@ export default async function handler(req, res) {
     // 파라미터: FOOD_NM_KR(식품명), pageNo, numOfRows
     // ─────────────────────────────────────────
     else if (type === 'nutrition') {
+      const nutKw = (params.FOOD_NM_KR || '').trim();
+
+      // (한글 설명) [신규 2026-07-24] 캐시 파일(품목대표만 미리 걸러서 저장됨)에서 바로 검색해요.
+      if (nutritionData.length > 0) {
+        const nutMatched = nutKw
+          ? nutritionData.filter((it) => (it.FOOD_NM_KR || '').includes(nutKw))
+          : nutritionData;
+
+        const nutPageNo = Math.max(parseInt(params.pageNo || '1', 10) || 1, 1);
+        const nutNumOfRows = Math.min(parseInt(params.numOfRows || '10', 10) || 10, 500);
+        const nutStart = (nutPageNo - 1) * nutNumOfRows;
+        const nutPageItems = nutMatched.slice(nutStart, nutStart + nutNumOfRows);
+
+        return res.status(200).json({
+          header: { resultCode: '00', resultMsg: 'NORMAL SERVICE.(캐시)' },
+          body: { items: nutPageItems, numOfRows: nutNumOfRows, pageNo: nutPageNo, totalCount: nutMatched.length },
+        });
+      }
+
+      // (한글 설명) 안전장치 - 캐시 파일이 비어있으면 예전처럼 정부 서버에 실시간으로 바로 물어봐요.
       url = 'https://apis.data.go.kr/1471000/FoodNtrCpntDbInfo02/getFoodNtrCpntDbInq02';
       queryParams.append('serviceKey', process.env.FOOD_NUTRITION_API_KEY);
-      queryParams.append('FOOD_NM_KR', params.FOOD_NM_KR || '');
+      queryParams.append('FOOD_NM_KR', nutKw);
       // (한글 설명) [수정] 이 DB엔 "사과"만 검색해도 특정 회사의 사과파이·사과와플 같은
       //             상용제품까지 수천 건씩 섞여 나와요. DB_CLASS_NM=품목대표로 필터를 걸면
       //             일반적인 식재료·음식(브랜드 없는 대표값)만 나와서 시니어분들이 찾는
