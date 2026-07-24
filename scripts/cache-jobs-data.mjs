@@ -16,14 +16,16 @@ const SENIOR_API_KEY = process.env.SENIOR_API_KEY;
 // (한글 설명) 2026-07-24 실제 테스트로 500건은 정상 동작 확인됨. 1000건은 아직
 //             테스트 안 해봐서, 검증된 500건으로 안전하게 진행해요.
 const PAGE_SIZE = 500;
-// (한글 설명) [수정 2026-07-24] 처음엔 "고정 200페이지"를 다 훑는 방식이었는데, 실제
-//             실행해보니 접수중 공고는 앞쪽 몇십 페이지 안에 거의 다 몰려있고, 그 뒤로는
-//             전부 마감된 옛날 공고뿐이었어요(80~120페이지 구간에서 접수중 공고가 0건
-//             늘어남 - 2026-07-24 실행 로그로 확인됨). 게다가 뒷페이지로 갈수록 정부
-//             서버 응답이 느려져서, 필요도 없는 페이지를 훑느라 시간만 오래 걸렸어요.
-//             그래서 "접수중 공고가 연속으로 안 나오면 알아서 멈추기" 방식으로 바꿨어요.
-const MAX_PAGES = 200; // 혹시 몰라 안전장치로 남겨둔 최대 페이지 수(보통 이 전에 멈춰요)
-const STOP_AFTER_EMPTY_PAGES = 10; // 접수중 공고가 연속 10페이지 동안 0건이면 그만 찾아요
+// (한글 설명) [2차 수정 2026-07-24] 첫 실행 결과, 10페이지 만에 접수중 385건에서
+//             멈췄는데 - 1페이지만 해도 500건 중 315건이 접수중이었던 걸 감안하면
+//             너무 적은 숫자였어요. "최신순 정렬"이 저희 관찰로 추정한 것이지 정부
+//             문서로 보장된 게 아니라서, 중간에 우연히 빈 페이지가 몰려서 너무 일찍
+//             멈췄을 위험이 있어요. 그래서 "최소 50페이지는 무조건 확인"하고, 그 이후
+//             부터는 연속 30페이지 동안 접수중 공고가 안 나와야 멈추도록 여유를 크게
+//             늘렸어요(트래픽은 넉넉해서 이 정도는 완전히 안전해요).
+const MAX_PAGES = 200; // 혹시 몰라 안전장치로 남겨둔 최대 페이지 수
+const MIN_PAGES = 50; // 이 페이지까지는 접수중 공고가 안 나와도 절대 안 멈춰요
+const STOP_AFTER_EMPTY_PAGES = 30; // MIN_PAGES를 넘긴 뒤, 연속 이만큼 비면 멈춰요
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -112,8 +114,8 @@ async function main() {
         console.log(`   ${pageNo}페이지 완료 (누적 원본 ${rawTotal}건 중 접수중 ${allItems.length}건, 최근 연속 빈페이지 ${emptyStreak}회)`);
       }
 
-      if (emptyStreak >= STOP_AFTER_EMPTY_PAGES) {
-        console.log(`   ⏹️ 접수중 공고가 연속 ${STOP_AFTER_EMPTY_PAGES}페이지 동안 안 나와서 ${pageNo}페이지에서 멈춰요.`);
+      if (emptyStreak >= STOP_AFTER_EMPTY_PAGES && pageNo >= MIN_PAGES) {
+        console.log(`   ⏹️ 최소 ${MIN_PAGES}페이지를 넘긴 뒤 접수중 공고가 연속 ${STOP_AFTER_EMPTY_PAGES}페이지 동안 안 나와서 ${pageNo}페이지에서 멈춰요.`);
         break;
       }
 
