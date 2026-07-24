@@ -1,6 +1,14 @@
 // api/benefit.js — 복지혜택 카테고리 API 프록시
 // Vercel 서버리스 함수 (API 키를 클라이언트에 노출하지 않기 위한 중간 서버)
 
+// (한글 설명) [신규 2026-07-24] 서민금융교육 콘텐츠(finance)는 GitHub Actions가 하루 1번
+//             정부 API에서 전체를 미리 받아와 이 파일에 저장해둬요
+//             (scripts/cache-finance-data.mjs가 만드는 파일). 아직 한 번도 캐싱이 안 됐거나
+//             실패했으면 빈 배열([])이 들어있는데, 이때는 아래 코드에서 자동으로 예전 방식
+//             (정부 서버 실시간 호출)으로 돌아가요. welfare/benefit/lawyer/store 등 다른
+//             기능들은 이 캐싱 작업과 무관해서 그대로 둬요.
+import financeData from './data/finance-data.json';
+
 // XML 문자열에서 태그 값을 추출하는 헬퍼 함수
 function parseXmlItems(xml, itemTag) {
   const items = [];
@@ -331,8 +339,27 @@ export default async function handler(req, res) {
     }
 
     // ── 4. 서민금융교육 콘텐츠 ─────────────────────────────────────
+    // (한글 설명) [2026-07-24 변경] 검색 기능이 없는 목록형 콘텐츠라서(화면에 검색창 없음),
+    //             GitHub Actions가 하루 1번 미리 받아온 전체 목록(api/data/finance-data.json)
+    //             에서 페이지만 잘라서 보여줘요. pageNo를 넘기면 다음 페이지(더보기)도 지원해요.
     if (type === 'finance') {
       const { pageNo } = req.query;
+
+      if (financeData.length > 0) {
+        const finPageNo = Math.max(parseInt(pageNo || '1', 10) || 1, 1);
+        const finNumOfRows = Math.min(parseInt(req.query.numOfRows || '10', 10) || 10, 100);
+        const finStart = (finPageNo - 1) * finNumOfRows;
+        const finPageItems = financeData.slice(finStart, finStart + finNumOfRows);
+
+        return res.status(200).json({
+          items: finPageItems,
+          totalCount: financeData.length,
+          pageNo: finPageNo,
+          numOfRows: finNumOfRows,
+        });
+      }
+
+      // (한글 설명) 안전장치 - 캐시 파일이 비어있으면 예전처럼 정부 서버에 실시간으로 바로 물어봐요.
       const key = encodeURIComponent(process.env.FINANCE_EDU_KEY);
       const url = `https://apis.data.go.kr/B553701/SeominFinancialEducationContentsInfoService/getFinancialEducationContentsInfo`
         + `?serviceKey=${key}`

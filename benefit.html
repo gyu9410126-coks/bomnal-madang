@@ -2677,30 +2677,69 @@ function renderPwCards(data, append) {
 /* ══════════════════════════════════════
    서민금융교육 콘텐츠
 ══════════════════════════════════════ */
+// (한글 설명) [신규 2026-07-24] 더보기 기능을 위한 페이지 상태예요. 다른 화면들
+//             (welfareHomeState 등)과 같은 패턴으로 만들었어요.
+var financePage = 1;
+
 function loadFinanceEdu() {
+  financePage = 1;
   var loading = document.getElementById('pf-loading');
   var result  = document.getElementById('pf-result');
   loading.classList.add('show'); result.classList.remove('show');
-  fetch('/api/benefit?type=finance')
+  document.getElementById('pf-cards').innerHTML = '';
+  var oldBtn = document.getElementById('pf-more-btn'); if (oldBtn) oldBtn.remove();
+  fetchFinancePage(false);
+}
+
+// (한글 설명) [신규] "더보기" 버튼을 누르면 다음 페이지를 이어서 불러와요.
+function loadMoreFinance() {
+  financePage += 1;
+  var btn = document.getElementById('pf-more-btn');
+  if (btn) { btn.textContent = '⏳ 불러오는 중...'; btn.disabled = true; }
+  fetchFinancePage(true);
+}
+
+function fetchFinancePage(append) {
+  var loading = document.getElementById('pf-loading');
+  var result  = document.getElementById('pf-result');
+  if (!append) { loading.classList.add('show'); }
+  fetch('/api/benefit?type=finance&pageNo='+financePage)
     .then(function(r){ return r.json(); })
     .then(function(data){
       loading.classList.remove('show');
       var items = [];
       try { items = data.items || []; if (!Array.isArray(items)) items = [items]; } catch(e){}
-      if (items.length === 0) {
+      var oldBtn = document.getElementById('pf-more-btn'); if (oldBtn) oldBtn.remove();
+      if (items.length === 0 && !append) {
         document.getElementById('pf-cards').innerHTML = '<div class="empty-msg">😔 콘텐츠를 불러오지 못했습니다.</div>';
       } else {
-        document.getElementById('pf-cards').innerHTML = items.map(function(item){
+        var cardsHtml = items.map(function(item){
           return '<div class="finance-card">'
             +'<div class="finance-card-title">'+(item.edcSbjcNm||item.eduNm||'교육 콘텐츠')+'</div>'
             +'<div class="finance-card-desc">'+(item.edcSbjcIntrc||item.eduCn||'내용 준비 중입니다.')+'</div>'
             +'<a class="finance-card-link" href="#" onclick="confirmExternalLink(\'https://edu.kinfa.or.kr\');return false;">🔗 교육포털에서 보기</a>'
             +'</div>';
         }).join('');
+        if (append) { document.getElementById('pf-cards').insertAdjacentHTML('beforeend', cardsHtml); }
+        else { document.getElementById('pf-cards').innerHTML = cardsHtml; }
+        // (한글 설명) 이번에 받아온 개수가 요청한 10개와 같으면 다음 페이지에도
+        //             더 있을 가능성이 있다고 보고 "더보기" 버튼을 보여줘요.
+        if (items.length === 10) {
+          var btn = document.createElement('button');
+          btn.className = 'more-btn';
+          btn.id = 'pf-more-btn';
+          btn.textContent = '더보기 ▼';
+          btn.onclick = loadMoreFinance;
+          document.getElementById('pf-cards').insertAdjacentElement('afterend', btn);
+        }
       }
       result.classList.add('show');
     })
-    .catch(function(){ loading.classList.remove('show'); document.getElementById('pf-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다.</div>'; result.classList.add('show'); });
+    .catch(function(){
+      loading.classList.remove('show');
+      if (append) { financePage -= 1; var btn = document.getElementById('pf-more-btn'); if (btn) { btn.textContent = '더보기 ▼'; btn.disabled = false; } }
+      else { document.getElementById('pf-cards').innerHTML = '<div class="empty-msg">😔 오류가 발생했습니다.</div>'; result.classList.add('show'); }
+    });
 }
 
 /* ══════════════════════════════════════
