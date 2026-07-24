@@ -3,6 +3,14 @@
 //       브라우저 → 이 파일 → 노인인력개발원 API 순서로 데이터를 가져옴
 //       (브라우저에서 직접 API를 부르면 CORS 오류가 나기 때문에 중간 다리 역할)
 
+// (한글 설명) [신규 2026-07-24] 채용공고는 전체 76만 건이 넘고 계속 바뀌는(마감/신규)
+//             데이터라서, GitHub Actions가 하루 1번 "최신 접수중 공고 10만 건"만 통째로
+//             새로 받아와 이 파일에 저장해둬요(scripts/cache-jobs-data.mjs, 어제 것을
+//             완전히 덮어씀 - 항상 오늘 기준 최신). 지역검색·기본목록 둘 다 이 캐시를
+//             먼저 써요. 아직 한 번도 캐싱이 안 됐거나 실패했으면 빈 배열([])이 들어있는데,
+//             이때는 코드에서 자동으로 예전 방식(정부 서버 실시간 호출)으로 돌아가요.
+import jobsCacheData from './data/jobs-cache.json';
+
 export default async function handler(req, res) {
 
   // (한글 설명) 채용정보는 1초마다 바뀌는 게 아니라서, 3분 정도는 캐싱해도
@@ -63,6 +71,23 @@ export default async function handler(req, res) {
   if (req.query.type === 'regionSearch') {
     const region = req.query.region || '';
     if (!region) return res.status(400).json({ ok: false, message: '지역을 입력해 주세요.' });
+
+    // (한글 설명) [신규 2026-07-24] 캐시(jobs-cache.json)에 데이터가 있으면 정부 서버를
+    //             안 부르고 여기서 바로 지역으로 걸러서 응답해요(캐시엔 이미 "접수중"만
+    //             저장돼 있어서 따로 안 걸러도 돼요).
+    if (jobsCacheData.length > 0) {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      const matched = jobsCacheData.filter((it) => (it.location || '').includes(region));
+      return res.status(200).json({
+        ok: true,
+        items: matched,
+        searchedCount: jobsCacheData.length,
+        note: '최신 등록 ' + jobsCacheData.length + '건(캐시) 중에서 찾은 결과예요',
+      });
+    }
+
+    // (한글 설명) 안전장치 - 캐시가 비어있으면(아직 캐싱 안 됨) 예전처럼 정부 서버에
+    //             실시간으로 여러 페이지를 직접 스캔해요.
     const pageCount = parseInt(req.query.pages || '10', 10); // 기본 10페이지 (1000건씩 = 총 10,000건) - 실제 운영시 하루 호출한도(10,000회)를 아끼기 위해 안전하게 낮춤. 필요하면 주소에 &pages=20 등으로 늘려서 테스트 가능
     const rowsPerPage = parseInt(req.query.rowsPerPage || '1000', 10); // 한 페이지당 1000건(실제 테스트로 확인된 안전값)
     // (한글 설명) [2026-07-21 최종 결론] 오늘 테스트를 워낙 많이 해서 하루
@@ -161,6 +186,23 @@ export default async function handler(req, res) {
   // (한글 설명) workPlcNm(이름)이 실제로는 안 먹혀서, 결과에 있던 숫자코드(workPlc)로도
   //             테스트해볼 수 있게 추가함(문서엔 없지만 혹시 몰라서).
   const workPlc = req.query.workPlc || '';
+
+  // (한글 설명) [신규 2026-07-24] 캐시가 있으면(그리고 debug 모드가 아니면) 정부 서버를
+  //             안 부르고 여기서 최신 캐시 목록을 페이지만 잘라서 바로 응답해요.
+  //             (workPlcNm/workPlc 필터는 원래도 정부 서버에서 실제로는 안 먹혀서
+  //             전체가 나오던 것과 동일하게, 캐시 경로도 필터 없이 전체에서 잘라요 -
+  //             기존 동작 그대로예요, debug=1은 원본 확인용이라 항상 실시간으로 둬요.)
+  if (jobsCacheData.length > 0 && req.query.debug !== '1') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    const cachePageNo = Math.max(parseInt(pageNo, 10) || 1, 1);
+    const cacheNumOfRows = Math.max(parseInt(numOfRows, 10) || 10, 1);
+    const start = (cachePageNo - 1) * cacheNumOfRows;
+    const pageItems = jobsCacheData.slice(start, start + cacheNumOfRows);
+    if (pageItems.length === 0) {
+      return res.status(200).json({ ok: false, message: '현재 등록된 공고가 없습니다.' });
+    }
+    return res.status(200).json({ ok: true, items: pageItems });
+  }
 
   // ③ API 요청 주소 조립
   const url =
