@@ -8,6 +8,14 @@
 //             (정부 서버 실시간 호출)으로 돌아가요. welfare/benefit/lawyer/store 등 다른
 //             기능들은 이 캐싱 작업과 무관해서 그대로 둬요.
 import financeData from './data/finance-data.json';
+// (한글 설명) [신규 2026-07-24] 복지시설찾기(welfare)도 같은 방식으로 캐싱해요.
+//             목록(이름·종류·지역, 27,159건 전체)은 매일 새로 받아오고, 주소·전화번호는
+//             시설 1개당 정부 API를 1번씩 더 불러야 해서(하루 한도 넘을 위험) 하루 9,000건씩
+//             나눠서 점진적으로 채워요(scripts/cache-welfare-detail.mjs). 아직 채워지지
+//             않은 시설은 예전처럼 그 시설 하나만 실시간으로 조회해서, 캐싱이 다 끝나기 전에도
+//             화면은 항상 정상 작동해요.
+import welfareListData from './data/welfare-list.json';
+import welfareDetailData from './data/welfare-detail.json';
 
 // XML 문자열에서 태그 값을 추출하는 헬퍼 함수
 function parseXmlItems(xml, itemTag) {
@@ -151,6 +159,72 @@ export default async function handler(req, res) {
           regionSigungu = geo.sigungu;
         }
       }
+
+      // (한글 설명) [신규 2026-07-24] 목록 캐시(welfare-list.json)가 있으면, 정부 서버를
+      //             안 부르고 여기서 지역·종류로 걸러서 바로 응답해요. 주소·전화번호는
+      //             welfare-detail.json에 이미 채워진 시설만 캐시로 붙이고, 아직 안 채워진
+      //             시설은 그 시설 하나만 예전처럼 실시간으로 조회해요(품질기준 14번 안전장치).
+      if (welfareListData.length > 0 && regionSido) {
+        const region = await resolveRegionCode(regionSido, regionSigungu, process.env.STORE_API_KEY);
+        let cacheJrsdSggCd = '';
+        if (region && region.divId === 'signguCd') {
+          // (한글 설명) 기존 실시간 로직과 완전히 동일한 변환 규칙이에요(구 코드 마지막
+          //             자리를 0으로 바꿔서 "시/군 전체" 코드로 맞춤).
+          const cityWideCd = region.key.slice(0, 4) + '0';
+          cacheJrsdSggCd = cityWideCd + '00000';
+        } else if (region && region.divId === 'ctprvnCd') {
+          cacheJrsdSggCd = region.key + '00000000';
+        }
+
+        let cacheList = welfareListData;
+        if (cacheJrsdSggCd) {
+          cacheList = cacheList.filter((it) => it.jrsdSggCd === cacheJrsdSggCd);
+        } else {
+          const norm = (s) => (s || '').replace(/\s/g, '');
+          const sidoNorm = norm(normalizeSido(regionSido));
+          cacheList = cacheList.filter((it) => norm(it.jrsdSggNm || '').startsWith(sidoNorm));
+        }
+        if (facilityType) {
+          cacheList = cacheList.filter((it) => (it.fcltKindNm || '').includes(facilityType));
+        }
+
+        const cachePageSize = 10;
+        const cacheStart = (pageNo - 1) * cachePageSize;
+        const cacheTopItems = cacheList.slice(cacheStart, cacheStart + cachePageSize);
+        const cacheHasMore = cacheStart + cachePageSize < cacheList.length;
+
+        const cacheEnriched = await Promise.all(cacheTopItems.map(async (it) => {
+          const cachedDetail = welfareDetailData[it.fcltCd];
+          if (cachedDetail) {
+            // (한글 설명) 주소·전화번호까지 이미 캐싱 완료된 시설 — 정부 서버 안 부르고 바로 응답
+            return Object.assign({}, it, cachedDetail);
+          }
+          // (한글 설명) 아직 상세정보가 안 채워진 시설 — 예전처럼 그 시설 하나만 실시간 조회
+          let liveDetail = {};
+          try {
+            const detailKey = encodeURIComponent(process.env.WELFARE_API_KEY);
+            const detailUrl = `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getFcltByBassInfoInqire`
+              + `?serviceKey=${detailKey}&numOfRows=1&pageNo=1`
+              + `&fcltCd=${encodeURIComponent(it.fcltCd || '')}`
+              + (it.jrsdSggCd ? `&jrsdSggCd=${encodeURIComponent(it.jrsdSggCd)}`   : '')
+              + (it.fcltKindCd ? `&fcltKindCd=${encodeURIComponent(it.fcltKindCd)}` : '');
+            const detailRes = await fetch(detailUrl);
+            const detailXml = await detailRes.text();
+            const detailItems = parseXmlItems(detailXml, 'item');
+            const candidate = detailItems[0] || {};
+            if (!candidate.fcltCd || candidate.fcltCd === it.fcltCd) liveDetail = candidate;
+          } catch (e) {
+            // 실패해도 목록 정보(이름·종류)라도 보여줘요
+          }
+          const fullAddr = ((liveDetail.fcltAddr || '') + ' ' + (liveDetail.fcltDtl_1Addr || '')).trim();
+          return Object.assign({}, it, { fullAddr, fcltTelNo: liveDetail.fcltTelNo || '' });
+        }));
+
+        return res.status(200).json({ items: cacheEnriched, hasMore: cacheHasMore, pageNo });
+      }
+
+      // (한글 설명) 안전장치 - 캐시가 비어있거나(아직 캐싱 안 됨) 지역을 못 정했으면
+      //             아래로 내려가서 예전처럼 정부 서버에 실시간으로 물어봐요.
 
       // (한글 설명) [버그 수정] 시/도만 고르고 시/군/구를 안 골랐을 때, 예전엔 지역 필터를 아예
       //             안 걸고 전국에서 무작위로 50개만 받아온 다음 이름으로 걸러냈어요. 그 50개 안에

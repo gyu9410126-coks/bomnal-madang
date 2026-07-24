@@ -1,0 +1,51 @@
+# 파일명: .github/workflows/cache-welfare-data.yml
+# 역할: 매일 자동으로 두 스크립트를 순서대로 실행해요.
+#       1) cache-welfare-list.mjs — 복지시설 전체 목록(27,159건) 새로 받기
+#       2) cache-welfare-detail.mjs — 주소·전화번호를 하루 9,000건씩 점진적으로 채우기
+#       (목록이 먼저 갱신돼야 상세정보 스크립트가 "누가 아직 안 채워졌는지" 정확히 알 수 있어요)
+
+name: 복지시설찾기 데이터 자동 캐싱
+
+on:
+  schedule:
+    # (한글 설명) cron은 UTC 기준. 한국시간(KST) 새벽 4시 30분 = UTC 19시 30분(전날).
+    #             다른 캐싱 작업들(4시/4시10분/4시20분)과 안 겹치게 10분 더 늦췄어요.
+    - cron: '30 19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cache-welfare-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 코드 받아오기
+        uses: actions/checkout@v4
+
+      - name: Node.js 20 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 1단계 - 복지시설 전체 목록 받아오기
+        env:
+          WELFARE_API_KEY: ${{ secrets.WELFARE_API_KEY }}
+        run: node scripts/cache-welfare-list.mjs
+
+      - name: 2단계 - 주소·전화번호 하루 9,000건씩 채우기
+        env:
+          WELFARE_API_KEY: ${{ secrets.WELFARE_API_KEY }}
+        run: node scripts/cache-welfare-detail.mjs
+
+      - name: 변경된 파일이 있으면 저장소에 커밋 & 푸시
+        run: |
+          git config user.name "bomnal-bot"
+          git config user.email "actions@github.com"
+          git add api/data/welfare-list.json api/data/welfare-detail.json
+          if git diff --cached --quiet; then
+            echo "변경사항 없음 - 커밋 생략"
+          else
+            git commit -m "chore: 복지시설찾기 데이터 자동 갱신 ($(date -u +'%Y-%m-%d'))"
+            git push
+          fi
