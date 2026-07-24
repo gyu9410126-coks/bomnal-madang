@@ -16,11 +16,14 @@ const SENIOR_API_KEY = process.env.SENIOR_API_KEY;
 // (한글 설명) 2026-07-24 실제 테스트로 500건은 정상 동작 확인됨. 1000건은 아직
 //             테스트 안 해봐서, 검증된 500건으로 안전하게 진행해요.
 const PAGE_SIZE = 500;
-// (한글 설명) 200페이지 × 500건 = 최신 10만 건. 하루 호출 200번이면 한도(10,000)의
-//             2%뿐이라 훨씬 늘려도 안전하지만, "최신순 정렬"이라는 확실한 문서 근거가
-//             없어서(관찰로 추정한 것) 일단 10만 건으로 시작하고, 나중에 지역별로
-//             결과가 너무 적으면 이 숫자를 늘리는 걸 검토하기로 함(경아오빠 2026-07-24).
-const TOTAL_PAGES = 200;
+// (한글 설명) [수정 2026-07-24] 처음엔 "고정 200페이지"를 다 훑는 방식이었는데, 실제
+//             실행해보니 접수중 공고는 앞쪽 몇십 페이지 안에 거의 다 몰려있고, 그 뒤로는
+//             전부 마감된 옛날 공고뿐이었어요(80~120페이지 구간에서 접수중 공고가 0건
+//             늘어남 - 2026-07-24 실행 로그로 확인됨). 게다가 뒷페이지로 갈수록 정부
+//             서버 응답이 느려져서, 필요도 없는 페이지를 훑느라 시간만 오래 걸렸어요.
+//             그래서 "접수중 공고가 연속으로 안 나오면 알아서 멈추기" 방식으로 바꿨어요.
+const MAX_PAGES = 200; // 혹시 몰라 안전장치로 남겨둔 최대 페이지 수(보통 이 전에 멈춰요)
+const STOP_AFTER_EMPTY_PAGES = 10; // 접수중 공고가 연속 10페이지 동안 0건이면 그만 찾아요
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -81,13 +84,15 @@ async function main() {
   const outDir = path.resolve('api/data');
   await fs.mkdir(outDir, { recursive: true });
 
-  console.log(`💼 최신 채용공고 ${TOTAL_PAGES}페이지(최대 ${TOTAL_PAGES * PAGE_SIZE}건) 받아오는 중...`);
+  console.log(`💼 최신 채용공고 받아오는 중... (접수중 공고가 연속 ${STOP_AFTER_EMPTY_PAGES}페이지 동안 안 나오면 자동으로 멈춰요, 최대 ${MAX_PAGES}페이지)`);
 
   let allItems = [];
   let rawTotal = 0;
+  let emptyStreak = 0; // 접수중 공고가 0건이었던 페이지가 연속 몇 번인지
+  let lastPageReached = 0;
 
   try {
-    for (let pageNo = 1; pageNo <= TOTAL_PAGES; pageNo++) {
+    for (let pageNo = 1; pageNo <= MAX_PAGES; pageNo++) {
       const url =
         `https://apis.data.go.kr/B552474/SenuriService/getJobList` +
         `?serviceKey=${encodeURIComponent(SENIOR_API_KEY)}&pageNo=${pageNo}&numOfRows=${PAGE_SIZE}`;
@@ -95,10 +100,23 @@ async function main() {
       const pageItems = parsePage(xml);
       rawTotal += (xml.match(/<item>/g) || []).length;
       allItems = allItems.concat(pageItems);
+      lastPageReached = pageNo;
 
-      if (pageNo % 20 === 0 || pageNo === TOTAL_PAGES) {
-        console.log(`   ${pageNo}/${TOTAL_PAGES} 페이지 완료 (누적 원본 ${rawTotal}건 중 접수중 ${allItems.length}건)`);
+      if (pageItems.length === 0) {
+        emptyStreak++;
+      } else {
+        emptyStreak = 0;
       }
+
+      if (pageNo % 10 === 0 || pageNo === MAX_PAGES) {
+        console.log(`   ${pageNo}페이지 완료 (누적 원본 ${rawTotal}건 중 접수중 ${allItems.length}건, 최근 연속 빈페이지 ${emptyStreak}회)`);
+      }
+
+      if (emptyStreak >= STOP_AFTER_EMPTY_PAGES) {
+        console.log(`   ⏹️ 접수중 공고가 연속 ${STOP_AFTER_EMPTY_PAGES}페이지 동안 안 나와서 ${pageNo}페이지에서 멈춰요.`);
+        break;
+      }
+
       await sleep(150);
     }
   } catch (err) {
@@ -107,11 +125,12 @@ async function main() {
     return;
   }
 
-  // (한글 설명) 안전장치 - 받아온 원본 개수가 너무 적으면(예: 정부 서버 문제로 페이지가
-  //             거의 다 비어있게 왔으면) 저장을 건너뛰고 어제 파일을 그대로 유지해요.
-  const expectedMin = TOTAL_PAGES * PAGE_SIZE * 0.5; // 원본 기준 절반 이상은 와야 정상으로 판단
-  if (rawTotal < expectedMin) {
-    console.error(`❌ 받아온 원본 개수(${rawTotal}건)가 너무 적어요(기대치 ${expectedMin}건 이상). 저장을 건너뛰고 기존 파일을 유지해요.`);
+  console.log(`📊 실제로 훑은 페이지: ${lastPageReached}페이지 (원본 ${rawTotal}건 중 접수중 ${allItems.length}건)`);
+
+  // (한글 설명) 안전장치 - 너무 일찍(예: 정부 서버 첫 페이지부터 이상 응답) 멈췄으면
+  //             뭔가 잘못된 걸로 보고 저장을 건너뛰고 어제 파일을 유지해요.
+  if (lastPageReached < 3 || allItems.length === 0) {
+    console.error('❌ 너무 일찍 멈췄거나 접수중 공고가 0건이에요. 저장을 건너뛰고 기존 파일을 유지해요.');
     process.exitCode = 1;
     return;
   }
