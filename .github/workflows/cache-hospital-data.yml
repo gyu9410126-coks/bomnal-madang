@@ -1,0 +1,45 @@
+# 파일명: .github/workflows/cache-hospital-data.yml
+# 역할: 매일 자동으로 scripts/cache-hospital-data.mjs를 실행해서
+#       병원찾기 데이터(시/도별 17개 파일)를 새로 받아오고, 저장소에 저장(커밋)해요.
+# (한글 설명) 기존 cache-health-data.yml, cache-finance-data.yml과는 완전히 별도 파일이에요.
+
+name: 병원찾기 데이터 자동 캐싱
+
+on:
+  schedule:
+    # (한글 설명) cron은 UTC 기준. 한국시간(KST) 새벽 4시 20분 = UTC 19시 20분(전날).
+    #             다른 두 캐싱 작업(4시, 4시 10분)과 겹치지 않도록 10분 더 늦췄어요.
+    - cron: '20 19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cache-hospital-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 코드 받아오기
+        uses: actions/checkout@v4
+
+      - name: Node.js 20 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 정부 API에서 시/도별 데이터 받아와 JSON으로 저장
+        env:
+          HOSPITAL_API_KEY: ${{ secrets.HOSPITAL_API_KEY }}
+        run: node scripts/cache-hospital-data.mjs
+
+      - name: 변경된 파일이 있으면 저장소에 커밋 & 푸시
+        run: |
+          git config user.name "bomnal-bot"
+          git config user.email "actions@github.com"
+          git add api/data/hospital-*.json
+          if git diff --cached --quiet; then
+            echo "변경사항 없음 - 커밋 생략"
+          else
+            git commit -m "chore: 병원찾기 데이터 자동 갱신 ($(date -u +'%Y-%m-%d'))"
+            git push
+          fi

@@ -3,6 +3,41 @@
 // Vercel 서버리스 함수 (API 키를 클라이언트에 노출하지 않기 위한 중간 서버)
 // =============================================
 
+// (한글 설명) [신규 2026-07-24] 병원찾기 캐시 데이터는 전국 하나로 합치면 파일이 너무 커져서
+//             (서울만 2만 건 가까이 됨), 시/도별로 17개 파일로 나눠서 저장해요. import 방식으로
+//             17개를 한꺼번에 다 불러오면 어떤 지역을 검색하든 항상 전국 데이터가 메모리에
+//             올라가서 낭비니까, fs로 "요청 들어온 지역 파일 딱 1개"만 그때그때 읽어와요.
+//             (이 방식이 안전하게 배포되려면 vercel.json에 이 데이터 파일들을 포함시키라는
+//             설정이 필요해서 같이 추가했어요 - includeFiles)
+import fs from 'node:fs';
+import path from 'node:path';
+
+const hospitalCacheMemo = {}; // 같은 실행(warm start) 안에서 같은 파일 반복해서 안 읽도록
+function loadHospitalCache(sidoCd) {
+  if (!sidoCd) return [];
+  if (hospitalCacheMemo[sidoCd]) return hospitalCacheMemo[sidoCd];
+  try {
+    const filePath = path.join(process.cwd(), 'api', 'data', `hospital-${sidoCd}.json`);
+    const raw = fs.readFileSync(filePath, 'utf8');
+    const data = JSON.parse(raw);
+    hospitalCacheMemo[sidoCd] = data;
+    return data;
+  } catch (e) {
+    return []; // 파일이 없거나(아직 캐싱 안 됨) 읽기 실패하면 빈 배열 - 실시간 방식으로 자동 폴백
+  }
+}
+
+// (한글 설명) 두 좌표(위도,경도) 사이의 실제 거리(미터)를 구하는 공식(하버사인 공식)이에요.
+//             캐시에 저장해둔 병원 좌표와 내 GPS 좌표 사이 거리를 재서 가까운 순으로 정렬할 때 써요.
+function haversineMeters(lat1, lng1, lat2, lng2) {
+  const R = 6371000; // 지구 반지름(미터)
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+}
+
 // (한글 설명) 요양시설 3만여 곳 데이터를 "실시간으로 정부 API에 물어보는" 대신,
 //             미리 만들어둔 파일(data/care-data.json)에서 바로 꺼내 써요.
 //             import 방식은 배포할 때 Vercel이 이 파일이 필요하다는 걸 자동으로
@@ -841,6 +876,90 @@ export default async function handler(req, res) {
     // ─────────────────────────────────────────
     else if (type === 'hospital') {
       const { sido, sigungu, dong, clCd, dgsbjtCd, lat, lng } = params;
+
+      // (한글 설명) [신규 2026-07-24] 진료과목(dgsbjtCd) 필터는 캐시 파일에 없는 정보라서
+      //             이 조건으로 검색할 때만 정부 서버 실시간으로 넘어가요. 그 외(지역 검색,
+      //             GPS 검색, 종별 필터)는 아래에서 먼저 캐시로 처리를 시도해요.
+      if (!dgsbjtCd) {
+        let cacheSidoCd = null;
+        let cacheSgguCds = null; // null이면 시/도 전체, 배열이면 그 안의 구만
+        let cacheDong = dong || null;
+
+        if (lat && lng) {
+          // (한글 설명) GPS 좌표 → "어느 시/도, 시/군/구인지" 이름으로 바꾸는 건 전통시장찾기
+          //             에서 이미 검증된 함수(reverseGeocodeSidoSigungu)를 그대로 재사용해요.
+          const geo = await reverseGeocodeSidoSigungu(lat, lng, process.env.KAKAO_API_KEY);
+          if (geo) {
+            const region = resolveHospitalRegion(normalizeSido(geo.sido), geo.sigungu);
+            if (region) {
+              cacheSidoCd = region.sidoCd;
+              cacheSgguCds = region.sgguCds || (region.sgguCd ? [region.sgguCd] : null);
+            }
+          }
+        } else if (sido) {
+          const region = resolveHospitalRegion(sido, sigungu);
+          if (region) {
+            cacheSidoCd = region.sidoCd;
+            cacheSgguCds = region.sgguCds || (region.sgguCd ? [region.sgguCd] : null);
+          }
+        }
+
+        if (cacheSidoCd) {
+          const cacheData = loadHospitalCache(cacheSidoCd);
+          if (cacheData.length > 0) {
+            let list = cacheData;
+            if (cacheSgguCds) {
+              list = list.filter((it) => cacheSgguCds.some((c) => String(c) === String(it.sgguCd)));
+            }
+            if (cacheDong) {
+              const norm = (s) => (s || '').replace(/\s/g, '');
+              const filtered = list.filter((it) => norm(it.emdongNm) === norm(cacheDong));
+              if (filtered.length > 0) list = filtered; // 못 찾으면 시/군/구 전체로 그대로 진행
+            }
+            if (clCd) {
+              list = list.filter((it) => String(it.clCd) === String(clCd));
+            }
+
+            const pageNo = Math.max(parseInt(params.pageNo || '1', 10) || 1, 1);
+            const numOfRows = Math.min(parseInt(params.numOfRows || '10', 10) || 10, 20);
+            let items;
+            let totalCount;
+
+            if (lat && lng) {
+              // (한글 설명) GPS 모드 - 캐시에 이미 들어있는 좌표(XPos/YPos)로 직접 거리를
+              //             계산해서, 반경 30km 안에서 가까운 순서로 정렬해요(품질기준 11번).
+              const withDist = list
+                .map((it) => {
+                  const y = parseFloat(it.YPos);
+                  const x = parseFloat(it.XPos);
+                  if (!y || !x) return null;
+                  const distance = haversineMeters(parseFloat(lat), parseFloat(lng), y, x);
+                  return { ...it, distance: String(Math.round(distance)) };
+                })
+                .filter((it) => it && parseFloat(it.distance) <= 30000)
+                .sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+              totalCount = withDist.length;
+              const start = (pageNo - 1) * numOfRows;
+              items = withDist.slice(start, start + numOfRows);
+            } else {
+              totalCount = list.length;
+              const start = (pageNo - 1) * numOfRows;
+              items = list.slice(start, start + numOfRows);
+            }
+
+            return res.status(200).json({
+              response: {
+                header: { resultCode: '00', resultMsg: 'NORMAL SERVICE.(캐시)' },
+                body: { items: { item: items }, numOfRows, pageNo, totalCount },
+              },
+            });
+          }
+          // (한글 설명) 안전장치 - 캐시 파일이 비어있으면(아직 캐싱 안 됐거나 실패) 아래로
+          //             내려가서 예전처럼 정부 서버에 실시간으로 물어봐요.
+        }
+      }
+
+      // ── 안전장치 & dgsbjtCd 검색 - 예전 방식(정부 서버 실시간 호출) ──
       url = 'https://apis.data.go.kr/B551182/hospInfoServicev2/getHospBasisList';
       queryParams.append('serviceKey', process.env.HOSPITAL_API_KEY);
       queryParams.append('pageNo', params.pageNo || '1');
