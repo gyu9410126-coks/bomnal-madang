@@ -2426,8 +2426,18 @@ function openKakaoMapPlace(appUrl, webUrl) {
 }
 
 function confirmExternalLink(url) {
+  // (한글 설명) [버그 수정 2026-07-24] 정부 데이터의 홈페이지 주소가 종종
+  //             "https://" 없이 "www.어쩌고.kr" 형태로만 와요. 이걸 그대로 열면
+  //             브라우저가 "우리 사이트 안의 페이지"로 착각해서 엉뚱한 주소로
+  //             이동하거나 깨져요. 그래서 주소 앞에 http(s)://가 없으면 자동으로
+  //             https://를 붙여줘요. 이미 https://나 http://로 시작하는 주소는
+  //             그대로 두니까(카카오맵, 쿠팡 링크 등), 기존 동작엔 영향 없어요.
+  var fixedUrl = (url || '').trim();
+  if (fixedUrl && !/^https?:\/\//i.test(fixedUrl)) {
+    fixedUrl = 'https://' + fixedUrl;
+  }
   if (confirm('외부 사이트로 이동합니다.\n봄날마당으로 돌아오려면 휴대폰 뒤로가기를 누르세요.')) {
-    window.open(url, '_blank');
+    window.open(fixedUrl, '_blank');
   }
 }
 
