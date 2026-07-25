@@ -2167,6 +2167,9 @@ function renderJobItems(items){
   var html='';
   var today=new Date();
   items.forEach(function(item){
+    if(String(item.id||'').indexOf('selfreliance-')===0){
+      selfRelianceItemMap[item.id]=item;
+    }
     var deadlineText=item.endDate||'마감일 미정';
     var deadlineClass='';
     if(item.endDate&&item.endDate.length===8){
@@ -2336,6 +2339,11 @@ function searchNewJobApi2(){ return searchNewJobs(jobState2,'job-api-list2','job
 loadJobApi();
 
 var jobDetailCache={};
+// (한글 설명) [신규 2026-07-24] 자립형일자리(id가 "selfreliance-"로 시작하는 항목)는
+//             일반 채용공고와 API가 완전히 달라서, jobs-detail API로 상세조회를 하면
+//             에러가 나요. 그래서 목록에 있던 정보를 여기 저장해뒀다가, 클릭하면
+//             API 호출 없이 바로 그 정보로 팝업을 보여줘요.
+var selfRelianceItemMap={};
 
 function getJobPopupSkeletonHTML(){
   return '<div class="job-popup-box"><div class="skel skel-popup-title"></div><div class="skel skel-popup-row"></div><div class="skel skel-popup-row"></div><div class="skel skel-popup-row"></div><div class="skel skel-popup-row" style="width:70%;"></div><div class="skel skel-popup-btn"></div></div>';
@@ -2348,6 +2356,26 @@ async function openJobPopup(jobId){
   overlay.innerHTML=getJobPopupSkeletonHTML();
   overlay.addEventListener('click',function(e){if(e.target===overlay)closeJobPopup();});
   document.body.appendChild(overlay);
+
+  // (한글 설명) [신규 2026-07-24] 자립형일자리는 별도 API가 없어서(목록 정보가
+  //             전부라서), jobs-detail을 호출하지 않고 이미 갖고 있는 정보로 바로
+  //             보여줘요. 전화번호가 없어서 "수행기관 문의"로 안내해요.
+  if(selfRelianceItemMap[jobId]){
+    var it=selfRelianceItemMap[jobId];
+    renderJobPopup(overlay,{
+      title:it.title,
+      company:it.company,
+      address:it.location,
+      headcount:'',
+      age:'',
+      ageLim:'',
+      endDate:it.endDate,
+      applyMethod:'수행기관에 직접 문의해 주세요',
+      phone:'',
+    });
+    return;
+  }
+
   var cached=jobDetailCache[jobId];
   if(cached&&(Date.now()-cached.time)<JOB_CACHE_TTL){renderJobPopup(overlay,cached.detail);return;}
   try{

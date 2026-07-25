@@ -98,6 +98,100 @@ function parsePage(xml) {
   return items;
 }
 
+// (한글 설명) [신규 2026-07-24] 한국노인인력개발원의 "자립형일자리 사업모집공고"
+//             (JobBsnInfoService)도 같은 방식으로 캐싱해서 목록에 합쳐요. 이건
+//             구체적인 채용공고가 아니라 "이 지역 시니어클럽 등이 몇 명 뽑는 사업을
+//             운영 중"이라는 성격이라, 화면에 보여줄 제목을 저희가 직접 만들어야 해요.
+//             지역명은 이미 "충청남도 청양군"처럼 텍스트로 오기 때문에, 기존 지역검색
+//             (location.includes(region))이 코드 수정 없이 그대로 잘 작동해요.
+const SELF_RELIANCE_PAGE_SIZE = 500;
+
+// XML에서 <item>...</item> 블록마다, 그 안의 모든 <태그>값</태그>을 객체로 뽑아내는
+// 범용 파서예요(태그 이름을 미리 몰라도 다 뽑아줘요).
+function parseGenericXmlItems(xml) {
+  const items = [];
+  const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+  let m;
+  while ((m = itemRegex.exec(xml)) !== null) {
+    const block = m[1];
+    const obj = {};
+    const fieldRegex = /<([^\/>\s]+)[^>]*>([\s\S]*?)<\/\1>/g;
+    let f;
+    while ((f = fieldRegex.exec(block)) !== null) {
+      obj[f[1]] = f[2].trim();
+    }
+    items.push(obj);
+  }
+  return items;
+}
+
+function buildSelfRelianceTitle(it) {
+  const org = it.orgName || '수행기관';
+  const count = it.hpInvtCnt ? `모집 ${it.hpInvtCnt}명` : '모집중';
+  return `[자립형일자리] ${org} (${count})`;
+}
+
+const SELF_RELIANCE_TYPE_MAP = { int: '인턴형', trn: '연수형' };
+
+async function fetchSelfRelianceItems() {
+  const base = 'http://apis.data.go.kr/B552474/JobBsnInfoService/getJobBsnRecruitList';
+  const firstUrl = `${base}?ServiceKey=${encodeURIComponent(SENIOR_API_KEY)}&numOfRows=${SELF_RELIANCE_PAGE_SIZE}&pageNo=1`;
+
+  let firstXml;
+  try {
+    firstXml = await fetchPageXmlWithRetry(firstUrl);
+  } catch (err) {
+    console.error('   ⚠️ 자립형일자리 1페이지 실패 - 이 부분은 건너뛰고 계속 진행해요:', err.message);
+    return [];
+  }
+
+  const totalCountMatch = firstXml.match(/<totalCount>(\d+)<\/totalCount>/);
+  const totalCount = totalCountMatch ? parseInt(totalCountMatch[1], 10) : 0;
+  if (totalCount === 0) {
+    console.log('   ⚠️ 자립형일자리 전체 건수를 확인할 수 없어요 - 이 부분은 건너뛰어요.');
+    return [];
+  }
+  const totalPages = Math.ceil(totalCount / SELF_RELIANCE_PAGE_SIZE);
+  console.log(`🧩 자립형일자리 사업모집공고 전체 ${totalCount}건(${totalPages}페이지) 받아오는 중...`);
+
+  let rawItems = parseGenericXmlItems(firstXml);
+  let failedPages = 0;
+
+  for (let pageNo = 2; pageNo <= totalPages; pageNo++) {
+    const url = `${base}?ServiceKey=${encodeURIComponent(SENIOR_API_KEY)}&numOfRows=${SELF_RELIANCE_PAGE_SIZE}&pageNo=${pageNo}`;
+    try {
+      const xml = await fetchPageXmlWithRetry(url);
+      rawItems = rawItems.concat(parseGenericXmlItems(xml));
+    } catch (e) {
+      failedPages++;
+    }
+    if (pageNo % 10 === 0 || pageNo === totalPages) {
+      console.log(`   자립형일자리 ${pageNo}/${totalPages}페이지 완료 (누적 원본 ${rawItems.length}건, 실패 ${failedPages}페이지)`);
+    }
+    await sleep(200);
+  }
+
+  // (한글 설명) 안전장치 - 페이지 실패가 너무 많으면(20% 이상) 이 부분은
+  //             신뢰할 수 없다고 보고 건너뛰어요(기존 SenuriService 데이터는 그대로 저장돼요).
+  if (failedPages > totalPages * 0.2) {
+    console.error(`   ❌ 자립형일자리 페이지 실패가 너무 많아요(${failedPages}/${totalPages}) - 이 부분은 건너뛰어요.`);
+    return [];
+  }
+
+  const recruiting = rawItems.filter((it) => it.trnStatNm === '모집중');
+  console.log(`   → 자립형일자리: 전체 ${rawItems.length}건 중 모집중 ${recruiting.length}건`);
+
+  return recruiting.map((it) => ({
+    id: 'selfreliance-' + (it.projNo || Math.random().toString(36).slice(2)),
+    title: buildSelfRelianceTitle(it),
+    company: it.orgName || '',
+    workType: SELF_RELIANCE_TYPE_MAP[it.jobType] || '자립형 일자리',
+    location: [it.dstrCd1Nm, it.dstrCd2Nm].filter(Boolean).join(' '),
+    startDate: it.hpNotiSdate || '',
+    endDate: it.hpNotiEdate || '',
+  }));
+}
+
 async function main() {
   if (!SENIOR_API_KEY) {
     console.error('🔥 SENIOR_API_KEY 환경변수가 없어요. GitHub Secrets 등록을 확인해 주세요.');
@@ -175,8 +269,16 @@ async function main() {
     return;
   }
 
-  await fs.writeFile(path.join(outDir, 'jobs-cache.json'), JSON.stringify(allItems), 'utf8');
-  console.log(`✅ api/data/jobs-cache.json 저장 완료 (접수중 공고 ${allItems.length}건)`);
+  // (한글 설명) [신규 2026-07-24] 여기까지는 기존 SenuriService(민간형 채용) 데이터예요.
+  //             이제 자립형일자리 사업모집공고를 추가로 받아와서 같은 목록에 합쳐요.
+  //             이 부분이 실패해도(위 함수 안에서 이미 안전하게 처리) 기존 데이터는
+  //             그대로 저장돼요 - 전체가 같이 실패하지 않아요.
+  const selfRelianceItems = await fetchSelfRelianceItems();
+  const combinedItems = allItems.concat(selfRelianceItems);
+  console.log(`📊 최종 합계: 민간형 ${allItems.length}건 + 자립형 ${selfRelianceItems.length}건 = 총 ${combinedItems.length}건`);
+
+  await fs.writeFile(path.join(outDir, 'jobs-cache.json'), JSON.stringify(combinedItems), 'utf8');
+  console.log(`✅ api/data/jobs-cache.json 저장 완료 (총 ${combinedItems.length}건)`);
 }
 
 main().catch((err) => {
