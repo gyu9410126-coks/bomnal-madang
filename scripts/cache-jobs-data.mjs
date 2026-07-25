@@ -28,9 +28,17 @@ const PAGE_SIZE = 500;
 //             느려짐 (2) 한 번에 50개씩 동시요청하면 너무 많아서 서로 방해되는 듯함.
 //             그래서 동시요청 개수를 여유있게 낮추고(15개), 페이지 하나가 너무 오래
 //             걸리면 그 페이지만 포기하고 넘어가도록(10초 타임아웃) 만들었어요.
-const CONCURRENCY = 15; // 한 번에 동시에 몇 페이지씩 요청할지 (50은 너무 많았다는 교훈 반영)
-const BATCH_PAUSE_MS = 300;
-const PAGE_TIMEOUT_MS = 10000; // 페이지 하나가 10초 넘게 걸리면 포기하고 다음으로
+// (한글 설명) [4차 수정 2026-07-24] 동시요청 15개로 시도했더니 1,522/1,523페이지가
+//             전부 실패했어요. 바로 직전에 "순차적으로(1개씩)" 50페이지를 돌렸을 땐
+//             멀쩡했던 걸 보면, 이 정부 서버(노인인력개발원)는 "동시에 여러 개 요청"
+//             자체를 못 견디고 막아버리는 것 같아요(오늘 쓴 총 호출 횟수도 몇백 번뿐이라
+//             하루 한도 소진은 아닌 것으로 보임). 그래서 동시요청 개수를 3개로 확
+//             낮췄고, 실패한 페이지는 한 번 더 재시도하도록(잠깐 쉬었다가) 안전장치를
+//             추가했어요.
+const CONCURRENCY = 3; // 15개는 실패, 순차(1개)는 성공 - 그 중간값으로 안전하게
+const BATCH_PAUSE_MS = 400;
+const PAGE_TIMEOUT_MS = 12000;
+const PAGE_RETRY_DELAY_MS = 2000;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -45,6 +53,18 @@ async function fetchPageXmlWithTimeout(url, ms) {
     return await r.text();
   } finally {
     clearTimeout(timer);
+  }
+}
+
+// (한글 설명) 한 번 실패해도 바로 포기하지 않고, 잠깐 쉬었다가 딱 한 번만 더
+//             시도해요(이 서버가 가끔 일시적으로 느릴 때가 있어서, 한 번 더 주면
+//             성공하는 경우가 있어요).
+async function fetchPageXmlWithRetry(url) {
+  try {
+    return await fetchPageXmlWithTimeout(url, PAGE_TIMEOUT_MS);
+  } catch (e) {
+    await sleep(PAGE_RETRY_DELAY_MS);
+    return await fetchPageXmlWithTimeout(url, PAGE_TIMEOUT_MS);
   }
 }
 
@@ -95,7 +115,7 @@ async function main() {
     `?serviceKey=${encodeURIComponent(SENIOR_API_KEY)}&pageNo=1&numOfRows=${PAGE_SIZE}`;
   let firstXml;
   try {
-    firstXml = await fetchPageXmlWithTimeout(firstUrl, PAGE_TIMEOUT_MS);
+    firstXml = await fetchPageXmlWithRetry(firstUrl);
   } catch (err) {
     console.error('🔥 1페이지 받아오기 실패:', err.message);
     process.exitCode = 1;
@@ -125,7 +145,7 @@ async function main() {
         `https://apis.data.go.kr/B552474/SenuriService/getJobList` +
         `?serviceKey=${encodeURIComponent(SENIOR_API_KEY)}&pageNo=${pageNo}&numOfRows=${PAGE_SIZE}`;
       try {
-        const xml = await fetchPageXmlWithTimeout(url, PAGE_TIMEOUT_MS);
+        const xml = await fetchPageXmlWithRetry(url);
         return { ok: true, items: parsePage(xml) };
       } catch (e) {
         return { ok: false, items: [] };
