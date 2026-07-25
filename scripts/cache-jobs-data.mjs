@@ -1,10 +1,11 @@
 // 파일명: scripts/cache-jobs-data.mjs
 // 역할: GitHub Actions가 하루 1번 실행해요.
-//       노인일자리 채용공고는 전체 76만 건이 넘고 계속 바뀌는(마감/신규등록) 데이터라서,
-//       "전체를 다 캐싱"하는 대신 "최신 등록순 10만 건 중 접수중인 것만"을 매일 통째로
-//       새로 받아와 api/data/jobs-cache.json에 덮어써요(어제 것을 완전히 지우고 새로
-//       채움 - 그래서 항상 "오늘 기준 최신 상태"를 유지해요, 복지시설처럼 조금씩
-//       채워나가는 방식이 아니에요).
+//       노인일자리 채용공고 전체(76만 건 이상)를 다 훑어서, 그중 "접수중"인 공고만
+//       골라내 api/data/jobs-cache.json에 매일 통째로 새로 저장해요(어제 것을 완전히
+//       지우고 새로 채움 - 그래서 항상 "오늘 기준 최신 상태"를 유지해요, 복지시설처럼
+//       조금씩 채워나가는 방식이 아니에요). 전체를 다 훑는 이유는, "최근 등록된 것만"
+//       보면 오래전에 등록됐지만 접수기간이 길어서 여전히 접수중인 공고를 놓칠 수
+//       있기 때문이에요(2026-07-24 실제로 이 문제를 발견해서 방식을 바꿨어요).
 //       이 방식으로 지역검색(regionSearch)과 기본 목록 조회 둘 다 정부 서버를 매번
 //       실시간으로 안 부르고 캐시에서 바로 처리할 수 있어요.
 
@@ -16,34 +17,35 @@ const SENIOR_API_KEY = process.env.SENIOR_API_KEY;
 // (한글 설명) 2026-07-24 실제 테스트로 500건은 정상 동작 확인됨. 1000건은 아직
 //             테스트 안 해봐서, 검증된 500건으로 안전하게 진행해요.
 const PAGE_SIZE = 500;
-// (한글 설명) [2차 수정 2026-07-24] 첫 실행 결과, 10페이지 만에 접수중 385건에서
-//             멈췄는데 - 1페이지만 해도 500건 중 315건이 접수중이었던 걸 감안하면
-//             너무 적은 숫자였어요. "최신순 정렬"이 저희 관찰로 추정한 것이지 정부
-//             문서로 보장된 게 아니라서, 중간에 우연히 빈 페이지가 몰려서 너무 일찍
-//             멈췄을 위험이 있어요. 그래서 "최소 50페이지는 무조건 확인"하고, 그 이후
-//             부터는 연속 30페이지 동안 접수중 공고가 안 나와야 멈추도록 여유를 크게
-//             늘렸어요(트래픽은 넉넉해서 이 정도는 완전히 안전해요).
-const MAX_PAGES = 200; // 혹시 몰라 안전장치로 남겨둔 최대 페이지 수
-const MIN_PAGES = 50; // 이 페이지까지는 접수중 공고가 안 나와도 절대 안 멈춰요
-const STOP_AFTER_EMPTY_PAGES = 30; // MIN_PAGES를 넘긴 뒤, 연속 이만큼 비면 멈춰요
+// (한글 설명) [3차 수정 2026-07-24] "최신순으로 훑다가 안 나오면 멈추기" 방식으로는
+//             385건만 잡혔는데, 다시 생각해보니 "오래전에 등록됐지만 접수기간이 길어서
+//             여전히 접수중인" 공고를 놓칠 수 있다는 걸 깨달았어요(경아오빠 지적).
+//             그래서 방식을 바꿔서 "전체를 다 훑어서 접수중인 것만 골라내는" 방식으로
+//             바꿨어요. 전체 76만 건을 500건씩 봐도 약 1,523번이면 되고, 이건 하루
+//             한도(10,000회)의 15%뿐이라 완전히 안전해요.
+//             [주의] 예전에 일자리 지역검색을 만들 때 이미 겪었던 교훈을 그대로
+//             반영했어요(메모리 기록): (1) 뒷페이지로 갈수록 정부 서버 응답이 훨씬
+//             느려짐 (2) 한 번에 50개씩 동시요청하면 너무 많아서 서로 방해되는 듯함.
+//             그래서 동시요청 개수를 여유있게 낮추고(15개), 페이지 하나가 너무 오래
+//             걸리면 그 페이지만 포기하고 넘어가도록(10초 타임아웃) 만들었어요.
+const CONCURRENCY = 15; // 한 번에 동시에 몇 페이지씩 요청할지 (50은 너무 많았다는 교훈 반영)
+const BATCH_PAUSE_MS = 300;
+const PAGE_TIMEOUT_MS = 10000; // 페이지 하나가 10초 넘게 걸리면 포기하고 다음으로
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function fetchWithRetry(url, retries = 2) {
-  let lastError = null;
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const r = await fetch(url);
-      if (!r.ok) throw new Error('HTTP 상태코드 ' + r.status);
-      return await r.text();
-    } catch (err) {
-      lastError = err;
-      if (attempt < retries) await sleep(1500);
-    }
+async function fetchPageXmlWithTimeout(url, ms) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    const r = await fetch(url, { signal: controller.signal });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return await r.text();
+  } finally {
+    clearTimeout(timer);
   }
-  throw lastError;
 }
 
 function get(itemXml, tag) {
@@ -86,53 +88,69 @@ async function main() {
   const outDir = path.resolve('api/data');
   await fs.mkdir(outDir, { recursive: true });
 
-  console.log(`💼 최신 채용공고 받아오는 중... (접수중 공고가 연속 ${STOP_AFTER_EMPTY_PAGES}페이지 동안 안 나오면 자동으로 멈춰요, 최대 ${MAX_PAGES}페이지)`);
-
-  let allItems = [];
-  let rawTotal = 0;
-  let emptyStreak = 0; // 접수중 공고가 0건이었던 페이지가 연속 몇 번인지
-  let lastPageReached = 0;
-
+  // (한글 설명) 먼저 1페이지만 받아서 "전체 몇 건인지(totalCount)"를 확인하고,
+  //             거기서 전체 페이지 수를 계산해요.
+  const firstUrl =
+    `https://apis.data.go.kr/B552474/SenuriService/getJobList` +
+    `?serviceKey=${encodeURIComponent(SENIOR_API_KEY)}&pageNo=1&numOfRows=${PAGE_SIZE}`;
+  let firstXml;
   try {
-    for (let pageNo = 1; pageNo <= MAX_PAGES; pageNo++) {
-      const url =
-        `https://apis.data.go.kr/B552474/SenuriService/getJobList` +
-        `?serviceKey=${encodeURIComponent(SENIOR_API_KEY)}&pageNo=${pageNo}&numOfRows=${PAGE_SIZE}`;
-      const xml = await fetchWithRetry(url);
-      const pageItems = parsePage(xml);
-      rawTotal += (xml.match(/<item>/g) || []).length;
-      allItems = allItems.concat(pageItems);
-      lastPageReached = pageNo;
-
-      if (pageItems.length === 0) {
-        emptyStreak++;
-      } else {
-        emptyStreak = 0;
-      }
-
-      if (pageNo % 10 === 0 || pageNo === MAX_PAGES) {
-        console.log(`   ${pageNo}페이지 완료 (누적 원본 ${rawTotal}건 중 접수중 ${allItems.length}건, 최근 연속 빈페이지 ${emptyStreak}회)`);
-      }
-
-      if (emptyStreak >= STOP_AFTER_EMPTY_PAGES && pageNo >= MIN_PAGES) {
-        console.log(`   ⏹️ 최소 ${MIN_PAGES}페이지를 넘긴 뒤 접수중 공고가 연속 ${STOP_AFTER_EMPTY_PAGES}페이지 동안 안 나와서 ${pageNo}페이지에서 멈춰요.`);
-        break;
-      }
-
-      await sleep(150);
-    }
+    firstXml = await fetchPageXmlWithTimeout(firstUrl, PAGE_TIMEOUT_MS);
   } catch (err) {
-    console.error('🔥 받아오기 중 오류:', err.message);
+    console.error('🔥 1페이지 받아오기 실패:', err.message);
     process.exitCode = 1;
     return;
   }
+  const totalCountMatch = firstXml.match(/<totalCount>(\d+)<\/totalCount>/);
+  const totalCount = totalCountMatch ? parseInt(totalCountMatch[1], 10) : 0;
+  if (totalCount === 0) {
+    console.error('❌ 전체 건수(totalCount)를 확인할 수 없어요. 저장을 건너뛰고 기존 파일을 유지해요.');
+    process.exitCode = 1;
+    return;
+  }
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  console.log(`💼 전체 ${totalCount}건(${totalPages}페이지)을 전부 훑어서 접수중인 공고만 골라낼게요.`);
+  console.log(`   (동시요청 ${CONCURRENCY}개씩, 한 페이지가 ${PAGE_TIMEOUT_MS / 1000}초 넘게 걸리면 그 페이지만 포기하고 넘어가요)`);
 
-  console.log(`📊 실제로 훑은 페이지: ${lastPageReached}페이지 (원본 ${rawTotal}건 중 접수중 ${allItems.length}건)`);
+  let allItems = parsePage(firstXml);
+  let successPages = 1;
+  let failedPages = 0;
+  const pageNumbers = [];
+  for (let p = 2; p <= totalPages; p++) pageNumbers.push(p);
 
-  // (한글 설명) 안전장치 - 너무 일찍(예: 정부 서버 첫 페이지부터 이상 응답) 멈췄으면
-  //             뭔가 잘못된 걸로 보고 저장을 건너뛰고 어제 파일을 유지해요.
-  if (lastPageReached < 3 || allItems.length === 0) {
-    console.error('❌ 너무 일찍 멈췄거나 접수중 공고가 0건이에요. 저장을 건너뛰고 기존 파일을 유지해요.');
+  for (let i = 0; i < pageNumbers.length; i += CONCURRENCY) {
+    const chunk = pageNumbers.slice(i, i + CONCURRENCY);
+    const results = await Promise.all(chunk.map(async (pageNo) => {
+      const url =
+        `https://apis.data.go.kr/B552474/SenuriService/getJobList` +
+        `?serviceKey=${encodeURIComponent(SENIOR_API_KEY)}&pageNo=${pageNo}&numOfRows=${PAGE_SIZE}`;
+      try {
+        const xml = await fetchPageXmlWithTimeout(url, PAGE_TIMEOUT_MS);
+        return { ok: true, items: parsePage(xml) };
+      } catch (e) {
+        return { ok: false, items: [] };
+      }
+    }));
+
+    results.forEach((r) => {
+      if (r.ok) { successPages++; } else { failedPages++; }
+      allItems = allItems.concat(r.items);
+    });
+
+    const donePages = Math.min(i + CONCURRENCY, pageNumbers.length) + 1;
+    if (donePages % 150 < CONCURRENCY || donePages === totalPages) {
+      console.log(`   ${donePages}/${totalPages}페이지 진행 중... (누적 접수중 ${allItems.length}건, 실패 ${failedPages}페이지)`);
+    }
+
+    await sleep(BATCH_PAUSE_MS);
+  }
+
+  console.log(`📊 완료: ${successPages}/${totalPages}페이지 성공(실패 ${failedPages}페이지), 접수중 공고 ${allItems.length}건`);
+
+  // (한글 설명) 안전장치 - 성공한 페이지가 너무 적으면(예: 정부 서버 전체 장애)
+  //             저장을 건너뛰고 어제 파일을 그대로 유지해요.
+  if (successPages < totalPages * 0.8) {
+    console.error(`❌ 성공한 페이지 비율이 너무 낮아요(${successPages}/${totalPages}). 저장을 건너뛰고 기존 파일을 유지해요.`);
     process.exitCode = 1;
     return;
   }
