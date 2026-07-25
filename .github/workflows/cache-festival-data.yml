@@ -1,0 +1,44 @@
+# 파일명: .github/workflows/cache-festival-data.yml
+# 역할: 매일 자동으로 scripts/cache-festival-data.mjs를 실행해서
+#       전국 지역축제 데이터를 새로 받아오고, 저장소에 저장(커밋)해요.
+
+name: 지역축제 데이터 자동 캐싱
+
+on:
+  schedule:
+    # (한글 설명) cron은 UTC 기준. 한국시간(KST) 새벽 4시 50분 = UTC 19시 50분(전날).
+    #             다른 캐싱 작업들과 안 겹치게 순서대로 10분씩 늦췄어요.
+    - cron: '50 19 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cache-festival-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 코드 받아오기
+        uses: actions/checkout@v4
+
+      - name: Node.js 20 설치
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 정부 API에서 축제 데이터 받아와 JSON으로 저장
+        env:
+          FESTIVAL_STD_API_KEY: ${{ secrets.FESTIVAL_STD_API_KEY }}
+        run: node scripts/cache-festival-data.mjs
+
+      - name: 변경된 파일이 있으면 저장소에 커밋 & 푸시
+        run: |
+          git config user.name "bomnal-bot"
+          git config user.email "actions@github.com"
+          git add api/data/festival-cache.json
+          if git diff --cached --quiet; then
+            echo "변경사항 없음 - 커밋 생략"
+          else
+            git commit -m "chore: 지역축제 데이터 자동 갱신 ($(date -u +'%Y-%m-%d'))"
+            git push
+          fi

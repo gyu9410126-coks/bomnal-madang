@@ -3,6 +3,14 @@
 //       브라우저 → 이 파일 → 국가유산청/문화포털/문화공공데이터광장 API
 //       (브라우저 직접 호출 시 CORS 오류 발생 → 중간 다리 역할)
 
+// (한글 설명) [신규 2026-07-24] 지역축제 데이터는 GitHub Actions가 하루 1번
+//             전체를 통째로 새로 받아와 이 파일에 저장해둬요(scripts/cache-festival-data.mjs).
+//             예전엔 Vercel의 12시간 HTTP 캐싱만 걸려있었는데, 이건 "같은 지역을 12시간
+//             안에 또 검색해야만" 빨라지는 약한 캐싱이었어요. 이제 처음 검색하는 사람도
+//             항상 빠르게 나와요. 아직 캐싱이 안 됐거나 실패했으면 빈 배열([])이 들어있는데,
+//             이때는 코드에서 자동으로 예전 방식(정부 서버 실시간 호출)으로 돌아가요.
+import festivalCacheData from './data/festival-cache.json';
+
 // ── 오늘 날짜 YYYYMMDD ──
 function getTodayStr() {
   const d = new Date();
@@ -685,9 +693,17 @@ export default async function handler(req, res) {
         return variants.some(function(v){ return addr.indexOf(v) === 0; });
       }
 
+      // (한글 설명) [신규 2026-07-24] 캐시(festival-cache.json)에 데이터가 있으면
+      //             정부 서버를 안 부르고 여기서 바로 처리해요. "축제가 끝났는지"는
+      //             캐싱한 시점이 아니라 지금 이 요청이 들어온 "오늘" 기준으로 걸러야
+      //             해서, 아래 공통 처리부(오늘 이후 축제만 남기기~)를 그대로 재사용해요.
       let rawItems = [];
+      let usedCache = false;
 
-      if (variants) {
+      if (festivalCacheData.length > 0 && !debug) {
+        usedCache = true;
+        rawItems = variants ? festivalCacheData.filter(matchesRegion) : festivalCacheData;
+      } else if (variants) {
         // [1차 시도] 정부 서버가 rdnmadr 파라미터로 직접 걸러주는지 시도해봐요.
         const filtered = await fetchFestivalPage(1, `&rdnmadr=${encodeURIComponent(region)}`);
         const matchCount = filtered.filter(matchesRegion).length;
@@ -745,7 +761,7 @@ export default async function handler(req, res) {
       });
 
       res.setHeader('Cache-Control', 's-maxage=43200'); // 12시간 캐시 (분기별 갱신 데이터라 넉넉히 늘림)
-      return res.status(200).json({ ok:true, type:'festival', totalCount: items.length, items });
+      return res.status(200).json({ ok:true, type:'festival', totalCount: items.length, items, source: usedCache ? 'cache' : 'live' });
     }
 
     // ════════════════════════════════════════════════════
