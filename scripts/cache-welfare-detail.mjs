@@ -104,8 +104,16 @@ async function fetchDetail(item) {
   const detailItems = parseXmlItems(xml, 'item');
   const candidate = detailItems[0] || {};
   if (candidate.fcltCd && candidate.fcltCd !== item.fcltCd) {
-    const err = new Error('응답 시설코드 불일치(안전장치)');
+    // (한글 설명) [진단 강화 2026-07-26] 왜 다른 시설이 왔는지 정확히 보려고,
+    //             "우리가 요청한 조건"과 "실제로 받은 시설"을 나란히 기록해요.
+    //             이걸 보면 jrsdSggCd(지역)는 맞게 왔는지, fcltCd(코드)만 다른지
+    //             확인할 수 있어요.
+    const err = new Error(
+      `응답 불일치 - 요청[fcltCd=${item.fcltCd}, jrsdSggCd=${item.jrsdSggCd || '없음'}, fcltKindCd=${item.fcltKindCd || '없음'}] ` +
+      `→ 응답[fcltCd=${candidate.fcltCd}, jrsdSggCd=${candidate.jrsdSggCd || '없음'}, fcltKindNm=${candidate.fcltKindNm || '없음'}, fcltNm=${candidate.fcltNm || '없음'}]`
+    );
     err.reason = 'FCLTCD_MISMATCH';
+    err.rawSample = xml.slice(0, 500);
     throw err;
   }
 
@@ -173,7 +181,7 @@ async function main() {
         const reason = (error && error.reason) || 'UNKNOWN';
         failReasonCounts[reason] = (failReasonCounts[reason] || 0) + 1;
         if (reason === 'HTTP_429') sawRateLimit = true;
-        if (failSamples.length < 3 && error) {
+        if (failSamples.length < 6 && error) {
           failSamples.push({ fcltCd, message: error.message, rawSample: error.rawSample || null });
         }
       }
