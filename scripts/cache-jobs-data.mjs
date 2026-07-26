@@ -133,6 +133,28 @@ function buildSelfRelianceTitle(it) {
 
 const SELF_RELIANCE_TYPE_MAP = { int: '인턴형', trn: '연수형' };
 
+// (한글 설명) [버그 수정 2026-07-24] 자립형일자리 데이터는 지역을 "전라북도"처럼
+//             풀어서 쓰는데, 기존 SenuriService(민간형)는 "전북"처럼 줄여서 써요.
+//             그대로 두면 "전북" 검색이 "전라북도" 항목을 못 찾아요(글자가 연속으로
+//             안 붙어있어서). 그래서 캐싱할 때 미리 기존 방식(줄임말)으로 맞춰둬요.
+//             "전남광주통합(전남)"/"(광주)"처럼 사람이 알아보기 힘든 특이 표기도
+//             여기서 "전남"/"광주"로 정리해요.
+const SIDO_ABBREV_MAP = {
+  '서울특별시': '서울', '부산광역시': '부산', '대구광역시': '대구', '인천광역시': '인천',
+  '광주광역시': '광주', '대전광역시': '대전', '울산광역시': '울산', '세종특별자치시': '세종',
+  '경기도': '경기',
+  '강원도': '강원', '강원특별자치도': '강원',
+  '충청북도': '충북', '충청남도': '충남',
+  '전라북도': '전북', '전북특별자치도': '전북',
+  '전라남도': '전남',
+  '경상북도': '경북', '경상남도': '경남',
+  '제주특별자치도': '제주', '제주도': '제주',
+  '전남광주통합(전남)': '전남', '전남광주통합(광주)': '광주',
+};
+function normalizeSelfRelianceSido(raw) {
+  return SIDO_ABBREV_MAP[raw] || raw || '';
+}
+
 async function fetchSelfRelianceItems() {
   const base = 'http://apis.data.go.kr/B552474/JobBsnInfoService/getJobBsnRecruitList';
   const firstUrl = `${base}?ServiceKey=${encodeURIComponent(SENIOR_API_KEY)}&numOfRows=${SELF_RELIANCE_PAGE_SIZE}&pageNo=1`;
@@ -186,7 +208,7 @@ async function fetchSelfRelianceItems() {
     title: buildSelfRelianceTitle(it),
     company: it.orgName || '',
     workType: SELF_RELIANCE_TYPE_MAP[it.jobType] || '자립형 일자리',
-    location: [it.dstrCd1Nm, it.dstrCd2Nm].filter(Boolean).join(' '),
+    location: [normalizeSelfRelianceSido(it.dstrCd1Nm), it.dstrCd2Nm].filter(Boolean).join(' '),
     startDate: it.hpNotiSdate || '',
     endDate: it.hpNotiEdate || '',
   }));
