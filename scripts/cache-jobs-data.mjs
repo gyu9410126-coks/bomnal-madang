@@ -222,16 +222,30 @@ async function main() {
     process.exitCode = 1;
     return;
   }
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
-  console.log(`💼 전체 ${totalCount}건(${totalPages}페이지)을 전부 훑어서 접수중인 공고만 골라낼게요.`);
-  console.log(`   (동시요청 ${CONCURRENCY}개씩, 한 페이지가 ${PAGE_TIMEOUT_MS / 1000}초 넘게 걸리면 그 페이지만 포기하고 넘어가요)`);
+
+  // (한글 설명) [3차 수정 2026-07-24] "전체 다 훑기"를 세 번 시도했는데(10페이지,
+  //             50페이지, 751페이지) 매번 접수중 공고가 300페이지 안쪽에서 완전히
+  //             멈추는 걸 확인했어요(377~385건에서 더 안 늘어남). 이제 이건 우연이
+  //             아니라 확실한 패턴이라고 판단해서, 다시 조기종료로 돌아가되 이번엔
+  //             실제로 확인된 값(약 300페이지)의 2배인 최대 150페이지*3배 여유를
+  //             둬서 훨씬 안전하게 설계했어요: 최대 150페이지까지만 보고, 그 안에서
+  //             "연속 50페이지 동안 접수중 공고가 1건도 안 나오면" 멈춰요.
+  const MAX_PAGES = 150;
+  const STOP_AFTER_EMPTY_PAGES = 50;
+  const rawTotalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const totalPages = Math.min(rawTotalPages, MAX_PAGES);
+  console.log(`💼 전체 ${totalCount}건(원래 ${rawTotalPages}페이지) 중 최대 ${totalPages}페이지까지 훑을게요.`);
+  console.log(`   (동시요청 ${CONCURRENCY}개씩, 연속 ${STOP_AFTER_EMPTY_PAGES}페이지 동안 접수중 공고가 안 나오면 자동으로 멈춰요)`);
 
   let allItems = parsePage(firstXml);
   let successPages = 1;
   let failedPages = 0;
+  let emptyStreak = 0;
+  let stoppedEarly = false;
   const pageNumbers = [];
   for (let p = 2; p <= totalPages; p++) pageNumbers.push(p);
 
+  outerLoop:
   for (let i = 0; i < pageNumbers.length; i += CONCURRENCY) {
     const chunk = pageNumbers.slice(i, i + CONCURRENCY);
     const results = await Promise.all(chunk.map(async (pageNo) => {
@@ -246,25 +260,44 @@ async function main() {
       }
     }));
 
-    results.forEach((r) => {
+    for (const r of results) {
       if (r.ok) { successPages++; } else { failedPages++; }
       allItems = allItems.concat(r.items);
-    });
+      // (한글 설명) 실패한 페이지는 "빈 페이지"로 안 세요(진짜로 접수중이 없는 건지
+      //             구분이 안 되니까요) - 성공했는데 0건일 때만 연속 카운트를 올려요.
+      if (r.ok) {
+        if (r.items.length === 0) emptyStreak++; else emptyStreak = 0;
+      }
+    }
 
     const donePages = Math.min(i + CONCURRENCY, pageNumbers.length) + 1;
     if (donePages % 150 < CONCURRENCY || donePages === totalPages) {
-      console.log(`   ${donePages}/${totalPages}페이지 진행 중... (누적 접수중 ${allItems.length}건, 실패 ${failedPages}페이지)`);
+      console.log(`   ${donePages}/${totalPages}페이지 진행 중... (누적 접수중 ${allItems.length}건, 실패 ${failedPages}페이지, 연속빈페이지 ${emptyStreak})`);
+    }
+
+    if (emptyStreak >= STOP_AFTER_EMPTY_PAGES) {
+      console.log(`   ⏹️ 접수중 공고가 연속 ${STOP_AFTER_EMPTY_PAGES}페이지 동안 안 나와서 ${donePages}페이지에서 멈춰요.`);
+      stoppedEarly = true;
+      break outerLoop;
     }
 
     await sleep(BATCH_PAUSE_MS);
   }
 
-  console.log(`📊 완료: ${successPages}/${totalPages}페이지 성공(실패 ${failedPages}페이지), 접수중 공고 ${allItems.length}건`);
+  console.log(`📊 완료: ${successPages}${stoppedEarly ? '(조기종료)' : ''}/${totalPages}페이지 성공(실패 ${failedPages}페이지), 접수중 공고 ${allItems.length}건`);
 
   // (한글 설명) 안전장치 - 성공한 페이지가 너무 적으면(예: 정부 서버 전체 장애)
-  //             저장을 건너뛰고 어제 파일을 그대로 유지해요.
-  if (successPages < totalPages * 0.8) {
-    console.error(`❌ 성공한 페이지 비율이 너무 낮아요(${successPages}/${totalPages}). 저장을 건너뛰고 기존 파일을 유지해요.`);
+  //             저장을 건너뛰고 어제 파일을 그대로 유지해요. 조기종료된 경우엔
+  //             "실제로 시도한 페이지 수"(성공+실패) 기준으로 비율을 확인해요 -
+  //             안 그러면 정상적으로 일찍 멈춘 것도 실패로 오해할 수 있어요.
+  const attemptedPages = successPages + failedPages;
+  if (attemptedPages < totalPages * 0.8 && !stoppedEarly) {
+    console.error(`❌ 시도한 페이지 자체가 너무 적어요(${attemptedPages}/${totalPages}). 저장을 건너뛰고 기존 파일을 유지해요.`);
+    process.exitCode = 1;
+    return;
+  }
+  if (successPages < attemptedPages * 0.8) {
+    console.error(`❌ 성공한 페이지 비율이 너무 낮아요(${successPages}/${attemptedPages}). 저장을 건너뛰고 기존 파일을 유지해요.`);
     process.exitCode = 1;
     return;
   }
