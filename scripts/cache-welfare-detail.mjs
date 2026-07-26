@@ -21,8 +21,16 @@ const DAILY_LIMIT = 9000;
 
 // (한글 설명) 한 번에 너무 많이 동시에 요청하면 정부 서버에 부담이 될 수 있어서,
 //             20개씩 묶어서 처리하고 묶음 사이에 살짝 쉬어요.
-const BATCH_SIZE = 20;
-const BATCH_PAUSE_MS = 200;
+// (한글 설명) [2차 수정] 20개씩 동시요청했더니 첫 배치부터 HTTP 429(너무 많이
+//             요청함)로 전부 막혀서, 9,000번을 시도했는데 단 1건도 성공 못 했어요.
+//             일자리 캐싱 때 겪었던 것과 같은 문제라, 검증된 해결법(동시요청 대폭
+//             축소)을 그대로 적용해요.
+const BATCH_SIZE = 3;
+const BATCH_PAUSE_MS = 500;
+// 429가 감지되면 정부 서버가 잠깐 쉬라는 신호로 보고, 다음 배치 전에 훨씬 더
+// 오래 쉬어요(그래도 계속 429면 점점 더 길게 쉬어요, 최대 10초까지).
+const BACKOFF_PAUSE_MS = 3000;
+const MAX_BACKOFF_MS = 10000;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -135,6 +143,8 @@ async function main() {
   const failReasonCounts = {}; // (한글 설명) 실패 이유별로 몇 번씩 나왔는지 세어봐요
   const failSamples = []; // 원인 파악용으로 처음 3개 실패의 원본 응답 앞부분만 기록해요
 
+  let currentPause = BATCH_PAUSE_MS;
+
   for (let i = 0; i < todayBatch.length; i += BATCH_SIZE) {
     const chunk = todayBatch.slice(i, i + BATCH_SIZE);
     const results = await Promise.all(chunk.map(async (item) => {
@@ -146,6 +156,7 @@ async function main() {
       }
     }));
 
+    let sawRateLimit = false;
     results.forEach(({ fcltCd, detail, error }) => {
       if (detail) {
         detailMap[fcltCd] = detail;
@@ -154,6 +165,7 @@ async function main() {
         failCount++; // 다음 실행 때 다시 시도돼요(자동 재시도)
         const reason = (error && error.reason) || 'UNKNOWN';
         failReasonCounts[reason] = (failReasonCounts[reason] || 0) + 1;
+        if (reason === 'HTTP_429') sawRateLimit = true;
         if (failSamples.length < 3 && error) {
           failSamples.push({ fcltCd, message: error.message, rawSample: error.rawSample || null });
         }
@@ -163,7 +175,16 @@ async function main() {
     if ((i / BATCH_SIZE) % 25 === 0) {
       console.log(`   진행중... ${Math.min(i + BATCH_SIZE, todayBatch.length)}/${todayBatch.length}건 (성공 ${successCount}, 실패 ${failCount})`);
     }
-    await sleep(BATCH_PAUSE_MS);
+
+    // (한글 설명) 이번 배치에서 429(너무 빠름)를 만났으면, 다음 배치 전에 훨씬
+    //             더 오래 쉬어요(점점 늘어남). 문제없이 잘 됐으면 원래 속도로 돌아가요.
+    if (sawRateLimit) {
+      currentPause = Math.min(currentPause + BACKOFF_PAUSE_MS, MAX_BACKOFF_MS);
+      console.log(`   ⏸️ 서버가 "너무 빠르다"고 해서(429) ${currentPause / 1000}초 쉬었다가 계속할게요.`);
+    } else {
+      currentPause = BATCH_PAUSE_MS;
+    }
+    await sleep(currentPause);
   }
 
   console.log(`✅ 오늘 처리 완료: 성공 ${successCount}건, 실패(다음에 재시도) ${failCount}건`);
