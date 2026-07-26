@@ -56,6 +56,8 @@ async function readJsonSafe(filePath, fallback) {
 
 // (한글 설명) 시설 1개의 상세정보(주소·전화번호)를 정부 API에서 받아와요.
 //             benefit.js의 실시간 조회 코드와 완전히 같은 요청 방식이에요.
+//             [수정] 실패 이유를 알 수 있도록, 정부 서버가 정상이 아닌 응답(resultCode!=00)을
+//             주면 그 이유(resultCode+resultMsg)를 담아서 에러를 던지도록 바꿨어요.
 async function fetchDetail(item) {
   const detailKey = encodeURIComponent(WELFARE_API_KEY);
   const url =
@@ -66,11 +68,31 @@ async function fetchDetail(item) {
     (item.fcltKindCd ? `&fcltKindCd=${encodeURIComponent(item.fcltKindCd)}` : '');
 
   const r = await fetch(url);
-  if (!r.ok) throw new Error('HTTP 상태코드 ' + r.status);
+  if (!r.ok) {
+    const err = new Error(`HTTP ${r.status}`);
+    err.reason = `HTTP_${r.status}`;
+    throw err;
+  }
   const xml = await r.text();
+
+  const resultCodeMatch = xml.match(/<resultCode>([^<]*)<\/resultCode>/);
+  const resultMsgMatch = xml.match(/<resultMsg>([^<]*)<\/resultMsg>/);
+  const resultCode = resultCodeMatch ? resultCodeMatch[1] : null;
+  if (resultCode !== '00') {
+    const resultMsg = resultMsgMatch ? resultMsgMatch[1] : '(메시지 없음)';
+    const err = new Error(`resultCode=${resultCode} ${resultMsg}`);
+    err.reason = `RESULTCODE_${resultCode}`;
+    err.rawSample = xml.slice(0, 300); // 나중에 원인 파악용으로 원본 앞부분만 같이 기록
+    throw err;
+  }
+
   const detailItems = parseXmlItems(xml, 'item');
   const candidate = detailItems[0] || {};
-  if (candidate.fcltCd && candidate.fcltCd !== item.fcltCd) return null; // 안전장치
+  if (candidate.fcltCd && candidate.fcltCd !== item.fcltCd) {
+    const err = new Error('응답 시설코드 불일치(안전장치)');
+    err.reason = 'FCLTCD_MISMATCH';
+    throw err;
+  }
 
   const fullAddr = ((candidate.fcltAddr || '') + ' ' + (candidate.fcltDtl_1Addr || '')).trim();
   return { fullAddr, fcltTelNo: candidate.fcltTelNo || '' };
@@ -110,24 +132,31 @@ async function main() {
 
   let successCount = 0;
   let failCount = 0;
+  const failReasonCounts = {}; // (한글 설명) 실패 이유별로 몇 번씩 나왔는지 세어봐요
+  const failSamples = []; // 원인 파악용으로 처음 3개 실패의 원본 응답 앞부분만 기록해요
 
   for (let i = 0; i < todayBatch.length; i += BATCH_SIZE) {
     const chunk = todayBatch.slice(i, i + BATCH_SIZE);
     const results = await Promise.all(chunk.map(async (item) => {
       try {
         const detail = await fetchDetail(item);
-        return { fcltCd: item.fcltCd, detail };
+        return { fcltCd: item.fcltCd, detail, error: null };
       } catch (e) {
-        return { fcltCd: item.fcltCd, detail: null };
+        return { fcltCd: item.fcltCd, detail: null, error: e };
       }
     }));
 
-    results.forEach(({ fcltCd, detail }) => {
+    results.forEach(({ fcltCd, detail, error }) => {
       if (detail) {
         detailMap[fcltCd] = detail;
         successCount++;
       } else {
         failCount++; // 다음 실행 때 다시 시도돼요(자동 재시도)
+        const reason = (error && error.reason) || 'UNKNOWN';
+        failReasonCounts[reason] = (failReasonCounts[reason] || 0) + 1;
+        if (failSamples.length < 3 && error) {
+          failSamples.push({ fcltCd, message: error.message, rawSample: error.rawSample || null });
+        }
       }
     });
 
@@ -139,6 +168,22 @@ async function main() {
 
   console.log(`✅ 오늘 처리 완료: 성공 ${successCount}건, 실패(다음에 재시도) ${failCount}건`);
   console.log(`📊 전체 진행률: ${Object.keys(detailMap).length}/${list.length}건 (${Math.round((Object.keys(detailMap).length / list.length) * 100)}%)`);
+
+  // (한글 설명) [신규] 실패 이유별 집계와 원본 샘플을 같이 보여줘요 - 왜 실패했는지
+  //             (한도 초과인지, 다른 이유인지) 다음번에 로그만 보고 바로 알 수 있어요.
+  if (failCount > 0) {
+    console.log('🔍 실패 이유별 집계:');
+    Object.entries(failReasonCounts)
+      .sort((a, b) => b[1] - a[1])
+      .forEach(([reason, count]) => {
+        console.log(`   - ${reason}: ${count}건`);
+      });
+    console.log('🔍 실패 샘플(원본 응답 일부):');
+    failSamples.forEach((s, idx) => {
+      console.log(`   [샘플 ${idx + 1}] fcltCd=${s.fcltCd} / ${s.message}`);
+      if (s.rawSample) console.log(`      원본: ${s.rawSample}`);
+    });
+  }
 
   await fs.writeFile(detailPath, JSON.stringify(detailMap), 'utf8');
   console.log('💾 api/data/welfare-detail.json 저장 완료');
