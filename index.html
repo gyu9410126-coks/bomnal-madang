@@ -92,6 +92,13 @@ body.big-font .shop-name      { font-size: 23px !important; }
 body.big-font .shop-desc      { font-size: 20px !important; }
 body.big-font .shop-emoji     { font-size: 35px !important; }
 
+/* ⑥-2 [신규 2026-07-25] 카테고리 안내 섹션(qlink) — 복지/건강/쇼핑 3섹션을
+   대체하는 6개 카테고리 소개 섹션이에요(문화카테고리 qlink 패턴과 동일) */
+body.big-font .qlink-sec-title { font-size: 25px !important; }
+body.big-font .qlink-title     { font-size: 21px !important; }
+body.big-font .qlink-desc      { font-size: 17px !important; }
+body.big-font .qlink-icon      { font-size: 34px !important; width: 60px !important; height: 60px !important; }
+
 /* ⑦ 어르신 긴급 전화 — 섹션 제목 추가 */
 body.big-font .tel-sec-title { font-size: 30px !important; }
 body.big-font .tel-name      { font-size: 23px !important; }
@@ -1060,6 +1067,20 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
 }
 
 /* =====================================================
+   [신규 2026-07-25] 카테고리 안내 섹션 (qlink)
+   복지·건강·쇼핑 3섹션을 대체 - 6개 카테고리를 아이콘+설명으로 소개해요.
+   문화카테고리(culture.html)의 qlink 패턴과 완전히 동일한 스타일이에요.
+   ===================================================== */
+.qlink-sec { margin: 20px 14px 0; }
+.qlink-sec-title { font-size: 19px; font-weight: 800; color: #222; margin-bottom: 12px; }
+.qlink-btn { box-sizing: border-box; display: flex; align-items: center; gap: 14px; width: 100%; border: none; border-left: 5px solid transparent; border-radius: 14px; padding: 14px; margin-bottom: 9px; cursor: pointer; font-family: inherit; text-align: left; box-shadow: 0 1px 5px rgba(0,0,0,0.07); -webkit-tap-highlight-color: transparent; }
+.qlink-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.qlink-text { flex: 1; min-width: 0; }
+.qlink-title { font-size: 16px; font-weight: 800; margin-bottom: 3px; }
+.qlink-desc { font-size: 13px; color: #666; line-height: 1.5; word-break: keep-all; }
+.qlink-arrow { font-size: 20px; font-weight: 900; color: #ccc; flex-shrink: 0; align-self: center; }
+
+/* =====================================================
    어르신 긴급 전화 섹션
    ===================================================== */
 .tel-sec {
@@ -1528,71 +1549,63 @@ body.big-font .wx-popup-close-btn { font-size:22px !important; padding:17px !imp
     </div>
   </div>
 
-  <!-- ⑤ 복지혜택 소식 섹션 -->
-  <div class="news-sec" onclick="location.href='benefit.html'" style="cursor:pointer;-webkit-tap-highlight-color:transparent;">
-    <div class="news-sec-header">
-      <span class="news-sec-title">🎁 복지혜택 소식</span>
-      <span class="news-sec-badge">최신정보</span>
-    </div>
-    <div class="news-sec-body">
-      <div class="news-item" onclick="location.href='benefit.html'">
-        <span class="news-tag">[복지·보조금]</span>
-        <span class="news-text">기초연금 월 최대 33만원 지급</span>
-      </div>
-      <div class="news-item" onclick="location.href='benefit.html'">
-        <span class="news-tag">[건강·의료]</span>
-        <span class="news-text">무릎 인공관절 수술 건강보험 적용</span>
-      </div>
-      <div class="news-item" onclick="location.href='market.html'">
-        <span class="news-tag">[일자리]</span>
-        <span class="news-text">시니어 일자리 115만개 신청 안내</span>
-      </div>
-      <button class="news-all-btn" onclick="location.href='benefit.html'">📋 복지혜택 전체보기 →</button>
-    </div>
-  </div>
+  <!-- ⑤ [신규 2026-07-25] 카테고리 안내 섹션 - 복지/건강/쇼핑 3섹션 대체 -->
+  <div class="qlink-sec">
+    <div class="qlink-sec-title">📋 이런 것들이 있어요</div>
 
-  <!-- ⑥ 건강·약국 정보 섹션 -->
-  <div class="health-sec" onclick="location.href='health.html'" style="cursor:pointer;-webkit-tap-highlight-color:transparent;">
-    <div class="health-sec-header">
-      <span class="health-sec-title">💊 건강·약국 정보</span>
-      <span class="health-sec-badge">약국찾기</span>
-    </div>
-    <div class="health-sec-body">
-      <div class="health-item" onclick="location.href='health.html'">
-        <span class="health-tag">[건강정보]</span>
-        <span class="health-text">여름 혈압관리 — 핵심 정보 안내</span>
+    <button class="qlink-btn" onclick="location.href='benefit.html'" style="background:#fafdfa;border-left-color:#2e7d32;">
+      <div class="qlink-icon">🎁</div>
+      <div class="qlink-text">
+        <div class="qlink-title" style="color:#2e7d32;">복지·혜택</div>
+        <div class="qlink-desc">놓치기 쉬운 기초연금, 각종 보조금까지<br>가까운 복지시설 찾기, 혜택계산기로<br>나에게 맞는 혜택을 콕 집어 알려드려요</div>
       </div>
-      <div class="health-item" onclick="location.href='health.html'">
-        <span class="health-tag">[약국찾기]</span>
-        <span class="health-text">📍 근처 지금 영업 중인 약국 3곳</span>
-      </div>
-      <button class="health-all-btn" onclick="location.href='health.html'">💊 건강·약국 전체보기 →</button>
-    </div>
-  </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
 
-  <!-- ⑦ 시니어 맞춤 쇼핑 -->
-  <div class="shop-sec" onclick="location.href='market.html'">
-    <div class="shop-sec-header">
-      <span class="shop-sec-title">🛒 시니어 맞춤 쇼핑</span>
-      <span class="shop-sec-badge">쇼핑정보</span>
-    </div>
-    <a class="shop-item" href="https://link.coupang.com/a/epr4ozv67M" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
-      <span class="shop-emoji">👟</span>
-      <div class="shop-text">
-        <div class="shop-name">시니어 운동화 (60대)</div>
-        <div class="shop-desc">미끄럼방지 · 가벼운 소재</div>
+    <button class="qlink-btn" onclick="location.href='health.html'" style="background:#f8fcff;border-left-color:#1565c0;">
+      <div class="qlink-icon">💊</div>
+      <div class="qlink-text">
+        <div class="qlink-title" style="color:#1565c0;">건강·약국</div>
+        <div class="qlink-desc">지금 문 연 약국이 어디인지 헷갈리셨죠?<br>가까운 병원·응급실 찾기부터 건강정보까지<br>필요할 때 바로바로 확인해보세요</div>
       </div>
-      <span class="shop-arrow">›</span>
-    </a>
-    <a class="shop-item" href="https://link.coupang.com/a/eprkafAUCa" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
-      <span class="shop-emoji">💊</span>
-      <div class="shop-text">
-        <div class="shop-name">시니어 영양제 추천</div>
-        <div class="shop-desc">관절·눈건강 · 띠별 맞춤</div>
+      <div class="qlink-arrow">▶</div>
+    </button>
+
+    <button class="qlink-btn" onclick="location.href='job.html'" style="background:#fffdf8;border-left-color:#e65100;">
+      <div class="qlink-icon">💼</div>
+      <div class="qlink-text">
+        <div class="qlink-title" style="color:#e65100;">일자리</div>
+        <div class="qlink-desc">아직 일하고 싶은 마음, 잘 알아요<br>시니어를 위한 채용정보를 매일 모아드려요</div>
       </div>
-      <span class="shop-arrow">›</span>
-    </a>
-    <p class="shop-notice">이 링크로 구매 시 봄날마당이 쿠팡에서 소정의 수수료를 받습니다. 어르신께서 내시는 금액은 동일합니다.</p>
+      <div class="qlink-arrow">▶</div>
+    </button>
+
+    <button class="qlink-btn" onclick="location.href='culture.html'" style="background:#fcf9fd;border-left-color:#6a1b9a;">
+      <div class="qlink-icon">🎨</div>
+      <div class="qlink-text">
+        <div class="qlink-title" style="color:#6a1b9a;">문화·축제·강좌</div>
+        <div class="qlink-desc">이번 주말 어디 갈지 고민이셨다면<br>가까운 축제·공연부터 박물관 정보까지<br>다양한 나들이 정보를 살펴보세요</div>
+      </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
+
+    <button class="qlink-btn" onclick="location.href='talk.html'" style="background:#fef8fb;border-left-color:#c62828;">
+      <div class="qlink-icon">💌</div>
+      <div class="qlink-text">
+        <div class="qlink-title" style="color:#c62828;">소통마당</div>
+        <div class="qlink-desc">혼자 계신 시간이 길게 느껴지시나요<br>봄날톡톡에서 또래 어르신들과<br>편하게 이야기 나눠보세요</div>
+      </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
+
+    <button class="qlink-btn" onclick="location.href='radio.html'" style="background:#fef8fb;border-left-color:#880e4f;">
+      <div class="qlink-icon">📻</div>
+      <div class="qlink-text">
+        <div class="qlink-title" style="color:#880e4f;">라디오·미디어</div>
+        <div class="qlink-desc">좋아하시던 트로트, 다시 듣고 싶으셨죠<br>라디오 방송을 언제든 편하게 들어보세요</div>
+      </div>
+      <div class="qlink-arrow">▶</div>
+    </button>
   </div>
 
   <!-- ⑧ 어르신 긴급전화 -->
