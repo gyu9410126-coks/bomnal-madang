@@ -70,15 +70,16 @@ async function readJsonSafe(filePath, fallback) {
 }
 
 // (한글 설명) 시설 1개의 상세정보(주소·전화번호)를 정부 API에서 받아와요.
-//             benefit.js의 실시간 조회 코드와 완전히 같은 요청 방식이에요.
-//             [수정] 실패 이유를 알 수 있도록, 정부 서버가 정상이 아닌 응답(resultCode!=00)을
-//             주면 그 이유(resultCode+resultMsg)를 담아서 에러를 던지도록 바꿨어요.
+//             [수정 2026-07-26] 진단 결과, 이 API는 jrsdSggCd(지역)+fcltKindCd(종류)는
+//             정확히 걸러주는데 fcltCd(시설코드)는 걸러주지 않고 그 지역·종류의 아무
+//             시설이나 하나 돌려준다는 걸 확인했어요(6개 샘플 전부 지역·종류는 일치,
+//             시설코드만 다름). 그래서 fcltCd로 딱 1건만 달라고 하는 대신, 지역+종류로
+//             여러 건(100건)을 받아와서 그 안에서 우리가 찾는 fcltCd를 직접 찾아요.
 async function fetchDetail(item) {
   const detailKey = encodeURIComponent(WELFARE_API_KEY);
   const url =
     `https://apis.data.go.kr/B554287/sclWlfrFcltInfoInqirService1/getFcltByBassInfoInqire` +
-    `?serviceKey=${detailKey}&numOfRows=1&pageNo=1` +
-    `&fcltCd=${encodeURIComponent(item.fcltCd || '')}` +
+    `?serviceKey=${detailKey}&numOfRows=100&pageNo=1` +
     (item.jrsdSggCd ? `&jrsdSggCd=${encodeURIComponent(item.jrsdSggCd)}` : '') +
     (item.fcltKindCd ? `&fcltKindCd=${encodeURIComponent(item.fcltKindCd)}` : '');
 
@@ -97,23 +98,16 @@ async function fetchDetail(item) {
     const resultMsg = resultMsgMatch ? resultMsgMatch[1] : '(메시지 없음)';
     const err = new Error(`resultCode=${resultCode} ${resultMsg}`);
     err.reason = `RESULTCODE_${resultCode}`;
-    err.rawSample = xml.slice(0, 300); // 나중에 원인 파악용으로 원본 앞부분만 같이 기록
+    err.rawSample = xml.slice(0, 300);
     throw err;
   }
 
   const detailItems = parseXmlItems(xml, 'item');
-  const candidate = detailItems[0] || {};
-  if (candidate.fcltCd && candidate.fcltCd !== item.fcltCd) {
-    // (한글 설명) [진단 강화 2026-07-26] 왜 다른 시설이 왔는지 정확히 보려고,
-    //             "우리가 요청한 조건"과 "실제로 받은 시설"을 나란히 기록해요.
-    //             이걸 보면 jrsdSggCd(지역)는 맞게 왔는지, fcltCd(코드)만 다른지
-    //             확인할 수 있어요.
-    const err = new Error(
-      `응답 불일치 - 요청[fcltCd=${item.fcltCd}, jrsdSggCd=${item.jrsdSggCd || '없음'}, fcltKindCd=${item.fcltKindCd || '없음'}] ` +
-      `→ 응답[fcltCd=${candidate.fcltCd}, jrsdSggCd=${candidate.jrsdSggCd || '없음'}, fcltKindNm=${candidate.fcltKindNm || '없음'}, fcltNm=${candidate.fcltNm || '없음'}]`
-    );
-    err.reason = 'FCLTCD_MISMATCH';
-    err.rawSample = xml.slice(0, 500);
+  // (한글 설명) 100건 안에서 우리가 찾는 fcltCd를 직접 찾아요.
+  const candidate = detailItems.find((d) => d.fcltCd === item.fcltCd);
+  if (!candidate) {
+    const err = new Error(`100건 안에서 못 찾음(같은 지역·종류가 100건보다 많을 수 있음) - 전체 ${detailItems.length}건 받음`);
+    err.reason = 'NOT_FOUND_IN_PAGE';
     throw err;
   }
 
