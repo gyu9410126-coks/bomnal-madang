@@ -101,29 +101,35 @@ function buildDetail(candidate) {
   return { fullAddr, fcltTelNo: candidate.fcltTelNo || '' };
 }
 
-// (한글 설명) 그룹(같은 지역+같은 종류) 하나를 처리해요. 그 그룹 안에서 우리가
-//             찾는 fcltCd들을 최대한 많이 찾아내요(필요하면 여러 페이지까지, 최대
-//             MAX_PAGES_PER_GROUP페이지 = 500건까지만). 다 못 찾아도 괜찮아요 -
-//             남은 건 다음 실행 때 자동으로 다시 시도돼요.
+// (한글 설명) [버그 수정 2026-07-26] 실패한(429 등) 호출이 callsUsed에 안 잡혀서,
+//             하루 호출한도 안전장치가 전혀 작동을 안 했어요(429 계속 나와도 한도
+//             체크에서 안 걸려서 몇 시간이고 계속 돎). 이제 성공/실패 상관없이
+//             "실제로 정부 서버에 요청을 보낸 횟수"를 정확히 세도록 고쳤어요.
 async function fetchGroup(jrsdSggCd, fcltKindCd, wantedFcltCds) {
   const wanted = new Set(wantedFcltCds);
   const found = new Map();
   let callsUsed = 0;
   let lastError = null;
 
+  let page1;
   try {
-    const page1 = await fetchGroupPage(jrsdSggCd, fcltKindCd, 1);
     callsUsed++;
-    page1.items.forEach((d) => { if (wanted.has(d.fcltCd)) found.set(d.fcltCd, buildDetail(d)); });
-
-    const totalPages = Math.min(Math.ceil(page1.totalCount / GROUP_PAGE_SIZE) || 1, MAX_PAGES_PER_GROUP);
-    for (let p = 2; p <= totalPages && found.size < wanted.size; p++) {
-      const pageX = await fetchGroupPage(jrsdSggCd, fcltKindCd, p);
-      callsUsed++;
-      pageX.items.forEach((d) => { if (wanted.has(d.fcltCd)) found.set(d.fcltCd, buildDetail(d)); });
-    }
+    page1 = await fetchGroupPage(jrsdSggCd, fcltKindCd, 1);
   } catch (e) {
-    lastError = e;
+    return { found, callsUsed, error: e };
+  }
+  page1.items.forEach((d) => { if (wanted.has(d.fcltCd)) found.set(d.fcltCd, buildDetail(d)); });
+
+  const totalPages = Math.min(Math.ceil(page1.totalCount / GROUP_PAGE_SIZE) || 1, MAX_PAGES_PER_GROUP);
+  for (let p = 2; p <= totalPages && found.size < wanted.size; p++) {
+    try {
+      callsUsed++;
+      const pageX = await fetchGroupPage(jrsdSggCd, fcltKindCd, p);
+      pageX.items.forEach((d) => { if (wanted.has(d.fcltCd)) found.set(d.fcltCd, buildDetail(d)); });
+    } catch (e) {
+      lastError = e;
+      break; // 이 그룹의 다음 페이지는 그만 시도하고, 지금까지 찾은 것만 반환해요
+    }
   }
 
   return { found, callsUsed, error: lastError };
