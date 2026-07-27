@@ -103,6 +103,7 @@ body.big-font .myregion-text  { font-size: 22px !important; }
 body.big-font .myregion-edit  { font-size: 20px !important; }
 body.big-font .myregion-select { font-size: 20px !important; padding: 13px !important; }
 body.big-font .myregion-apply-btn { font-size: 20px !important; padding: 15px !important; }
+body.big-font .todayinfo-text { font-size: 19px !important; }
 body.big-font .qlink-icon      { font-size: 34px !important; width: 60px !important; height: 60px !important; }
 
 /* ⑦ 어르신 긴급 전화 — 섹션 제목 추가 */
@@ -376,6 +377,34 @@ body.big-font .main-job-loading   { font-size: 18px !important; }
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+
+/* =====================================================
+   [신규 2026-07-27] 오늘의 생활정보 바 - 지역설정 바로 아래
+   ===================================================== */
+.todayinfo-bar {
+  margin: 10px 14px 0;
+  background: #fff3e0;
+  border: 1px solid #ffb74d;
+  border-radius: 12px;
+  padding: 12px 14px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  display: none;
+}
+.todayinfo-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.todayinfo-icon { font-size: 20px; flex-shrink: 0; }
+.todayinfo-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: #7a4a00;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.4;
 }
 
 /* =====================================================
@@ -1575,6 +1604,14 @@ body.big-font .wx-popup-close-btn { font-size:22px !important; padding:17px !imp
     </div>
   </div>
 
+  <!-- ②-3 [신규 2026-07-27] 오늘의 생활정보 바 (지역설정 되어있을 때만 보여요) -->
+  <div class="todayinfo-bar" id="todayinfo-bar">
+    <div class="todayinfo-row">
+      <span class="todayinfo-icon" id="todayinfo-icon">📰</span>
+      <span class="todayinfo-text" id="todayinfo-text">오늘의 생활정보를 불러오는 중이에요...</span>
+    </div>
+  </div>
+
   <!-- ③ 달력 한줄 -->
   <div class="cal-bar" onclick="location.href='fortune.html?open=cal'">
     <div class="cal-row1">
@@ -2015,6 +2052,91 @@ function saveMyRegion() {
 }
 
 document.addEventListener('DOMContentLoaded', renderMyRegionBar);
+
+/* ============================================================
+   [신규 2026-07-27] 오늘의 생활정보 — 내 지역 설정이 되어있을 때만
+   보여줘요(안 해두셨는데 서울 기준으로 보여주면 헷갈리실 수 있어서요).
+   우선순위: ① 날씨 특보(폭염·한파 등, 안전과 직결) → ② 이번달 근처 축제
+   → ③ 특별한 게 없으면 그냥 안내문구. 한 번에 한 가지만 보여줘요.
+   ============================================================ */
+var SIDO_FULLNAME = {
+  '서울': '서울특별시', '부산': '부산광역시', '대구': '대구광역시', '인천': '인천광역시',
+  '광주': '광주광역시', '대전': '대전광역시', '울산': '울산광역시', '세종': '세종특별자치시',
+  '경기': '경기도', '강원': '강원특별자치도',
+  '충북': '충청북도', '충남': '충청남도',
+  '전북': '전북특별자치도', '전남': '전라남도',
+  '경북': '경상북도', '경남': '경상남도',
+  '제주': '제주특별자치도',
+};
+
+function loadTodayInfo() {
+  var region = getMyRegion();
+  var bar = document.getElementById('todayinfo-bar');
+  if (!bar) return;
+  if (!region || !region.sido) { bar.style.display = 'none'; return; } // 지역 미설정시 아예 안 보여줌
+
+  var regionLabel = region.sido + (region.sigungu ? ' ' + region.sigungu : '');
+  var query = (region.sido + ' ' + (region.sigungu || '')).trim();
+
+  fetch('/api/kakao?query=' + encodeURIComponent(query))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var doc = data.documents && data.documents[0];
+      if (!doc) { bar.style.display = 'none'; return; }
+      var lat = parseFloat(doc.y), lon = parseFloat(doc.x);
+      bar.style.display = 'block';
+
+      return fetch('/api/weather?type=warning&lat=' + lat + '&lon=' + lon)
+        .then(function(r) { return r.json(); })
+        .then(function(w) {
+          if (w && w.ok && w.hasWarning) {
+            showTodayInfoWarning(w.warnType, regionLabel, lat, lon);
+          } else {
+            loadTodayInfoFestival(regionLabel, region.sido);
+          }
+        });
+    })
+    .catch(function() { bar.style.display = 'none'; });
+}
+
+function showTodayInfoWarning(warnType, regionLabel, lat, lon) {
+  var META = { heat:'🥵', cold:'🥶', rain:'🌧️', snow:'❄️', wind:'💨', typhoon:'🌀', fog:'🌫️', dry:'🔥' };
+  var NAME = { heat:'폭염', cold:'한파', rain:'호우', snow:'대설', wind:'강풍', typhoon:'태풍', fog:'안개', dry:'건조' };
+  document.getElementById('todayinfo-icon').textContent = META[warnType] || '⚠️';
+  document.getElementById('todayinfo-text').textContent =
+    '오늘 ' + regionLabel + ' ' + (NAME[warnType] || '기상') + ' 특보가 있어요, 눌러서 확인하세요';
+  var bar = document.getElementById('todayinfo-bar');
+  bar.onclick = function() {
+    wxCurrentMode = 'custom';
+    loadWeatherFor(lat, lon, regionLabel, null);
+  };
+}
+
+function loadTodayInfoFestival(regionLabel, sidoShort) {
+  var fullName = SIDO_FULLNAME[sidoShort] || sidoShort;
+  fetch('/api/culture?type=festival&region=' + encodeURIComponent(fullName))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var bar = document.getElementById('todayinfo-bar');
+      var count = (data && data.items) ? data.items.length : 0;
+      document.getElementById('todayinfo-icon').textContent = '🎪';
+      if (count > 0) {
+        document.getElementById('todayinfo-text').textContent =
+          regionLabel + ' 근처에 열리는 축제 ' + count + '건이 있어요, 눌러서 확인하세요';
+        bar.onclick = function() { location.href = 'culture.html'; };
+      } else {
+        document.getElementById('todayinfo-icon').textContent = '🌸';
+        document.getElementById('todayinfo-text').textContent = '오늘도 봄날마당과 함께 좋은 하루 되세요!';
+        bar.onclick = null;
+      }
+    })
+    .catch(function() {
+      var bar = document.getElementById('todayinfo-bar');
+      bar.style.display = 'none';
+    });
+}
+
+document.addEventListener('DOMContentLoaded', loadTodayInfo);
 
 
 
