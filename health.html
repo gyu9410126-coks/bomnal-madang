@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>건강·약국 - 시니어 봄날마당</title>
 <meta name="description" content="건강정보, 약국·병원 찾기, 약효능·복용법까지 시니어를 위한 건강 정보를 제공합니다.">
 <link rel="canonical" href="https://bomnal-madang.vercel.app/health.html">
@@ -2469,8 +2469,17 @@ function openSupplementSearch(keyword) {
 }
 
 function confirmExternalLink(url) {
+  // (한글 설명) [버그 수정 2026-07-27] 정부 데이터의 홈페이지 주소가 종종
+  //             "https://" 없이 "www.어쩌고.kr" 형태로만 와요. 이걸 그대로 열면
+  //             브라우저가 "우리 사이트 안의 페이지"로 착각해서 엉뚱한 주소로
+  //             이동하거나 깨져요. 그래서 주소 앞에 http(s)://가 없으면 자동으로
+  //             https://를 붙여줘요(culture.html에서 이미 검증된 방식).
+  var fixedUrl = (url || '').trim();
+  if (fixedUrl && !/^https?:\/\//i.test(fixedUrl)) {
+    fixedUrl = 'https://' + fixedUrl;
+  }
   if (confirm('외부 사이트로 이동합니다.\n봄날마당으로 돌아오려면 휴대폰 뒤로가기를 누르세요.')) {
-    window.open(url, '_blank');
+    window.open(fixedUrl, '_blank');
   }
 }
 

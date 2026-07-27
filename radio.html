@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>라디오·미디어 - 시니어 봄날마당</title>
 <meta name="description" content="트로트·가요, 미스터트롯, 건강정보, 명상·힐링 등 시니어를 위한 라디오·미디어 콘텐츠를 감상하세요.">
 <link rel="canonical" href="https://bomnal-madang.vercel.app/radio.html">
@@ -909,7 +909,16 @@ function loadPreview(pageId, elId) {
    외부 링크
 ════════════════════════════════ */
 function confirmExternalLink(url) {
-  if (confirm('외부 사이트로 이동할게요.\n계속하시겠어요?')) window.open(url,'_blank');
+  // (한글 설명) [버그 수정 2026-07-27] 정부 데이터의 홈페이지 주소가 종종
+  //             "https://" 없이 "www.어쩌고.kr" 형태로만 와요. 이걸 그대로 열면
+  //             브라우저가 "우리 사이트 안의 페이지"로 착각해서 엉뚱한 주소로
+  //             이동하거나 깨져요. 그래서 주소 앞에 http(s)://가 없으면 자동으로
+  //             https://를 붙여줘요(culture.html에서 이미 검증된 방식).
+  var fixedUrl = (url || '').trim();
+  if (fixedUrl && !/^https?:\/\//i.test(fixedUrl)) {
+    fixedUrl = 'https://' + fixedUrl;
+  }
+  if (confirm('외부 사이트로 이동할게요.\n계속하시겠어요?')) window.open(fixedUrl,'_blank');
 }
 
 function escHtml(str) {
