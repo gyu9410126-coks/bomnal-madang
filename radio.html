@@ -285,20 +285,6 @@ body.big-font .affiliate-notice-box { font-size: 15px !important; }
     <button class="btn-kakao-main" onclick="shareKakao()">💛 카카오톡 친구에게 공유하기</button>
     <button class="btn-pwa-main" id="btn-pwa-install" onclick="installPWA()">📲 봄날마당 홈화면에 저장하기</button>
     <div class="toast" id="toast"></div>
-    <div class="site-footer">
-      <div class="footer-row">
-        <a class="footer-link" href="privacy.html">개인정보처리방침</a>
-        <span class="footer-dot">·</span>
-        <a class="footer-link" href="privacy.html">이용약관</a>
-        <span class="footer-dot">·</span>
-        <a class="footer-link" href="privacy.html">제휴 공개</a>
-      </div>
-      <div class="footer-row">
-        <a class="footer-link" href="contact.html">문의하기</a>
-        <span class="footer-dot">·</span>
-        <a class="footer-link" href="about.html">봄날마당 소개</a>
-      </div>
-    </div>
   </div><!-- /main-view -->
 
 
@@ -513,6 +499,25 @@ body.big-font .affiliate-notice-box { font-size: 15px !important; }
 
     </div>
     <div class="video-list-wrap" id="list-healing"></div>
+  </div>
+
+  <!-- (한글 설명) [수정 2026-07-27] 정책 링크(footer)를 main-view 밖, 모든 세부
+       페이지(트로트·미스터트롯 등) 뒤로 옮겼어요. 예전엔 main-view 안에 있어서
+       세부 페이지를 보고 있을 때는 이 링크들이 안 보였는데, 다른 카테고리
+       페이지들처럼 항상 화면 맨 아래 보이도록 통일했어요. -->
+  <div class="site-footer">
+    <div class="footer-row">
+      <a class="footer-link" href="privacy.html">개인정보처리방침</a>
+      <span class="footer-dot">·</span>
+      <a class="footer-link" href="privacy.html">이용약관</a>
+      <span class="footer-dot">·</span>
+      <a class="footer-link" href="privacy.html">제휴 공개</a>
+    </div>
+    <div class="footer-row">
+      <a class="footer-link" href="contact.html">문의하기</a>
+      <span class="footer-dot">·</span>
+      <a class="footer-link" href="about.html">봄날마당 소개</a>
+    </div>
   </div>
 
 </div><!-- /wrap -->
